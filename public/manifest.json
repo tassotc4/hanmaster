@@ -1,0 +1,18 @@
+{
+  "name": "HanMaster",
+  "short_name": "HanMaster",
+  "description": "Learn HSK Chinese with AI Tutor, Pinyin chart, Tone Visualizer and Writing Quiz.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0a08",
+  "theme_color": "#c83525",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3898/3898083.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

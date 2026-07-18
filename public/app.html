@@ -49,6 +49,10 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="/js/config.js"></script>
+<script src="/js/supabase.js"></script>
+<script src="/js/paypal.js"></script>
 <style>
 :root{--bg:#0D0A08;--bg2:#141110;--card:#1E1915;--card2:#28221C;--border:#362E25;--fg:#F5EDE6;--fg2:#B5A597;--muted:#7A6B5D;--accent:#C83525;--accent2:#E04535;--gold:#D4A64F;--green:#38A96A;--green2:#58C88A;--blue:#4898D5;--purple:#9868D5}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
@@ -276,7 +280,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 <div class="flex items-center gap-3 flex-shrink-0"><div class="text-right"><div class="text-xs" style="color:var(--muted)">Avg</div><div class="text-lg font-extrabold" style="color:var(--gold)" id="tutTotal">--</div></div>
 <button id="tutRoleplayBtn" class="w-16 h-8 rounded-lg flex items-center justify-center mr-1 text-[10px] font-bold" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none;outline:none;" onclick="toggleRoleplayMode()" title="Toggle Dialogue Roleplay Mode"><i class="fas fa-user-friends mr-1"></i>Study</button>
 <button id="tutSpeedBtn" class="w-12 h-8 rounded-lg flex items-center justify-center mr-1 text-[11px] font-bold" style="background:var(--card2);color:var(--blue);cursor:pointer;border:none" onclick="cycleSpeechRate()" title="Change AI Speaking Speed">1.0x</button>
-<button class="w-8 h-8 rounded-lg flex items-center justify-center mr-1" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none" onclick="toggleSettingsModal()" title="Gemini AI Settings"><i class="fas fa-cog text-xs"></i></button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center mr-1" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none" onclick="toggleSettingsModal()" title="Settings"><i class="fas fa-cog text-xs"></i></button>
 <button class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none" onclick="resetTutor()" title="Restart"><i class="fas fa-rotate-right text-xs"></i></button></div>
 </div>
 <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
@@ -554,10 +558,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
         </div>
       </div>
       
-      <button onclick="subscribePremium()" class="bp w-full py-2.5 rounded-xl font-bold text-sm mb-3" style="cursor:pointer">
-        Upgrade to Premium - $9.99/mo
-      </button>
-      <div class="text-[10px] text-muted">7-day free trial • Cancel anytime • Google Play / App Store billing</div>
+      <div id="paypalButtonContainer" class="mb-3"></div>
+      <div class="text-[10px] text-muted">7-day free trial • Cancel anytime • Secure via PayPal</div>
     </div>
   </div>
 </div>
@@ -575,19 +577,22 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
   <i class="fas fa-bug text-sm"></i>
 </button>
 
-<!-- GEMINI SETTINGS MODAL -->
+<!-- SETTINGS MODAL -->
 <div id="geminiModal" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card);">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-lg text-white"><i class="fas fa-robot mr-2 text-[var(--gold)]"></i>Gemini Live AI Tutor</h3>
+      <h3 class="font-bold text-lg text-white"><i class="fas fa-cloud mr-2 text-[var(--gold)]"></i>Settings</h3>
       <button onclick="toggleSettingsModal()" class="text-muted hover:text-white" style="background:none;border:none;cursor:pointer"><i class="fas fa-times"></i></button>
     </div>
-    <p class="text-xs mb-4" style="color:var(--fg2)">Enter your Google Gemini API Key to upgrade Li Laoshi to a Live AI that can chat dynamically and answer open questions.</p>
     <div class="mb-4">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Gemini API Key</label>
-      <input type="password" id="geminiApiKey" class="tut-input w-full" placeholder="Paste your API key here...">
-      <div class="text-right mt-1">
-        <a href="https://aistudio.google.com/" target="_blank" class="text-xs text-[var(--gold)] hover:underline">Get a free key here <i class="fas fa-external-link-alt text-[9px]"></i></a>
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Cloud Account & Sync</label>
+      <div id="authButtons" style="display:flex;flex-direction:column;gap:8px;">
+        <button onclick="openAuthModal()" class="bp w-full text-center py-2 text-xs font-bold"><i class="fas fa-sign-in-alt mr-1"></i> Sign In / Register</button>
+      </div>
+      <div id="userInfo" style="display:none;flex-direction:column;gap:8px;">
+        <div class="text-xs" style="color:var(--fg2)" id="userEmailDisplay">user@email.com</div>
+        <button onclick="syncNow()" class="bo w-full text-center py-2 text-xs font-bold"><i class="fas fa-sync mr-1"></i> Sync Progress</button>
+        <button onclick="signOutUser()" class="bq w-full text-center py-2 text-xs" style="text-align:center"><i class="fas fa-sign-out-alt mr-1"></i> Sign Out</button>
       </div>
     </div>
     <div class="mb-4">
@@ -635,9 +640,28 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
       </button>
     </div>
     <div class="flex gap-2">
-      <button class="bo flex-1" onclick="toggleSettingsModal()">Cancel</button>
-      <button class="bp flex-1" onclick="saveGeminiSettings()">Save Settings</button>
+      <button class="bp flex-1" onclick="toggleSettingsModal()">Close</button>
     </div>
+  </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div id="authModal" class="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/80" style="display:none">
+  <div class="cd p-6 w-full max-w-sm bg-[var(--card)]" style="border:1px solid var(--border);">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg text-white" id="authModalTitle">Sign In</h3>
+      <button onclick="closeAuthModal()" class="text-muted hover:text-white" style="background:none;border:none;cursor:pointer"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="mb-3">
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Email</label>
+      <input type="email" id="authEmail" class="tut-input w-full" placeholder="your@email.com">
+    </div>
+    <div class="mb-4">
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Password</label>
+      <input type="password" id="authPassword" class="tut-input w-full" placeholder="Min 6 characters">
+    </div>
+    <button id="authSubmitBtn" class="bp w-full mb-3">Sign In</button>
+    <p class="text-xs text-center" id="authToggleText" style="color:var(--muted)"></p>
   </div>
 </div>
 
@@ -4608,7 +4632,30 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
   observeFu();checkMic();loadGeminiSettings();updateProgress();updatePremiumUI();
   document.getElementById('tutTypeInput').addEventListener('keydown',e=>{if(e.key==='Enter')tutTypeSubmit()});
+  initSupabase();
+  initPayPalSDK();
 });
+
+function initPayPalSDK() {
+  if (document.querySelector('script[src*="paypal.com/sdk/js"]')) return;
+  const s = document.createElement('script');
+  s.src = 'https://www.paypal.com/sdk/js?client-id=' + HANMASTER_CONFIG.PAYPAL_CLIENT_ID + '&currency=USD';
+  s.onload = () => { if (document.getElementById('premiumModal').style.display === 'flex') renderPayPalButtons(); };
+  document.body.appendChild(s);
+}
+
+function syncNow() {
+  if (!supabaseClient) { toast('Not signed in.', 'var(--accent)'); return; }
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
+    if (session) { saveProgressToCloud(session.user.id); syncProgressFromCloud(session.user.id); }
+  });
+}
+
+function togglePremiumModal() {
+  const modal = document.getElementById('premiumModal');
+  modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+  if (modal.style.display === 'flex' && typeof paypal !== 'undefined') renderPayPalButtons();
+}
 
 function checkMic(){
   const hasAPI = ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
@@ -5851,11 +5898,9 @@ function toggleSettingsModal() {
 }
 
 function saveGeminiSettings() {
-  const key = document.getElementById('geminiApiKey').value.trim();
   const mode = document.getElementById('tutorModeSelect').value;
   const rate = document.getElementById('speechRateSelect').value;
   
-  localStorage.setItem('gemini_api_key', key);
   localStorage.setItem('tutor_mode', mode);
   localStorage.setItem('speech_rate', rate);
   
@@ -5868,15 +5913,12 @@ function saveGeminiSettings() {
 }
 
 function loadGeminiSettings() {
-  const key = localStorage.getItem('gemini_api_key') || "";
   const mode = localStorage.getItem('tutor_mode') || "static";
   const rate = localStorage.getItem('speech_rate') || "1.0";
   
-  const keyInput = document.getElementById('geminiApiKey');
   const modeSelect = document.getElementById('tutorModeSelect');
   const rateSelect = document.getElementById('speechRateSelect');
   
-  if (keyInput) keyInput.value = key;
   if (modeSelect) modeSelect.value = mode;
   if (rateSelect) rateSelect.value = rate;
   
@@ -5884,16 +5926,9 @@ function loadGeminiSettings() {
 }
 
 function sendToGemini(userText) {
-  const apiKey = localStorage.getItem('gemini_api_key');
-  if (!apiKey) {
-    addTutMsg('warn', '⚠️ <b>Gemini Key Missing:</b> Please click the gear settings icon to save your API Key to use Live AI Mode.');
-    return;
-  }
-  
   const statusText = document.getElementById('tutStatus');
   if(statusText) statusText.textContent = "Thinking...";
   
-  // Only add user input to history if it's not our initial seed prompt
   if (!userText.startsWith("Hello! Let's start our Chinese conversation")) {
     geminiHistory.push({ role: "user", parts: [{ text: userText }] });
   }
@@ -5927,9 +5962,7 @@ function sendToGemini(userText) {
     }
   };
   
-  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
-  
-  fetch(url, {
+  fetch('/api/chat', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
@@ -6046,7 +6079,7 @@ function sendToGemini(userText) {
     console.error("Gemini Error:", err);
     const loader = document.getElementById(loaderId);
     if (loader) loader.remove();
-    addTutMsg('warn', '⚠️ <b>Tutor Connection Failed:</b> Error generating reply. Ensure your API Key is valid and active.');
+    addTutMsg('warn', '⚠️ <b>Tutor Connection Failed:</b> Error generating reply. Please try again.');
     if (statusText) statusText.textContent = "Error";
   });
 }
@@ -6397,11 +6430,7 @@ function showPremiumPaywall(levelName) {
   if (title) title.textContent = "Unlock " + levelName;
   const modal = document.getElementById('premiumModal');
   if (modal) modal.style.display = 'flex';
-}
-
-function togglePremiumModal() {
-  const modal = document.getElementById('premiumModal');
-  if (modal) modal.style.display = (modal.style.display === 'none') ? 'flex' : 'none';
+  if (typeof paypal !== 'undefined') renderPayPalButtons();
 }
 
 async function initCapacitorPurchases() {
