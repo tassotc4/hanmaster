@@ -55,6 +55,7 @@
 <script src="/js/supabase.js"></script>
 <script src="/js/paypal.js"></script>
 <script src="/js/vocab-data.js"></script>
+<script src="/js/vocab-extra-data.js"></script>
 <script src="/js/extra-content.js"></script>
 <script src="/js/translate.js"></script>
 <script src="/js/tutor-data.js"></script>
@@ -4350,6 +4351,9 @@ function t(englishString) {
 
 
 
+if (typeof HSK_EXTRA !== 'undefined') {
+  for (const w of HSK_EXTRA) HSK_WORDS.push({l:w[0],c:w[1],p:w[2],e:w[3]});
+}
 const TL=[
 ...(typeof EXTRA_TUTOR_LESSONS !== 'undefined' ? EXTRA_TUTOR_LESSONS : []),
 {title:"Basic Greetings",level:"HSK 1",icon:"fa-hand-peace",
