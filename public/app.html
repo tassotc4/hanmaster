@@ -57,6 +57,7 @@
 <script src="/js/vocab-data.js"></script>
 <script src="/js/extra-content.js"></script>
 <script src="/js/translate.js"></script>
+<script src="/js/tutor-data.js"></script>
 <style>
 :root{--bg:#0D0A08;--bg2:#141110;--card:#1E1915;--card2:#28221C;--border:#362E25;--fg:#F5EDE6;--fg2:#B5A597;--muted:#7A6B5D;--accent:#C83525;--accent2:#E04535;--gold:#D4A64F;--green:#38A96A;--green2:#58C88A;--blue:#4898D5;--purple:#9868D5}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
@@ -478,6 +479,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 <button class="dict-tab on" data-lv="1" onclick="buildDictionary(1)">HSK 1</button>
 <button class="dict-tab" data-lv="2" onclick="buildDictionary(2)">HSK 2</button>
 <button class="dict-tab" data-lv="3" onclick="buildDictionary(3)">HSK 3</button>
+<button class="dict-tab" data-lv="4" onclick="buildDictionary(4)">HSK 4</button>
+<button class="dict-tab" data-lv="5" onclick="buildDictionary(5)">HSK 5</button>
+<button class="dict-tab" data-lv="6" onclick="buildDictionary(6)">HSK 6</button>
+<button class="dict-tab" data-lv="7" onclick="buildDictionary(7)">HSK 7</button>
+<button class="dict-tab" data-lv="8" onclick="buildDictionary(8)">HSK 8</button>
+<button class="dict-tab" data-lv="9" onclick="buildDictionary(9)">HSK 9</button>
 </div>
 <div class="flex gap-3 items-center mb-6 fu">
 <input id="dictSearch" placeholder="Search characters or pinyin..." oninput="filterDictionary()">
@@ -4344,6 +4351,7 @@ function t(englishString) {
 
 
 const TL=[
+...(typeof EXTRA_TUTOR_LESSONS !== 'undefined' ? EXTRA_TUTOR_LESSONS : []),
 {title:"Basic Greetings",level:"HSK 1",icon:"fa-hand-peace",
 words:[
 {cn:"你好",py:"nǐ hǎo",en:"Hello",tip:"The most common Chinese greeting. Use it anytime."},
@@ -6724,6 +6732,16 @@ function getRoleplaySetup(topicName) {
     botRole = "Customs Agent 👮";
     userRole = "Passenger ✈️";
     prompt = "Let's do a roleplay conversation. You are a Chinese Customs Agent (海关人员) at the Beijing airport, and I am a Passenger (乘客). Speak first in Chinese, greet me, and ask to see my passport.";
+  // Extended roleplay scenarios from tutor-data.js
+  } else if (typeof EXTRA_ROLEPLAY_SCENARIOS !== 'undefined') {
+    for (const s of EXTRA_ROLEPLAY_SCENARIOS) {
+      if (s.match.some(m => t.includes(m))) {
+        botRole = s.botRole;
+        userRole = s.userRole;
+        prompt = s.prompt;
+        break;
+      }
+    }
   }
   return { botRole, userRole, prompt };
 }
