@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HanMaster — AI Chinese Speaking Tutor</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#0D0A08;--bg2:#141110;--card:#1E1915;--card2:#28221C;--border:#362E25;--fg:#F5EDE6;--fg2:#B5A597;--muted:#7A6B5D;--accent:#C83525;--accent2:#E04535;--gold:#D4A64F;--green:#38A96A;--green2:#58C88A;--blue:#4898D5;--purple:#9868D5}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overflow-x:hidden}
+.fc{font-family:'Noto Serif SC',serif}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.nb{backdrop-filter:blur(20px);background:rgba(13,10,8,.92);border-bottom:1px solid var(--border);position:fixed;top:0;left:0;right:0;z-index:100}
+.nl{position:relative;color:var(--fg2);transition:color .3s;font-size:12px;font-weight:600;text-decoration:none}
+.nl::after{content:'';position:absolute;bottom:-3px;left:0;width:0;height:2px;background:var(--accent);transition:width .3s;border-radius:1px}
+.nl:hover{color:var(--fg)}.nl:hover::after{width:100%}
+.cd{background:var(--card);border:1px solid var(--border);border-radius:16px;transition:all .3s ease}
+.cd:hover{border-color:rgba(200,53,37,.25);box-shadow:0 8px 28px rgba(200,53,37,.04)}
+.bp{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;padding:12px 24px;font-weight:700;font-size:14px;cursor:pointer;transition:all .3s;font-family:inherit}
+.bp:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(200,53,37,.35)}
+.bo{background:transparent;color:var(--gold);border:1.5px solid var(--gold);border-radius:12px;padding:10px 22px;font-weight:700;font-size:13px;cursor:pointer;transition:all .3s;font-family:inherit}
+.bo:hover{background:rgba(212,166,79,.08);transform:translateY(-2px)}
+.bq{background:var(--card2);border:1.5px solid var(--border);color:var(--fg);border-radius:12px;padding:12px 15px;font-size:14px;cursor:pointer;transition:all .25s;text-align:left;width:100%;font-family:inherit}
+.bq:hover:not(:disabled){border-color:var(--gold);background:rgba(212,166,79,.04)}
+.bq.ok{border-color:var(--green)!important;background:rgba(56,169,106,.1)!important;color:var(--green2)!important}
+.bq.no{border-color:var(--accent)!important;background:rgba(200,53,37,.1)!important;color:var(--accent2)!important}
+.bq:disabled{cursor:default;opacity:.55}
+.sl{display:inline-flex;align-items:center;gap:8px;color:var(--gold);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;margin-bottom:10px}
+.sl::before{content:'';width:22px;height:2px;background:var(--gold);border-radius:1px}
+.pf{height:100%;border-radius:3px;transition:width .5s ease}
+.tb{padding:8px 16px;border-radius:10px;font-weight:600;font-size:12px;cursor:pointer;transition:all .25s;background:transparent;color:var(--muted);border:none;font-family:inherit;white-space:nowrap}
+.tb.on{background:var(--accent);color:#fff}.tb:hover:not(.on){color:var(--fg);background:var(--card2)}
+.hc{position:absolute;font-family:'Noto Serif SC',serif;color:rgba(200,53,37,.04);font-weight:900;animation:cu 28s infinite linear;pointer-events:none}
+@keyframes cu{0%{transform:translateY(110vh) rotate(0);opacity:0}8%{opacity:1}92%{opacity:1}100%{transform:translateY(-10vh) rotate(360deg);opacity:0}}
+.flip{perspective:1000px;cursor:pointer}.fi{position:relative;width:100%;height:100%;transition:transform .55s ease;transform-style:preserve-3d}
+.flip.on .fi{transform:rotateY(180deg)}.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:20px}
+.ff{background:var(--card);border:1px solid var(--border)}.fb{background:var(--card2);border:1px solid var(--gold);transform:rotateY(180deg)}
+.cb{max-width:82%;padding:11px 15px;border-radius:14px;font-size:13.5px;line-height:1.6;animation:bi .3s ease-out}
+.cai{background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:flex-start}
+.cus{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.csys{background:rgba(72,152,213,.08);border:1px solid rgba(72,152,213,.25);border-radius:14px;align-self:center;text-align:center;padding:10px 18px;font-size:12px;color:var(--blue);animation:bi .3s ease-out;max-width:90%}
+.cwarn{background:rgba(212,166,79,.08);border:1px solid rgba(212,166,79,.25);border-radius:14px;align-self:center;text-align:center;padding:10px 18px;font-size:12px;color:var(--gold);animation:bi .3s ease-out;max-width:90%}
+@keyframes bi{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.td span{width:7px;border-radius:2px;background:var(--accent);display:inline-block;margin:0 1.5px;animation:wv .7s infinite ease-in-out}
+.td span:nth-child(1){animation-delay:0s;height:6px}.td span:nth-child(2){animation-delay:.1s;height:14px}.td span:nth-child(3){animation-delay:.2s;height:20px}.td span:nth-child(4){animation-delay:.3s;height:14px}.td span:nth-child(5){animation-delay:.4s;height:6px}
+@keyframes wv{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+.td.off span{animation-play-state:paused}
+.fu{opacity:0;transform:translateY(24px);transition:all .6s cubic-bezier(.4,0,.2,1)}.fu.v{opacity:1;transform:translateY(0)}
+.wcv{background:var(--card2);border:2px solid var(--border);border-radius:12px;cursor:crosshair;touch-action:none}
+.tst{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--border);padding:12px 24px;border-radius:14px;font-size:14px;z-index:9999;transition:transform .35s ease;box-shadow:0 12px 40px rgba(0,0,0,.5);white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis}
+.tst.show{transform:translateX(-50%) translateY(0)}
+.srb{width:68px;height:68px;border-radius:50%;border:3px solid var(--accent);background:rgba(200,53,37,.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.srb:hover{background:rgba(200,53,37,.15);transform:scale(1.05)}
+.srb.on{border-color:var(--green);background:rgba(56,169,106,.12);animation:pu 1.2s infinite}
+@keyframes pu{0%,100%{box-shadow:0 0 0 0 rgba(56,169,106,.3)}50%{box-shadow:0 0 0 16px rgba(56,169,106,0)}}
+.srs{width:48px;height:48px;border-radius:50%;border:2px solid var(--blue);background:rgba(72,152,213,.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.srs:hover{background:rgba(72,152,213,.15);transform:scale(1.08)}
+.ldd{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
+.mn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(13,10,8,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:90;padding:6px 0 max(env(safe-area-inset-bottom),6px)}
+@media(max-width:768px){.mn{display:flex}.dn{display:none!important}body{padding-bottom:68px}.tut-side{display:none!important}}
+.mnb{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px;color:var(--muted);font-size:9px;font-weight:700;cursor:pointer;transition:color .25s;background:none;border:none;font-family:inherit}
+.mnb.act{color:var(--accent)}.mnb i{font-size:18px}
+.sk{animation:fl 1.4s infinite alternate}@keyframes fl{0%{transform:scale(1) rotate(-2deg)}100%{transform:scale(1.12) rotate(2deg)}}
+@keyframes sp{0%,100%{opacity:.3}50%{opacity:1}}
+.score-ring{transition:stroke-dashoffset .8s cubic-bezier(.4,0,.2,1)}
+.pyc{padding:10px 6px;border-radius:10px;text-align:center;cursor:pointer;transition:all .25s;background:var(--card2);border:1px solid transparent}
+.pyc:hover{border-color:var(--gold);background:rgba(212,166,79,.06)}
+.pyc.pl{border-color:var(--accent);background:rgba(200,53,37,.1)}
+.tl{stroke:var(--gold);stroke-width:2.5;fill:none;stroke-linecap:round}
+.tut-input{flex:1;padding:10px 14px;border-radius:12px;font-size:14px;outline:none;font-family:'Noto Serif SC','DM Sans',sans-serif;background:var(--card2);border:1.5px solid var(--border);color:var(--fg);min-width:0}
+.tut-input:focus{border-color:var(--accent)}
+.tut-input::placeholder{color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px}
+.tut-submit{padding:10px 20px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;transition:all .3s;font-family:inherit;background:var(--accent);color:#fff;border:none;white-space:nowrap;flex-shrink:0}
+.tut-submit:hover{background:var(--accent2);transform:translateY(-1px)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="toast" class="tst"></div>
+<nav class="nb"><div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
+<a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight">HanMaster</span></a>
+<div class="dn flex items-center gap-6"><a href="#tutor" class="nl">AI Tutor</a><a href="#lessons" class="nl">Lessons</a><a href="#pinyin" class="nl">Pinyin</a><a href="#grammar" class="nl">Grammar</a><a href="#test" class="nl">Level Test</a><a href="#progress" class="nl">Progress</a></div>
+<div class="dn flex items-center gap-3"><div class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg" style="background:var(--card2)"><span class="sk" style="color:var(--gold)"><i class="fas fa-fire text-sm"></i></span><span class="text-sm font-bold" style="color:var(--gold)">7</span></div></div>
+</div></nav>
+
+<header class="relative min-h-screen flex items-center justify-center pt-14 overflow-hidden">
+<div class="absolute inset-0 overflow-hidden z-0" id="heroBg"></div>
+<div class="absolute rounded-full pointer-events-none" style="width:500px;height:500px;background:var(--accent);top:-160px;right:-80px;opacity:.12;filter:blur(120px)"></div>
+<div class="absolute rounded-full pointer-events-none" style="width:350px;height:350px;background:var(--gold);bottom:-120px;left:-100px;opacity:.06;filter:blur(120px)"></div>
+<div class="relative z-10 text-center px-5 max-w-4xl mx-auto">
+<div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-7" style="background:rgba(200,53,37,.1);border:1px solid rgba(200,53,37,.22)">
+<div class="td off" id="hWave"><span></span><span></span><span></span><span></span><span></span></div>
+<span class="text-xs font-bold" style="color:var(--accent2)">AI-Powered Speaking Tutor</span></div>
+<h1 class="fc font-black leading-tight mb-5" style="font-size:clamp(2.4rem,6vw,4.2rem)">Learn to Speak Chinese<br><span style="background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent">With Your AI Teacher</span></h1>
+<p class="text-base md:text-lg mb-9 max-w-2xl mx-auto leading-relaxed" style="color:var(--fg2)">Your AI tutor speaks Chinese aloud, you listen and repeat, it scores your pronunciation in real time. Type Chinese or use your mic — both work.</p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
+<button class="bp text-base px-9 py-3.5" onclick="scrollTo('#tutor')"><i class="fas fa-microphone mr-2"></i>Start Speaking Lesson</button>
+<button class="bo" onclick="scrollTo('#test')"><i class="fas fa-brain mr-2"></i>Take Level Test</button></div>
+<div class="grid grid-cols-4 gap-6 max-w-md mx-auto">
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">400+</div><div class="text-xs mt-0.5" style="color:var(--muted)">Lessons</div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">9</div><div class="text-xs mt-0.5" style="color:var(--muted)">Levels</div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">50+</div><div class="text-xs mt-0.5" style="color:var(--muted)">Topics</div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">5M+</div><div class="text-xs mt-0.5" style="color:var(--muted)">Learners</div></div></div></div>
+<div class="absolute bottom-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5" style="color:var(--muted)"><span class="text-xs font-medium tracking-widest uppercase">Explore</span><div style="width:1px;height:28px;background:linear-gradient(to bottom,var(--muted),transparent);animation:sp 2s infinite"></div></div>
+</header>
+
+<!-- ===== AI SPEAKING TUTOR ===== -->
+<section id="tutor" class="py-20 px-5" style="background:var(--bg2)">
+<div class="max-w-6xl mx-auto">
+<div class="text-center mb-8 fu"><div class="sl">AI Speaking & Listening Tutor</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Your Personal Chinese Speaking Teacher</h2><p style="color:var(--fg2)" class="max-w-lg mx-auto text-sm">The AI speaks Chinese, you listen and respond. Use the <b>text box</b> to type Chinese, or use the <b>mic</b> on localhost:8080.</p></div>
+<div class="flex flex-wrap justify-center gap-2 mb-6 fu" id="tutLessons"></div>
+<div class="cd overflow-hidden fu" style="min-height:580px;max-height:680px;display:flex;flex-direction:column">
+<div class="px-5 py-3 flex items-center gap-3 flex-shrink-0" style="border-bottom:1px solid var(--border)">
+<div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--blue),var(--purple))"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
+<div class="flex-1 min-w-0"><div class="font-semibold text-sm">AI Speaking Tutor</div><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--green)"></span><span class="text-xs" style="color:var(--muted)" id="tutStatus">Select a lesson to begin</span></div></div>
+<div class="flex items-center gap-4 flex-shrink-0"><div class="text-right"><div class="text-xs" style="color:var(--muted)">Avg</div><div class="text-lg font-extrabold" style="color:var(--gold)" id="tutTotal">--</div></div>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none" onclick="resetTutor()" title="Restart"><i class="fas fa-rotate-right text-xs"></i></button></div>
+</div>
+<div class="flex flex-1 overflow-hidden">
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3" id="tutChat">
+<div class="csys"><i class="fas fa-info-circle mr-1"></i> Select a lesson above. The tutor will speak Chinese phrases. Respond by <b>typing Chinese</b> in the box below, or press the <b>microphone</b> (requires Chrome on localhost:8080).</div>
+</div>
+<div class="tut-side flex-shrink-0 p-5 flex flex-col items-center justify-center" style="width:220px;border-left:1px solid var(--border);background:var(--card2)">
+<div class="text-xs font-semibold uppercase tracking-wider mb-3" style="color:var(--muted)">Current Phrase</div>
+<div class="fc text-4xl font-black mb-2 text-center" id="tutWd">--</div>
+<div class="text-base mb-1 text-center" style="color:var(--fg2)" id="tutWp">--</div>
+<div class="text-sm mb-1 text-center" style="color:var(--muted)" id="tutWm">--</div>
+<div class="text-xs mb-4 text-center px-2 py-1 rounded" style="background:rgba(212,166,79,.08);color:var(--gold);display:none" id="tutTip"></div>
+<div class="relative mb-3" id="scoreWrap" style="display:none">
+<svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="6"/><circle cx="50" cy="50" r="42" fill="none" stroke-width="6" stroke-linecap="round" class="score-ring" id="scoreRing" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)"/></svg>
+<div class="absolute inset-0 flex items-center justify-center"><span class="text-lg font-extrabold" id="tutSc">--</span></div></div>
+<div class="text-xs text-center" style="color:var(--muted)" id="tutHint">Waiting...</div>
+</div></div>
+
+<!-- CONTROLS: mic buttons + TEXT INPUT BOX -->
+<div class="flex-shrink-0 px-5 pt-3" style="border-top:1px solid var(--border)">
+<div class="flex items-center justify-center gap-4 mb-3">
+<button class="srs" onclick="tutListen()" title="Listen to tutor" id="tutPlayBtn" disabled><i class="fas fa-play text-sm" style="color:var(--blue)"></i></button>
+<button class="srb" id="tutMic" onclick="tutSpeak()" title="Press and speak" disabled><i class="fas fa-microphone text-xl" style="color:var(--accent)" id="tutMicIc"></i></button>
+<button class="srs" onclick="tutSkip()" title="Skip" id="tutSkipBtn" disabled><i class="fas fa-forward text-sm" style="color:var(--fg2)"></i></button>
+</div>
+<!-- ALWAYS VISIBLE TEXT INPUT -->
+<div class="flex gap-2">
+<input type="text" id="tutTypeInput" class="tut-input" placeholder="Type Chinese here (e.g. 你好)" disabled>
+<button class="tut-submit" id="tutSubmitBtn" onclick="tutTypeSubmit()" disabled>Submit</button>
+</div>
+</div>
+</div></div>
+</section>
+
+<!-- LESSONS -->
+<section id="lessons" class="py-20 px-5">
+<div class="max-w-6xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">Bite-Sized Lessons</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">10-15 Minute Lessons</h2></div>
+<div class="flex flex-wrap justify-center gap-2 mb-8 fu" id="lvTabs"></div>
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 fu" id="tpGrid"></div>
+</div></section>
+
+<!-- PINYIN -->
+<section id="pinyin" class="py-20 px-5" style="background:var(--bg2)">
+<div class="max-w-5xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">Pinyin Foundation</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Master Pinyin</h2></div>
+<div class="flex flex-wrap justify-center gap-2 mb-6 fu" id="pyTabs"></div>
+<div id="pyCon" class="fu"></div>
+</div></section>
+
+<!-- GRAMMAR -->
+<section id="grammar" class="py-20 px-5">
+<div class="max-w-6xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">Grammar Deep Dive</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Understand Grammar</h2></div>
+<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 fu" id="grGrid"></div>
+</div></section>
+
+<!-- LEVEL TEST -->
+<section id="test" class="py-20 px-5" style="background:var(--bg2)">
+<div class="max-w-3xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">Level Assessment</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Know Your Level in 5 Minutes</h2></div>
+<div class="cd p-7 md:p-9 fu" id="qBox">
+<div id="qSt" class="text-center py-6"><div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),var(--gold))"><i class="fas fa-brain text-2xl text-white"></i></div><h3 class="text-lg font-bold mb-2">Quick Level Assessment</h3><p class="mb-6 text-sm" style="color:var(--fg2)">10 questions.</p><button class="bp px-9" onclick="startQ()">Start Test <i class="fas fa-arrow-right ml-2"></i></button></div>
+<div id="qAc" style="display:none">
+<div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold" style="color:var(--fg2)">Question <span id="qN">1</span>/10</span><span class="text-xs font-bold" style="color:var(--gold)" id="qSc">0 pts</span></div>
+<div class="mb-6" style="padding-bottom:12px"><div style="height:4px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" id="qBr" style="width:10%;background:linear-gradient(90deg,var(--accent),var(--gold))"></div></div></div>
+<div class="fc text-center text-2xl md:text-3xl font-bold mb-1.5" id="qC"></div>
+<div class="text-center mb-6 text-sm" style="color:var(--fg2)" id="qP"></div>
+<div class="grid gap-2.5" id="qOp"></div>
+<div class="text-center mt-5" id="qNW" style="display:none"><button class="bp" onclick="nxtQ()" id="qNB">Next <i class="fas fa-arrow-right ml-1.5"></i></button></div></div>
+<div id="qRe" style="display:none" class="text-center py-3">
+<div class="w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center" id="rIc" style="background:var(--card2)"></div>
+<h3 class="text-xl font-bold mb-1.5" id="rTi"></h3><p class="mb-1.5 text-sm" style="color:var(--fg2)" id="rDe"></p>
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style="background:rgba(212,166,79,.1);border:1px solid rgba(212,166,79,.25)"><span class="font-bold text-lg" style="color:var(--gold)" id="rLv"></span></div>
+<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--accent)" id="rCo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)">Correct</div></div>
+<div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--gold)" id="rVo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)">Vocab</div></div>
+<div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--green)" id="rTm">0m</div><div class="text-xs mt-0.5" style="color:var(--muted)">Time</div></div></div>
+<button class="bp px-9" onclick="rstQ()">Retake Test</button></div></div></div>
+</section>
+
+<!-- HSK PROGRESS -->
+<section id="progress" class="py-20 px-5">
+<div class="max-w-4xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">HSK Progress</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">9 Levels to Fluency</h2></div>
+<div class="space-y-3 fu" id="hskL"></div>
+<div class="cd p-6 mt-8 fu">
+<div class="flex items-center justify-between mb-5"><h3 class="font-bold text-base">Today's Progress</h3><span class="text-xs font-semibold" style="color:var(--gold)" id="tDay"></span></div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-book-open mb-1.5" style="color:var(--accent);font-size:18px"></i><div class="text-xl font-extrabold">12</div><div class="text-xs mt-0.5" style="color:var(--muted)">Words</div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-pen-nib mb-1.5" style="color:var(--gold);font-size:18px"></i><div class="text-xl font-extrabold">5</div><div class="text-xs mt-0.5" style="color:var(--muted)">Chars</div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-microphone mb-1.5" style="color:var(--green);font-size:18px"></i><div class="text-xl font-extrabold">8</div><div class="text-xs mt-0.5" style="color:var(--muted)">Min Spoken</div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-check-circle mb-1.5" style="color:var(--purple);font-size:18px"></i><div class="text-xl font-extrabold">3</div><div class="text-xs mt-0.5" style="color:var(--muted)">Lessons</div></div></div></div></div>
+</section>
+
+<!-- CHARACTER WRITING -->
+<section id="writing" class="py-20 px-5" style="background:var(--bg2)">
+<div class="max-w-4xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">Character Writing</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Master Stroke Order</h2></div>
+<div class="cd p-6 md:p-8 fu">
+<div class="flex flex-col md:flex-row gap-6 items-center">
+<div class="flex-shrink-0 text-center">
+<div class="text-xs font-semibold mb-2 uppercase tracking-wider" style="color:var(--muted)">Reference</div>
+<div class="w-36 h-36 rounded-2xl flex items-center justify-center fc text-6xl font-black" style="background:var(--card2);border:2px solid var(--border);color:var(--gold)" id="rfCh">你</div>
+<div class="mt-2 text-base fc" style="color:var(--fg2)" id="rfPy">nǐ</div>
+<div class="text-sm" style="color:var(--muted)" id="rfMn">you</div></div>
+<div class="flex-1 w-full">
+<div class="flex items-center justify-between mb-2"><div class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted)">Your Writing</div>
+<div class="flex gap-2"><button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--fg2);border:1px solid var(--border);cursor:pointer" onclick="clrCv()">Clear</button><button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--fg2);border:1px solid var(--border);cursor:pointer" onclick="nxtCh()">Next</button></div></div>
+<canvas id="wc" class="wcv w-full" width="400" height="280"></canvas>
+<div class="flex items-center justify-between mt-2"><span class="text-xs" style="color:var(--muted)" id="stCt">Strokes: 0</span></div></div></div></div></div>
+</section>
+
+<footer class="py-12 px-5" style="border-top:1px solid var(--border)">
+<div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg flex items-center justify-center fc font-black" style="background:var(--accent);color:#fff;font-size:12px">汉</div><span class="font-bold text-sm">HanMaster</span><span class="text-xs" style="color:var(--muted)">&copy; 2025</span></div>
+<div class="flex gap-5"><a href="#" class="text-xs hover:text-white transition" style="color:var(--muted)">Privacy</a><a href="#" class="text-xs hover:text-white transition" style="color:var(--muted)">Terms</a></div></div></footer>
+
+<div class="mn">
+<button class="mnb act" onclick="scrollTo('#tutor')"><i class="fas fa-microphone"></i>Tutor</button>
+<button class="mnb" onclick="scrollTo('#lessons')"><i class="fas fa-book-open"></i>Lessons</button>
+<button class="mnb" onclick="scrollTo('#grammar')"><i class="fas fa-book"></i>Grammar</button>
+<button class="mnb" onclick="scrollTo('#test')"><i class="fas fa-brain"></i>Test</button>
+<button class="mnb" onclick="scrollTo('#progress')"><i class="fas fa-chart-line"></i>Progress</button>
+</div>
+
+<script>
+// ===== DATA =====
+const TL=[
+{title:"Basic Greetings",level:"HSK 1",icon:"fa-hand-wave",
+words:[{cn:"你好",py:"nǐ hǎo",en:"Hello",tip:"Most common greeting."},{cn:"你好吗",py:"nǐ hǎo ma",en:"How are you?",tip:"Add 吗 for yes/no questions."},{cn:"我很好",py:"wǒ hěn hǎo",en:"I'm very good",tip:"很 links subject + adjective."},{cn:"谢谢",py:"xiè xie",en:"Thank you",tip:"Soft 'x' sound."},{cn:"不客气",py:"bú kè qi",en:"You're welcome",tip:"'Don't be polite'."},{cn:"再见",py:"zài jiàn",en:"Goodbye",tip:"'Again meet'."}],
+dialogue:[{who:"bot",cn:"你好！",en:"Hello!"},{who:"you",cn:"你好！",en:"Hello!"},{who:"bot",cn:"你好吗？",en:"How are you?"},{who:"you",cn:"我很好，谢谢！",en:"I'm very good, thanks!"},{who:"bot",cn:"不客气。再见！",en:"You're welcome. Goodbye!"},{who:"you",cn:"再见！",en:"Goodbye!"}]},
+{title:"At the Restaurant",level:"HSK 2",icon:"fa-utensils",
+words:[{cn:"我要",py:"wǒ yào",en:"I want",tip:"For ordering."},{cn:"菜单",py:"cài dān",en:"Menu",tip:"菜=dish, 单=list."},{cn:"好吃",py:"hǎo chī",en:"Delicious",tip:"好+verb pattern."},{cn:"买单",py:"mǎi dān",en:"Check please",tip:"'Buy the bill'."},{cn:"多少钱",py:"duō shao qián",en:"How much?",tip:"Universal price question."},{cn:"太贵了",py:"tài guì le",en:"Too expensive",tip:"太...了 = too..."}],
+dialogue:[{who:"bot",cn:"你好！请看菜单。",en:"Hello! Here's the menu."},{who:"you",cn:"谢谢，我要菜单。",en:"Thanks, I'd like the menu."},{who:"bot",cn:"你要吃什么？",en:"What would you like to eat?"},{who:"you",cn:"我要好吃的东西。",en:"I want something delicious."},{who:"bot",cn:"好吃！多少钱？",en:"Delicious! How much?"},{who:"you",cn:"二十块钱。买单！",en:"20 yuan. Check please!"}]},
+{title:"About Family",level:"HSK 2",icon:"fa-people-roof",
+words:[{cn:"我家",py:"wǒ jiā",en:"My family",tip:"家 = family & home."},{cn:"爸爸",py:"bà ba",en:"Dad",tip:"Reduplicated form."},{cn:"妈妈",py:"mā ma",en:"Mom",tip:"Same pattern."},{cn:"哥哥",py:"gē ge",en:"Older brother",tip:"Specifies older."},{cn:"妹妹",py:"mèi mei",en:"Younger sister",tip:"妹 = younger sister."},{cn:"几个人",py:"jǐ ge rén",en:"How many people?",tip:"几 = small numbers."}],
+dialogue:[{who:"bot",cn:"你家有几个人？",en:"How many people in your family?"},{who:"you",cn:"我家有四个人。",en:"Four people in my family."},{who:"bot",cn:"有哥哥妹妹吗？",en:"Older brother or younger sister?"},{who:"you",cn:"有，一个哥哥，一个妹妹。",en:"Yes, one older brother, one younger sister."},{who:"bot",cn:"你爸爸做什么工作？",en:"What does your dad do?"},{who:"you",cn:"我爸爸是老师。",en:"My dad is a teacher."}]},
+{title:"Daily Routine",level:"HSK 3",icon:"fa-clock",
+words:[{cn:"起床",py:"qǐ chuáng",en:"Get up",tip:"起=rise, 床=bed."},{cn:"吃早饭",py:"chī zǎo fàn",en:"Eat breakfast",tip:"早饭=morning meal."},{cn:"上班",py:"shàng bān",en:"Go to work",tip:"上=go to, 班=shift."},{cn:"下班",py:"xià bān",en:"Get off work",tip:"Opposite of 上班."},{cn:"锻炼",py:"duàn liàn",en:"Exercise",tip:"Physical training."},{cn:"睡觉",py:"shuì jiào",en:"Sleep",tip:"睡=v, 觉=n."}],
+dialogue:[{who:"bot",cn:"你每天几点起床？",en:"What time do you get up?"},{who:"you",cn:"我每天七点起床。",en:"I get up at seven every day."},{who:"bot",cn:"起床以后做什么？",en:"What do you do after getting up?"},{who:"you",cn:"我吃早饭，然后去上班。",en:"I eat breakfast, then go to work."},{who:"bot",cn:"下班以后锻炼吗？",en:"Exercise after work?"},{who:"you",cn:"对，我下班以后锻炼一个小时。",en:"Yes, I exercise for one hour after work."}]}
+];
+
+const LV=[{n:'HSK 1',d:'150 words — Basic',ls:45,tp:['Greetings','Numbers','Family','Food','Time'],dn:true,pc:100},{n:'HSK 2',d:'300 words — Daily',ls:50,tp:['Shopping','Transport','Weather','Hobbies','Dates'],dn:true,pc:100},{n:'HSK 3',d:'600 words — Opinions',ls:55,tp:['Travel','Work','Health','Education','Culture'],dn:false,pc:72},{n:'HSK 4',d:'1,200 words — Complex',ls:50,tp:['Society','Technology','Environment','Media','Sports'],dn:false,pc:35},{n:'HSK 5',d:'2,500 words — Professional',ls:50,tp:['Business','Politics','Literature','Science','Philosophy'],dn:false,pc:0},{n:'HSK 6',d:'5,000+ words — Near-native',ls:45,tp:['Academic','Idioms','Classical','Debate','Abstract'],dn:false,pc:0},{n:'HSK 7',d:'Advanced reading',ls:35,tp:['Formal Writing','Analysis','Research','Translation'],dn:false,pc:0},{n:'HSK 8',d:'Professional',ls:30,tp:['Specialized','Cross-cultural','Presentation'],dn:false,pc:0},{n:'HSK 9',d:'Mastery',ls:25,tp:['Literary','Creative Writing','Scholarship'],dn:false,pc:0}];
+const TD={Greetings:['Self Intro','Hello/Goodbye','Thank You','Titles','Polite'],Numbers:['1-10','11-99','100-10K','Phone','Prices'],Family:['Members','Age','Occupations','Appearance','Personality'],Food:['Fruits/Veg','Meals','Restaurant','Drinks','Cooking'],Time:['Weekdays','Months','Clock','Duration','Frequency'],Shopping:['Clothes','Colors','Bargaining','Payment','Returns'],Transport:['Directions','Taxi','Bus/Subway','Train','Traffic'],Weather:['Basic','Seasons','Temperature','Forecast','Activities'],Hobbies:['Sports','Music','Movies','Reading','Games'],Dates:['Birthdays','Anniversaries','Holidays','Invitations','Scheduling'],Travel:['Airport','Hotel','Sightseeing','Help','Emergencies'],Work:['Office','Meetings','Emails','Phone','Cards'],Health:['Doctor','Symptoms','Medicine','Insurance','Fitness'],Education:['Subjects','Classroom','Exams','Homework','Graduation'],Culture:['Festivals','Traditions','Food','Calligraphy','Kung Fu'],Society:['Population','Housing','Community','Social Media','Trends'],Technology:['Internet','Smartphones','Apps','AI','E-commerce'],Environment:['Nature','Climate','Pollution','Recycling','Animals'],Media:['News','Social Media','Ads','Journalism','Entertainment'],Sports:['Olympics','Basketball','Soccer','Martial Arts','Esports'],Business:['Negotiation','Contracts','Partnership','Finance','Marketing'],Politics:['Government','Elections','Policy','International','History'],Literature:['Poetry','Novels','Essays','Authors','Devices'],Science:['Physics','Biology','Chemistry','Space','Medicine'],Philosophy:['Confucius','Laozi','Buddhism','Ethics','Logic'],Academic:['Research','Papers','Conferences','Peer Review','Citations'],Idioms:['Chengyu','Common','Animal','Number','Nature'],Classical:['Classical','Poetry','Historical','Philosophical','Parallel Prose'],Debate:['Structure','Counter-arguments','Rhetoric','Formal','Persuasion'],Abstract:['Concepts','Theories','Hypotheses','Analysis','Synthesis'],'Formal Writing':['Reports','Proposals','Letters','Essays','Summaries'],Analysis:['Data','Case Studies','Comparative','Critical','Synthesis'],Research:['Literature Review','Methodology','Fieldwork','Data','Publication'],Translation:['Theory','Techniques','Literary','Technical','Interpreting'],'Specialized':['Legal','Medical','Financial','Technical','Diplomatic'],'Cross-cultural':['Differences','Etiquette','Styles','Stereotypes','Adaptation'],Presentation:['Public Speaking','Slides','Q&A','Persuasive','Impromptu'],'Literary Analysis':['Poetry','Novel','Drama','Essay','Comparative'],'Creative Writing':['Stories','Poetry','Essay','Drama','Experimental'],Scholarship:['Proposals','Grant Writing','Publishing','Papers','Collaboration']};
+const PYI=['b','p','m','f','d','t','n','l','g','k','h','j','q','x','zh','ch','sh','r','z','c','s','y','w'];
+const PYF=['a','o','e','i','u','ü','ai','ei','ui','ao','ou','iu','ie','üe','er','an','en','in','un','ün','ang','eng','ing','ong'];
+const TONES=[{c:'mā',m:'mother',t:'1st Tone — High flat',p:'M20,35 L60,35 L100,35 L140,35 L180,35'},{c:'má',m:'hemp',t:'2nd Tone — Rising',p:'M20,38 Q60,36 100,20 Q140,8 180,5'},{c:'mǎ',m:'horse',t:'3rd Tone — Dipping',p:'M20,15 Q50,40 100,40 Q150,40 180,15'},{c:'mà',m:'to scold',t:'4th Tone — Falling',p:'M20,5 Q60,8 100,25 Q140,35 180,40'}];
+const GR=[{t:'The 把 Sentence',cn:'我把书放在桌子上',py:'wǒ bǎ shū fàng zài zhuō zi shàng',lv:'HSK 3',f:'Use 把 for disposal.',b:'<b>Subj + 把 + Obj + Verb + Result</b><br><br>&bull; 我把门关了<br>&bull; 她把衣服洗干净了<br>&bull; 请把手机关掉<br><br><b>Key:</b> Object must be specific.<br>&cross; 把一本书 &check; 把那本书<br><br><b>Mistake:</b> Don\'t forget result complement.'},{t:'The 被 Passive',cn:'钱包被偷了',py:'qián bāo bèi tōu le',lv:'HSK 3',f:'被 for passive voice.',b:'<b>Obj + 被 + Agent + Verb + Result</b><br><br>&bull; 信已经被寄走了<br>&bull; 手机被弟弟弄坏了<br>&bull; 他被老师表扬了<br><br>Agent can be omitted: 钱包被偷了<br><br><b>vs 把:</b> 把=who did it. 被=what happened.'},{t:'Although… But…',cn:'虽然下雨了，但是我还是要去',py:'suī rán xià yǔ le, dàn shì wǒ hái shì yào qù',lv:'HSK 3',f:'Both parts required.',b:'<b>虽然 + A, 但是 + B</b><br><br>&bull; 虽然很难，但是我不放弃<br>&bull; 虽然他很忙，但是坚持学习<br><br>MUST use both 虽然 and 但是.<br>Can omit 虽然 but NOT 但是.'},{t:'了 — Completed Action',cn:'我吃了一个苹果',py:'wǒ chī le yī ge píng guǒ',lv:'HSK 1',f:'了 after verb = completed.',b:'<b>After verb</b> = completed<br>&bull; 我吃了一个苹果<br>&bull; 他去了北京<br><br><b>End of sentence</b> = change<br>&bull; 下雨了<br>&bull; 我不去了<br><br>Don\'t use 了 with habits.<br>&cross; 我每天吃了早饭'},{t:'Comparison with 比',cn:'今天比昨天冷',py:'jīn tiān bǐ zuó tiān lěng',lv:'HSK 2',f:'比 for comparisons.',b:'<b>A + 比 + B + Adj</b><br><br>&bull; 今天比昨天冷<br>&bull; 他比我高<br>&bull; 中文比英文难<br><br>Modifiers: 得多, 一点儿<br><br>很 cannot follow 比.'},{t:'If… Then…',cn:'如果明天不下雨，我们就去公园',py:'rú guǒ míng tiān bù xià yǔ, wǒ men jiù qù gōng yuán',lv:'HSK 3',f:'Conditionals.',b:'<b>如果 + Condition, 就 + Result</b><br><br>&bull; 如果有时间，我就去<br>&bull; 如果你不来，我就不等了<br>&bull; 如果下雨，比赛就取消<br><br>就 normally in result clause.<br>要是 = casual alternative.'}];
+const QZ=[{c:'你好',p:'nǐ hǎo',o:['Hello','Goodbye','Thank you','Sorry'],a:0},{c:'谢谢',p:'xiè xie',o:['Sorry','Please','Thank you','Hello'],a:2},{c:'我每天学习中文',p:'wǒ měi tiān xué xí zhōng wén',o:['I sometimes study Chinese','I study Chinese every day','I studied yesterday','I will study'],a:1},{c:'虽然很累，但是我很开心',p:'suī rán hěn lèi, dàn shì wǒ hěn kāi xīn',o:['Tired and unhappy','Although tired, I\'m happy','Happy because tired','Was tired, now happy'],a:1},{c:'他把书放在桌子上了',p:'tā bǎ shū fàng zài zhuō zi shàng le',o:['He put the book on the table','He took the book','He is reading at the table','The book is on his table'],a:0},{c:'这个问题比我想象的复杂得多',p:'zhè ge wèn tí bǐ wǒ xiǎng xiàng de fù zá de duō',o:['Simple','More complex than I imagined','I imagined a complex problem','As complex as I thought'],a:1},{c:'无论发生什么，我们都会支持你',p:'wú lùn fā shēng shén me, wǒ men dōu huì zhī chí nǐ',o:['We support something','Whatever happens, we\'ll support you','Nothing happened','We\'ll support you if something happens'],a:1},{c:'这部电影之所以受欢迎，是因为它反映了社会现实',p:'zhè bù diàn yǐng zhī suǒ yǐ shòu huān yíng...',o:['Popular and reflects reality','Reason: reflects social reality','Reflects reality because popular','Social reality makes it popular'],a:1},{c:'随着科技的不断发展，人们的生活方式发生了翻天覆地的变化',p:'suí zhe kē jì de bù duàn fā zhǎn...',o:['Tech changed life','Lifestyles had earth-shaking changes','People developed tech','Life changes with tech'],a:1},{c:'倘若当初做出了不同的选择，如今的人生轨迹恐怕会截然不同',p:'tǎng ruò dāng chū zuò chū le bù tóng de xuǎn zé...',o:['I made different choices','If different choices, life would be completely different','My trajectory is different','Different choices lead to different trajectories'],a:1}];
+const WCH=[{c:'你',py:'nǐ',m:'you'},{c:'好',py:'hǎo',m:'good'},{c:'学',py:'xué',m:'study'},{c:'中',py:'zhōng',m:'middle/China'},{c:'吃',py:'chī',m:'eat'},{c:'喝',py:'hē',m:'drink'},{c:'大',py:'dà',m:'big'},{c:'小',py:'xiǎo',m:'small'},{c:'人',py:'rén',m:'person'},{c:'天',py:'tiān',m:'day/sky'}];
+
+// ===== STATE =====
+let tutLesson=null,tutStep=0,tutScores=[],srOn=false,recognition=null,micAvailable=false;
+let qIdx=0,qScore=0,qStartT=0,curLv=0,strokeCnt=0,curWI=0,drawing=false,ctx,canvas;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded',()=>{
+  buildHero();buildTutLessons();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
+  document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
+  observeFu();checkMic();
+  // Enter key on text input
+  document.getElementById('tutTypeInput').addEventListener('keydown',e=>{if(e.key==='Enter')tutTypeSubmit()});
+});
+
+function checkMic(){
+  micAvailable=('webkitSpeechRecognition' in window||'SpeechRecognition' in window);
+  if(!micAvailable){
+    addTutMsg('warn','<i class="fas fa-exclamation-triangle mr-1"></i> <b>Microphone unavailable</b> — Use the text box below to type Chinese. To enable mic: open this page via <code style="background:var(--card);padding:1px 6px;border-radius:4px">http://localhost:8080</code> instead of double-clicking the file.');
+  }
+}
+
+function buildHero(){const bg=document.getElementById('heroBg');const ch='你好学中文说话听说读写拼音汉字';for(let i=0;i<16;i++){const d=document.createElement('div');d.className='hc';d.style.left=Math.random()*100+'%';d.style.fontSize=(30+Math.random()*50)+'px';d.style.animationDelay=Math.random()*25+'s';d.textContent=ch[i%ch.length];bg.appendChild(d)}}
+function scrollTo(s){document.querySelector(s)?.scrollIntoView({behavior:'smooth'})}
+function observeFu(){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')}),{threshold:.06});document.querySelectorAll('.fu').forEach(e=>o.observe(e))}
+function toast(m,c){const t=document.getElementById('toast');t.textContent=m;t.style.borderColor=c||'var(--border)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+function speak(t){if(!window.speechSynthesis)return;const u=new SpeechSynthesisUtterance(t);u.lang='zh-CN';u.rate=.82;speechSynthesis.cancel();speechSynthesis.speak(u)}
+function sim(a,b){a=a.replace(/\s/g,'');b=b.replace(/\s/g,'');if(a===b)return 1;let m=0;for(let i=0;i<Math.min(a.length,b.length);i++)if(a[i]===b[i])m++;return m/Math.max(a.length,b.length)}
+
+// ===== SPEAKING TUTOR =====
+function buildTutLessons(){const c=document.getElementById('tutLessons');TL.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.innerHTML='<i class="fas '+l.icon+' mr-1"></i>'+l.title+' <span style="opacity:.6;font-size:10px">'+l.level+'</span>';b.onclick=()=>{c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');startTutor(i)};c.appendChild(b)})}
+
+function startTutor(idx){
+  tutLesson=TL[idx];tutStep=0;tutScores=[];
+  document.getElementById('tutTotal').textContent='--';
+  const chat=document.getElementById('tutChat');chat.innerHTML='';
+  addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+tutLesson.title+'</b> — '+tutLesson.level);
+  // Vocab grid
+  let vh='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;margin-top:8px">';
+  tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:6px 8px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:17px">'+w.cn+'</div><div style="font-size:10px;color:var(--muted)">'+w.py+'</div><div style="font-size:10px;color:var(--fg2)">'+w.en+'</div></div>'});
+  vh+='</div>';
+  addTutMsg('sys',vh);
+  setTimeout(()=>advanceTutor(),600);
+  document.getElementById('tutStatus').textContent='Teaching...';
+  setBtns(true);
+}
+
+function advanceTutor(){
+  if(!tutLesson||tutStep>=tutLesson.dialogue.length){finishTutor();return}
+  const line=tutLesson.dialogue[tutStep];
+  const w=tutLesson.words.find(w=>line.cn.includes(w.cn));
+  document.getElementById('tutWd').textContent=line.cn;
+  document.getElementById('tutWp').textContent=w?w.py:'';
+  document.getElementById('tutWm').textContent=line.en;
+  document.getElementById('tutTip').style.display=w?'block':'none';
+  if(w)document.getElementById('tutTip').textContent=w.tip;
+  document.getElementById('scoreWrap').style.display='none';
+  if(line.who==='bot'){
+    document.getElementById('tutHint').textContent='Press play to hear, then respond below';
+    document.getElementById('tutHint').style.color='var(--blue)';
+    document.getElementById('tutStatus').textContent='Your turn — respond below';
+    setTimeout(()=>tutListen(),500);
+    addTutMsg('bot','<div class="fc font-bold" style="font-size:17px;margin-bottom:3px">'+line.cn+'</div><div style="font-size:11px;color:var(--muted)">'+line.en+'</div><span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> replay</span>');
+  } else {
+    document.getElementById('tutHint').textContent='Type Chinese below or press mic';
+    document.getElementById('tutHint').style.color='var(--accent)';
+  }
+}
+
+function tutListen(){
+  if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
+  speak(tutLesson.dialogue[tutStep].cn);
+  document.getElementById('hWave').classList.remove('off');
+  setTimeout(()=>document.getElementById('hWave').classList.add('off'),2000);
+}
+
+function tutSpeak(){
+  if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
+  if(!micAvailable){toast('Mic unavailable — use the text box below','var(--gold)');return}
+  const target=tutLesson.dialogue[tutStep].cn;
+  const btn=document.getElementById('tutMic'),ic=document.getElementById('tutMicIc');
+  if(srOn){recognition.stop();srOn=false;btn.classList.remove('on');ic.className='fas fa-microphone text-xl';ic.style.color='var(--accent)';return}
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;recognition=new SR();recognition.lang='zh-CN';recognition.interimResults=false;recognition.maxAlternatives=3;
+  recognition.onstart=()=>{srOn=true;btn.classList.add('on');ic.className='fas fa-stop text-xl';ic.style.color='var(--green)';document.getElementById('tutHint').textContent='Listening...';document.getElementById('tutHint').style.color='var(--green)'};
+  recognition.onresult=e=>{const res=[];for(let i=0;i<e.results[0].length;i++)res.push(e.results[0][i].transcript);let best='',bs=0;res.forEach(r=>{const s=sim(r,target);if(s>bs){bs=s;best=r}});
+    processScore(best,bs);srOn=false;btn.classList.remove('on');ic.className='fas fa-microphone text-xl';ic.style.color='var(--accent)'};
+  recognition.onerror=()=>{document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> Couldn\'t hear — try again or type below</span>';srOn=false;btn.classList.remove('on');ic.className='fas fa-microphone text-xl';ic.style.color='var(--accent)'};
+  recognition.onend=()=>{srOn=false;btn.classList.remove('on');ic.className='fas fa-microphone text-xl';ic.style.color='var(--accent)'};recognition.start();
+}
+
+function tutTypeSubmit(){
+  const input=document.getElementById('tutTypeInput');
+  const text=input.value.trim();
+  if(!text){toast('Type Chinese characters first','var(--gold)');return}
+  if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
+  const target=tutLesson.dialogue[tutStep].cn;
+  const sc=Math.round(sim(text,target)*100);
+  processScore(text,sc);
+  input.value='';
+}
+
+function processScore(text,sc){
+  tutScores.push(sc);
+  const avg=Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length);
+  document.getElementById('tutTotal').textContent=avg;
+  const ring=document.getElementById('scoreRing');const offset=264-(264*sc/100);
+  ring.setAttribute('stroke-dashoffset',offset);
+  ring.setAttribute('stroke',sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--accent)');
+  document.getElementById('tutSc').textContent=sc;
+  document.getElementById('tutSc').style.color=sc>=80?'var(--green2)':sc>=50?'var(--gold)':'var(--accent2)';
+  document.getElementById('scoreWrap').style.display='block';
+  let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> Great!</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> Getting there</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> Keep practicing</span>';
+  document.getElementById('tutHint').innerHTML=fb;
+  addTutMsg('user','<div class="fc font-bold" style="font-size:15px;margin-bottom:2px">'+text+'</div><div style="font-size:11px;opacity:.7">Score: '+sc+'/100</div>');
+  setTimeout(()=>{tutStep++;advanceTutor()},1200);
+}
+
+function tutSkip(){if(!tutLesson)return;tutStep++;advanceTutor()}
+
+function finishTutor(){
+  const avg=tutScores.length?Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length):0;
+  let g=avg>=80?'<span style="color:var(--green2)"><i class="fas fa-trophy"></i> Excellent!</span>':avg>=50?'<span style="color:var(--gold)"><i class="fas fa-star"></i> Good effort!</span>':'<span style="color:var(--accent2)"><i class="fas fa-seedling"></i> Keep practicing!</span>';
+  addTutMsg('sys','<div style="padding:10px"><b>Lesson Complete!</b><br>Average: <span style="color:var(--gold);font-size:18px;font-weight:800">'+avg+'/100</span><br>'+g+'<br><span style="font-size:11px;color:var(--muted)">Select another lesson to continue.</span></div>');
+  document.getElementById('tutStatus').textContent='Lesson complete!';
+  document.getElementById('tutHint').textContent='Select a lesson above';document.getElementById('tutHint').style.color='var(--muted)';
+  document.getElementById('tutWd').textContent='--';document.getElementById('tutWp').textContent='--';document.getElementById('tutWm').textContent='--';
+  document.getElementById('scoreWrap').style.display='none';document.getElementById('tutTip').style.display='none';
+  setBtns(false);
+}
+
+function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
+
+function addTutMsg(type,html){
+  const d=document.createElement('div');
+  d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');
+  d.innerHTML=html;
+  document.getElementById('tutChat').appendChild(d);
+  document.getElementById('tutChat').scrollTop=9999;
+}
+
+function setBtns(on){
+  document.getElementById('tutPlayBtn').disabled=!on;
+  document.getElementById('tutMic').disabled=!on;
+  document.getElementById('tutSkipBtn').disabled=!on;
+  document.getElementById('tutTypeInput').disabled=!on;
+  document.getElementById('tutSubmitBtn').disabled=!on;
+}
+
+// ===== LESSONS =====
+function buildLvTabs(){const c=document.getElementById('lvTabs');LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=l.n;b.onclick=()=>{curLv=i;c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');buildTopics()};c.appendChild(b)})}
+function buildTopics(){const g=document.getElementById('tpGrid');g.innerHTML='';const lv=LV[curLv];lv.tp.forEach(t=>{const ls=TD[t]||['L1','L2','L3'];const done=lv.dn?ls.length:Math.floor(ls.length*lv.pc/100);const d=document.createElement('div');d.className='cd p-5 cursor-pointer';d.onclick=()=>toast('Opening "'+t+'"','var(--gold)');d.innerHTML='<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' lessons</p></div><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:'+(lv.dn?'rgba(56,169,106,.1)':'rgba(212,166,79,.1)')+';color:'+(lv.dn?'var(--green)':'var(--gold)')+'">'+done+'/'+ls.length+'</span></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+(done/ls.length*100)+'%;background:'+(lv.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div>';g.appendChild(d)})}
+
+// ===== PINYIN =====
+function buildPyTabs(){const c=document.getElementById('pyTabs');['Initials','Finals','Four Tones'].forEach((n,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=n;b.onclick=()=>{c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');buildPy(i)};c.appendChild(b)})}
+function buildPy(tab){const c=document.getElementById('pyCon');
+if(tab===0)c.innerHTML='<div class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">'+PYI.map(p=>'<div class="pyc" onclick="playPy(this,\''+p+'\')"><div class="fc text-lg font-bold">'+p+'</div></div>').join('')+'</div>';
+else if(tab===1)c.innerHTML='<div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">'+PYF.map(p=>'<div class="pyc" onclick="playPy(this,\''+p+'\')"><div class="fc text-lg font-bold">'+p+'</div></div>').join('')+'</div>';
+else c.innerHTML=TONES.map(t=>'<div class="cd p-5 mb-3 flex items-center gap-5 cursor-pointer" onclick="playPy(null,\''+t.c+'\')"><div class="flex-1"><div class="fc text-2xl font-black mb-1">'+t.c+'</div><div class="text-sm" style="color:var(--fg2)">'+t.m+'</div><div class="text-xs mt-0.5" style="color:var(--muted)">'+t.t+'</div></div><svg width="180" height="50" viewBox="0 0 200 50"><line x1="10" y1="40" x2="190" y2="40" stroke="var(--border)" stroke-width="1"/><path d="'+t.p+'" stroke="var(--gold)" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg></div>').join('')}
+function playPy(el,py){document.querySelectorAll('.pyc.pl').forEach(e=>e.classList.remove('pl'));if(el&&el.classList)el.classList.add('pl');speak(py);setTimeout(()=>{if(el&&el.classList)el.classList.remove('pl')},600)}
+
+// ===== GRAMMAR =====
+function buildGr(){const g=document.getElementById('grGrid');GR.forEach(gr=>{const d=document.createElement('div');d.className='flip';d.style.height='260px';d.onclick=()=>d.classList.toggle('on');d.innerHTML='<div class="fi"><div class="ff"><div class="flex items-center justify-between mb-3"><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(212,166,79,.1);color:var(--gold)">'+gr.lv+'</span><i class="fas fa-rotate text-xs" style="color:var(--muted)"></i></div><h3 class="font-bold text-sm mb-2">'+gr.t+'</h3><div class="fc text-lg font-bold mb-1">'+gr.cn+'</div><div class="text-xs mb-3" style="color:var(--muted)">'+gr.py+'</div><p class="text-sm" style="color:var(--fg2)">'+gr.f+'</p></div><div class="fb" style="overflow-y:auto"><div class="flex items-center justify-between mb-3"><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:rgba(212,166,79,.1);color:var(--gold)">'+gr.lv+'</span><i class="fas fa-rotate text-xs" style="color:var(--muted)"></i></div><h3 class="font-bold text-sm mb-3">'+gr.t+'</h3><div class="text-sm" style="color:var(--fg2)">'+gr.b+'</div></div></div>';g.appendChild(d)})}
+
+// ===== QUIZ =====
+function startQ(){qIdx=0;qScore=0;qStartT=Date.now();document.getElementById('qSt').style.display='none';document.getElementById('qAc').style.display='block';document.getElementById('qRe').style.display='none';showQ()}
+function showQ(){const q=QZ[qIdx];document.getElementById('qN').textContent=qIdx+1;document.getElementById('qSc').textContent=qScore+' pts';document.getElementById('qBr').style.width=((qIdx+1)/10*100)+'%';document.getElementById('qC').textContent=q.c;document.getElementById('qP').textContent=q.p;const o=document.getElementById('qOp');o.innerHTML='';q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='bq';b.textContent=opt;b.onclick=()=>ansQ(i,b);o.appendChild(b)});document.getElementById('qNW').style.display='none'}
+function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===QZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[QZ[qIdx].a].classList.add('ok')}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<9?'Next <i class="fas fa-arrow-right ml-1.5"></i>':'See Results <i class="fas fa-trophy ml-1.5"></i>'}
+function nxtQ(){if(qIdx<9){qIdx++;showQ()}else showRes()}
+function showRes(){const t=Math.round((Date.now()-qStartT)/60000);let lv='HSK 1',de='Perfect starting point!',ic='<i class="fas fa-seedling text-3xl" style="color:var(--green)"></i>',vo='150';
+if(qScore>=90){lv='HSK 5-6';de='Impressive!';ic='<i class="fas fa-crown text-3xl" style="color:var(--gold)"></i>';vo='2,500+'}else if(qScore>=70){lv='HSK 4';de='Strong intermediate.';ic='<i class="fas fa-star text-3xl" style="color:var(--gold)"></i>';vo='1,200'}else if(qScore>=50){lv='HSK 3';de='Solid foundation!';ic='<i class="fas fa-bolt text-3xl" style="color:var(--accent)"></i>';vo='600'}else if(qScore>=30){lv='HSK 2';de='Good start!';ic='<i class="fas fa-book text-3xl" style="color:var(--blue)"></i>';vo='300'}
+document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').textContent='Your Level: '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+'/10';document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m'}
+function rstQ(){document.getElementById('qRe').style.display='none';document.getElementById('qSt').style.display='block'}
+
+// ===== HSK PROGRESS =====
+function buildHSK(){const c=document.getElementById('hskL');LV.forEach((l,i)=>{const cls=i<2?'background:var(--green);color:#fff':i===2?'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(200,53,37,.3)':'background:var(--card2);color:var(--muted)';const d=document.createElement('div');d.className='cd p-4 flex items-center gap-4 cursor-pointer';d.onclick=()=>{curLv=i;document.querySelectorAll('#lvTabs .tb').forEach((b,bi)=>{b.classList.toggle('on',bi===i)});buildTopics();scrollTo('#lessons')};d.innerHTML='<div class="ldd" style="'+cls+'">'+(i+1)+'</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><h4 class="font-bold text-sm">'+l.n+'</h4>'+(i===2?'<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(200,53,37,.1);color:var(--accent)">Current</span>':'')+'</div><p class="text-xs mb-2" style="color:var(--muted)">'+l.d+'</p><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+l.pc+'%;background:'+(l.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div></div><div class="text-right flex-shrink-0"><div class="text-sm font-bold" style="color:'+(l.dn?'var(--green)':'var(--gold)')+'">'+l.pc+'%</div><div class="text-xs" style="color:var(--muted)">'+l.ls+'</div></div>';c.appendChild(d)})}
+
+// ===== CANVAS =====
+function initCv(){canvas=document.getElementById('wc');ctx=canvas.getContext('2d');rsCv();canvas.addEventListener('pointerdown',sDraw);canvas.addEventListener('pointermove',dDraw);canvas.addEventListener('pointerup',eDraw);canvas.addEventListener('pointerleave',eDraw);window.addEventListener('resize',rsCv)}
+function rsCv(){const r=canvas.getBoundingClientRect();canvas.width=r.width*devicePixelRatio;canvas.height=r.height*devicePixelRatio;ctx.scale(devicePixelRatio,devicePixelRatio);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=4;ctx.strokeStyle='#F5EDE6'}
+function sDraw(e){drawing=true;strokeCnt++;document.getElementById('stCt').textContent='Strokes: '+strokeCnt;const r=canvas.getBoundingClientRect();ctx.beginPath();ctx.moveTo(e.clientX-r.left,e.clientY-r.top)}
+function dDraw(e){if(!drawing)return;const r=canvas.getBoundingClientRect();ctx.lineTo(e.clientX-r.left,e.clientY-r.top);ctx.stroke()}
+function eDraw(){drawing=false}
+function clrCv(){ctx.clearRect(0,0,canvas.width,canvas.height);strokeCnt=0;document.getElementById('stCt').textContent='Strokes: 0'}
+function nxtCh(){curWI=(curWI+1)%WCH.length;const ch=WCH[curWI];document.getElementById('rfCh').textContent=ch.c;document.getElementById('rfPy').textContent=ch.py;document.getElementById('rfMn').textContent=ch.m;clrCv()}
+</script>
+</body>
+</html>
