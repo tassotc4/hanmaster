@@ -39,11 +39,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 </nav>
 
 <section class="min-h-screen flex items-center justify-center pt-14 px-5 relative overflow-hidden">
-<video id="hv1" autoplay muted playsinline class="absolute inset-0 w-full h-full object-cover" style="filter:brightness(.3);position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity 1.5s;pointer-events:none">
+<video autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.4)">
 <source src="/hero1.mp4" type="video/mp4">
-</video>
-<video id="hv2" muted playsinline class="absolute inset-0 w-full h-full object-cover" style="filter:brightness(.3);position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.5s;pointer-events:none">
-<source src="/hero2.mp4" type="video/mp4">
 </video>
 <div class="absolute inset-0" style="background:linear-gradient(to bottom,rgba(13,10,8,.6),rgba(13,10,8,.85))"></div>
 <div class="relative z-10 text-center max-w-4xl mx-auto">
@@ -223,10 +220,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   const o=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('v');o.unobserve(en.target)}})},{threshold:.08});
   els.forEach(el=>o.observe(el));
 });
-// Hero video crossfade
-const hv1=document.getElementById('hv1'),hv2=document.getElementById('hv2');
-hv1.addEventListener('ended',()=>{hv2.style.opacity=1;hv1.style.opacity=0;hv2.play()});
-hv2.addEventListener('ended',()=>{hv1.style.opacity=1;hv2.style.opacity=0;hv1.currentTime=0;hv1.play()});
+
 </script>
 </body>
 </html>
