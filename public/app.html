@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -54,6 +54,9 @@
 <script src="/js/config.js"></script>
 <script src="/js/supabase.js"></script>
 <script src="/js/paypal.js"></script>
+<script src="/js/vocab-data.js"></script>
+<script src="/js/extra-content.js"></script>
+<script src="/js/translate.js"></script>
 <style>
 :root{--bg:#0D0A08;--bg2:#141110;--card:#1E1915;--card2:#28221C;--border:#362E25;--fg:#F5EDE6;--fg2:#B5A597;--muted:#7A6B5D;--accent:#C83525;--accent2:#E04535;--gold:#D4A64F;--green:#38A96A;--green2:#58C88A;--blue:#4898D5;--purple:#9868D5}
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
@@ -206,6 +209,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
     margin-right: 0 !important;
   }
 }
+.dict-tab{padding:6px 16px;border-radius:8px;font-weight:600;font-size:12px;cursor:pointer;background:var(--card2);color:var(--muted);border:none;font-family:inherit;transition:all .25s}
+.dict-tab.on{background:var(--accent);color:#fff}
+.dict-tab:hover:not(.on){color:var(--fg)}
+.dict-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:var(--card)}
+.dict-item:hover{border-color:var(--gold);background:var(--card2)}
+.dict-cn{width:60px;text-align:center}
+#dictSearch{padding:10px 14px;border-radius:10px;font-size:14px;outline:none;font-family:'Noto Serif SC','DM Sans',sans-serif;background:var(--card2);border:1.5px solid var(--border);color:var(--fg);min-width:0;flex:1}
+#dictSearch:focus{border-color:var(--accent)}
+#dictSearch::placeholder{color:var(--muted);font-family:'DM Sans',sans-serif}
+#dictList{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;max-height:500px;overflow-y:auto;padding:4px}
+#trInput{width:100%;padding:12px 16px;border-radius:12px;font-size:14px;outline:none;font-family:'Noto Serif SC','DM Sans',sans-serif;background:var(--card2);border:1.5px solid var(--border);color:var(--fg);min-height:80px;resize:vertical}
+#trInput:focus{border-color:var(--accent)}
+#trInput::placeholder{color:var(--muted)}
+#trOutput{padding:14px;border-radius:12px;background:var(--card2);border:1px solid var(--border);font-size:14px;min-height:60px;line-height:1.7}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -215,7 +232,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 <div id="toast" class="tst"></div>
 <nav class="nb"><div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
 <a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight">HanMaster</span></a>
-<div class="dn flex items-center gap-6"><a href="#tutor" class="nl">AI Tutor</a><a href="#lessons" class="nl">Lessons</a><a href="#grammar" class="nl">Grammar</a><a href="#test" class="nl">Level Test</a><a href="#progress" class="nl">Progress</a></div>
+<div class="dn flex items-center gap-6"><a href="#tutor" class="nl">AI Tutor</a><a href="#lessons" class="nl">Lessons</a><a href="#grammar" class="nl">Grammar</a><a href="#dictionary" class="nl">Dictionary</a><a href="#test" class="nl">Level Test</a><a href="#progress" class="nl">Progress</a></div>
 
   <!-- Language & Theme selectors Group (always visible) -->
   <div class="flex items-center gap-2.5">
@@ -430,6 +447,44 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
         <button onclick="nextFlashcard()" class="bo flex-1" style="cursor:pointer">Next <i class="fas fa-arrow-right ml-1"></i></button>
       </div>
     </div></div></section>
+
+<!-- ========== TRANSLATE ========== -->
+<section id="translate" class="py-20 px-5" style="background:var(--bg)">
+<div class="max-w-3xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">Instant Translation</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Translate Any Phrase</h2><p style="color:var(--fg2);font-size:13px">Translate any phrase between English and Chinese with AI.</p></div>
+<div class="cd p-6 fu">
+<div class="flex gap-3 items-center mb-4">
+<select id="trLang" class="px-3 py-2 rounded-lg text-xs font-semibold" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);outline:none;font-family:inherit;cursor:pointer">
+<option value="to-zh">English → Chinese</option>
+<option value="to-en">Chinese → English</option>
+</select>
+<button id="trBtn" class="bp flex-1">Translate</button>
+</div>
+<textarea id="trInput" placeholder="Enter text to translate..."></textarea>
+<div class="flex gap-2 mt-3">
+<button id="trSpeak" class="bo flex-1" disabled><i class="fas fa-volume-high mr-1"></i> Speak</button>
+<button id="trCopy" class="bo flex-1" disabled><i class="fas fa-copy mr-1"></i> Copy to Tutor</button>
+</div>
+<div id="trOutput" class="mt-4"></div>
+</div>
+</div>
+</section>
+
+<!-- ========== DICTIONARY ========== -->
+<section id="dictionary" class="py-20 px-5" style="background:var(--bg2)">
+<div class="max-w-6xl mx-auto">
+<div class="text-center mb-10 fu"><div class="sl">HSK Dictionary</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Browse HSK Vocabulary</h2><p style="color:var(--fg2);font-size:13px">Browse all HSK vocabulary with pinyin and English translations.</p></div>
+<div class="flex flex-wrap gap-2 justify-center mb-6 fu" id="dictTabs">
+<button class="dict-tab on" data-lv="1" onclick="buildDictionary(1)">HSK 1</button>
+<button class="dict-tab" data-lv="2" onclick="buildDictionary(2)">HSK 2</button>
+<button class="dict-tab" data-lv="3" onclick="buildDictionary(3)">HSK 3</button>
+</div>
+<div class="flex gap-3 items-center mb-6 fu">
+<input id="dictSearch" placeholder="Search characters or pinyin..." oninput="filterDictionary()">
+</div>
+<div id="dictList"></div>
+</div>
+</section>
 
 <!-- ========== GRAMMAR ========== -->
 <section id="grammar" class="py-20 px-5" style="background:var(--bg2)">
@@ -708,6 +763,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 <button class="mnb act" onclick="navTo('#tutor', this)"><i class="fas fa-microphone"></i>Tutor</button>
 <button class="mnb" onclick="navTo('#lessons', this)"><i class="fas fa-book-open"></i>Lessons</button>
 <button class="mnb" onclick="navTo('#grammar', this)"><i class="fas fa-book"></i>Grammar</button>
+<button class="mnb" onclick="navTo('#dictionary', this)"><i class="fas fa-book-open"></i>Dict</button>
+<button class="mnb" onclick="navTo('#translate', this)"><i class="fas fa-language"></i>Trans</button>
 <button class="mnb" onclick="navTo('#test', this)"><i class="fas fa-brain"></i>Test</button>
 <button class="mnb" onclick="navTo('#progress', this)"><i class="fas fa-chart-line"></i>Progress</button>
 </div>
@@ -4508,82 +4565,9 @@ const TD={Greetings:['Self Intro','Hello/Goodbye','Thank You','Titles','Polite']
 const PYI=['b','p','m','f','d','t','n','l','g','k','h','j','q','x','zh','ch','sh','r','z','c','s','y','w'];
 const PYF=['a','o','e','i','u','ü','ai','ei','ui','ao','ou','iu','ie','üe','er','an','en','in','un','ün','ang','eng','ing','ong'];
 const TONES=[{c:'mā',m:'mother',t:'1st Tone — High flat',p:'M20,35 L60,35 L100,35 L140,35 L180,35'},{c:'má',m:'hemp',t:'2nd Tone — Rising',p:'M20,38 Q60,36 100,20 Q140,8 180,5'},{c:'mǎ',m:'horse',t:'3rd Tone — Dipping',p:'M20,15 Q50,40 100,40 Q150,40 180,15'},{c:'mà',m:'to scold',t:'4th Tone — Falling',p:'M20,5 Q60,8 100,25 Q140,35 180,40'}];
-const GR=[
-  {
-    t: 'The 把 Sentence',
-    cn: '我把书放在桌子上',
-    py: 'wǒ bǎ shū fàng zài zhuō zi shàng',
-    en: 'I put the book on the table.',
-    lv: 'HSK 3',
-    f: '把 for disposal.',
-    b: '<b>Subj + 把 + Obj + Verb + Result</b><br><br>&bull; 我把门关了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'我把门关了\', 0.7)"><i class="fas fa-volume-high"></i></span> (I closed the door)<br>&bull; 她把衣服洗干净了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'她把衣服洗干净了\', 0.7)"><i class="fas fa-volume-high"></i></span> (She washed the clothes clean)<br>&bull; 请把手机关掉 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'请把手机关掉\', 0.7)"><i class="fas fa-volume-high"></i></span> (Please turn off your phone)<br><br>Object must be specific.'
-  },
-  {
-    t: 'The 被 Passive',
-    cn: '钱包被偷了',
-    py: 'qián bāo bèi tōu le',
-    en: 'The wallet was stolen.',
-    lv: 'HSK 3',
-    f: '被 for passive.',
-    b: '<b>Obj + 被 + Agent + Verb + Result</b><br><br>&bull; 信已经被寄走了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'信已经被寄走了\', 0.7)"><i class="fas fa-volume-high"></i></span> (The letter has already been sent)<br>&bull; 他被老师批评了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'他被老师批评了\', 0.7)"><i class="fas fa-volume-high"></i></span> (He was criticized by the teacher)<br>&bull; 蛋糕被弟弟吃光了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'蛋糕被弟弟吃光了\', 0.7)"><i class="fas fa-volume-high"></i></span> (The cake was completely eaten by younger brother)'
-  },
-  {
-    t: 'The 比 Comparison',
-    cn: '今天比昨天冷',
-    py: 'jīn tiān bǐ zuó tiān lěng',
-    en: 'Today is colder than yesterday.',
-    lv: 'HSK 3',
-    f: '比 for comparison.',
-    b: '<b>A + 比 + B + Adj + (Complement)</b><br><br>&bull; 他比我高 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'他比我高\', 0.7)"><i class="fas fa-volume-high"></i></span> (He is taller than me)<br>&bull; 苹果比西瓜便宜 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'苹果比西瓜便宜\', 0.7)"><i class="fas fa-volume-high"></i></span> (Apples are cheaper than watermelons)<br>&bull; 他跑得比我快得多 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'他跑得比我快得多\', 0.7)"><i class="fas fa-volume-high"></i></span> (He runs much faster than me)'
-  },
-  {
-    t: 'The 太...了 Structure',
-    cn: '今天太热了',
-    py: 'jīn tiān tài rè le',
-    en: 'Today is too hot.',
-    lv: 'HSK 1',
-    f: '太 + Adj + 了 for intensification.',
-    b: '<b>太 + Adj/Verb + 了</b><br><br>&bull; 这个太贵了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'这个太贵了\', 0.7)"><i class="fas fa-volume-high"></i></span> (This is too expensive)<br>&bull; 他太累了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'他太累了\', 0.7)"><i class="fas fa-volume-high"></i></span> (He is too tired)<br>&bull; 太好了！<span class="sp-btn" onclick="event.stopPropagation(); speak(\'太好了！\', 0.7)"><i class="fas fa-volume-high"></i></span> (Extremely good! / Great!)'
-  },
-  {
-    t: 'Simultaneous Actions',
-    cn: '他一边吃饭一边看电视',
-    py: 'tā yī biān chī fàn yī biān kàn diàn shì',
-    en: 'He is eating while watching TV.',
-    lv: 'HSK 2',
-    f: '一边 + Verb 1 + 一边 + Verb 2',
-    b: '<b>一边 + Verb 1 + 一边 + Verb 2</b><br><br>&bull; 我喜欢一边听音乐一边跑步 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'我喜欢一边听音乐一边跑步\', 0.7)"><i class="fas fa-volume-high"></i></span> (I like running while listening to music)<br>&bull; 不要一边开车一边玩手机 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'不要一边开车一边玩手机\', 0.7)"><i class="fas fa-volume-high"></i></span> (Do not play with your phone while driving)<br>&bull; 我们一边喝茶一边聊天吧 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'我们一边喝茶一边聊天吧\', 0.7)"><i class="fas fa-volume-high"></i></span> (Let\'s drink tea while chatting)'
-  },
-  {
-    t: 'The Completion Particle 了',
-    cn: '我买了一本书',
-    py: 'wǒ mǎi le yī běn shū',
-    en: 'I bought a book.',
-    lv: 'HSK 1',
-    f: 'Verb + 了 for action completion.',
-    b: '<b>Verb + 了 + Obj</b><br><br>&bull; 他去学校了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'他去学校了\', 0.7)"><i class="fas fa-volume-high"></i></span> (He went to school)<br>&bull; 我喝了三杯咖啡 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'我喝了三杯咖啡\', 0.7)"><i class="fas fa-volume-high"></i></span> (I drank three cups of coffee)<br>&bull; 你吃饭了吗？ <span class="sp-btn" onclick="event.stopPropagation(); speak(\'你吃饭了吗？\', 0.7)"><i class="fas fa-volume-high"></i></span> (Have you eaten?)'
-  },
-  {
-    t: 'Conjunction Embora/Mas',
-    cn: '虽然中文很难，但是很有意思',
-    py: 'suī rán zhōng wén hěn nán, dàn shì hěn yǒu yì si',
-    en: 'Although Chinese is hard, it is very interesting.',
-    lv: 'HSK 2',
-    f: '虽然 + A, 但是 + B',
-    b: '<b>虽然... 但是...</b><br><br>&bull; 虽然天气不好，但是他还是出去了 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'虽然天气不好，但是他还是出去了\', 0.7)"><i class="fas fa-volume-high"></i></span> (Although the weather was bad, he still went out)<br>&bull; 虽然这件衣服很贵，但是我很喜欢 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'虽然这件衣服很贵，但是我很喜欢\', 0.7)"><i class="fas fa-volume-high"></i></span> (Although this clothing is expensive, I like it very much)<br>&bull; 虽然他病了，但是他坚持工作 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'虽然他病了，但是他坚持工作\', 0.7)"><i class="fas fa-volume-high"></i></span> (Although he was sick, he persisted in working)'
-  },
-  {
-    t: 'The 是...的 Focus Structure',
-    cn: '我是坐飞机来的',
-    py: 'wǒ shì zuò fēi jī lái de',
-    en: 'I came by plane.',
-    lv: 'HSK 2',
-    f: '是...的 to emphasize time, place, or manner.',
-    b: '<b>Subj + 是 + Detail + Verb + 的</b><br><br>&bull; 我们是昨天认识的 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'我们是昨天认识的\', 0.7)"><i class="fas fa-volume-high"></i></span> (We met yesterday - time)<br>&bull; 这本书是在北京买的 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'这本书是在北京买的\', 0.7)"><i class="fas fa-volume-high"></i></span> (This book was bought in Beijing - place)<br>&bull; 他是和朋友一起来的 <span class="sp-btn" onclick="event.stopPropagation(); speak(\'他是和朋友一起来的\', 0.7)"><i class="fas fa-volume-high"></i></span> (He came with friends - manner)'
-  }
-];
-const QZ=[{c:'你好',p:'nǐ hǎo',o:['Hello','Goodbye','Thank you','Sorry'],a:0},{c:'谢谢',p:'xiè xie',o:['Sorry','Please','Thank you','Hello'],a:2},{c:'我每天学习中文',p:'wǒ měi tiān xué xí zhōng wén',o:['I sometimes study Chinese','I study Chinese every day','I studied yesterday','I will study'],a:1},{c:'虽然很累，但是我很开心',p:'suī rán hěn lèi, dàn shì wǒ hěn kāi xīn',o:['Tired and unhappy','Although tired, I\'m happy','Happy because tired','Was tired, now happy'],a:1},{c:'他把书放在桌子上了',p:'tā bǎ shū fàng zài zhuō zi shàng le',o:['He put the book on the table','He took the book','He is reading','The book is on his table'],a:0},{c:'这个问题比我想象的复杂得多',p:'zhè ge wèn tí bǐ wǒ xiǎng xiàng de fù zá de duō',o:['Simple','More complex than I imagined','I imagined a complex problem','As complex as I thought'],a:1},{c:'无论发生什么，我们都会支持你',p:'wú lùn fā shēng shén me, wǒ men dōu huì zhī chí nǐ',o:['We support something','Whatever happens, we\'ll support you','Nothing happened','We\'ll support if something happens'],a:1},{c:'这部电影之所以受欢迎，是因为它反映了社会现实',p:'zhè bù diàn yǐng zhī suǒ yǐ shòu huān yíng...',o:['Popular and reflects reality','Reason: reflects social reality','Reflects reality because popular','Social reality makes it popular'],a:1},{c:'随着科技的不断发展，人们的生活方式发生了翻天覆地的变化',p:'suí zhe kē jì de bù duàn fā zhǎn...',o:['Tech changed life','Lifestyles had earth-shaking changes','People developed tech','Life changes with tech'],a:1},{c:'倘若当初做出了不同的选择，如今的人生轨迹恐怕会截然不同',p:'tǎng ruò dāng chū zuò chū le bù tóng de xuǎn zé...',o:['I made different choices','If different choices, life would be completely different','My trajectory is different','Different choices lead to different trajectories'],a:1}];
-const WCH=[{c:'你',py:'nǐ',m:'you'},{c:'好',py:'hǎo',m:'good'},{c:'学',py:'xué',m:'study'},{c:'中',py:'zhōng',m:'middle/China'},{c:'吃',py:'chī',m:'eat'},{c:'喝',py:'hē',m:'drink'},{c:'大',py:'dà',m:'big'},{c:'小',py:'xiǎo',m:'small'},{c:'人',py:'rén',m:'person'},{c:'天',py:'tiān',m:'day/sky'}];
+const GR = [...(typeof EXTRA_GRAMMAR !== 'undefined' ? EXTRA_GRAMMAR : [])];
+const QZ = [...(typeof EXTRA_QUIZ !== 'undefined' ? EXTRA_QUIZ : [])];
+const WCH = typeof EXTRA_WRITING_CHARS !== 'undefined' ? EXTRA_WRITING_CHARS : "你好学习中文".split('');
 
 let tutLesson=null,tutStep=0,tutScores=[],srOn=false,recognition=null,micAvailable=false,geminiHistory=[],currentLiveTarget='',suggestedUserTarget=''; let mediaRecorder=null, audioChunks=[], lastUserAudioUrl=null, currentTurnId='', userAudioEl=null, activeMicStream=null; const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) || (window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
 let qIdx=0,qScore=0,qStartT=0,curLv=0,strokeCnt=0,curWI=0,drawing=false,ctx,canvas;
@@ -7088,14 +7072,7 @@ document.addEventListener('click', () => {
 });
 
 // B. Radical Explorer data & grid rendering
-const RADICALS = [
-  { r: '氵', name: 'Water (三点水)', meaning: 'Related to liquids, rivers, or washing.', examples: ['喝', '汽', '没', '水'] },
-  { r: '亻', name: 'Person (单人旁)', meaning: 'Related to humans, relationships, or actions.', examples: ['你', '他', '们', '做', '什'] },
-  { r: '口', name: 'Mouth (口字旁)', meaning: 'Related to speech, eating, openings, or sounds.', examples: ['吃', '喝', '叫', '和', '问', '吧'] },
-  { r: '木', name: 'Wood (木字旁)', meaning: 'Related to trees, plants, or wooden objects.', examples: ['杯', '桌', '椅', '校'] },
-  { r: '火', name: 'Fire (火字旁/四点底)', meaning: 'Related to heat, burning, light, or cooking.', examples: ['热', '点', '照'] },
-  { r: '女', name: 'Woman (女字旁)', meaning: 'Related to females, family titles, or beauty.', examples: ['好', '她', '妈', '姐', '妹'] }
-];
+const RADICALS = typeof EXTRA_RADICALS !== 'undefined' ? EXTRA_RADICALS : [{r:'氵',n:'Water',m:'Water',ex:['河','海']}];
 let activeRadIndex = -1;
 function buildRadicals() {
   const grid = document.getElementById('radicalsListGrid');
@@ -7183,6 +7160,27 @@ function syncReminderInputs() {
   if (inputTime) inputTime.value = time;
   if (selectLang) selectLang.value = lang;
 }
+function buildDictionary(level) {
+  const lv = level || 1;
+  document.querySelectorAll('.dict-tab').forEach(t => t.classList.toggle('on', +t.dataset.lv === lv));
+  const list = document.getElementById('dictList');
+  if (!list) return;
+  const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv) : [];
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+w.e+'</div></div>').join('');
+}
+function filterDictionary() {
+  const q = document.getElementById('dictSearch').value.trim().toLowerCase();
+  const activeLv = document.querySelector('.dict-tab.on');
+  const lv = activeLv ? +activeLv.dataset.lv : 1;
+  const list = document.getElementById('dictList');
+  if (!list) return;
+  const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv && (!q || w.c.includes(q) || w.p.includes(q) || w.e.toLowerCase().includes(q))) : [];
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+w.e+'</div></div>').join('');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof initTranslate === 'function') initTranslate();
+  buildDictionary(1);
+});
 </script>
 </body>
 </html>
