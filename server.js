@@ -15,6 +15,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+app.post('/api/test', (req, res) => {
+  res.json({ ok: true, body: req.body });
+});
+
 app.post('/api/chat', async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return res.status(500).json({ error: 'Server Gemini key not configured' });
