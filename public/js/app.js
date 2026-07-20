@@ -5272,24 +5272,23 @@ function sendToGemini(userText) {
   const statusText = document.getElementById('tutStatus');
   if(statusText) statusText.textContent = "Thinking...";
   
-  if (!userText.startsWith("Hello! Let's start our Chinese conversation")) {
+  if (!userText.startsWith("你好！")) {
     geminiHistory.push({ role: "user", parts: [{ text: userText }] });
   }
   
   const loaderId = "loader-" + Date.now();
   addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">Thinking...</div>');
   
-  let systemInstruction = "You are Li Laoshi, a patient and friendly native Chinese speaking tutor. Always respond in Chinese only. Chat with the user in natural, simple Chinese appropriate for HSK levels. Be conversational, warm, and ask engaging questions. Write 2 to 3 sentences in Chinese to encourage a longer conversation. Output ONLY Chinese text — no translations, no explanations, no language labels.";
+  let systemInstruction = "You are Li Laoshi, a Chinese language tutor. CRITICAL INSTRUCTION: You MUST ALWAYS respond in Chinese ONLY. Never use any other language — no English, no Vietnamese, no translations, no explanations in other languages. Respond entirely in Chinese characters. Keep responses to 2-3 simple sentences appropriate for HSK learners.";
   
   if (isRoleplayActive) {
     const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
     const setup = getRoleplaySetup(activeTopic);
-    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. Act strictly in character and stay in your role. Do not break character. Here are your roleplay parameters:\n" +
+    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. CRITICAL INSTRUCTION: You MUST ALWAYS respond in Chinese ONLY. Never use any other language — no English, no Vietnamese, no translations. Act strictly in character and stay in your role. Here are your roleplay parameters:\n" +
       "1. Scenario setup: " + setup.prompt + "\n" +
       "2. Your character role: " + setup.botRole + "\n" +
       "3. User's character role: " + setup.userRole + "\n" +
-      "4. Speak simple, natural Chinese suited for HSK learners. Keep your replies to 2-3 sentences in character.\n" +
-      "5. Output ONLY Chinese text — no translations, no explanations, no language labels.";
+      "4. Speak simple, natural Chinese suited for HSK learners. Keep your replies to 2-3 sentences in character.";
   }
   
   const payload = {
@@ -5397,7 +5396,7 @@ function openTopicLesson(topicName) {
     const chat = document.getElementById('tutChat');
     if (chat) chat.innerHTML = '';
     
-    let activePrompt = "Hello! Let's start our Chinese conversation. The topic is: " + topicName + ". Please greet me in Chinese and start our conversation with a simple question on this topic.";
+    let activePrompt = "今天的对话主题是：" + topicName + "。请用中文打招呼，然后问一个关于这个话题的简单问题。";
     
     if (isRoleplayActive) {
       const setup = getRoleplaySetup(topicName);
@@ -6005,21 +6004,21 @@ function playRecordedVoice(url) {
 // C. Dialogue Roleplay Mode
 let isRoleplayActive = false;
 function getRoleplaySetup(topicName) {
-  let botRole = "Tutor 🎓", userRole = "Student 📝";
-  let prompt = "Let's do a roleplay conversation. Please act as a patient Chinese Tutor (老师) and I am a Student (学生). Keep the language simple for an HSK learner.";
+  let botRole = "老师 🎓", userRole = "学生 📝";
+  let prompt = "我们来做一个角色扮演对话。你是中文老师，我是学生。请用中文跟我说话，用简单的汉语。";
   const t = topicName.toLowerCase();
   if (t.includes('restaurant') || t.includes('food') || t.includes('eat') || t.includes('hsk 1 lesson 2')) {
-    botRole = "Waiter 🧑‍🍳";
-    userRole = "Customer 🍽️";
-    prompt = "Let's do a roleplay conversation. You are a Chinese Waiter (服务员) in a restaurant, and I am a Customer (顾客). Speak first in Chinese, greet me, and ask what I want to eat/drink.";
+    botRole = "服务员 🧑‍🍳";
+    userRole = "顾客 🍽️";
+    prompt = "我们来做一个角色扮演对话。你是餐厅的服务员，我是顾客。请先用中文跟我打招呼，问我想吃什么。";
   } else if (t.includes('family') || t.includes('friend') || t.includes('introducing') || t.includes('hsk 1 lesson 3')) {
-    botRole = "Friend A 👥";
-    userRole = "Friend B 👥";
-    prompt = "Let's do a roleplay conversation. You are Friend A (朋友), meeting me (Friend B) at a cafe. Speak first in Chinese, greet me, and ask how my family is doing.";
+    botRole = "朋友 A 👥";
+    userRole = "朋友 B 👥";
+    prompt = "我们来做一个角色扮演对话。你是朋友A，我是朋友B，我们在咖啡馆见面。请先用中文跟我打招呼，问我家人怎么样。";
   } else if (t.includes('airport') || t.includes('travel') || t.includes('hsk 1 lesson 4')) {
-    botRole = "Customs Agent 👮";
-    userRole = "Passenger ✈️";
-    prompt = "Let's do a roleplay conversation. You are a Chinese Customs Agent (海关人员) at the Beijing airport, and I am a Passenger (乘客). Speak first in Chinese, greet me, and ask to see my passport.";
+    botRole = "海关人员 👮";
+    userRole = "乘客 ✈️";
+    prompt = "我们来做一个角色扮演对话。你是北京机场的海关人员，我是乘客。请先用中文跟我打招呼，要看我的护照。";
   // Extended roleplay scenarios from tutor-data.js
   } else if (typeof EXTRA_ROLEPLAY_SCENARIOS !== 'undefined') {
     for (const s of EXTRA_ROLEPLAY_SCENARIOS) {
@@ -6054,7 +6053,7 @@ function toggleRoleplayMode() {
       geminiHistory = [
         { role: "user", parts: [{ text: setup.prompt }] }
       ];
-      sendToGemini("Hello! Let's start our Chinese conversation roleplay.");
+      sendToGemini("你好！请用中文跟我聊天。");
     }
   } else {
     btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>Study';
@@ -6064,7 +6063,7 @@ function toggleRoleplayMode() {
     
     if (localStorage.getItem('tutor_mode') === 'live') {
       geminiHistory = [];
-      sendToGemini("Hello! Let's start our Chinese conversation study session. You are my Chinese teacher Li Laoshi.");
+      sendToGemini("你好！请用中文跟我聊天。我是你的学生。");
     }
   }
   

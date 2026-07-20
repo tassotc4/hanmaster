@@ -175,36 +175,36 @@ const EXTRA_ROLEPLAY_SCENARIOS = [
   {
     name: "Doctor Visit",
     match: ["doctor", "hospital", "sick", "health", "hsk 4 health"],
-    botRole: "Doctor 👨‍⚕️",
-    userRole: "Patient 🤒",
-    prompt: "Let's do a roleplay conversation. You are a Chinese Doctor (医生) at a hospital, and I am a Patient (病人). I came to see you because I don't feel well. Speak first in Chinese, ask me what symptoms I have."
+    botRole: "医生 👨‍⚕️",
+    userRole: "病人 🤒",
+    prompt: "我们来做一个角色扮演对话。你是医院的医生，我是病人。我觉得不舒服来看病。请先用中文问我有什么症状。"
   },
   {
     name: "Hotel Check-in",
     match: ["hotel", "check in", "hotel check", "travel hotel", "hsk 4 hotel"],
-    botRole: "Hotel Staff 🏨",
-    userRole: "Guest 🧳",
-    prompt: "Let's do a roleplay conversation. You are a Chinese Hotel Receptionist (前台) and I am a Guest (客人). I want to check into the hotel. Speak first in Chinese, greet me and ask if I have a reservation."
+    botRole: "前台 🏨",
+    userRole: "客人 🧳",
+    prompt: "我们来做一个角色扮演对话。你是酒店的前台，我是客人。我想办理入住。请先用中文打招呼，问我有没有预订。"
   },
   {
     name: "Job Interview",
     match: ["job", "interview", "work", "hsk 4 job", "career"],
-    botRole: "Interviewer 💼",
-    userRole: "Candidate 🎓",
-    prompt: "Let's do a roleplay conversation. You are a Chinese HR Manager (面试官) conducting a job interview, and I am a Candidate (面试者). Speak first in Chinese, welcome me and ask me to introduce myself and my work experience."
+    botRole: "面试官 💼",
+    userRole: "面试者 🎓",
+    prompt: "我们来做一个角色扮演对话。你是人事经理，我在面试工作。请先用中文欢迎我，让我介绍自己和工作经验。"
   },
   {
     name: "Library & Study",
     match: ["library", "study", "book", "hsk classroom", "student"],
-    botRole: "Librarian 📚",
-    userRole: "Student 🎒",
-    prompt: "Let's do a roleplay conversation. You are a Chinese Librarian (图书管理员) and I am a Student (学生). I come to the library looking for Chinese learning materials. Speak first in Chinese, greet me and ask how you can help me."
+    botRole: "图书管理员 📚",
+    userRole: "学生 🎒",
+    prompt: "我们来做一个角色扮演对话。你是图书管理员，我是学生。我来图书馆找中文学习资料。请先用中文打招呼，问我需要什么帮助。"
   },
   {
     name: "Taxi Ride",
     match: ["taxi", "cab", "ride", "transport", "hsk 4 transport", "direction"],
-    botRole: "Taxi Driver 🚕",
-    userRole: "Passenger 🚶",
-    prompt: "Let's do a roleplay conversation. You are a Chinese Taxi Driver (出租车司机) and I am a Passenger (乘客). I need a ride to a famous landmark. Speak first in Chinese, greet me and ask where I want to go."
+    botRole: "出租车司机 🚕",
+    userRole: "乘客 🚶",
+    prompt: "我们来做一个角色扮演对话。你是出租车司机，我是乘客。我要去一个著名的景点。请先用中文打招呼，问我去哪里。"
   }
 ];
