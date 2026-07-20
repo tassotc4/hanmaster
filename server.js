@@ -122,7 +122,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
           intent: 'CAPTURE',
           purchase_units: [{
             description: 'MandarinCourse Premium - Monthly',
-            amount: { currency_code: 'USD', value: '9.99' }
+            amount: { currency_code: 'USD', value: '9.00' }
           }]
         })
       }

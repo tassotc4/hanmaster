@@ -4044,6 +4044,11 @@ function sim(a,b){
 function buildTutLessons(){const c=document.getElementById('tutLessons');TL.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.innerHTML='<i class="fas '+l.icon+' mr-1"></i>'+l.title+' <span style="opacity:.6;font-size:10px">'+l.level+'</span>';b.onclick=()=>{c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');startTutor(i)};c.appendChild(b)})}
 
 function startTutor(idx){
+  const isPremium = (localStorage.getItem('is_premium') === 'true');
+  if (idx >= 1 && !isPremium) {
+    showPremiumPaywall(TL[idx].level);
+    return;
+  }
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   document.getElementById('tutTotal').textContent='--';
   document.getElementById('tutChat').innerHTML='';
@@ -4661,7 +4666,7 @@ function buildHSK(){
     if (isPremium) {
       cls = (i === curLv) ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(200,53,37,.3)' : 'background:var(--green);color:#fff';
     } else {
-      cls = i < 2 ? 'background:var(--green);color:#fff' : i === 2 ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(200,53,37,.3)' : 'background:var(--card2);color:var(--muted)';
+      cls = i < 1 ? 'background:var(--green);color:#fff' : i === 1 ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(200,53,37,.3)' : 'background:var(--card2);color:var(--muted)';
     }
     
     // Container wrapper for card + collapsible words list
@@ -4720,7 +4725,7 @@ function buildHSK(){
     
     d.onclick = () => {
       const isPremium = (localStorage.getItem('is_premium') === 'true');
-      if (i >= 3 && !isPremium) {
+      if (i >= 1 && !isPremium) {
         showPremiumPaywall(levelName);
         return;
       }
@@ -5425,6 +5430,11 @@ function useHint() {
 
 // ===== MAPPING HSK CARDS TO TUTOR LESSONS =====
 function openTopicLesson(topicName) {
+  const isPremium = (localStorage.getItem('is_premium') === 'true');
+  if (curLv >= 1 && !isPremium) {
+    showPremiumPaywall(LV[curLv].n);
+    return;
+  }
   localStorage.setItem('active_topic_name', topicName);
   const name = topicName.toLowerCase();
   const isLive = localStorage.getItem('tutor_mode') === 'live';
