@@ -4172,10 +4172,10 @@ function startAudioRecording(btn, ic) {
       console.log("getUserMedia succeeded for recording fallback");
       activeMicStream = stream;
       audioChunks = [];
-      let mime = 'audio/mp4';
+      let mime = 'audio/webm';
       if (typeof MediaRecorder.isTypeSupported === 'function') {
+        if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/mp4';
         if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/ogg;codecs=opus';
-        if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/webm';
         if (!MediaRecorder.isTypeSupported(mime)) mime = '';
       }
       if (!mime) { console.error("No supported audio mime type"); return; }
@@ -4224,7 +4224,7 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       document.getElementById('tutHint').textContent = 'Rate limited, retrying in ' + (wait/1000) + 's...';
       return new Promise(r => setTimeout(r, wait)).then(() => sendAudioToGemini(base64Audio, retries - 1));
     }
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    if (!res.ok) return res.json().then(errData => { throw new Error(errData.error?.error?.message || errData.error?.message || errData.error || "HTTP " + res.status); });
     return res.json();
   }).then(data => {
     if (!data) return;
@@ -4244,11 +4244,8 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   }).catch(err => {
     console.error("Audio transcription failed:", err);
-    if (err.message === 'HTTP 429') {
-      document.getElementById('tutHint').textContent = 'Gemini API rate limit hit. Wait a moment and try again.';
-    } else {
-      document.getElementById('tutHint').textContent = 'Transcription failed. Try text box.';
-    }
+    document.getElementById('tutHint').textContent = 'Transcription error: ' + err.message;
+    document.getElementById('tutStatus').textContent = 'Error: ' + err.message;
   });
 }
 
@@ -4409,8 +4406,8 @@ function tutSpeak(){
     };
     
     recognition.onend=()=>{
-      stopMediaRecorder();
       if (_recAudioMode) return;
+      stopMediaRecorder();
       srOn=false;
       btn.classList.remove('on');
       ic.className='fas fa-microphone text-xl';
@@ -5282,9 +5279,7 @@ function sendToGemini(userText) {
   const loaderId = "loader-" + Date.now();
   addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">Thinking...</div>');
   
-  const langName = currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
-  
-  let systemInstruction = "You are Li Laoshi, a patient and friendly native Chinese speaking tutor. Chat with the user in natural, simple Chinese appropriate for HSK levels. Be conversational, warm, and ask engaging questions. Write 2 to 3 sentences in Chinese to encourage a longer conversation. You MUST provide your response in the following format:\n\n[Chinese response here]\n" + langName + ": [" + langName + " translation of response here]\nExample: [Simple 1-sentence Chinese suggestion for how the user can answer your question] (" + langName + ": [" + langName + " translation of the suggestion])\n(Tutor Tip: [Optional grammar tip in " + langName + " explaining corrections if the user made a mistake in their previous message])";
+  let systemInstruction = "You are Li Laoshi, a patient and friendly native Chinese speaking tutor. Always respond in Chinese only. Chat with the user in natural, simple Chinese appropriate for HSK levels. Be conversational, warm, and ask engaging questions. Write 2 to 3 sentences in Chinese to encourage a longer conversation. Output ONLY Chinese text — no translations, no explanations, no language labels.";
   
   if (isRoleplayActive) {
     const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
@@ -5294,11 +5289,7 @@ function sendToGemini(userText) {
       "2. Your character role: " + setup.botRole + "\n" +
       "3. User's character role: " + setup.userRole + "\n" +
       "4. Speak simple, natural Chinese suited for HSK learners. Keep your replies to 2-3 sentences in character.\n" +
-      "5. You MUST strictly follow this response formatting:\n\n" +
-      "[Chinese response in character here]\n" +
-      langName + ": [" + langName + " translation of response here]\n" +
-      "Example: [Simple 1-sentence Chinese suggestion for how the user can answer you in character] (" + langName + ": [" + langName + " translation of the suggestion])\n" +
-      "(Tutor Tip: [Optional grammar tip in " + langName + " explaining any corrections if the user made a mistake in their Chinese])";
+      "5. Output ONLY Chinese text — no translations, no explanations, no language labels.";
   }
   
   const payload = {
@@ -5312,7 +5303,7 @@ function sendToGemini(userText) {
     body: JSON.stringify(payload)
   })
   .then(res => {
-    if (!res.ok) throw new Error("HTTP error " + res.status);
+    if (!res.ok) return res.json().then(errData => { throw new Error(errData.error?.error?.message || errData.error?.message || errData.error || "HTTP error " + res.status); });
     return res.json();
   })
   .then(data => {
@@ -5321,86 +5312,30 @@ function sendToGemini(userText) {
     
     let reply = data.candidates[0].content.parts[0].text.trim();
     
-    let cleanReply = "";
+    let cleanReply = reply;
+    let suggestedAnswer = "我同意你的看法。";
     let englishTranslation = "";
-    let suggestedAnswer = "";
-    let tipText = "";
     
-    // 1. Parse out Tutor Tip (text in parentheses)
-    const tipMatch = reply.match(/\((Tutor Tip:[^\)]+)\)/i) || reply.match(/\(([^\)]*tip[^\)]*)\)/i);
-    if (tipMatch) {
-      tipText = tipMatch[0];
-      reply = reply.replace(tipMatch[0], "").trim();
+    // Highlight any pinyin or tone hints in the response
+    if (/(Tutor Tip|提示|注意)/i.test(cleanReply)) {
+      const tipMatch = cleanReply.match(/[（\(](Tutor Tip|提示|注意)[：:][^）\)]+[）\)]/i);
+      if (tipMatch) englishTranslation = tipMatch[0];
     }
     
-    // 2. Parse line-by-line using language sets (most robust)
-    const lines = reply.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    const chineseLines = [];
-    const englishLines = [];
-    const exampleLines = [];
-    
-    lines.forEach(line => {
-      if (line.toLowerCase().startsWith("example:") || line.toLowerCase().startsWith("suggestion:") || line.toLowerCase().startsWith("suggested:")) {
-        exampleLines.push(line.replace(/^(example|suggestion|suggested):\s*/i, "").trim());
-      } else if (line.toLowerCase().startsWith("english:") || line.toLowerCase().startsWith("translation:")) {
-        englishLines.push(line.replace(/^(english|translation):\s*/i, "").trim());
-      } else if (/[\u4e00-\u9fa5]/.test(line)) {
-        chineseLines.push(line);
-      } else {
-        englishLines.push(line);
-      }
-    });
-    
-    cleanReply = chineseLines.join("\n");
-    englishTranslation = englishLines.join(" ");
-    
-    if (exampleLines.length > 0) {
-      suggestedAnswer = exampleLines.join("\n");
-    } else {
-      suggestedAnswer = "我同意你的看法。 (Translation: " + t("I agree with your view.") + ")";
-    }
-    
-    // Extract Chinese and English parts of the suggestion
-    let hintChinese = suggestedAnswer;
-    let hintEnglish = "";
-    const hintMatch = suggestedAnswer.match(/(.*?)\s*\((?:[a-zA-Z\s]+:\s*)?([^\)]+)\)/i);
-    if (hintMatch) {
-      hintChinese = hintMatch[1].trim();
-      hintEnglish = hintMatch[2].replace(/^English:\s*/i, "").trim();
-    }
-    
-    // Set targets for pronunciation matching
-    currentLiveTarget = cleanReply;
-    suggestedUserTarget = hintChinese;
-    
-    // Display hint button
-    const hintTextEl = document.getElementById('tutHintText');
-    const hintWrapEl = document.getElementById('tutHintWrapper');
-    if (hintTextEl && hintWrapEl) {
-      hintTextEl.textContent = hintChinese + " (" + hintEnglish + ")";
-      hintWrapEl.style.display = "block";
-    }
+    // Set targets for pronunciation matching (use the full reply as the live target)
+    currentLiveTarget = cleanReply.replace(/[（\(][^）\)]*[）\)]/g, "").trim();
+    suggestedUserTarget = currentLiveTarget.split(/[？！。.\n]/).filter(s => s.trim().length > 0)[0] || currentLiveTarget;
     
     // Show in side panel
-    document.getElementById('tutWd').textContent = cleanReply;
-    document.getElementById('tutWp').textContent = "Suggested reply: " + suggestedAnswer;
+    document.getElementById('tutWd').textContent = currentLiveTarget;
+    document.getElementById('tutWp').textContent = "Reply in Chinese";
     document.getElementById('tutWm').textContent = englishTranslation;
-    
-    const tipEl = document.getElementById('tutTip');
-    if (tipEl) {
-      if (tipText) {
-        tipEl.textContent = tipText;
-        tipEl.style.display = "block";
-      } else {
-        tipEl.style.display = "none";
-      }
-    }
     
     // Append response to history
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
     
     // Add message to chat and speak
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px">' + cleanReply + '</div><div style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div><div style="font-size:10.5px;color:var(--gold);margin-bottom:6px;opacity:.85">💡 Hint: ' + suggestedAnswer + '</div><span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay question</span>');
+    addTutMsg('bot', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:11px;color:var(--gold);margin-bottom:6px;opacity:.8">' + englishTranslation + '</div>' : '') + '<span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
     speak(cleanReply);
     
     // Immersive Roleplay Status Updates for Live Mode
