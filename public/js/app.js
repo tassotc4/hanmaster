@@ -4045,7 +4045,7 @@ let curTutLv = 0;
 
 function buildTutLvTabs() {
   const c = document.getElementById('tutLvTabs');
-  if (!c) return;
+  if (!c) { console.warn('tutLvTabs element not found'); return; }
   c.innerHTML = '';
   LV.forEach((l, i) => {
     const b = document.createElement('button');

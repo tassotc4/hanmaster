@@ -1,4 +1,4 @@
-const CACHE = 'mandarincourse-v2';
+const CACHE = 'mandarincourse-v3';
 const urlsToCache = ['/', '/app', '/manifest.json', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/app.js', '/css/app.css'];
 
 self.addEventListener('install', e => {
@@ -15,11 +15,11 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(res => res || fetch(e.request).then(response => {
+    fetch(e.request).then(response => {
       return caches.open(CACHE).then(cache => {
         if (e.request.method === 'GET') cache.put(e.request, response.clone());
         return response;
       });
-    }).catch(() => fetch(e.request)))
+    }).catch(() => caches.match(e.request).then(res => res || fetch(e.request)))
   );
 });
