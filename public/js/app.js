@@ -4253,7 +4253,15 @@ function tutSpeak(){
   if(!isLive) {
     if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
   }
-  if(!micAvailable){toast('Mic needs localhost:8080 — use text box instead','var(--gold)');return}
+  if(!micAvailable){
+    const hasAPI = ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+    const hasFallback = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    if (!hasAPI && !hasFallback) {
+      toast('Your browser does not support microphone input. Use the text box instead.','var(--gold)');
+      return;
+    }
+    micAvailable = true;
+  }
   
   // iOS Audio Unlock: Only initialize if not on iOS Safari (where recording is bypassed)
   if (!isMobileDevice) {
