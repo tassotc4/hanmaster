@@ -727,6 +727,15 @@
 </div>
 
 <script>document.querySelectorAll('.fu').forEach(function(e){e.classList.add('v')})</script>
+<script>
+if ('serviceWorker' in navigator) {
+  caches.keys().then(function(names) {
+    names.forEach(function(n) {
+      if (n.startsWith('mandarincourse')) caches.delete(n);
+    });
+  });
+}
+</script>
 <script src="/js/app.js"></script>
 </body>
 </html>
