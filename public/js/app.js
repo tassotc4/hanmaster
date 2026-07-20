@@ -3855,6 +3855,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (_origOnVoicesChanged) _origOnVoicesChanged();
   };
   buildHero();buildTutLvTabs();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
+  // Listen for topic clicks from inline fallback tabs
+  document.addEventListener('openTutorTopic', function(e) {
+    openTopicLesson(e.detail.topic, true);
+  });
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});

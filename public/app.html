@@ -231,6 +231,50 @@
 <div class="text-center mb-8 fu"><div class="sl">AI Speaking Tutor</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Your Personal Chinese Speaking Teacher</h2><p style="color:var(--fg2)" class="max-w-lg mx-auto text-sm">Listen to the AI speak Chinese, then respond by <b>typing Chinese</b> in the text box below.</p></div>
 <div class="flex flex-nowrap overflow-x-auto whitespace-nowrap gap-2 mb-2 fu scrollbar-none" style="-webkit-overflow-scrolling:touch;" id="tutLvTabs"></div>
 <div class="flex flex-wrap gap-2 mb-6 fu" id="tutTopicBtns" style="min-height:32px"></div>
+<script>
+(function(){
+  var c = document.getElementById('tutLvTabs');
+  if (!c || c.children.length > 0) return;
+  var levels = ['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
+  var topics = {
+    'HSK 1':['Greetings','Numbers','Family','Food','Time'],
+    'HSK 2':['Shopping','Transport','Weather','Hobbies','Dates'],
+    'HSK 3':['Travel','Work','Health','Education','Culture'],
+    'HSK 4':['Society','Technology','Environment','Media','Sports'],
+    'HSK 5':['Business','Politics','Literature','Science','Philosophy'],
+    'HSK 6':['Academic','Idioms','Classical','Debate','Abstract'],
+    'HSK 7':['Formal Writing','Analysis','Research','Translation'],
+    'HSK 8':['Specialized','Cross-cultural','Presentation'],
+    'HSK 9':['Literary','Creative Writing','Scholarship']
+  };
+  levels.forEach(function(lv, i) {
+    var b = document.createElement('button');
+    b.className = 'tb' + (i === 0 ? ' on' : '');
+    b.textContent = lv;
+    b.onclick = function() {
+      c.querySelectorAll('.tb').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');
+      var g = document.getElementById('tutTopicBtns');
+      if (g) {
+        g.innerHTML = '';
+        (topics[lv] || []).forEach(function(t) {
+          var tb = document.createElement('button');
+          tb.className = 'bo text-xs';
+          tb.textContent = t;
+          tb.onclick = function() {
+            document.dispatchEvent(new CustomEvent('openTutorTopic', { detail: { topic: t, levelIdx: i } }));
+          };
+          g.appendChild(tb);
+        });
+      }
+    };
+    c.appendChild(b);
+  });
+  // Trigger click on the first tab
+  var first = c.querySelector('.tb');
+  if (first) first.click();
+})();
+</script>
 <div class="cd overflow-hidden fu" style="min-height:500px;max-height:640px;display:flex;flex-direction:column">
 <div class="px-5 py-3 flex items-center gap-3 flex-shrink-0" style="border-bottom:1px solid var(--border)">
 <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--blue),var(--purple))"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
