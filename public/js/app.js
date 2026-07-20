@@ -3804,7 +3804,7 @@ const QZ = [...(typeof EXTRA_QUIZ !== 'undefined' ? EXTRA_QUIZ : [])];
 const WCH = typeof EXTRA_WRITING_CHARS !== 'undefined' ? EXTRA_WRITING_CHARS : "你好学习中文".split('');
 
 let tutLesson=null,tutStep=0,tutScores=[],srOn=false,recognition=null,micAvailable=false,geminiHistory=[],currentLiveTarget='',suggestedUserTarget=''; let mediaRecorder=null, audioChunks=[], lastUserAudioUrl=null, currentTurnId='', userAudioEl=null, activeMicStream=null; let _cachedChineseVoice=null; const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) || (window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
-let qIdx=0,qScore=0,qStartT=0,curLv=0,strokeCnt=0,curWI=0,drawing=false,ctx,canvas;
+let qIdx=0,qScore=0,qStartT=0,strokeCnt=0,curWI=0,drawing=false,ctx,canvas;
 // PWA & Advanced features globals
 let writer = null;
 let srsFilterActive = false;
