@@ -3854,7 +3854,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     getChineseVoice();
     if (_origOnVoicesChanged) _origOnVoicesChanged();
   };
-  buildHero();buildTutLessons();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
+  buildHero();buildTutLvTabs();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -4041,7 +4041,52 @@ function sim(a,b){
 
 
 // ===== TUTOR =====
-function buildTutLessons(){const c=document.getElementById('tutLessons');TL.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.innerHTML='<i class="fas '+l.icon+' mr-1"></i>'+l.title+' <span style="opacity:.6;font-size:10px">'+l.level+'</span>';b.onclick=()=>{c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));b.classList.add('on');startTutor(i)};c.appendChild(b)})}
+let curTutLv = 0;
+
+function buildTutLvTabs() {
+  const c = document.getElementById('tutLvTabs');
+  if (!c) return;
+  c.innerHTML = '';
+  LV.forEach((l, i) => {
+    const b = document.createElement('button');
+    b.className = 'tb' + (i === 0 ? ' on' : '');
+    b.textContent = l.n;
+    b.onclick = () => {
+      curTutLv = i;
+      c.querySelectorAll('.tb').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      const isPremium = (localStorage.getItem('is_premium') === 'true');
+      if (i >= 1 && !isPremium) {
+        showPremiumPaywall(l.n);
+        return;
+      }
+      buildTutTopics();
+    };
+    c.appendChild(b);
+  });
+  buildTutTopics();
+}
+
+function buildTutTopics() {
+  const g = document.getElementById('tutTopicBtns');
+  if (!g) return;
+  g.innerHTML = '';
+  const lv = LV[curTutLv];
+  lv.tp.forEach(topicName => {
+    const b = document.createElement('button');
+    b.className = 'bo text-xs';
+    b.textContent = topicName;
+    b.onclick = () => {
+      const isPremium = (localStorage.getItem('is_premium') === 'true');
+      if (curTutLv >= 1 && !isPremium) {
+        showPremiumPaywall(LV[curTutLv].n);
+        return;
+      }
+      openTopicLesson(topicName, true);
+    };
+    g.appendChild(b);
+  });
+}
 
 function startTutor(idx){
   const isPremium = (localStorage.getItem('is_premium') === 'true');
@@ -5406,10 +5451,11 @@ function useHint() {
 }
 
 // ===== MAPPING HSK CARDS TO TUTOR LESSONS =====
-function openTopicLesson(topicName) {
+function openTopicLesson(topicName, fromTutor) {
+  const lvIdx = fromTutor ? curTutLv : curLv;
   const isPremium = (localStorage.getItem('is_premium') === 'true');
-  if (curLv >= 1 && !isPremium) {
-    showPremiumPaywall(LV[curLv].n);
+  if (lvIdx >= 1 && !isPremium) {
+    showPremiumPaywall(LV[lvIdx].n);
     return;
   }
   localStorage.setItem('active_topic_name', topicName);
@@ -5455,7 +5501,7 @@ function openTopicLesson(topicName) {
     else if (name.includes("routine") || name.includes("work") || name.includes("time") || name.includes("hobby") || name.includes("plan")) lessonIndex = 3;
     
     if (lessonIndex !== -1) {
-      const tutTabs = document.querySelectorAll('#tutLessons .tb');
+      const tutTabs = document.querySelectorAll('#tutLvTabs .tb');
       if (tutTabs.length > lessonIndex) {
         tutTabs.forEach(x => x.classList.remove('on'));
         tutTabs[lessonIndex].classList.add('on');
