@@ -233,6 +233,8 @@
 <div class="flex flex-wrap gap-2 mb-6 fu" id="tutTopicBtns" style="min-height:32px"></div>
 <script>
 (function(){
+  // Stub: real implementation will be set by app.js
+  window.openTutorTopic = window.openTutorTopic || function(t, i){};
   var c = document.getElementById('tutLvTabs');
   if (!c || c.children.length > 0) return;
   var levels = ['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
@@ -262,8 +264,9 @@
           tb.className = 'bo text-xs';
           tb.textContent = t;
           tb.onclick = function() {
-            document.dispatchEvent(new CustomEvent('openTutorTopic', { detail: { topic: t, levelIdx: i } }));
+            if (window.openTutorTopic) window.openTutorTopic(t, i);
           };
+
           g.appendChild(tb);
         });
       }
