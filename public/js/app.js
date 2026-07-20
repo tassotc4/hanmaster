@@ -4173,7 +4173,7 @@ function startAudioRecording(btn, ic) {
   document.getElementById('tutHint').style.color = 'var(--green)';
   currentTurnId = 'voice-' + Date.now();
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(stream => {
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }).then(stream => {
       console.log("getUserMedia succeeded for recording fallback");
       activeMicStream = stream;
       audioChunks = [];
