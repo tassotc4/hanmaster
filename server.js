@@ -59,7 +59,7 @@ app.post('/api/chat', async (req, res) => {
       if (!wr.ok) return res.status(wr.status).json({ error: wd });
 
       const transcribed = wd.text || '';
-      if (!transcribed.trim()) {
+      if (!transcribed.trim() || /no audio|no speech|没有音频|unable to transcribe/i.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       const userMsg = textParts.length > 0
