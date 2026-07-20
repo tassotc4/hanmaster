@@ -4339,11 +4339,9 @@ function tutSpeak(){
     }
   }
   
-  // Use audio recording fallback if SpeechRecognition previously failed
-  if (window._useAudioFallback || localStorage.getItem('_useAudioFallback')) {
-    window._useAudioFallback = true;
-    return startAudioRecording(btn, ic);
-  }
+  // Clear stale fallback flag — try SpeechRecognition first on desktop
+  localStorage.removeItem('_useAudioFallback');
+  window._useAudioFallback = false;
   
   if(srOn){
     stopMediaRecorder();
