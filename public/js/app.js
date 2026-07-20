@@ -5450,31 +5450,28 @@ function openTopicLesson(topicName, lvIdx) {
     if (tutNavBtn) tutNavBtn.classList.add('act');
     
   } else {
-    // Simulated/Static mode
-    let lessonIndex = -1;
-    if (name.includes("greeting")) lessonIndex = 0;
-    else if (name.includes("food") || name.includes("restaurant") || name.includes("shop")) lessonIndex = 1;
-    else if (name.includes("family")) lessonIndex = 2;
-    else if (name.includes("routine") || name.includes("work") || name.includes("time") || name.includes("hobby") || name.includes("plan")) lessonIndex = 3;
+    // Simulated/Static mode — look up lesson by title keyword
+    const simKey = [['greeting','Basic Greetings'],['food','Restaurant'],['restaurant','Restaurant'],['shop','Restaurant'],['family','Introducing Family'],['routine','Daily Routine'],['work','Daily Routine'],['time','Daily Routine'],['hobby','Daily Routine'],['plan','Daily Routine']];
+    const firstFree = TL.findIndex(l => l.level === 'HSK 1');
+    let tlIdx = firstFree >= 0 ? firstFree : 0;
+    for (const [kw, title] of simKey) {
+      if (name.includes(kw)) { const found = TL.findIndex(l => l.title.includes(title)); if (found !== -1) tlIdx = found; break; }
+    }
     
-    if (lessonIndex !== -1) {
-      const tutTabs = document.querySelectorAll('#tutLvTabs .tb');
-      if (tutTabs.length > lessonIndex) {
-        tutTabs.forEach(x => x.classList.remove('on'));
-        tutTabs[lessonIndex].classList.add('on');
-      }
-      startTutor(lessonIndex);
+    if (tlIdx >= 0) {
+      startTutor(tlIdx);
       scrollTo('#tutor');
       
       document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
       const tutNavBtn = document.querySelector('.mnb[onclick*="tutor"]');
       if (tutNavBtn) tutNavBtn.classList.add('act');
       
-      toast("Loaded " + TL[lessonIndex].title + "! Start speaking now.", "var(--green)");
+      toast("Loaded " + TL[tlIdx].title + "! Start speaking now.", "var(--green)");
     } else {
-      startTutor(0);
+      const fallback = TL.findIndex(l => l.level === 'HSK 1');
+      startTutor(fallback >= 0 ? fallback : 0);
       scrollTo('#tutor');
-      toast("No custom dialogue for '" + topicName + "' in Simulated Mode. Loaded Greetings!", "var(--gold)");
+      toast("Loaded a free lesson!", "var(--gold)");
     }
   }
 }
