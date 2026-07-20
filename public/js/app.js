@@ -5279,12 +5279,14 @@ function sendToGemini(userText) {
   const loaderId = "loader-" + Date.now();
   addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">Thinking...</div>');
   
-  let systemInstruction = "You are Li Laoshi, a Chinese language tutor. CRITICAL: Respond in Chinese first, then provide an English translation. Format your response exactly like this:\n\n[Chinese text here]\n\nEnglish: [English translation here]\n\nExample:\n你好！今天天气很好，你最喜欢做什么？\n\nEnglish: Hello! The weather is nice today, what do you like to do most?\n\nKeep Chinese to 2-3 simple sentences for HSK learners.";
+  const langName = currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
+  
+  let systemInstruction = "You are Li Laoshi, a Chinese language tutor. CRITICAL: Respond in Chinese first, then provide a " + langName + " translation. Format your response exactly like this:\n\n[Chinese text here]\n\n" + langName + ": [" + langName + " translation here]\n\nExample:\n你好！今天天气很好，你最喜欢做什么？\n\n" + langName + ": Hello! The weather is nice today, what do you like to do most?\n\nKeep Chinese to 2-3 simple sentences for HSK learners.";
   
   if (isRoleplayActive) {
     const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
     const setup = getRoleplaySetup(activeTopic);
-    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. CRITICAL: Respond in Chinese first, then provide an English translation. Format your response exactly like this:\n\n[Chinese text here]\n\nEnglish: [English translation here]\n\nAct strictly in character. Here are your roleplay parameters:\n" +
+    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. CRITICAL: Respond in Chinese first, then provide a " + langName + " translation. Format your response exactly like this:\n\n[Chinese text here]\n\n" + langName + ": [" + langName + " translation here]\n\nAct strictly in character. Here are your roleplay parameters:\n" +
       "1. Scenario setup: " + setup.prompt + "\n" +
       "2. Your character role: " + setup.botRole + "\n" +
       "3. User's character role: " + setup.userRole + "\n" +
@@ -5315,10 +5317,11 @@ function sendToGemini(userText) {
     let cleanReply = reply;
     let englishTranslation = "";
     
-    const engMatch = reply.match(/\n\s*English\s*:\s*([\s\S]*)/i);
-    if (engMatch) {
-      englishTranslation = engMatch[1].trim();
-      cleanReply = reply.replace(/\n\s*English\s*:\s*[\s\S]*/i, "").trim();
+    // Parse Chinese and the translation from the response (matches any language label like "English:", "Vietnamese:", etc.)
+    const langMatch = reply.match(/\n\s*[A-Z][a-z]+(\s[A-Z][a-z]+)?\s*:\s*([\s\S]*)/);
+    if (langMatch) {
+      englishTranslation = langMatch[2].trim();
+      cleanReply = reply.replace(/\n\s*[A-Z][a-z]+(\s[A-Z][a-z]+)?\s*:\s*[\s\S]*/, "").trim();
     } else {
       // Fallback: try to split by newline, take first block as Chinese
       const parts = reply.split('\n').filter(l => l.trim());
