@@ -3,8 +3,8 @@ let supabaseClient = null;
 function initSupabase() {
   if (typeof supabase === 'undefined') return;
   supabaseClient = supabase.createClient(
-    HANMASTER_CONFIG.SUPABASE_URL,
-    HANMASTER_CONFIG.SUPABASE_ANON_KEY
+    MANDARINCOURSE_CONFIG.SUPABASE_URL,
+    MANDARINCOURSE_CONFIG.SUPABASE_ANON_KEY
   );
   checkSession();
 }

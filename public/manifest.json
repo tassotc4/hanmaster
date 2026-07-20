@@ -1,6 +1,6 @@
 {
-  "name": "HanMaster",
-  "short_name": "HanMaster",
+  "name": "MandarinCourse",
+  "short_name": "MandarinCourse",
   "description": "Learn HSK Chinese with AI Tutor, Pinyin chart, Tone Visualizer and Writing Quiz.",
   "start_url": "/",
   "display": "standalone",

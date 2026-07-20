@@ -1,7 +1,7 @@
 {
-  "name": "hanmaster",
+  "name": "mandarincourse",
   "version": "1.0.0",
-  "description": "HanMaster — AI-Powered Chinese Learning App",
+  "description": "MandarinCourse — AI-Powered Chinese Learning App",
   "main": "server.js",
   "scripts": {
     "start": "node scripts/build.mjs && NODE_ENV=production node server.js",

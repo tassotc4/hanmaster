@@ -4,3 +4,7 @@ node_modules/
 dist/
 add-batch*.mjs
 scripts/
+fix-bloated.mjs
+https-tunnel.js
+screenshot.png
+start-server.js

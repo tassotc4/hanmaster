@@ -3867,7 +3867,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 function initPayPalSDK() {
   if (document.querySelector('script[src*="paypal.com/sdk/js"]')) return;
   const s = document.createElement('script');
-  s.src = 'https://www.paypal.com/sdk/js?client-id=' + HANMASTER_CONFIG.PAYPAL_CLIENT_ID + '&currency=USD';
+  s.src = 'https://www.paypal.com/sdk/js?client-id=' + MANDARINCOURSE_CONFIG.PAYPAL_CLIENT_ID + '&currency=USD';
   s.onload = () => { if (document.getElementById('premiumModal').style.display === 'flex') renderPayPalButtons(); };
   document.body.appendChild(s);
 }
@@ -3897,7 +3897,7 @@ function checkMic(){
   }
   
   if (!isSecure && hasAPI) {
-    addTutMsg('warn', '<i class="fas fa-exclamation-triangle mr-1"></i> <b>Secure HTTPS Recommended:</b> Speech Recognition requires HTTPS. The app will try the audio recording fallback instead. If mic access is denied, use <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">https://hanmaster.app</code> or <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">http://localhost:8080</code>.');
+    addTutMsg('warn', '<i class="fas fa-exclamation-triangle mr-1"></i> <b>Secure HTTPS Recommended:</b> Speech Recognition requires HTTPS. The app will try the audio recording fallback instead. If mic access is denied, use <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">https://mandarincourse.app</code> or <code style="background:var(--card);padding:1px 6px;border-radius:4px;font-size:11px">http://localhost:8080</code>.');
   }
   
   micAvailable = true;
