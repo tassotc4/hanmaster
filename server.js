@@ -51,7 +51,6 @@ app.post('/api/chat', async (req, res) => {
       form.append('file', blob, `audio.${ext}`);
       form.append('model', 'whisper-large-v3-turbo');
       form.append('response_format', 'json');
-      form.append('language', 'zh');
 
       const wr = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
         method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: form
