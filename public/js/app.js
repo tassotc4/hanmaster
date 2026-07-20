@@ -4162,6 +4162,8 @@ function startAudioRecording(btn, ic) {
   btn.classList.add('on');
   ic.className = 'fas fa-stop text-xl';
   ic.style.color = 'var(--green)';
+  // Stop any TTS playback immediately to prevent feedback loop
+  if (!isMobileDevice) { try { speechSynthesis.cancel(); } catch(e) {} }
   document.getElementById('tutHint').textContent = 'Recording... tap mic to stop';
   const wave = document.getElementById('tutVoiceWave');
   if (wave) wave.style.display = 'inline-flex';
@@ -4240,8 +4242,9 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     if (transcript && transcript !== '(No response)') {
       console.log("Transcription result:", transcript);
       document.getElementById('tutStatus').textContent = 'Heard: ' + transcript;
-      addTutMsg('user', '<div class="fc font-bold" style="font-size:16px;margin-bottom:3px;letter-spacing:1px">' + transcript + '</div><div style="font-size:11px;color:var(--muted)">(voice input)</div>');
-      sendToGemini(transcript);
+      // Show confirmation before sending to AI
+      const confirmId = 'confirm-' + Date.now();
+      addTutMsg('user', '<div class="fc font-bold" style="font-size:16px;margin-bottom:3px;letter-spacing:1px">' + transcript + '</div><div style="font-size:11px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px">✓ Use</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px">✕ Cancel</button></div>');
     } else {
       console.warn("Empty transcription, showing raw reply");
       addTutMsg('bot', reply);
@@ -4251,7 +4254,21 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     console.error("Audio transcription failed:", err);
     document.getElementById('tutHint').textContent = 'Transcription error: ' + err.message;
     document.getElementById('tutStatus').textContent = 'Error: ' + err.message;
+    if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   });
+}
+
+function confirmTranscript(transcript, loaderId) {
+  if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
+  sendToGemini(transcript);
+}
+
+function rejectTranscript(confirmId, loaderId) {
+  if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
+  const el = document.getElementById(confirmId);
+  if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px">Cancelled — tap mic to try again</span>';
+  document.getElementById('tutHint').textContent = 'Cancelled. Tap mic to speak again.';
+}
 }
 
 function tutSpeak(){
