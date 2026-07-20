@@ -4045,9 +4045,13 @@ function buildTutLessons(){const c=document.getElementById('tutLessons');TL.forE
 
 function startTutor(idx){
   const isPremium = (localStorage.getItem('is_premium') === 'true');
-  if (idx >= 1 && !isPremium) {
-    showPremiumPaywall(TL[idx].level);
-    return;
+  const lesson = TL[idx];
+  if (lesson && lesson.level && lesson.level.startsWith('HSK') && !isPremium) {
+    const levelNum = parseInt(lesson.level.replace('HSK ', ''));
+    if (levelNum >= 2) {
+      showPremiumPaywall(lesson.level);
+      return;
+    }
   }
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   document.getElementById('tutTotal').textContent='--';
@@ -4476,7 +4480,7 @@ function buildLvTabs(){const c=document.getElementById('lvTabs');LV.forEach((l,i
       c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
       b.classList.add('on');
       const isPremium = (localStorage.getItem('is_premium') === 'true');
-      if (i >= 3 && !isPremium) {
+      if (i >= 1 && !isPremium) {
         showPremiumPaywall('HSK ' + (i + 1));
         return;
       }
