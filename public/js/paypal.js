@@ -7,26 +7,29 @@ function renderPayPalButtons() {
   container.innerHTML = '';
 
   paypal.Buttons({
-    createOrder: function(data, actions) {
-      return actions.order.create({
-        purchase_units: [{
-          description: 'HanMaster Premium - Monthly',
-          amount: { value: '9.99' }
-        }]
-      });
+    createOrder: function() {
+      return fetch('/api/paypal/create-order', { method: 'POST' })
+        .then(r => r.json())
+        .then(data => { if (data.id) return data.id; throw new Error(data.error || 'Failed to create order'); });
     },
-    onApprove: function(data, actions) {
-      return actions.order.capture().then(function(details) {
-        if (details.status === 'COMPLETED') {
-          localStorage.setItem('is_premium', 'true');
-          toast('Welcome to HanMaster Premium! 🎉', 'var(--green)');
-          updatePremiumUI();
-          document.getElementById('premiumModal').style.display = 'none';
-          if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
-        } else {
-          toast('Payment not completed. Please try again.', 'var(--accent)');
-        }
-      });
+    onApprove: function(data) {
+      return fetch('/api/paypal/capture-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: data.orderID })
+      })
+        .then(r => r.json())
+        .then(function(details) {
+          if (details.status === 'COMPLETED') {
+            localStorage.setItem('is_premium', 'true');
+            toast('Welcome to HanMaster Premium! 🎉', 'var(--green)');
+            updatePremiumUI();
+            document.getElementById('premiumModal').style.display = 'none';
+            if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
+          } else {
+            toast('Payment not completed. Please try again.', 'var(--accent)');
+          }
+        });
     },
     onError: function(err) {
       toast('PayPal error. Please try again.', 'var(--accent)');

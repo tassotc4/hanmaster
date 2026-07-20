@@ -1,13 +1,16 @@
-const CACHE = 'hanmaster-v1';
-const urlsToCache = ['/', '/app', '/manifest.json', '/js/config.js', '/js/supabase.js', '/js/paypal.js'];
+const CACHE = 'hanmaster-v3';
+const urlsToCache = ['/', '/app', '/manifest.json', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/app.js', '/css/app.css'];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(cache => cache.addAll(urlsToCache)));
+  e.waitUntil(caches.open(CACHE).then(cache => Promise.all(urlsToCache.map(url => cache.add(url).catch(() => {})))));
   self.skipWaiting();
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(
+    caches.keys().then(names => Promise.all(names.filter(n => n !== CACHE).map(n => caches.delete(n))))
+    .then(() => clients.claim())
+  );
 });
 
 self.addEventListener('fetch', e => {
@@ -17,6 +20,6 @@ self.addEventListener('fetch', e => {
         if (e.request.method === 'GET') cache.put(e.request, response.clone());
         return response;
       });
-    }))
+    }).catch(() => fetch(e.request)))
   );
 });
