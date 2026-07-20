@@ -22,7 +22,7 @@ function renderPayPalButtons() {
         .then(function(details) {
           if (details.status === 'COMPLETED') {
             localStorage.setItem('is_premium', 'true');
-            toast('Welcome to HanMaster Premium! 🎉', 'var(--green)');
+            toast('Welcome to MandarinCourse Premium! 🎉', 'var(--green)');
             updatePremiumUI();
             document.getElementById('premiumModal').style.display = 'none';
             if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();

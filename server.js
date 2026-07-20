@@ -121,7 +121,7 @@ app.post('/api/paypal/create-order', async (req, res) => {
         body: JSON.stringify({
           intent: 'CAPTURE',
           purchase_units: [{
-            description: 'HanMaster Premium - Monthly',
+            description: 'MandarinCourse Premium - Monthly',
             amount: { currency_code: 'USD', value: '9.99' }
           }]
         })
@@ -201,5 +201,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`HanMaster running at http://localhost:${PORT}`);
+  console.log(`MandarinCourse running at http://localhost:${PORT}`);
 });

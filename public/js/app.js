@@ -5831,7 +5831,7 @@ async function subscribePremium() {
       } else {
         buildFlashcards();
       }
-      toast("Welcome to HanMaster Premium! HSK 1-9 Unlocked.", "var(--green)");
+      toast("Welcome to MandarinCourse Premium! HSK 1-9 Unlocked.", "var(--green)");
     }, 1200);
   }
 }
@@ -6345,7 +6345,7 @@ async function saveReminderSettings() {
             notifications: [
               {
                 title: "Time to study Chinese! 汉",
-                body: "Keep up your streak and review your flashcards on HanMaster!",
+                body: "Keep up your streak and review your flashcards on MandarinCourse!",
                 id: 1,
                 schedule: {
                   every: interval === 'daily' ? 'day' : 'week',
@@ -6413,11 +6413,14 @@ function changeTheme(themeName) {
   toast("Theme updated: " + themeName, "var(--green)");
 }
 
-document.addEventListener('click', () => {
-  const themeDropdown = document.getElementById('themeDropdown');
-  if (themeDropdown) themeDropdown.style.display = 'none';
+document.addEventListener('click', (e) => {
+  const target = e.target;
   const langDropdown = document.getElementById('langDropdown');
-  if (langDropdown) langDropdown.style.display = 'none';
+  const themeDropdown = document.getElementById('themeDropdown');
+  const langBtn = document.getElementById('langBtn');
+  const themeBtn = document.getElementById('themeBtn');
+  if (langDropdown && !langDropdown.contains(target) && target !== langBtn && !(langBtn && langBtn.contains(target))) langDropdown.style.display = 'none';
+  if (themeDropdown && !themeDropdown.contains(target) && target !== themeBtn && !(themeBtn && themeBtn.contains(target))) themeDropdown.style.display = 'none';
 });
 
 // B. Radical Explorer data & grid rendering
