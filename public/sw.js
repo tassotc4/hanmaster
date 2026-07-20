@@ -1,4 +1,4 @@
-const CACHE = 'mandarincourse-v1';
+const CACHE = 'mandarincourse-v2';
 const urlsToCache = ['/', '/app', '/manifest.json', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/app.js', '/css/app.css'];
 
 self.addEventListener('install', e => {
