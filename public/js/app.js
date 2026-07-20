@@ -3854,10 +3854,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     getChineseVoice();
     if (_origOnVoicesChanged) _origOnVoicesChanged();
   };
-  buildHero();buildTutLvTabs();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
+  buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
   // Listen for topic clicks from inline fallback tabs
   document.addEventListener('openTutorTopic', function(e) {
-    openTopicLesson(e.detail.topic, true);
+    openTopicLesson(e.detail.topic, e.detail.levelIdx);
   });
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
@@ -4045,53 +4045,6 @@ function sim(a,b){
 
 
 // ===== TUTOR =====
-let curTutLv = 0;
-
-function buildTutLvTabs() {
-  const c = document.getElementById('tutLvTabs');
-  if (!c) { console.warn('tutLvTabs element not found'); return; }
-  c.innerHTML = '';
-  LV.forEach((l, i) => {
-    const b = document.createElement('button');
-    b.className = 'tb' + (i === 0 ? ' on' : '');
-    b.textContent = l.n;
-    b.onclick = () => {
-      curTutLv = i;
-      c.querySelectorAll('.tb').forEach(x => x.classList.remove('on'));
-      b.classList.add('on');
-      const isPremium = (localStorage.getItem('is_premium') === 'true');
-      if (i >= 1 && !isPremium) {
-        showPremiumPaywall(l.n);
-        return;
-      }
-      buildTutTopics();
-    };
-    c.appendChild(b);
-  });
-  buildTutTopics();
-}
-
-function buildTutTopics() {
-  const g = document.getElementById('tutTopicBtns');
-  if (!g) return;
-  g.innerHTML = '';
-  const lv = LV[curTutLv];
-  lv.tp.forEach(topicName => {
-    const b = document.createElement('button');
-    b.className = 'bo text-xs';
-    b.textContent = topicName;
-    b.onclick = () => {
-      const isPremium = (localStorage.getItem('is_premium') === 'true');
-      if (curTutLv >= 1 && !isPremium) {
-        showPremiumPaywall(LV[curTutLv].n);
-        return;
-      }
-      openTopicLesson(topicName, true);
-    };
-    g.appendChild(b);
-  });
-}
-
 function startTutor(idx){
   const isPremium = (localStorage.getItem('is_premium') === 'true');
   const lesson = TL[idx];
@@ -5455,8 +5408,8 @@ function useHint() {
 }
 
 // ===== MAPPING HSK CARDS TO TUTOR LESSONS =====
-function openTopicLesson(topicName, fromTutor) {
-  const lvIdx = fromTutor ? curTutLv : curLv;
+function openTopicLesson(topicName, lvIdx) {
+  if (lvIdx === undefined || lvIdx === true) lvIdx = curLv;
   const isPremium = (localStorage.getItem('is_premium') === 'true');
   if (lvIdx >= 1 && !isPremium) {
     showPremiumPaywall(LV[lvIdx].n);
