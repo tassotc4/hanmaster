@@ -4175,7 +4175,21 @@ function startAudioRecording(btn, ic) {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }).then(stream => {
       console.log("getUserMedia succeeded for recording fallback");
-      activeMicStream = stream;
+      // Amplify audio gain to help Whisper detect speech
+      let recordStream = stream;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const source = audioCtx.createMediaStreamSource(stream);
+        const gain = audioCtx.createGain();
+        gain.gain.value = 2.5;
+        const dest = audioCtx.createMediaStreamDestination();
+        source.connect(gain).connect(dest);
+        recordStream = dest.stream;
+        console.log("Audio gain amplification applied (2.5x)");
+      } catch(e) {
+        console.warn("Could not apply gain amplification, using raw stream:", e.message);
+      }
+      activeMicStream = stream; // keep original for cleanup
       audioChunks = [];
       let mime = 'audio/webm';
       if (typeof MediaRecorder.isTypeSupported === 'function') {
@@ -4187,10 +4201,10 @@ function startAudioRecording(btn, ic) {
       window._audioMime = mime;
       console.log("Using mime type:", mime);
       try {
-        mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+        mediaRecorder = new MediaRecorder(recordStream, { mimeType: mime });
       } catch(e) {
         console.warn("Failed with", mime, "trying without mimeType");
-        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder = new MediaRecorder(recordStream);
         mime = mediaRecorder.mimeType || '';
         window._audioMime = mime;
       }

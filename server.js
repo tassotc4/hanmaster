@@ -56,9 +56,11 @@ app.post('/api/chat', async (req, res) => {
         method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: form
       });
       const wd = await wr.json();
+      console.log("Raw Whisper response:", JSON.stringify(wd).substring(0, 300));
       if (!wr.ok) return res.status(wr.status).json({ error: wd });
 
       const transcribed = wd.text || '';
+      console.log("Whisper transcribed:", JSON.stringify(transcribed).substring(0, 200));
       if (!transcribed.trim() || /no audio|no speech|没有音频|unable to transcribe/i.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
