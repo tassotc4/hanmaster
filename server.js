@@ -47,10 +47,11 @@ app.post('/api/chat', async (req, res) => {
       if (buf.length < 100) return res.status(400).json({ error: 'Audio too small: ' + buf.length + ' bytes' });
       const form = new FormData();
       const blob = new Blob([buf], { type: mimeType });
-      const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('mp4') ? 'mp4' : mimeType.includes('ogg') ? 'ogg' : mimeType.includes('opus') ? 'opus' : 'wav';
+      const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('mp4') ? 'mp4' : mimeType.includes('mpeg') ? 'mpeg' : mimeType.includes('ogg') ? 'ogg' : mimeType.includes('opus') ? 'opus' : mimeType.includes('wav') ? 'wav' : 'webm';
       form.append('file', blob, `audio.${ext}`);
       form.append('model', 'whisper-large-v3-turbo');
       form.append('response_format', 'json');
+      form.append('language', 'zh');
 
       const wr = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
         method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: form

@@ -4181,13 +4181,18 @@ function startAudioRecording(btn, ic) {
       if (!mime) { console.error("No supported audio mime type"); return; }
       window._audioMime = mime;
       console.log("Using mime type:", mime);
-      mediaRecorder = new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 192000 });
+      try {
+        mediaRecorder = new MediaRecorder(stream, { mimeType: mime });
+      } catch(e) {
+        console.warn("Failed with", mime, "trying without mimeType");
+        mediaRecorder = new MediaRecorder(stream);
+        mime = mediaRecorder.mimeType || '';
+        window._audioMime = mime;
+      }
       mediaRecorder.ondataavailable = e => {
-        console.log("ondataavailable: size=" + e.data.size);
         if (e.data.size > 0) audioChunks.push(e.data);
       };
-      mediaRecorder.start(250);
-      console.log("MediaRecorder started with 250ms timeslice");
+      mediaRecorder.start();
     }).catch(err => {
       console.error("Audio recording fallback failed:", err);
       _recAudioMode = false;
