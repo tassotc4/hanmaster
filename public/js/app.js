@@ -4271,7 +4271,6 @@ function rejectTranscript(confirmId, loaderId) {
   if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px">Cancelled — tap mic to try again</span>';
   document.getElementById('tutHint').textContent = 'Cancelled. Tap mic to speak again.';
 }
-}
 
 function tutSpeak(){
   const isLive = localStorage.getItem('tutor_mode') === 'live';
