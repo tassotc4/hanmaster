@@ -5279,16 +5279,16 @@ function sendToGemini(userText) {
   const loaderId = "loader-" + Date.now();
   addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">Thinking...</div>');
   
-  let systemInstruction = "You are Li Laoshi, a Chinese language tutor. CRITICAL INSTRUCTION: You MUST ALWAYS respond in Chinese ONLY. Never use any other language — no English, no Vietnamese, no translations, no explanations in other languages. Respond entirely in Chinese characters. Keep responses to 2-3 simple sentences appropriate for HSK learners.";
+  let systemInstruction = "You are Li Laoshi, a Chinese language tutor. CRITICAL: Respond in Chinese first, then provide an English translation. Format your response exactly like this:\n\n[Chinese text here]\n\nEnglish: [English translation here]\n\nExample:\n你好！今天天气很好，你最喜欢做什么？\n\nEnglish: Hello! The weather is nice today, what do you like to do most?\n\nKeep Chinese to 2-3 simple sentences for HSK learners.";
   
   if (isRoleplayActive) {
     const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
     const setup = getRoleplaySetup(activeTopic);
-    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. CRITICAL INSTRUCTION: You MUST ALWAYS respond in Chinese ONLY. Never use any other language — no English, no Vietnamese, no translations. Act strictly in character and stay in your role. Here are your roleplay parameters:\n" +
+    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. CRITICAL: Respond in Chinese first, then provide an English translation. Format your response exactly like this:\n\n[Chinese text here]\n\nEnglish: [English translation here]\n\nAct strictly in character. Here are your roleplay parameters:\n" +
       "1. Scenario setup: " + setup.prompt + "\n" +
       "2. Your character role: " + setup.botRole + "\n" +
       "3. User's character role: " + setup.userRole + "\n" +
-      "4. Speak simple, natural Chinese suited for HSK learners. Keep your replies to 2-3 sentences in character.";
+      "4. Keep Chinese replies to 2-3 simple sentences in character.";
   }
   
   const payload = {
@@ -5311,30 +5311,36 @@ function sendToGemini(userText) {
     
     let reply = data.candidates[0].content.parts[0].text.trim();
     
+    // Parse Chinese and English from the response
     let cleanReply = reply;
-    let suggestedAnswer = "我同意你的看法。";
     let englishTranslation = "";
     
-    // Highlight any pinyin or tone hints in the response
-    if (/(Tutor Tip|提示|注意)/i.test(cleanReply)) {
-      const tipMatch = cleanReply.match(/[（\(](Tutor Tip|提示|注意)[：:][^）\)]+[）\)]/i);
-      if (tipMatch) englishTranslation = tipMatch[0];
+    const engMatch = reply.match(/\n\s*English\s*:\s*([\s\S]*)/i);
+    if (engMatch) {
+      englishTranslation = engMatch[1].trim();
+      cleanReply = reply.replace(/\n\s*English\s*:\s*[\s\S]*/i, "").trim();
+    } else {
+      // Fallback: try to split by newline, take first block as Chinese
+      const parts = reply.split('\n').filter(l => l.trim());
+      cleanReply = parts.filter(l => /[\u4e00-\u9fa5]/.test(l)).join('\n') || parts[0];
     }
     
-    // Set targets for pronunciation matching (use the full reply as the live target)
-    currentLiveTarget = cleanReply.replace(/[（\(][^）\)]*[）\)]/g, "").trim();
-    suggestedUserTarget = currentLiveTarget.split(/[？！。.\n]/).filter(s => s.trim().length > 0)[0] || currentLiveTarget;
+    let suggestedAnswer = cleanReply.split(/[？！。.\n]/).filter(s => s.trim().length > 0)[0] || cleanReply;
+    
+    // Set targets for pronunciation matching
+    currentLiveTarget = cleanReply;
+    suggestedUserTarget = suggestedAnswer;
     
     // Show in side panel
-    document.getElementById('tutWd').textContent = currentLiveTarget;
-    document.getElementById('tutWp').textContent = "Reply in Chinese";
+    document.getElementById('tutWd').textContent = cleanReply;
+    document.getElementById('tutWp').textContent = suggestedAnswer;
     document.getElementById('tutWm').textContent = englishTranslation;
     
-    // Append response to history
+    // Append response to history (store the original full reply)
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
     
     // Add message to chat and speak
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:11px;color:var(--gold);margin-bottom:6px;opacity:.8">' + englishTranslation + '</div>' : '') + '<span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
+    addTutMsg('bot', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + '<span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
     speak(cleanReply);
     
     // Immersive Roleplay Status Updates for Live Mode
