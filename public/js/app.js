@@ -10685,7 +10685,7 @@ function buildTutorTabs(){
 }
 
 // ===== LESSONS =====
-function buildLvTabs(){const c=document.getElementById('lvTabs');LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=t(l.n);b.onclick=()=>{
+function buildLvTabs(){const c=document.getElementById('lvTabs');if(!c)return;c.innerHTML='';LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=t(l.n);b.onclick=()=>{
       curLv=i;
       c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
       b.classList.add('on');
