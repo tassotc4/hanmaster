@@ -283,19 +283,19 @@
 <div class="cd overflow-hidden fu" style="min-height:500px;max-height:640px;display:flex;flex-direction:column">
 <div class="px-5 py-3 flex items-center gap-3 flex-shrink-0" style="border-bottom:1px solid var(--border)">
 <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--blue),var(--purple))"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
-<div class="flex-1 min-w-0"><div class="font-semibold text-sm">AI Speaking Tutor</div><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--green)"></span><span class="text-xs" style="color:var(--muted)" id="tutStatus">Select a lesson to begin</span><div id="tutVoiceWave" class="voice-wave-container" style="display:none;"><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div></div></div></div>
-<div class="flex items-center gap-3 flex-shrink-0"><div class="text-right"><div class="text-xs" style="color:var(--muted)">Avg</div><div class="text-lg font-extrabold" style="color:var(--gold)" id="tutTotal">--</div></div>
-<button id="tutRoleplayBtn" class="w-16 h-8 rounded-lg flex items-center justify-center mr-1 text-[10px] font-bold" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none;outline:none;" onclick="toggleRoleplayMode()" title="Toggle Dialogue Roleplay Mode"><i class="fas fa-user-friends mr-1"></i>Study</button>
+<div class="flex-1 min-w-0"><div class="font-semibold text-sm" data-tr="AI Speaking Tutor">AI Speaking Tutor</div><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--green)"></span><span class="text-xs" style="color:var(--muted)" id="tutStatus" data-tr="Select a lesson to begin">Select a lesson to begin</span><div id="tutVoiceWave" class="voice-wave-container" style="display:none;"><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div></div></div></div>
+<div class="flex items-center gap-3 flex-shrink-0"><div class="text-right"><div class="text-xs" style="color:var(--muted)" data-tr="Avg">Avg</div><div class="text-lg font-extrabold" style="color:var(--gold)" id="tutTotal">--</div></div>
+<button id="tutRoleplayBtn" class="w-16 h-8 rounded-lg flex items-center justify-center mr-1 text-[10px] font-bold" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none;outline:none;" onclick="toggleRoleplayMode()" title="Toggle Dialogue Roleplay Mode" data-tr="Study"><i class="fas fa-user-friends mr-1"></i>Study</button>
 <button id="tutSpeedBtn" class="w-12 h-8 rounded-lg flex items-center justify-center mr-1 text-[11px] font-bold" style="background:var(--card2);color:var(--blue);cursor:pointer;border:none" onclick="cycleSpeechRate()" title="Change AI Speaking Speed">1.0x</button>
 <button class="w-8 h-8 rounded-lg flex items-center justify-center mr-1" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none" onclick="toggleSettingsModal()" title="Settings"><i class="fas fa-cog text-xs"></i></button>
 <button class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none" onclick="resetTutor()" title="Restart"><i class="fas fa-rotate-right text-xs"></i></button></div>
 </div>
 <div class="flex flex-1 overflow-hidden flex-col md:flex-row">
 <div class="flex-1 overflow-y-auto p-2.5 flex flex-col gap-3.5" id="tutChat">
-<div class="csys"><i class="fas fa-info-circle mr-1"></i> Select a lesson above and respond by <b>typing Chinese</b>.</div>
+<div class="csys" data-tr="Select a lesson above and respond by typing Chinese."><i class="fas fa-info-circle mr-1"></i> Select a lesson above and respond by <b>typing Chinese</b>.</div>
 </div>
 <div class="tut-side flex-shrink-0 p-3 md:p-5 flex flex-row md:flex-col items-center justify-center gap-4 md:gap-0 w-full md:w-[200px] border-b md:border-b-0 md:border-l border-[var(--border)]" style="background:var(--card2)">
-<div class="hidden md:block text-xs font-semibold uppercase tracking-wider mb-3" style="color:var(--muted)">Current Phrase</div>
+<div class="hidden md:block text-xs font-semibold uppercase tracking-wider mb-3" style="color:var(--muted)" data-tr="Current Phrase">Current Phrase</div>
 <div class="flex md:flex-col items-center justify-center gap-3 md:gap-0 flex-1 md:flex-initial">
   <div class="fc text-2xl md:text-4xl font-black mb-0.5 md:mb-2 text-center" id="tutWd">--</div>
   <div class="flex flex-col md:block">
