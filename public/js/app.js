@@ -3576,6 +3576,7 @@ if (typeof HSK_EXTRA !== 'undefined' && typeof HSK_WORDS !== 'undefined') {
   for (const w of HSK_EXTRA) HSK_WORDS.push({l:w[0],c:w[1],p:w[2],e:w[3]});
 }
 const TL=[
+...(typeof MORE_TUTOR_LESSONS !== 'undefined' ? MORE_TUTOR_LESSONS : []),
 ...(typeof EXTRA_TUTOR_LESSONS !== 'undefined' ? EXTRA_TUTOR_LESSONS : []),
 {title:"Basic Greetings",level:"HSK 1",icon:"fa-hand-peace",
 words:[
