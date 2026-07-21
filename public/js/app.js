@@ -4255,7 +4255,57 @@ const OFFLINE_DICTIONARY = {
     "have to / must":"phải",
     "Present/Future tense with 会":"Thì Hiện tại/Tương lai với 会",
     "Using 想 for intentions":"Dùng 想 cho ý định",
-    "want / would like":"muốn"
+    "want / would like":"muốn",
+    "to sit":"ngồi","four":"bốn","to love":"yêu","piece, yuan":"miếng, đồng",
+    "he, him":"anh ấy","few, little":"ít","some":"một vài","seven":"bảy",
+    "please":"mời, làm ơn","measure for books":"quyển",
+    "not, no":"không","year":"năm","and":"và","can, able":"có thể",
+    "cold":"lạnh","to open, drive":"mở, lái","too, extremely":"quá",
+    "to call, named":"gọi","book":"sách","to be":"là",
+    "completed action particle":"rồi","ten":"mười",
+    "you":"bạn","character":"chữ","to return":"quay về",
+    "I, me":"tôi","to know / to meet":"biết / gặp",
+    "very glad":"rất vui","also / too":"cũng","goodbye":"tạm biệt",
+    "hello":"xin chào","my name is":"tôi tên là",
+    "to have":"có","people":"người","big":"lớn","small":"nhỏ",
+    "many, much":"nhiều","good":"tốt","bad":"xấu","big":"to, lớn",
+    "long":"dài","short":"ngắn","high":"cao","low":"thấp",
+    "new":"mới","old":"cũ","beautiful":"đẹp","ugly":"xấu",
+    "fast":"nhanh","slow":"chậm","expensive":"đắt","cheap":"rẻ",
+    "this":"này, đây","that":"kia, đó","what":"gì","who":"ai",
+    "where":"đâu, ở đâu","when":"khi nào","why":"tại sao",
+    "how":"thế nào","which":"nào","how many":"bao nhiêu",
+    "how much":"bao nhiêu tiền","what time":"mấy giờ",
+    "yes":"vâng, có","no":"không","right":"đúng","wrong":"sai",
+    "happy":"vui vẻ","sad":"buồn","angry":"tức giận",
+    "tired":"mệt","hungry":"đói","thirsty":"khát",
+    "come":"đến","go":"đi","want":"muốn","like":"thích",
+    "see":"thấy, gặp","look at":"nhìn","listen":"nghe",
+    "say":"nói","tell":"kể","ask":"hỏi","answer":"trả lời",
+    "give":"cho","take":"lấy","buy":"mua","sell":"bán",
+    "eat":"ăn","drink":"uống","cook":"nấu","wash":"rửa",
+    "sleep":"ngủ","wake up":"thức dậy","work":"làm việc",
+    "study":"học","learn":"học","teach":"dạy","read":"đọc",
+    "write":"viết","speak":"nói","know":"biết",
+    "think":"nghĩ","can":"có thể","want to":"muốn",
+    "need to":"cần","must":"phải","should":"nên",
+    "today":"hôm nay","yesterday":"hôm qua","tomorrow":"ngày mai",
+    "morning":"sáng","afternoon":"chiều","evening":"tối",
+    "day":"ngày","week":"tuần","month":"tháng",
+    "time":"thời gian","now":"bây giờ","before":"trước",
+    "after":"sau","already":"đã","not yet":"chưa",
+    "often":"thường","always":"luôn luôn","sometimes":"thỉnh thoảng",
+    "water":"nước","food":"thức ăn","rice":"cơm","bread":"bánh mì",
+    "fruit":"trái cây","vegetable":"rau","meat":"thịt",
+    "chicken":"gà","fish":"cá","egg":"trứng",
+    "milk":"sữa","tea":"trà","coffee":"cà phê",
+    "friend":"bạn bè","family":"gia đình","father":"bố","mother":"mẹ",
+    "older brother":"anh trai","younger brother":"em trai",
+    "older sister":"chị gái","younger sister":"em gái",
+    "husband":"chồng","wife":"vợ","son":"con trai",
+    "daughter":"con gái","child":"trẻ em",
+    "school":"trường học","teacher":"giáo viên","student":"học sinh",
+    "classmate":"bạn cùng lớp","classroom":"lớp học"
   },
   "ja": {
     "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
@@ -7526,7 +7576,7 @@ function buildDictionary(level) {
   const list = document.getElementById('dictList');
   if (!list) return;
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv) : [];
-  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+w.e+'</div></div>').join('');
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
 }
 function filterDictionary() {
   const q = document.getElementById('dictSearch').value.trim().toLowerCase();
@@ -7535,7 +7585,7 @@ function filterDictionary() {
   const list = document.getElementById('dictList');
   if (!list) return;
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv && (!q || w.c.includes(q) || w.p.includes(q) || w.e.toLowerCase().includes(q))) : [];
-  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+w.e+'</div></div>').join('');
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
 }
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof initTranslate === 'function') initTranslate();
