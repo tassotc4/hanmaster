@@ -7002,7 +7002,7 @@ function buildRadicals() {
   grid.innerHTML = RADICALS.map((rad, idx) => `
     <button onclick="selectRadical(${idx})" class="w-full aspect-square rounded-xl border border-[var(--border)] bg-[var(--card2)] flex flex-col items-center justify-center cursor-pointer transition hover:border-[var(--accent)]" style="outline:none;">
       <span class="text-2xl font-black text-white">${rad.r}</span>
-      <span class="text-[9px] text-muted font-bold mt-1">${rad.name.split(' ')[0]}</span>
+      <span class="text-[9px] text-muted font-bold mt-1">${rad.n.split(' ')[0]}</span>
     </button>
   `).join('');
   if (activeRadIndex === -1) selectRadical(0);
@@ -7040,8 +7040,8 @@ function selectRadical(idx) {
   activeRadIndex = idx;
   const rad = RADICALS[idx];
   document.getElementById('radDisplayChar').textContent = rad.r;
-  document.getElementById('radDisplayName').textContent = rad.name;
-  document.getElementById('radDisplayMeaning').textContent = rad.meaning;
+  document.getElementById('radDisplayName').textContent = rad.n;
+  document.getElementById('radDisplayMeaning').textContent = rad.m;
   
   const listCon = document.getElementById('radExampleList');
   if (!listCon) return;
