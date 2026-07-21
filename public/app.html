@@ -326,12 +326,12 @@
 <!-- TEXT INPUT - ALWAYS VISIBLE -->
 <div class="flex gap-2 w-full">
   <div class="relative flex-1">
-    <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here — e.g. 你好" disabled>
+    <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here — e.g. 你好" data-tr-placeholder="Type or speak Chinese here — e.g. 你好" disabled>
     <button id="tutInputMic" onclick="toggleInputSpeech()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-accent focus:outline-none" style="background:none;border:none;cursor:pointer" title="Speak to type" disabled>
       <i id="tutInputMicIc" class="fas fa-microphone"></i>
     </button>
   </div>
-  <button class="tut-submit" id="tutSubmitBtn" onclick="tutTypeSubmit()" disabled>Submit</button>
+  <button class="tut-submit" id="tutSubmitBtn" onclick="tutTypeSubmit()" disabled data-tr="Submit">Submit</button>
 </div>
 </div></div></div>
 </section>
