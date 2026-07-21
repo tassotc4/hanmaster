@@ -396,7 +396,66 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=patada, 足球=fútbol.",
     "身=body, 体=form. Together = health.": "身=cuerpo, 体=forma. Juntos = salud.",
     "运=move, 动=action.": "运=mover, 动=acción.",
-    "迟=late, 到=arrive.": "迟=tarde, 到=llegar."
+    "迟=late, 到=arrive.": "迟=tarde, 到=llegar.",
+    "Speaking":"Hablante A","Speaker B":"Hablante B","Waiter":"Camarero","Customer":"Cliente","Friend A":"Amigo A","Friend B":"Amigo B","Customs Officer":"Oficial de Aduanas","Passenger":"Pasajero",
+    "Student":"Estudiante","Roleplay Characters Assigned":"Personajes Asignados","Bot":"Bot","You":"Tú",
+    "Teaching...":"Enseñando...","Listen to":"Escuchar a","speaking":"hablando","Type your response in the box below":"Escribe tu respuesta en el cuadro de abajo",
+    "Your turn":"Tu turno","type below":"escribe abajo","replay":"repetir","speak":"habla","lines":"líneas",
+    "Your Turn":"Tu Turno","Type Chinese below or press mic":"Escribe chino abajo o presiona micrófono",
+    "No audio recorded. Try again.":"No se grabó audio. Intenta de nuevo.",
+    "Recording... tap mic to stop":"Grabando... toca micrófono para detener",
+    "Mic access denied. Use text box.":"Micrófono denegado. Usa el cuadro de texto.",
+    "Transcribing...":"Transcribiendo...","Transcribing audio...":"Transcribiendo audio...",
+    "Rate limited, retrying in ":"Límite alcanzado, reintentando en ","s...":"s...",
+    "Heard: ":"Escuchado: ","Use":"Usar","Cancel":"Cancelar",
+    "No speech detected — tap mic and speak clearly":"No se detectó habla — toca micrófono y habla claro",
+    "No speech detected":"No se detectó habla","Transcription error: ":"Error de transcripción: ",
+    "Error:":"Error:","Cancelled — tap mic to try again":"Cancelado — toca micrófono para intentar de nuevo",
+    "Cancelled. Tap mic to speak again.":"Cancelado. Toca micrófono para hablar de nuevo.",
+    "Your browser does not support microphone input. Use the text box instead.":"Tu navegador no soporta entrada de micrófono. Usa el cuadro de texto.",
+    "Allow microphone access when prompted...":"Permite el acceso al micrófono cuando se solicite...",
+    "Tap microphone again to start speaking.":"Toca el micrófono de nuevo para empezar a hablar.",
+    "Mic Denied: Tap aA (or settings icon) in Safari address bar → Website Settings → Set Microphone to Allow → Reload page.":"Micrófono Denegado: Toca aA (o icono de ajustes) en la barra de direcciones de Safari → Ajustes del Sitio → Configurar Micrófono a Permitir → Recarga la página.",
+    "Listening...":"Escuchando...","Auto-switching to recording...":"Cambiando a grabación...",
+    "Mic Error":"Error de Micrófono","Try text box":"Prueba cuadro de texto",
+    "Type Chinese characters first":"Escribe caracteres chinos primero",
+    "Great!":"¡Excelente!","Getting there":"Casi listo","Keep practicing":"Sigue practicando",
+    "Matched transcript:":"Transcripción coincidente:","Score:":"Puntuación:","/100":"/100",
+    "Excellent!":"¡Excelente!","Good effort!":"¡Buen esfuerzo!",
+    "Keep practicing!":"¡Sigue practicando!","Lesson Complete!":"¡Lección Completada!",
+    "Average:":"Promedio:","Select another lesson above to continue.":"Selecciona otra lección arriba para continuar.",
+    "Lesson complete!":"¡Lección completada!","Select a lesson above":"Selecciona una lección arriba",
+    "Initials":"Iniciales","Finals":"Finales","Four Tones":"Cuatro Tonos",
+    "Listen":"Escuchar","Practice":"Practicar","pts":"pts","See Results":"Ver Resultados",
+    "Perfect starting point!":"¡Punto de partida perfecto!","Solid HSK 3 foundation!":"¡Base sólida de HSK 3!","Ready for HSK 2!":"¡Listo para HSK 2!",
+    "Your Level:":"Tu Nivel:","/10":"/10",
+    "Current":"Actual","Again (1m)":"Repetir (1m)","Hard (12h)":"Difícil (12h)","Good (1d)":"Bueno (1d)","Easy (4d)":"Fácil (4d)",
+    "Card rescheduled:":"Tarjeta reprogramada:",
+    "Flat (1st Tone)":"Plano (1er Tono)","Rising (2nd Tone)":"Ascendente (2do Tono)","Dipping (3rd Tone)":"Descendente (3er Tono)","Falling (4th Tone)":"Caída (4to Tono)",
+    "Practice:":"Práctica:","Hum/Speak now...":"Tararea/Habla ahora...",
+    "Analysis complete. Choose another tone to test!":"Análisis completo. ¡Elige otro tono para probar!",
+    "Processing audio...":"Procesando audio...","Type or speak Chinese here — e.g. 你好":"Escribe o habla chino aquí — ej. 你好",
+    "Transcription failed. Try typing.":"Transcripción fallida. Intenta escribir.",
+    "Mic denied. Type instead.":"Micrófono denegado. Escribe en su lugar.",
+    "Listening... Speak in Mandarin":"Escuchando... Habla en Mandarín",
+    "Reviews due: ":"Revisiones pendientes: ","None":"Ninguno",
+    "No vocabulary items loaded.":"No hay vocabulario cargado.",
+    "Progress updated!":"¡Progreso actualizado!","Speaking speed: ":"Velocidad de habla: ",
+    "Settings Saved! Mode: ":"¡Ajustes guardados! Modo: ","Live AI":"AI en Vivo","Simulated":"Simulado",
+    "Thinking...":"Pensando...","Error":"Error","press mic":"presiona micrófono",
+    "Live AI Mode:":"Modo AI en Vivo:","Connecting to Gemini to chat about":"Conectando con Gemini para hablar sobre",
+    "Loaded ":"Cargado ","! Start speaking now.":"! Empieza a hablar ahora.",
+    "Loaded a free lesson!":"¡Lección gratuita cargada!",
+    "Hint selected! Speak now or click Submit.":"¡Pista seleccionada! Habla ahora o haz clic en Enviar.",
+    "Unlock ":"Desbloquear ","Loaded HSK ":"HSK cargado "," lessons for you!":" lecciones para ti!",
+    "Dialogue Roleplay Mode Active! Speak your role lines.":"¡Modo de Juego de Roles Activo! Habla tus líneas de personaje.",
+    "Returned to Dialogue Study Mode.":"Volviste al Modo de Estudio de Diálogo.",
+    "Study":"Estudiar","Roleplay":"Juego de Roles",
+    "Correct! Well done!":"¡Correcto! ¡Bien hecho!","Incorrect. Try again!":"¡Incorrecto! ¡Intenta de nuevo!",
+    "lessons":"lecciones","Your turn — press mic":"Tu turno — presiona micrófono",
+    "Your Turn — speak":"Tu Turno — habla","Roleplay — Your Turn":"Juego de Roles — Tu Turno",
+    "Roleplay — ":"Juego de Roles — ","Your Turn — type below":"Tu Turno — escribe abajo",
+    "Type Chinese below or press mic":"Escribe chino abajo o presiona micrófono"
   },
   "fr": {
     "'+text+'": "'+texte+'",
@@ -3658,7 +3717,60 @@ const OFFLINE_DICTIONARY = {
     "Correct":"Correct","Vocab":"Vocabulaire","Time":"Temps",
     "Record Accent":"Enregistrer l'Accent","Due Reviews Only":"Révisions Attendues Uniquement",
     "Reviews due: 0":"Révisions en attente : 0",
-    "Outline":"Contour","Hint":"Indice"
+    "Outline":"Contour","Hint":"Indice",
+    "Speaking":"Interlocuteur A","Speaker B":"Interlocuteur B","Waiter":"Serveur","Customer":"Client","Friend A":"Ami A","Friend B":"Ami B","Customs Officer":"Agent des Douanes","Passenger":"Passager",
+    "Student":"Étudiant","Roleplay Characters Assigned":"Rôles Attribués","Bot":"Bot","You":"Toi",
+    "Teaching...":"Enseignement...","Listen to":"Écouter","speaking":"parle","Type your response in the box below":"Tapez votre réponse dans la case ci-dessous",
+    "Your turn":"À votre tour","type below":"tapez ci-dessous","replay":"répéter","speak":"parle","lines":"lignes",
+    "Your Turn":"Votre Tour","Type Chinese below or press mic":"Tapez le chinois ci-dessous ou appuyez sur micro",
+    "No audio recorded. Try again.":"Aucun audio enregistré. Réessayez.","Recording... tap mic to stop":"Enregistrement... appuyez sur micro pour arrêter",
+    "Mic access denied. Use text box.":"Micro refusé. Utilisez le texte.","Transcribing...":"Transcription...","Transcribing audio...":"Transcription audio...",
+    "Rate limited, retrying in ":"Limite atteinte, nouvelle tentative dans ","s...":"s...",
+    "Heard: ":"Entendu : ","Use":"Utiliser","Cancel":"Annuler",
+    "No speech detected — tap mic and speak clearly":"Aucune parole détectée — appuyez sur micro et parlez clairement",
+    "No speech detected":"Aucune parole détectée","Transcription error: ":"Erreur de transcription : ","Error:":"Erreur :",
+    "Cancelled — tap mic to try again":"Annulé — appuyez sur micro pour réessayer",
+    "Cancelled. Tap mic to speak again.":"Annulé. Appuyez sur micro pour reparler.",
+    "Your browser does not support microphone input. Use the text box instead.":"Votre navigateur ne supporte pas le micro. Utilisez le texte.",
+    "Allow microphone access when prompted...":"Autorisez l'accès au micro quand demandé...",
+    "Tap microphone again to start speaking.":"Appuyez à nouveau sur le micro pour parler.",
+    "Mic Denied: Tap aA (or settings icon) in Safari address bar → Website Settings → Set Microphone to Allow → Reload page.":"Micro Refusé : Appuyez sur aA dans Safari → Paramètres du site → Micro → Autoriser → Rechargez.",
+    "Listening...":"Écoute...","Auto-switching to recording...":"Basculement automatique vers l'enregistrement...",
+    "Mic Error":"Erreur Micro","Try text box":"Essayez le texte",
+    "Type Chinese characters first":"Tapez d'abord des caractères chinois",
+    "Great!":"Génial!","Getting there":"Presque","Keep practicing":"Continuez à pratiquer",
+    "Matched transcript:":"Transcription correspondante:","Score:":"Score:","/100":"/100",
+    "Excellent!":"Excellent!","Good effort!":"Bon effort!","Keep practicing!":"Continuez à pratiquer!",
+    "Lesson Complete!":"Leçon Terminée!","Average:":"Moyenne:",
+    "Select another lesson above to continue.":"Sélectionnez une autre leçon ci-dessus pour continuer.",
+    "Lesson complete!":"Leçon terminée!","Select a lesson above":"Sélectionnez une leçon ci-dessus",
+    "Initials":"Initiales","Finals":"Finales","Four Tones":"Quatre Tons",
+    "Listen":"Écouter","Practice":"Pratiquer","pts":"pts","See Results":"Voir les Résultats",
+    "Perfect starting point!":"Point de départ parfait!","Solid HSK 3 foundation!":"Base solide HSK 3!","Ready for HSK 2!":"Prêt pour HSK 2!",
+    "Your Level:":"Votre Niveau:","/10":"/10","Current":"Actuel",
+    "Again (1m)":"Répéter (1m)","Hard (12h)":"Difficile (12h)","Good (1d)":"Bon (1j)","Easy (4d)":"Facile (4j)",
+    "Card rescheduled:":"Carte reprogrammée:","Flat (1st Tone)":"Plat (1er Ton)","Rising (2nd Tone)":"Montant (2e Ton)",
+    "Dipping (3rd Tone)":"Descendant (3e Ton)","Falling (4th Tone)":"Tombant (4e Ton)",
+    "Practice:":"Pratique:","Hum/Speak now...":"Chante/Parle maintenant...",
+    "Analysis complete. Choose another tone to test!":"Analyse terminée. Choisissez un autre ton à tester!",
+    "Processing audio...":"Traitement audio...","Type or speak Chinese here — e.g. 你好":"Tapez ou parlez chinois ici — ex. 你好",
+    "Transcription failed. Try typing.":"Transcription échouée. Essayez de taper.","Mic denied. Type instead.":"Micro refusé. Tapez à la place.",
+    "Listening... Speak in Mandarin":"Écoute... Parle en mandarin","Reviews due: ":"Révisions en attente : ","None":"Aucun",
+    "No vocabulary items loaded.":"Aucun vocabulaire chargé.","Progress updated!":"Progrès mis à jour!",
+    "Speaking speed: ":"Vitesse de parole : ","Settings Saved! Mode: ":"Paramètres sauvegardés! Mode : ",
+    "Live AI":"IA en Direct","Simulated":"Simulé","Thinking...":"Réflexion...","Error":"Erreur","press mic":"appuyez sur micro",
+    "Live AI Mode:":"Mode IA en Direct:","Connecting to Gemini to chat about":"Connexion à Gemini pour parler de",
+    "Loaded ":"Chargé ","! Start speaking now.":"! Commencez à parler maintenant.",
+    "Loaded a free lesson!":"Leçon gratuite chargée!",
+    "Hint selected! Speak now or click Submit.":"Indice sélectionné! Parlez maintenant ou cliquez sur Envoyer.",
+    "Unlock ":"Déverrouiller ","Loaded HSK ":"HSK chargé "," lessons for you!":" leçons pour vous!",
+    "Dialogue Roleplay Mode Active! Speak your role lines.":"Mode Jeu de Rôle Actif! Parlez vos lignes.",
+    "Returned to Dialogue Study Mode.":"Retour au Mode d'Étude de Dialogue.","Study":"Étudier","Roleplay":"Jeu de Rôle",
+    "Correct! Well done!":"Correct! Bien joué!","Incorrect. Try again!":"Incorrect. Réessayez!",
+    "lessons":"leçons","Your turn — press mic":"À votre tour — appuyez sur micro",
+    "Your Turn — speak":"Votre Tour — parlez","Roleplay — Your Turn":"Jeu de Rôle — Votre Tour",
+    "Roleplay — ":"Jeu de Rôle — ","Your Turn — type below":"Votre Tour — tapez ci-dessous",
+    "Type Chinese below or press mic":"Tapez le chinois ci-dessous ou appuyez sur micro"
   },
   "de": {
     "Tutor":"Tutor","Lessons":"Lektionen","Grammar":"Grammatik","Dict":"Wörterbuch","Trans":"Übersetzen","Test":"Test","Progress":"Fortschritt",
@@ -3714,7 +3826,25 @@ const OFFLINE_DICTIONARY = {
     "Correct":"Richtig","Vocab":"Wortschatz","Time":"Zeit",
     "Record Accent":"Akzent aufnehmen","Due Reviews Only":"Nur fällige Wiederholungen",
     "Reviews due: 0":"Fällige Wiederholungen: 0",
-    "Outline":"Umriss","Hint":"Hinweis"
+    "Outline":"Umriss","Hint":"Hinweis",
+    "Teaching...":"Unterrichte...","Listening...":"Höre zu...","Thinking...":"Denke nach...",
+    "Great!":"Großartig!","Excellent!":"Hervorragend!","Good effort!":"Gute Anstrengung!",
+    "Keep practicing":"Übe weiter","Getting there":"Fast da","Current":"Aktuell",
+    "Listen":"Hören","Practice":"Üben","Next":"Weiter","See Results":"Ergebnisse sehen",
+    "Initials":"Initialen","Finals":"Finale","Four Tones":"Vier Töne",
+    "Use":"Verwenden","Cancel":"Abbrechen","Roleplay":"Rollenspiel","Study":"Studieren",
+    "lessons":"Lektionen","pts":"Pkt","Your Level:":"Dein Niveau:","/10":"/10",
+    "Lesson Complete!":"Lektion abgeschlossen!","Lesson complete!":"Lektion abgeschlossen!",
+    "Your turn":"Du bist dran","type below":"unten eingeben","replay":"wiederholen",
+    "speaking":"spricht","speak":"sprich","lines":"Zeilen","Your Turn":"Du bist dran",
+    "Recording... tap mic to stop":"Aufnahme... tippe auf Mikro zum Stoppen",
+    "Transcribing...":"Transkribiere...","Error":"Fehler",
+    "Again (1m)":"Wiederholen (1m)","Hard (12h)":"Schwer (12h)","Good (1d)":"Gut (1d)","Easy (4d)":"Leicht (4d)",
+    "Flat (1st Tone)":"Flach (1. Ton)","Rising (2nd Tone)":"Steigend (2. Ton)",
+    "Dipping (3rd Tone)":"Fallend (3. Ton)","Falling (4th Tone)":"Absteigend (4. Ton)",
+    "Practice:":"Übung:","Reviews due: ":"Fällige Wiederholungen: ","None":"Keine",
+    "Progress updated!":"Fortschritt aktualisiert!","Speaking speed: ":"Sprechgeschwindigkeit: ",
+    "Correct! Well done!":"Richtig! Gut gemacht!","Incorrect. Try again!":"Falsch. Versuche es erneut!"
   },
   "pt": {
     "Tutor":"Tutor","Lessons":"Lições","Grammar":"Gramática","Dict":"Dicionário","Trans":"Traduzir","Test":"Teste","Progress":"Progresso",
@@ -3770,7 +3900,24 @@ const OFFLINE_DICTIONARY = {
     "Correct":"Correto","Vocab":"Vocabulário","Time":"Tempo",
     "Record Accent":"Gravar Sotaque","Due Reviews Only":"Apenas Revisões Pendentes",
     "Reviews due: 0":"Revisões pendentes: 0",
-    "Outline":"Contorno","Hint":"Dica"
+    "Outline":"Contorno","Hint":"Dica",
+    "Teaching...":"Ensinando...","Listening...":"Ouvindo...","Thinking...":"Pensando...",
+    "Great!":"Ótimo!","Excellent!":"Excelente!","Good effort!":"Bom esforço!",
+    "Keep practicing":"Continue praticando","Getting there":"Quase lá","Current":"Atual",
+    "Listen":"Ouvir","Practice":"Praticar","Next":"Próximo","See Results":"Ver Resultados",
+    "Initials":"Iniciais","Finals":"Finais","Four Tones":"Quatro Tons",
+    "Use":"Usar","Cancel":"Cancelar","Roleplay":"Interpretar","Study":"Estudar",
+    "lessons":"lições","pts":"pts","Your Level:":"Seu Nível:","/10":"/10",
+    "Lesson Complete!":"Lição Concluída!","Your turn":"Sua vez","type below":"digite abaixo",
+    "replay":"repetir","speaking":"falando","speak":"fale","lines":"linhas","Your Turn":"Sua Vez",
+    "Recording... tap mic to stop":"Gravando... toque no mic para parar",
+    "Transcribing...":"Transcrevendo...","Error":"Erro",
+    "Again (1m)":"Repetir (1m)","Hard (12h)":"Difícil (12h)","Good (1d)":"Bom (1d)","Easy (4d)":"Fácil (4d)",
+    "Flat (1st Tone)":"Plano (1º Tom)","Rising (2nd Tone)":"Ascendente (2º Tom)",
+    "Dipping (3rd Tone)":"Descendente (3º Tom)","Falling (4th Tone)":"Caída (4º Tom)",
+    "Practice:":"Prática:","Reviews due: ":"Revisões pendentes: ","None":"Nenhum",
+    "Progress updated!":"Progresso atualizado!","Speaking speed: ":"Velocidade de fala: ",
+    "Correct! Well done!":"Correto! Muito bem!","Incorrect. Try again!":"Incorreto. Tente novamente!"
   },
   "it": {
     "Tutor":"Tutor","Lessons":"Lezioni","Grammar":"Grammatica","Dict":"Dizionario","Trans":"Tradurre","Test":"Test","Progress":"Progressi",
@@ -3826,7 +3973,23 @@ const OFFLINE_DICTIONARY = {
     "Correct":"Corretto","Vocab":"Vocabolario","Time":"Tempo",
     "Record Accent":"Registra Accento","Due Reviews Only":"Solo Revisioni in Scadenza",
     "Reviews due: 0":"Revisioni in attesa: 0",
-    "Outline":"Contorno","Hint":"Suggerimento"
+    "Outline":"Contorno","Hint":"Suggerimento",
+    "Teaching...":"Insegnando...","Listening...":"Ascoltando...","Thinking...":"Pensando...",
+    "Great!":"Ottimo!","Excellent!":"Eccellente!","Good effort!":"Bel sforzo!",
+    "Keep practicing":"Continua a praticare","Getting there":"Quasi","Current":"Corrente",
+    "Listen":"Ascolta","Practice":"Praticare","See Results":"Vedi Risultati",
+    "Initials":"Iniziali","Finals":"Finali","Four Tones":"Quattro Toni",
+    "Use":"Usa","Cancel":"Annulla","Roleplay":"Gioco di Ruolo","Study":"Studia",
+    "lessons":"lezioni","Your Level:":"Il Tuo Livello:",
+    "Lesson Complete!":"Lezione Completata!","Your turn":"Il tuo turno","replay":"ripeti",
+    "Recording... tap mic to stop":"Registrazione... tocca mic per fermare",
+    "Transcribing...":"Trascrivendo...","Again (1m)":"Ripeti (1m)","Hard (12h)":"Difficile (12h)",
+    "Good (1d)":"Buono (1g)","Easy (4d)":"Facile (4g)",
+    "Flat (1st Tone)":"Piatto (1° Tono)","Rising (2nd Tone)":"Crescente (2° Tono)",
+    "Dipping (3rd Tone)":"Decrescente (3° Tono)","Falling (4th Tone)":"Caduta (4° Tono)",
+    "Practice:":"Pratica:","Reviews due: ":"Revisioni in attesa: ","None":"Nessuno",
+    "Progress updated!":"Progressi aggiornati!","Speaking speed: ":"Velocità di parola: ",
+    "Correct! Well done!":"Corretto! Ben fatto!","Incorrect. Try again!":"Errato. Riprova!"
   },
   "ru": {
     "Tutor":"Репетитор","Lessons":"Уроки","Grammar":"Грамматика","Dict":"Словарь","Trans":"Перевод","Test":"Тест","Progress":"Прогресс",
@@ -3882,7 +4045,23 @@ const OFFLINE_DICTIONARY = {
     "Correct":"Верно","Vocab":"Лексика","Time":"Время",
     "Record Accent":"Записать Акцент","Due Reviews Only":"Только Просроченные Повторения",
     "Reviews due: 0":"Повторений ожидается: 0",
-    "Outline":"Контур","Hint":"Подсказка"
+    "Outline":"Контур","Hint":"Подсказка",
+    "Teaching...":"Обучение...","Listening...":"Слушаю...","Thinking...":"Думаю...",
+    "Great!":"Отлично!","Excellent!":"Превосходно!","Good effort!":"Хорошая попытка!",
+    "Keep practicing":"Продолжайте практиковаться","Getting there":"Почти","Current":"Текущий",
+    "Listen":"Слушать","Practice":"Практиковать","See Results":"Смотреть результаты",
+    "Initials":"Инициали","Finals":"Финали","Four Tones":"Четыре Тона",
+    "Use":"Использовать","Cancel":"Отмена","Roleplay":"Ролевая игра","Study":"Учить",
+    "lessons":"уроки","Your Level:":"Ваш Уровень:",
+    "Lesson Complete!":"Урок Завершён!","Your turn":"Ваша очередь","replay":"повтор",
+    "Recording... tap mic to stop":"Запись... нажмите микрофон для остановки",
+    "Transcribing...":"Расшифровка...","Again (1m)":"Снова (1м)","Hard (12h)":"Сложно (12ч)",
+    "Good (1d)":"Хорошо (1д)","Easy (4d)":"Легко (4д)",
+    "Flat (1st Tone)":"Ровный (1-й Тон)","Rising (2nd Tone)":"Восходящий (2-й Тон)",
+    "Dipping (3rd Tone)":"Нисходящий (3-й Тон)","Falling (4th Tone)":"Падающий (4-й Тон)",
+    "Practice:":"Практика:","Reviews due: ":"Повторений: ","None":"Нет",
+    "Progress updated!":"Прогресс обновлён!","Speaking speed: ":"Скорость речи: ",
+    "Correct! Well done!":"Верно! Молодец!","Incorrect. Try again!":"Неверно. Попробуйте снова!"
   },
   "vi": {
     "Tutor":"Gia sư","Lessons":"Bài học","Grammar":"Ngữ pháp","Dict":"Từ điển","Trans":"Dịch","Test":"Kiểm tra","Progress":"Tiến bộ",
@@ -3938,7 +4117,23 @@ const OFFLINE_DICTIONARY = {
     "Correct":"Đúng","Vocab":"Từ vựng","Time":"Thời gian",
     "Record Accent":"Ghi Âm Giọng","Due Reviews Only":"Chỉ Ôn tập Đến hạn",
     "Reviews due: 0":"Bài ôn tập đến hạn: 0",
-    "Outline":"Đường viền","Hint":"Gợi ý"
+    "Outline":"Đường viền","Hint":"Gợi ý",
+    "Teaching...":"Đang dạy...","Listening...":"Đang nghe...","Thinking...":"Đang suy nghĩ...",
+    "Great!":"Tuyệt vời!","Excellent!":"Xuất sắc!","Good effort!":"Cố gắng tốt!",
+    "Keep practicing":"Hãy tiếp tục luyện tập","Getting there":"Sắp tới rồi","Current":"Hiện tại",
+    "Listen":"Nghe","Practice":"Luyện tập","See Results":"Xem Kết quả",
+    "Initials":"Phụ âm đầu","Finals":"Vần","Four Tones":"Bốn Thanh",
+    "Use":"Dùng","Cancel":"Hủy","Roleplay":"Nhập vai","Study":"Học",
+    "lessons":"bài học","Your Level:":"Trình độ của bạn:",
+    "Lesson Complete!":"Bài học Hoàn thành!","Your turn":"Lượt của bạn","replay":"phát lại",
+    "Recording... tap mic to stop":"Đang ghi... chạm mic để dừng",
+    "Transcribing...":"Đang phiên âm...","Again (1m)":"Lại (1p)","Hard (12h)":"Khó (12g)",
+    "Good (1d)":"Tốt (1n)","Easy (4d)":"Dễ (4n)",
+    "Flat (1st Tone)":"Bằng (Thanh 1)","Rising (2nd Tone)":"Lên (Thanh 2)",
+    "Dipping (3rd Tone)":"Xuống (Thanh 3)","Falling (4th Tone)":"Rơi (Thanh 4)",
+    "Practice:":"Luyện:","Reviews due: ":"Ôn tập: ","None":"Không",
+    "Progress updated!":"Tiến độ đã cập nhật!","Speaking speed: ":"Tốc độ nói: ",
+    "Correct! Well done!":"Đúng! Làm tốt lắm!","Incorrect. Try again!":"Sai! Thử lại!"
   },
   "ja": {
     "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
@@ -3994,7 +4189,23 @@ const OFFLINE_DICTIONARY = {
     "Correct":"正解","Vocab":"語彙","Time":"時間",
     "Record Accent":"アクセント録音","Due Reviews Only":"復習予定のみ",
     "Reviews due: 0":"復習予定: 0",
-    "Outline":"輪郭","Hint":"ヒント"
+    "Outline":"輪郭","Hint":"ヒント",
+    "Teaching...":"教え中...","Listening...":"聴き中...","Thinking...":"考え中...",
+    "Great!":"素晴らしい！","Excellent!":"優秀！","Good effort!":"よく頑張りました！",
+    "Keep practicing":"練習を続けてください","Getting there":"もう少し","Current":"現在",
+    "Listen":"聞く","Practice":"練習","See Results":"結果を見る",
+    "Initials":"声母","Finals":"韻母","Four Tones":"四声",
+    "Use":"使用","Cancel":"キャンセル","Roleplay":"ロールプレイ","Study":"学習",
+    "lessons":"レッスン","Your Level:":"あなたのレベル：",
+    "Lesson Complete!":"レッスン完了！","Your turn":"あなたの番です","replay":"再生",
+    "Recording... tap mic to stop":"録音中...マイクをタップして停止",
+    "Transcribing...":"文字起こし中...","Again (1m)":"もう一度(1分)","Hard (12h)":"難しい(12時間)",
+    "Good (1d)":"良い(1日)","Easy (4d)":"簡単(4日)",
+    "Flat (1st Tone)":"平ら(第1声)","Rising (2nd Tone)":"上昇(第2声)",
+    "Dipping (3rd Tone)":"下降(第3声)","Falling (4th Tone)":"急降下(第4声)",
+    "Practice:":"練習：","Reviews due: ":"復習予定：","None":"なし",
+    "Progress updated!":"進捗を更新しました！","Speaking speed: ":"再生速度：",
+    "Correct! Well done!":"正解！よくできました！","Incorrect. Try again!":"不正解。もう一度！"
   },
   "ko": {
     "Tutor":"튜터","Lessons":"레슨","Grammar":"문법","Dict":"사전","Trans":"번역","Test":"테스트","Progress":"진행도",
@@ -4050,7 +4261,23 @@ const OFFLINE_DICTIONARY = {
     "Correct":"정답","Vocab":"어휘","Time":"시간",
     "Record Accent":"발음 녹음","Due Reviews Only":"복습 예정만",
     "Reviews due: 0":"복습 예정: 0",
-    "Outline":"외곽선","Hint":"힌트"
+    "Outline":"외곽선","Hint":"힌트",
+    "Teaching...":"가르치는 중...","Listening...":"듣는 중...","Thinking...":"생각 중...",
+    "Great!":"훌륭합니다!","Excellent!":"최고입니다!","Good effort!":"잘했어요!",
+    "Keep practicing":"계속 연습하세요","Getting there":"거의 다 됐어요","Current":"현재",
+    "Listen":"듣기","Practice":"연습","See Results":"결과 보기",
+    "Initials":"성모","Finals":"운모","Four Tones":"사성",
+    "Use":"사용","Cancel":"취소","Roleplay":"역할극","Study":"학습",
+    "lessons":"레슨","Your Level:":"당신의 레벨:",
+    "Lesson Complete!":"레슨 완료!","Your turn":"당신 차례입니다","replay":"다시 듣기",
+    "Recording... tap mic to stop":"녹음 중... 마이크를 눌러 중지",
+    "Transcribing...":"변환 중...","Again (1m)":"다시(1분)","Hard (12h)":"어려움(12시간)",
+    "Good (1d)":"좋음(1일)","Easy (4d)":"쉬움(4일)",
+    "Flat (1st Tone)":"평성(1성)","Rising (2nd Tone)":"상성(2성)",
+    "Dipping (3rd Tone)":"거성(3성)","Falling (4th Tone)":"입성(4성)",
+    "Practice:":"연습:","Reviews due: ":"복습 예정: ","None":"없음",
+    "Progress updated!":"진도가 업데이트되었습니다!","Speaking speed: ":"말하기 속도: ",
+    "Correct! Well done!":"정답! 잘했습니다!","Incorrect. Try again!":"틀렸습니다. 다시 시도하세요!"
   }
 };
 
@@ -4566,20 +4793,20 @@ function startTutor(idx){
   document.getElementById('tutChat').innerHTML='';
   addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+tutLesson.title+'</b> — '+tutLesson.level);
   if (isRoleplayActive) {
-    let botRole = "Speaker A", userRole = "Speaker B";
+    let botRole = t("Speaker A"), userRole = t("Speaker B");
     const title = tutLesson.title.toLowerCase();
-    if (title.includes('restaurant')) { botRole = "Waiter"; userRole = "Customer"; }
-    else if (title.includes('family') || title.includes('introducing')) { botRole = "Friend A"; userRole = "Friend B"; }
-    else if (title.includes('airport')) { botRole = "Customs Officer"; userRole = "Passenger"; }
-    else { botRole = "Tutor"; userRole = "Student"; }
-    addTutMsg('sys', '🎭 <b>Roleplay Characters Assigned</b>: Bot = <b>'+botRole+'</b> &middot; You = <b>'+userRole+'</b>');
+    if (title.includes('restaurant')) { botRole = t("Waiter"); userRole = t("Customer"); }
+    else if (title.includes('family') || title.includes('introducing')) { botRole = t("Friend A"); userRole = t("Friend B"); }
+    else if (title.includes('airport')) { botRole = t("Customs Officer"); userRole = t("Passenger"); }
+    else { botRole = t("Tutor"); userRole = t("Student"); }
+    addTutMsg('sys', '🎭 <b>'+t("Roleplay Characters Assigned")+'</b>: '+t("Bot")+' = <b>'+botRole+'</b> &middot; '+t("You")+' = <b>'+userRole+'</b>');
   }
   let vh='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-top:8px">';
     tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
   vh+='</div>';
   addTutMsg('sys',vh);
   setTimeout(()=>advanceTutor(),600);
-  document.getElementById('tutStatus').textContent='Teaching...';
+  document.getElementById('tutStatus').textContent=t('Teaching...');
   setBtns(true);
 }
 
@@ -4593,23 +4820,23 @@ function advanceTutor(){
   document.getElementById('tutTip').style.display=w?'block':'none';
   if(w)document.getElementById('tutTip').textContent=w.tip;
   document.getElementById('scoreWrap').style.display='none';
-  let botRole = "Tutor", userRole = "Student";
+  let botRole = t("Tutor"), userRole = t("Student");
   if (isRoleplayActive) {
     const title = tutLesson.title.toLowerCase();
-    if (title.includes('restaurant')) { botRole = "Waiter"; userRole = "Customer"; }
-    else if (title.includes('family') || title.includes('introducing')) { botRole = "Friend A"; userRole = "Friend B"; }
-    else if (title.includes('airport')) { botRole = "Customs Officer"; userRole = "Passenger"; }
+    if (title.includes('restaurant')) { botRole = t("Waiter"); userRole = t("Customer"); }
+    else if (title.includes('family') || title.includes('introducing')) { botRole = t("Friend A"); userRole = t("Friend B"); }
+    else if (title.includes('airport')) { botRole = t("Customs Officer"); userRole = t("Passenger"); }
   }
   if(line.who==='bot'){
-    document.getElementById('tutHint').textContent=isRoleplayActive ? 'Listen to ['+botRole+'] speaking' : 'Type your response in the box below';
+    document.getElementById('tutHint').textContent=isRoleplayActive ? t('Listen to')+' ['+botRole+'] '+t('speaking') : t('Type your response in the box below');
     document.getElementById('tutHint').style.color='var(--accent)';
-    document.getElementById('tutStatus').textContent=isRoleplayActive ? 'Roleplay — ['+botRole+'] speaking' : 'Your turn — type below';
+    document.getElementById('tutStatus').textContent=isRoleplayActive ? t('Roleplay')+' — ['+botRole+'] '+t('speaking') : t('Your turn')+' — '+t('type below');
     setTimeout(()=>tutListen(),500);
-    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> replay</span>');
+    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
   } else {
-    document.getElementById('tutHint').textContent=isRoleplayActive ? 'Your turn — speak ['+userRole+'] lines' : 'Type Chinese below or press mic';
+    document.getElementById('tutHint').textContent=isRoleplayActive ? t('Your turn')+' — '+t('speak')+' ['+userRole+'] '+t('lines') : t('Type Chinese below or press mic');
     document.getElementById('tutHint').style.color='var(--accent)';
-    document.getElementById('tutStatus').textContent=isRoleplayActive ? 'Roleplay — Your Turn ['+userRole+']' : 'Your turn — type below';
+    document.getElementById('tutStatus').textContent=isRoleplayActive ? t('Roleplay')+' — '+t('Your Turn')+' ['+userRole+']' : t('Your turn')+' — '+t('type below');
   }
 }
 
@@ -4642,7 +4869,7 @@ function startAudioRecording(btn, ic) {
         audioChunks = [];
         if (chunks.length === 0) {
           console.warn("No audio chunks recorded");
-          document.getElementById('tutHint').textContent = 'No audio recorded. Try again.';
+          document.getElementById('tutHint').textContent = t('No audio recorded. Try again.');
           return;
         }
         console.log("Audio chunks:", chunks.length, "total size:", chunks.reduce((a,c) => a + c.size, 0));
@@ -4672,7 +4899,7 @@ function startAudioRecording(btn, ic) {
   ic.style.color = 'var(--green)';
   // Stop any TTS playback immediately to prevent feedback loop
   if (!isMobileDevice) { try { speechSynthesis.cancel(); } catch(e) {} }
-  document.getElementById('tutHint').textContent = 'Recording... tap mic to stop';
+  document.getElementById('tutHint').textContent = t('Recording... tap mic to stop');
   const wave = document.getElementById('tutVoiceWave');
   if (wave) wave.style.display = 'inline-flex';
   document.getElementById('tutHint').style.color = 'var(--green)';
@@ -4724,7 +4951,7 @@ function startAudioRecording(btn, ic) {
       btn.classList.remove('on');
       ic.className = 'fas fa-microphone text-xl';
       ic.style.color = 'var(--accent)';
-      document.getElementById('tutHint').textContent = 'Mic access denied. Use text box.';
+          document.getElementById('tutHint').textContent = t('Mic access denied. Use text box.');
     });
   } else {
     console.error("No getUserMedia available");
@@ -4739,9 +4966,9 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     contents: [{ role: "user", parts: [{ inlineData: { mimeType: mimeType, data: base64Audio } }] }],
     systemInstruction: "Transcribe the Mandarin Chinese speech in this audio accurately. Return ONLY the transcription in Chinese characters, nothing else."
   };
-  document.getElementById('tutStatus').textContent = 'Transcribing...';
+  document.getElementById('tutStatus').textContent = t('Transcribing...');
   const loaderId = 'loader-' + Date.now();
-  addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">Transcribing audio...</div>');
+  addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Transcribing audio...')+'</div>');
   fetch('/api/chat', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -4750,7 +4977,7 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     console.log("Gemini response status:", res.status);
     if (res.status === 429 && retries > 0) {
       const wait = (4 - retries) * 3000;
-      document.getElementById('tutHint').textContent = 'Rate limited, retrying in ' + (wait/1000) + 's...';
+      document.getElementById('tutHint').textContent = t('Rate limited, retrying in ') + (wait/1000) + t('s...');
       return new Promise(r => setTimeout(r, wait)).then(() => sendAudioToGemini(base64Audio, retries - 1));
     }
     if (!res.ok) return res.json().then(errData => { throw new Error(errData.error?.error?.message || errData.error?.message || errData.error || "HTTP " + res.status); });
@@ -4763,20 +4990,20 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     let transcript = reply.replace(/^TRANSCRIPTION:\s*/i, '').trim();
     if (transcript && transcript !== '(No response)' && !/no audio|no speech|没有音频|unable to transcribe|therefore no|no transcription/i.test(transcript)) {
       console.log("Transcription result:", transcript);
-      document.getElementById('tutStatus').textContent = 'Heard: ' + transcript;
+      document.getElementById('tutStatus').textContent = t('Heard: ') + transcript;
       // Show confirmation before sending to AI
       const confirmId = 'confirm-' + Date.now();
-      addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ Use</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ Cancel</button></div>');
+      addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
     } else {
       console.warn("Empty or no-speech transcription");
-      document.getElementById('tutHint').textContent = 'No speech detected — tap mic and speak clearly';
-      document.getElementById('tutStatus').textContent = 'No speech detected';
+      document.getElementById('tutHint').textContent = t('No speech detected — tap mic and speak clearly');
+      document.getElementById('tutStatus').textContent = t('No speech detected');
     }
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   }).catch(err => {
     console.error("Audio transcription failed:", err);
-    document.getElementById('tutHint').textContent = 'Transcription error: ' + err.message;
-    document.getElementById('tutStatus').textContent = 'Error: ' + err.message;
+    document.getElementById('tutHint').textContent = t('Transcription error: ') + err.message;
+    document.getElementById('tutStatus').textContent = t('Error:') + ' ' + err.message;
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   });
 }
@@ -4789,8 +5016,8 @@ function confirmTranscript(transcript, loaderId) {
 function rejectTranscript(confirmId, loaderId) {
   if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   const el = document.getElementById(confirmId);
-  if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px">Cancelled — tap mic to try again</span>';
-  document.getElementById('tutHint').textContent = 'Cancelled. Tap mic to speak again.';
+  if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px">'+t('Cancelled — tap mic to try again')+'</span>';
+  document.getElementById('tutHint').textContent = t('Cancelled. Tap mic to speak again.');
 }
 
 function tutSpeak(){
@@ -4802,7 +5029,7 @@ function tutSpeak(){
     const hasAPI = ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
     const hasFallback = !!(window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
     if (!hasAPI && !hasFallback) {
-      toast('Your browser does not support microphone input. Use the text box instead.','var(--gold)');
+      toast(t('Your browser does not support microphone input. Use the text box instead.'),'var(--gold)');
       return;
     }
     micAvailable = true;
@@ -4828,17 +5055,17 @@ function tutSpeak(){
   // On mobile, if mic permission has not been explicitly prompted/granted, trigger it via getUserMedia first
   if (isMobileDevice && !localStorage.getItem('mic_prompted')) {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      document.getElementById('tutHint').textContent = "Allow microphone access when prompted...";
+      document.getElementById('tutHint').textContent = t("Allow microphone access when prompted...");
       navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
         .then(stream => {
           stream.getTracks().forEach(t => t.stop());
           localStorage.setItem('mic_prompted', 'true');
           console.log("Mobile microphone permission verified.");
-          document.getElementById('tutHint').textContent = "Tap microphone again to start speaking.";
+          document.getElementById('tutHint').textContent = t("Tap microphone again to start speaking.");
         })
         .catch(err => {
           console.error("Microphone permission denied:", err);
-          document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent2);font-size:11px;font-weight:700;"><i class="fas fa-exclamation-triangle"></i> Mic Denied: Tap <b>aA</b> (or settings icon) in Safari address bar &rarr; Website Settings &rarr; Set Microphone to <b>Allow</b> &rarr; Reload page.</span>';
+          document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent2);font-size:11px;font-weight:700;"><i class="fas fa-exclamation-triangle"></i> '+t('Mic Denied: Tap aA (or settings icon) in Safari address bar → Website Settings → Set Microphone to Allow → Reload page.')+'</span>';
         });
       return;
     }
@@ -4885,7 +5112,7 @@ function tutSpeak(){
       btn.classList.add('on');
       ic.className='fas fa-stop text-xl';
       ic.style.color='var(--green)';
-      document.getElementById('tutHint').textContent='Listening...';
+      document.getElementById('tutHint').textContent=t('Listening...');
       const wave = document.getElementById('tutVoiceWave');
       if (wave) wave.style.display = 'inline-flex';
       document.getElementById('tutHint').style.color='var(--green)';
@@ -4936,14 +5163,14 @@ function tutSpeak(){
         console.warn("no-speech detected: switching to audio recording fallback");
         window._useAudioFallback = true;
         localStorage.setItem('_useAudioFallback', 'true');
-        document.getElementById('tutHint').innerHTML='<span style="color:var(--gold)"><i class="fas fa-info-circle"></i> Auto-switching to recording...</span>';
+        document.getElementById('tutHint').innerHTML='<span style="color:var(--gold)"><i class="fas fa-info-circle"></i> '+t('Auto-switching to recording...')+'</span>';
         clearTimeout(window._srFailTimer);
         setTimeout(() => {
           console.log("Starting audio recording fallback now");
           startAudioRecording(btn, ic);
         }, 300);
       } else {
-        document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> Mic Error ('+e.error+') — Try text box</span>';
+        document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> '+t('Mic Error')+' ('+e.error+') — '+t('Try text box')+'</span>';
       }
     };
     
@@ -4968,7 +5195,7 @@ function tutSpeak(){
 
 function tutTypeSubmit(){
   const input=document.getElementById('tutTypeInput');const text=input.value.trim();
-  if(!text){toast('Type Chinese characters first','var(--gold');return}
+  if(!text){toast(t('Type Chinese characters first'),'var(--gold');return}
   if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
   const target=localStorage.getItem('tutor_mode') === 'live' ? currentLiveTarget : tutLesson.dialogue[tutStep].cn;
   const sc=Math.round(sim(text,target)*100);
@@ -4984,9 +5211,9 @@ function processScore(text,sc,target,turnId){
   document.getElementById('tutSc').textContent=sc;
   document.getElementById('tutSc').style.color=sc>=80?'var(--green2)':sc>=50?'var(--gold)':'var(--accent2)';
   document.getElementById('scoreWrap').style.display='block';
-  let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> Great!</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> Getting there</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> Keep practicing</span>';
+  let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> '+t('Great!')+'</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> '+t('Getting there')+'</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> '+t('Keep practicing')+'</span>';
   document.getElementById('tutHint').innerHTML=fb;
-  addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">Matched transcript: "'+text+'" • Score: '+sc+'/100</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">'+t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
   if (localStorage.getItem('tutor_mode') === 'live') {
     setTimeout(() => {
       sendToGemini(text);
@@ -5000,10 +5227,10 @@ function tutSkip(){if(!tutLesson)return;tutStep++;advanceTutor()}
 
 function finishTutor(){
   const avg=tutScores.length?Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length):0;
-  let g=avg>=80?'<span style="color:var(--green2)"><i class="fas fa-trophy"></i> Excellent!</span>':avg>=50?'<span style="color:var(--gold)"><i class="fas fa-star"></i> Good effort!</span>':'<span style="color:var(--accent2)"><i class="fas fa-seedling"></i> Keep practicing!</span>';
-  addTutMsg('sys','<div style="padding:10px"><b>Lesson Complete!</b><br>Average: <span style="color:var(--gold);font-size:18px;font-weight:800">'+avg+'/100</span><br>'+g+'<br><span style="font-size:11px;color:var(--muted)">Select another lesson above to continue.</span></div>');
-  document.getElementById('tutStatus').textContent='Lesson complete!'; const hw = document.getElementById('tutHintWrapper'); if(hw) hw.style.display='none';
-  document.getElementById('tutHint').textContent='Select a lesson above';document.getElementById('tutHint').style.color='var(--muted)';
+  let g=avg>=80?'<span style="color:var(--green2)"><i class="fas fa-trophy"></i> '+t('Excellent!')+'</span>':avg>=50?'<span style="color:var(--gold)"><i class="fas fa-star"></i> '+t('Good effort!')+'</span>':'<span style="color:var(--accent2)"><i class="fas fa-seedling"></i> '+t('Keep practicing!')+'</span>';
+  addTutMsg('sys','<div style="padding:10px"><b>'+t('Lesson Complete!')+'</b><br>'+t('Average:')+' <span style="color:var(--gold);font-size:18px;font-weight:800">'+avg+t('/100')+'</span><br>'+g+'<br><span style="font-size:11px;color:var(--muted)">'+t('Select another lesson above to continue.')+'</span></div>');
+  document.getElementById('tutStatus').textContent=t('Lesson complete!'); const hw = document.getElementById('tutHintWrapper'); if(hw) hw.style.display='none';
+  document.getElementById('tutHint').textContent=t('Select a lesson above');document.getElementById('tutHint').style.color='var(--muted)';
   document.getElementById('tutWd').textContent='--';document.getElementById('tutWp').textContent='--';document.getElementById('tutWm').textContent='--';
   document.getElementById('scoreWrap').style.display='none';document.getElementById('tutTip').style.display='none';
   setBtns(false);
@@ -5071,7 +5298,7 @@ function buildTopics(){
     const d=document.createElement('div');
     d.className='cd p-5 cursor-pointer';
     d.onclick=()=>openTopicLesson(topicName);
-    d.innerHTML='<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t(topicName)+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' lessons</p></div><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:'+(lv.dn?'rgba(56,169,106,.1)':'rgba(212,166,79,.1)')+';color:'+(lv.dn?'var(--green)':'var(--gold)')+'">'+done+'/'+ls.length+'</span></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+(done/ls.length*100)+'%;background:'+(lv.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div>';
+    d.innerHTML='<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t(topicName)+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' '+t('lessons')+'</p></div><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:'+(lv.dn?'rgba(56,169,106,.1)':'rgba(212,166,79,.1)')+';color:'+(lv.dn?'var(--green)':'var(--gold)')+'">'+done+'/'+ls.length+'</span></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+(done/ls.length*100)+'%;background:'+(lv.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div>';
     g.appendChild(d);
   });
 }
@@ -5083,7 +5310,7 @@ function buildPyTabs(){
   ['Initials','Finals','Four Tones'].forEach((n,i)=>{
     const b=document.createElement('button');
     b.className='tb'+(i===0?' on':'');
-    b.textContent=n;
+    b.textContent=t(n);
     b.onclick=()=>{
       c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
       b.classList.add('on');
@@ -5158,7 +5385,7 @@ function buildGr(){
           
           <div class="flex items-center justify-between gap-2 mb-1">
             <div class="fc text-lg font-bold text-white">${gr.cn}</div>
-            <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer" title="Listen">
+            <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer" title="'+t('Listen')+'">
               <i class="fas fa-volume-high text-[10px]"></i>
             </button>
           </div>
@@ -5168,7 +5395,7 @@ function buildGr(){
           <p class="text-xs font-bold uppercase tracking-wider text-muted mt-2">${t(gr.f)}</p>
           <!-- Practice Button -->
           <button onclick="event.stopPropagation(); startGrammarPractice('${(gr.t||'').replace(/'/g, "\\'")}', '${(gr.cn||'').replace(/'/g, "\\'")}', '${(gr.en||'').replace(/'/g, "\\'")}')" class="absolute bottom-4 right-4 px-2 py-1 rounded text-[9px] font-bold border border-[var(--border)] cursor-pointer" style="background:var(--card2); color:var(--gold); outline:none;">
-            <i class="fas fa-gamepad mr-1"></i>Practice
+            <i class="fas fa-gamepad mr-1"></i>'+t('Practice')+'
           </button>
         </div>
         
@@ -5218,22 +5445,22 @@ function unlockIOSAudio() {
 }
 
 function startQ(){qIdx=0;qScore=0;qStartT=Date.now();document.getElementById('qSt').style.display='none';document.getElementById('qAc').style.display='block';document.getElementById('qRe').style.display='none';showQ()}
-function showQ(){const q=QZ[qIdx];document.getElementById('qN').textContent=qIdx+1;document.getElementById('qSc').textContent=qScore+' pts';document.getElementById('qBr').style.width=((qIdx+1)/10*100)+'%';document.getElementById('qC').textContent=q.c;document.getElementById('qP').textContent=q.p;const o=document.getElementById('qOp');o.innerHTML='';q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='bq';b.textContent=opt;b.onclick=()=>ansQ(i,b);o.appendChild(b)});document.getElementById('qNW').style.display='none'; speakQuizWord();}
-function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===QZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[QZ[qIdx].a].classList.add('ok')}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<9?'Next <i class="fas fa-arrow-right ml-1.5"></i>':'See Results <i class="fas fa-trophy ml-1.5"></i>'}
+function showQ(){const q=QZ[qIdx];document.getElementById('qN').textContent=qIdx+1;document.getElementById('qSc').textContent=qScore+' '+t('pts');document.getElementById('qBr').style.width=((qIdx+1)/10*100)+'%';document.getElementById('qC').textContent=q.c;document.getElementById('qP').textContent=q.p;const o=document.getElementById('qOp');o.innerHTML='';q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='bq';b.textContent=opt;b.onclick=()=>ansQ(i,b);o.appendChild(b)});document.getElementById('qNW').style.display='none'; speakQuizWord();}
+function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===QZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[QZ[qIdx].a].classList.add('ok')}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<9?t('Next')+' <i class="fas fa-arrow-right ml-1.5"></i>':t('See Results')+' <i class="fas fa-trophy ml-1.5"></i>'}
 function nxtQ(){if(qIdx<9){qIdx++;showQ()}else showRes()}
 function showRes(){
   const t=Math.round((Date.now()-qStartT)/60000);
-  let lv='HSK 1',de='Perfect starting point!',ic='<i class="fas fa-seedling text-3xl" style="color:var(--green)"></i>',vo='150';
+  let lv='HSK 1',de=t('Perfect starting point!'),ic='<i class="fas fa-seedling text-3xl" style="color:var(--green)"></i>',vo='150';
   recommendedLvIdx = 0;
   
   if(qScore>=70){
-    lv='HSK 3';de='Solid HSK 3 foundation!';ic='<i class="fas fa-bolt text-3xl" style="color:var(--accent)"></i>';vo='600';
+    lv='HSK 3';de=t('Solid HSK 3 foundation!');ic='<i class="fas fa-bolt text-3xl" style="color:var(--accent)"></i>';vo='600';
     recommendedLvIdx = 2;
   }else if(qScore>=40){
-    lv='HSK 2';de='Ready for HSK 2!';ic='<i class="fas fa-book text-3xl" style="color:var(--blue)"></i>';vo='300';
+    lv='HSK 2';de=t('Ready for HSK 2!');ic='<i class="fas fa-book text-3xl" style="color:var(--blue)"></i>';vo='300';
     recommendedLvIdx = 1;
   }
-document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').textContent='Your Level: '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+'/10';document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m'}
+document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m'}
 function rstQ(){document.getElementById('qRe').style.display='none';document.getElementById('qSt').style.display='block'}
 
 // ===== HSK =====
@@ -5258,7 +5485,7 @@ function buildHSK(){
     // Level Card
     const d = document.createElement('div');
     d.className = 'cd p-4 flex items-center gap-4 cursor-pointer';
-    d.innerHTML = '<div class="ldd" style="'+cls+'">'+(i+1)+'</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><h4 class="font-bold text-sm">'+t(l.n)+'</h4>'+(i===2?'<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(200,53,37,.1);color:var(--accent)">Current</span>':'')+'</div><p class="text-xs mb-2" style="color:var(--muted)">'+t(l.d)+' ('+t('Click to view vocabulary')+')</p><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+l.pc+'%;background:'+(l.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div></div><div class="text-right flex-shrink-0"><div class="text-sm font-bold" style="color:'+(l.dn?'var(--green)':'var(--gold)')+'">'+l.pc+'%</div><div class="text-xs" style="color:var(--muted)">'+t(l.ls)+'</div></div>';
+    d.innerHTML = '<div class="ldd" style="'+cls+'">'+(i+1)+'</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><h4 class="font-bold text-sm">'+t(l.n)+'</h4>'+(i===2?'<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(200,53,37,.1);color:var(--accent)">'+t('Current')+'</span>':'')+'</div><p class="text-xs mb-2" style="color:var(--muted)">'+t(l.d)+' ('+t('Click to view vocabulary')+')</p><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+l.pc+'%;background:'+(l.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div></div><div class="text-right flex-shrink-0"><div class="text-sm font-bold" style="color:'+(l.dn?'var(--green)':'var(--gold)')+'">'+l.pc+'%</div><div class="text-xs" style="color:var(--muted)">'+t(l.ls)+'</div></div>';
     
     // Collapsible Words list
     const wordsDiv = document.createElement('div');
@@ -5439,8 +5666,8 @@ function rateFlashcard(score) {
     }
   }
   
-  const rates = ["", "Again (1m)", "Hard (12h)", "Good (1d)", "Easy (4d)"];
-  toast("Card rescheduled: " + rates[score], "var(--green)");
+  const rates = ["", t("Again (1m)"), t("Hard (12h)"), t("Good (1d)"), t("Easy (4d)")];
+  toast(t("Card rescheduled: ") + rates[score], "var(--green)");
   
   nextFlashcard();
 }
@@ -5464,8 +5691,8 @@ function selectTone(e, idx, py) {
     if (ic) ic.style.color = 'var(--accent)';
   }
   
-  const toneNames = ["Flat (1st Tone)", "Rising (2nd Tone)", "Dipping (3rd Tone)", "Falling (4th Tone)"];
-  document.getElementById('toneStatus').textContent = 'Practice: ' + py + ' (' + toneNames[idx] + ')';
+  const toneNames = [t("Flat (1st Tone)"), t("Rising (2nd Tone)"), t("Dipping (3rd Tone)"), t("Falling (4th Tone)")];
+  document.getElementById('toneStatus').textContent = t('Practice:')+' ' + py + ' (' + toneNames[idx] + ')';
   document.getElementById('toneOverlayLabel').style.display = 'none';
   
   drawToneCanvas();
@@ -5501,7 +5728,7 @@ function startToneCapture() {
         ic.className = 'fas fa-stop text-base';
         ic.style.color = 'var(--green)';
       }
-      document.getElementById('toneStatus').textContent = 'Hum/Speak now...';
+      document.getElementById('toneStatus').textContent = t('Hum/Speak now...');
       
       trackPitch();
     })
@@ -5529,7 +5756,7 @@ function stopToneCapture() {
     ic.className = 'fas fa-microphone text-base';
     ic.style.color = 'var(--accent)';
   }
-  document.getElementById('toneStatus').textContent = 'Analysis complete. Choose another tone to test!';
+  document.getElementById('toneStatus').textContent = t('Analysis complete. Choose another tone to test!');
 }
 function trackPitch() {
   if (!isTrackingPitch) return;
@@ -5672,11 +5899,11 @@ function inputAudioFallback(ic, input) {
     _inputRecAudioMode = false;
     isInputListening = false;
     ic.className = 'fas fa-microphone';
-    input.placeholder = 'Processing audio...';
+    input.placeholder = t('Processing audio...');
     const chunks = audioChunks;
     audioChunks = [];
     if (chunks.length === 0) {
-      input.placeholder = 'Type or speak Chinese here — e.g. 你好';
+      input.placeholder = t('Type or speak Chinese here — e.g. 你好');
       return;
     }
     const mime = window._audioMime || 'audio/mp4';
@@ -5694,9 +5921,9 @@ function inputAudioFallback(ic, input) {
       }).then(r => r.json()).then(d => {
         const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
         input.value = text;
-        input.placeholder = 'Type or speak Chinese here — e.g. 你好';
+        input.placeholder = t('Type or speak Chinese here — e.g. 你好');
       }).catch(() => {
-        input.placeholder = 'Transcription failed. Try typing.';
+        input.placeholder = t('Transcription failed. Try typing.');
       });
     };
     reader.readAsDataURL(blob);
@@ -5705,7 +5932,7 @@ function inputAudioFallback(ic, input) {
   _inputRecAudioMode = true;
   isInputListening = true;
   ic.className = 'fas fa-stop text-accent';
-  input.placeholder = 'Recording... tap mic to stop';
+  input.placeholder = t('Recording... tap mic to stop');
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(stream => {
       activeMicStream = stream;
@@ -5723,7 +5950,7 @@ function inputAudioFallback(ic, input) {
       _inputRecAudioMode = false;
       isInputListening = false;
       ic.className = 'fas fa-microphone';
-      input.placeholder = 'Mic denied. Type instead.';
+      input.placeholder = t('Mic denied. Type instead.');
     });
   }
 }
@@ -5770,7 +5997,7 @@ function toggleInputSpeech() {
     inputSpeechRecognition.onstart = () => {
       isInputListening = true;
       ic.className = 'fas fa-stop text-accent';
-      input.placeholder = 'Listening... Speak in Mandarin';
+      input.placeholder = t('Listening... Speak in Mandarin');
     };
     
     inputSpeechRecognition.onresult = (e) => {
@@ -5783,7 +6010,7 @@ function toggleInputSpeech() {
       if (e.error === 'no-speech') {
         window._useAudioFallback = true;
         localStorage.setItem('_useAudioFallback', 'true');
-        input.placeholder = 'Auto-switching to recording...';
+        input.placeholder = t('Auto-switching to recording...');
         setTimeout(() => inputAudioFallback(ic, input), 300);
       } else {
         toast("Speech Error: " + e.error, "var(--accent)");
@@ -5793,7 +6020,7 @@ function toggleInputSpeech() {
     inputSpeechRecognition.onend = () => {
       isInputListening = false;
       ic.className = 'fas fa-microphone';
-      input.placeholder = 'Type or speak Chinese here — e.g. 你好';
+      input.placeholder = t('Type or speak Chinese here — e.g. 你好');
     };
     
     inputSpeechRecognition.start();
@@ -5821,7 +6048,7 @@ function saveGeminiSettings() {
   localStorage.setItem('speech_rate', rate);
   
   updateSpeechRateDisplay(rate);
-  toast("Settings Saved! Mode: " + (mode === 'live' ? 'Live AI' : 'Simulated'), "var(--green)");
+  toast(t("Settings Saved! Mode: ") + (mode === 'live' ? t('Live AI') : t('Simulated')), "var(--green)");
   toggleSettingsModal();
   if (tutLesson) {
     startTutor(TL.indexOf(tutLesson));
@@ -5843,14 +6070,14 @@ function loadGeminiSettings() {
 
 function sendToGemini(userText) {
   const statusText = document.getElementById('tutStatus');
-  if(statusText) statusText.textContent = "Thinking...";
+  if(statusText) statusText.textContent = t("Thinking...");
   
   if (!userText.startsWith("你好！")) {
     geminiHistory.push({ role: "user", parts: [{ text: userText }] });
   }
   
   const loaderId = "loader-" + Date.now();
-  addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">Thinking...</div>');
+  addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Thinking...')+'</div>');
   
   const langName = currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
   
@@ -5928,11 +6155,11 @@ function sendToGemini(userText) {
       userRole = setup.userRole.split(' ')[0];
     }
     if (isRoleplayActive) {
-      if (statusText) statusText.textContent = `Roleplay — Your Turn [${userRole}]`;
-      document.getElementById('tutHint').textContent = `Your Turn — speak [${userRole}] lines`;
+      if (statusText) statusText.textContent = t('Roleplay')+' — '+t('Your Turn')+' ['+userRole+']';
+      document.getElementById('tutHint').textContent = t('Your Turn')+' — '+t('speak')+' ['+userRole+'] '+t('lines');
     } else {
-      if (statusText) statusText.textContent = "Your turn — press mic";
-      document.getElementById('tutHint').textContent = "Type Chinese below or press mic";
+      if (statusText) statusText.textContent = t("Your turn")+' — '+t("press mic");
+      document.getElementById('tutHint').textContent = t("Type Chinese below or press mic");
     }
   })
   .catch(err => {
@@ -5940,7 +6167,7 @@ function sendToGemini(userText) {
     const loader = document.getElementById(loaderId);
     if (loader) loader.remove();
     addTutMsg('warn', '⚠️ <b>Tutor Connection Failed:</b> Error generating reply. Please try again.');
-    if (statusText) statusText.textContent = "Error";
+    if (statusText) statusText.textContent = t("Error");
   });
 }
 
@@ -5953,7 +6180,7 @@ function useHint() {
   if (input) {
     input.value = suggestedUserTarget;
   }
-  toast("Hint selected! Speak now or click Submit.", "var(--gold)");
+  toast(t("Hint selected! Speak now or click Submit."), "var(--gold)");
 }
 
 // ===== MAPPING HSK CARDS TO TUTOR LESSONS =====
@@ -5986,7 +6213,7 @@ function openTopicLesson(topicName, lvIdx) {
       activePrompt = setup.prompt;
       addTutMsg('sys', `🎭 <b>Roleplay Characters Assigned</b>:<br>&bull; Bot Role: <b>${setup.botRole}</b><br>&bull; Your Role: <b>${setup.userRole}</b>`);
     } else {
-      addTutMsg('sys', '🤖 <b>Live AI Mode:</b> Connecting to Gemini to chat about <b>' + topicName + '</b>...');
+      addTutMsg('sys', '🤖 <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
     }
     
     sendToGemini(activePrompt);
@@ -6021,12 +6248,12 @@ function openTopicLesson(topicName, lvIdx) {
       const tutNavBtn = document.querySelector('.mnb[onclick*="tutor"]');
       if (tutNavBtn) tutNavBtn.classList.add('act');
       
-      toast("Loaded " + TL[tlIdx].title + "! Start speaking now.", "var(--green)");
+      toast(t("Loaded ") + TL[tlIdx].title + t("! Start speaking now."), "var(--green)");
     } else {
       const fallback = TL.findIndex(l => l.level === 'HSK 1');
       startTutor(fallback >= 0 ? fallback : 0);
       scrollTo('#tutor');
-      toast("Loaded a free lesson!", "var(--gold)");
+      toast(t("Loaded a free lesson!"), "var(--gold)");
     }
   }
 }
@@ -6048,7 +6275,7 @@ function cycleSpeechRate() {
   
   localStorage.setItem('speech_rate', next.toString());
   updateSpeechRateDisplay(next);
-  toast("Speaking speed: " + next + "x", "var(--blue)");
+  toast(t("Speaking speed: ") + next + "x", "var(--blue)");
 }
 
 // ===== INTERACTIVE 3D VOCABULARY FLASHCARDS MODE =====
@@ -6107,7 +6334,7 @@ function buildFlashcards() {
     }
   });
   const statsDisp = document.getElementById('srsStatsDisplay');
-  if (statsDisp) statsDisp.textContent = "Reviews due: " + dueCount;
+  if (statsDisp) statsDisp.textContent = t("Reviews due: ") + dueCount;
   
   allWords.forEach(w => {
     const state = srsState[w.cn];
@@ -6146,9 +6373,9 @@ function showFlashcard() {
   if (card) card.classList.remove('flipped');
   
   if (flashcardList.length === 0) {
-    document.getElementById('fcFrontCn').textContent = "None";
+    document.getElementById('fcFrontCn').textContent = t("None");
     document.getElementById('fcFrontPy').textContent = "";
-    document.getElementById('fcBackEn').textContent = "No vocabulary items loaded.";
+    document.getElementById('fcBackEn').textContent = t("No vocabulary items loaded.");
     document.getElementById('fcBackTip').textContent = "";
     document.getElementById('fcIndexDisplay').textContent = "0 / 0";
     return;
@@ -6192,7 +6419,7 @@ function markFlashcardLearned() {
   
   updateProgress();
   showFlashcard();
-  toast("Progress updated!", "var(--green)");
+  toast(t("Progress updated!"), "var(--green)");
 }
 
 function prevFlashcard() {
@@ -6260,7 +6487,7 @@ function applyRecommendedLevel() {
   const lessonsNavBtn = document.querySelector('.mnb[onclick*="lessons"]');
   if (lessonsNavBtn) lessonsNavBtn.classList.add('act');
   
-  toast("Loaded HSK " + (curLv + 1) + " lessons for you!", "var(--green)");
+  toast(t("Loaded HSK ") + (curLv + 1) + t(" lessons for you!"), "var(--green)");
 }
 
 // ===== CHARACTER-BY-CHARACTER COLOR-CODED PRONUNCIATION FEEDBACK =====
@@ -6296,7 +6523,7 @@ function toggleWriteOutline() {
 // ===== PREMIUM SUBSCRIPTION PAYWALL MODAL =====
 function showPremiumPaywall(levelName) {
   const title = document.getElementById('premTitle');
-  if (title) title.textContent = "Unlock " + levelName;
+  if (title) title.textContent = t("Unlock ") + levelName;
   const modal = document.getElementById('premiumModal');
   if (modal) modal.style.display = 'flex';
   if (typeof paypal !== 'undefined') renderPayPalButtons();
@@ -6625,10 +6852,10 @@ function toggleRoleplayMode() {
   if (!btn) return;
   
   if (isRoleplayActive) {
-    btn.innerHTML = '<i class="fas fa-theater-masks mr-1"></i>Roleplay';
+    btn.innerHTML = '<i class="fas fa-theater-masks mr-1"></i>'+t('Roleplay');
     btn.style.color = 'var(--gold)';
     btn.style.background = 'rgba(212,166,79,.1)';
-    toast("Dialogue Roleplay Mode Active! Speak your role lines.", "var(--green)");
+    toast(t("Dialogue Roleplay Mode Active! Speak your role lines."), "var(--green)");
     
     // Assign roleplay character immediately
     const activeTopic = localStorage.getItem('active_topic_name') || (tutLesson ? tutLesson.title : "Greetings");
@@ -6642,10 +6869,10 @@ function toggleRoleplayMode() {
       sendToGemini("你好！请用中文跟我聊天。");
     }
   } else {
-    btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>Study';
+    btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>'+t('Study');
     btn.style.color = 'var(--muted)';
     btn.style.background = 'var(--card2)';
-    toast("Returned to Dialogue Study Mode.", "var(--gold)");
+    toast(t("Returned to Dialogue Study Mode."), "var(--gold)");
     
     if (localStorage.getItem('tutor_mode') === 'live') {
       geminiHistory = [];
@@ -6746,7 +6973,7 @@ function startGrammarPractice(title, cn, en) {
   currentGrScrambled = cn.split('');
   currentGrScrambled.sort(() => Math.random() - 0.5);
   
-  document.getElementById('grPracticeTitle').textContent = "Practice: " + title;
+  document.getElementById('grPracticeTitle').textContent = t("Practice:") + " " + title;
   document.getElementById('grPracticeEn').textContent = en;
   
   renderGrPracticeGrid();
@@ -6796,11 +7023,11 @@ function resetGrammarPractice() {
 function checkGrammarPractice() {
   const answerStr = currentGrAnswer.join('');
   if (answerStr === currentGrTarget) {
-    toast("Correct! Well done!", "var(--green)");
+    toast(t("Correct! Well done!"), "var(--green)");
     speak(currentGrTarget, 0.7);
     setTimeout(() => closeGrammarPractice(), 1200);
   } else {
-    toast("Incorrect. Try again!", "var(--accent)");
+    toast(t("Incorrect. Try again!"), "var(--accent)");
   }
 }
 
