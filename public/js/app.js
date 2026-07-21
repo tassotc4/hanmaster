@@ -10775,6 +10775,13 @@ else {
 function playPy(el,py){document.querySelectorAll('.pyc.pl').forEach(e=>e.classList.remove('pl'));if(el&&el.classList)el.classList.add('pl');speak(py);setTimeout(()=>{if(el&&el.classList)el.classList.remove('pl')},600)}
 
 // ===== GRAMMAR =====
+function addSpeakToSentences(html) {
+  return html.replace(/<span class="fc font-bold text-lg">([^<]+)<\/span>/g, (m, cn) => {
+    const esc = cn.replace(/'/g, "\\'");
+    return '<span class="fc font-bold text-lg">'+cn+'</span><button onclick="event.stopPropagation(); speak(\''+esc+'\', 0.7)" class="w-7 h-7 rounded-full inline-flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer align-middle ml-1.5 flex-shrink-0" title="Listen" style="outline:none;vertical-align:middle;"><i class="fas fa-volume-high text-[10px]"></i></button>';
+  });
+}
+
 function buildGr(){
   const g = document.getElementById('grGrid');
   if (!g) return;
@@ -10822,7 +10829,7 @@ function buildGr(){
           <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer mx-auto mb-3" title="Listen">
             <i class="fas fa-volume-high text-[10px]"></i>
           </button>
-          <div class="text-[12.5px] leading-relaxed" style="color:var(--fg2)">${t(gr.b)}</div>
+          <div class="text-[12.5px] leading-relaxed" style="color:var(--fg2)">${addSpeakToSentences(t(gr.b))}</div>
         </div>
       </div>
     `;
