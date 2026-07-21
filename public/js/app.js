@@ -4313,7 +4313,7 @@ const OFFLINE_DICTIONARY = {
     "husband":"chồng","wife":"vợ","son":"con trai",
     "daughter":"con gái","child":"trẻ em",
     "school":"trường học","teacher":"giáo viên","student":"học sinh",
-    "classmate":"bạn cùng lớp","classroom":"lớp học"
+    "classmate":"bạn cùng lớp","classroom":"lớp học",
     "Beijing":"Bắc Kinh",
     "China":"Trung Quốc",
     "Chinese language":"tiếng Trung",
