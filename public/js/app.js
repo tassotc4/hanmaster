@@ -10819,6 +10819,9 @@ function buildGr(){
             <i class="fas fa-rotate text-xs" style="color:var(--muted)"></i>
           </div>
           <h3 class="font-bold text-sm mb-3">${t(gr.t)}</h3>
+          <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer mx-auto mb-3" title="Listen">
+            <i class="fas fa-volume-high text-[10px]"></i>
+          </button>
           <div class="text-[12.5px] leading-relaxed" style="color:var(--fg2)">${t(gr.b)}</div>
         </div>
       </div>
