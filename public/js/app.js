@@ -4070,7 +4070,7 @@ function startTutor(idx){
     addTutMsg('sys', '🎭 <b>Roleplay Characters Assigned</b>: Bot = <b>'+botRole+'</b> &middot; You = <b>'+userRole+'</b>');
   }
   let vh='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-top:8px">';
-  tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:6px 8px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:16px">'+w.cn+'</div><div style="font-size:10px;color:var(--muted)">'+w.py+'</div><div style="font-size:10px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
+    tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
   vh+='</div>';
   addTutMsg('sys',vh);
   setTimeout(()=>advanceTutor(),600);
@@ -4100,7 +4100,7 @@ function advanceTutor(){
     document.getElementById('tutHint').style.color='var(--accent)';
     document.getElementById('tutStatus').textContent=isRoleplayActive ? 'Roleplay — ['+botRole+'] speaking' : 'Your turn — type below';
     setTimeout(()=>tutListen(),500);
-    addTutMsg('bot','<div class="fc font-bold" style="font-size:17px;margin-bottom:3px">'+line.cn+'</div><div style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> replay</span>');
+    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> replay</span>');
   } else {
     document.getElementById('tutHint').textContent=isRoleplayActive ? 'Your turn — speak ['+userRole+'] lines' : 'Type Chinese below or press mic';
     document.getElementById('tutHint').style.color='var(--accent)';
@@ -4261,7 +4261,7 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       document.getElementById('tutStatus').textContent = 'Heard: ' + transcript;
       // Show confirmation before sending to AI
       const confirmId = 'confirm-' + Date.now();
-      addTutMsg('user', '<div class="fc font-bold" style="font-size:16px;margin-bottom:3px;letter-spacing:1px">' + transcript + '</div><div style="font-size:11px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px">✓ Use</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px">✕ Cancel</button></div>');
+      addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ Use</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ Cancel</button></div>');
     } else {
       console.warn("Empty or no-speech transcription");
       document.getElementById('tutHint').textContent = 'No speech detected — tap mic and speak clearly';
@@ -4481,7 +4481,7 @@ function processScore(text,sc,target,turnId){
   document.getElementById('scoreWrap').style.display='block';
   let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> Great!</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> Getting there</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> Keep practicing</span>';
   document.getElementById('tutHint').innerHTML=fb;
-  addTutMsg('user','<div class="fc font-bold" style="font-size:16px;margin-bottom:3px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:11px;color:var(--muted)">Matched transcript: "'+text+'" • Score: '+sc+'/100</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">Matched transcript: "'+text+'" • Score: '+sc+'/100</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
   if (localStorage.getItem('tutor_mode') === 'live') {
     setTimeout(() => {
       sendToGemini(text);
@@ -5380,7 +5380,7 @@ function sendToGemini(userText) {
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
     
     // Add message to chat and speak
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:13px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + '<span style="font-size:10px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
+    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
     speak(cleanReply);
     
     // Immersive Roleplay Status Updates for Live Mode
