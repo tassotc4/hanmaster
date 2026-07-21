@@ -5017,7 +5017,7 @@ function buildTutorTabs(){
   const c=document.getElementById('tutLvTabs');
   const g=document.getElementById('tutTopicBtns');
   if(!c||!g)return;
-  c.innerHTML='';
+  c.innerHTML='';g.innerHTML='';
   const levels=[...new Set(TL.map(l=>l.level).filter(Boolean))];
   const lvOrder=['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
   levels.sort((a,b)=>lvOrder.indexOf(a)-lvOrder.indexOf(b));
@@ -5025,22 +5025,20 @@ function buildTutorTabs(){
   sel.className='tb-select';
   levels.forEach((lv,i)=>{
     const opt=document.createElement('option');
-    opt.value=i;
-    opt.textContent=t(lv);
-    sel.appendChild(opt);
+    opt.value=i;opt.textContent=t(lv);sel.appendChild(opt);
   });
   sel.onchange=()=>{
-    const idx=parseInt(sel.value);
-    const lv=levels[idx];
+    const idx=parseInt(sel.value),lv=levels[idx];
     g.innerHTML='';
-    TL.forEach((lesson,idx2)=>{
-      if(lesson.level!==lv)return;
-      const tb=document.createElement('button');
-      tb.className='bo text-xs';
-      tb.textContent=t(lesson.title);
-      tb.onclick=()=>openTutorTopic(lesson.title, idx);
-      g.appendChild(tb);
+    const ts=document.createElement('select');ts.className='tb-select';
+    const lessons=TL.filter(l=>l.level===lv);
+    lessons.forEach((lesson,i)=>{
+      const o=document.createElement('option');
+      o.value=i;o.textContent=t(lesson.title);ts.appendChild(o);
     });
+    ts.onchange=()=>{const ls=lessons[parseInt(ts.value)];if(ls)openTutorTopic(ls.title,idx);};
+    g.appendChild(ts);
+    if(lessons.length)ts.dispatchEvent(new Event('change'));
   };
   c.appendChild(sel);
   sel.dispatchEvent(new Event('change'));

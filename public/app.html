@@ -263,15 +263,17 @@
     var g = document.getElementById('tutTopicBtns');
     if (g) {
       g.innerHTML = '';
-      (topics[lv] || []).forEach(function(t) {
-        var tb = document.createElement('button');
-        tb.className = 'bo text-xs';
-        tb.textContent = t;
-        tb.onclick = function() {
-          if (window.openTutorTopic) window.openTutorTopic(t, idx);
-        };
-        g.appendChild(tb);
+      var ts = document.createElement('select');
+      ts.className = 'tb-select';
+      (topics[lv] || []).forEach(function(t, ti) {
+        var o = document.createElement('option');
+        o.value = ti; o.textContent = t; ts.appendChild(o);
       });
+      ts.onchange = function() {
+        if (window.openTutorTopic) window.openTutorTopic(topics[lv][parseInt(ts.value)], idx);
+      };
+      g.appendChild(ts);
+      if (topics[lv] && topics[lv].length) ts.dispatchEvent(new Event('change'));
     }
   };
   c.appendChild(sel);
