@@ -17,6 +17,10 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(staticDir, 'index.html'));
 });
 
+app.get('/printable/hsk1-vocab', (req, res) => {
+  res.sendFile(path.join(staticDir, 'printable', 'hsk1-vocab.html'));
+});
+
 app.post('/api/test', (req, res) => {
   res.json({ ok: true, body: req.body });
 });
