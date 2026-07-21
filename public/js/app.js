@@ -3859,7 +3859,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.openTutorTopic = function(topic, levelIdx) {
     openTopicLesson(topic, levelIdx);
   };
-  buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
+  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -4507,6 +4507,37 @@ function finishTutor(){
 function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
 function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);document.getElementById('tutChat').scrollTop=9999}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
+
+function buildTutorTabs(){
+  const c=document.getElementById('tutLvTabs');
+  const g=document.getElementById('tutTopicBtns');
+  if(!c||!g)return;
+  c.innerHTML='';
+  const levels=[...new Set(TL.map(l=>l.level).filter(Boolean))];
+  const lvOrder=['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
+  levels.sort((a,b)=>lvOrder.indexOf(a)-lvOrder.indexOf(b));
+  levels.forEach((lv,i)=>{
+    const b=document.createElement('button');
+    b.className='tb'+(i===0?' on':'');
+    b.textContent=lv;
+    b.onclick=()=>{
+      c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      g.innerHTML='';
+      TL.forEach((lesson,idx)=>{
+        if(lesson.level!==lv)return;
+        const tb=document.createElement('button');
+        tb.className='bo text-xs';
+        tb.textContent=lesson.title;
+        tb.onclick=()=>openTutorTopic(lesson.title, levels.indexOf(lv));
+        g.appendChild(tb);
+      });
+    };
+    c.appendChild(b);
+  });
+  const first=c.querySelector('.tb');
+  if(first)first.click();
+}
 
 // ===== LESSONS =====
 function buildLvTabs(){const c=document.getElementById('lvTabs');LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=l.n;b.onclick=()=>{
@@ -5463,12 +5494,18 @@ function openTopicLesson(topicName, lvIdx) {
     if (tutNavBtn) tutNavBtn.classList.add('act');
     
   } else {
-    // Simulated/Static mode — look up lesson by title keyword
-    const simKey = [['greeting','Basic Greetings'],['food','Restaurant'],['restaurant','Restaurant'],['shop','Restaurant'],['family','Introducing Family'],['routine','Daily Routine'],['work','Daily Routine'],['time','Daily Routine'],['hobby','Daily Routine'],['plan','Daily Routine']];
+    // Simulated/Static mode — look up lesson by title or keyword
     const firstFree = TL.findIndex(l => l.level === 'HSK 1');
     let tlIdx = firstFree >= 0 ? firstFree : 0;
-    for (const [kw, title] of simKey) {
-      if (name.includes(kw)) { const found = TL.findIndex(l => l.title.includes(title)); if (found !== -1) tlIdx = found; break; }
+    // Try exact title match first
+    const exactMatch = TL.findIndex(l => l.title === topicName);
+    if (exactMatch !== -1) {
+      tlIdx = exactMatch;
+    } else {
+      const simKey = [['greeting','Basic Greetings'],['numbers','Numbers & Counting'],['family','Introducing Family'],['food','Restaurant'],['restaurant','Restaurant'],['shopping','Shopping & Prices'],['hobby','Hobbies & Sports'],['sport','Hobbies & Sports'],['routine','Daily Routine'],['travel','Travel Plans'],['health','Health & Body'],['job','Job & Workplace'],['workplace','Job & Workplace'],['business','Business Meeting'],['online','Online Shopping'],['environment','Environmental Protection'],['travel plan','Travel Plans'],['technology','Technology & AI'],['ai','Technology & AI'],['fitness','Health & Fitness'],['social','Social Media & Internet'],['movie','Movie & Entertainment'],['economy','Global Economy'],['philosophy','Chinese Philosophy']];
+      for (const [kw, title] of simKey) {
+        if (name.includes(kw)) { const found = TL.findIndex(l => l.title.includes(title)); if (found !== -1) tlIdx = found; break; }
+      }
     }
     
     if (tlIdx >= 0) {

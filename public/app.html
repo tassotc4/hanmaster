@@ -233,18 +233,18 @@
 <div class="flex flex-wrap gap-2 mb-6 fu" id="tutTopicBtns" style="min-height:32px"></div>
 <script>
 (function(){
-  // Stub: real implementation will be set by app.js
+  // Stub: real implementation will be set by app.js — this is a fallback if app.js fails
   window.openTutorTopic = window.openTutorTopic || function(t, i){};
   var c = document.getElementById('tutLvTabs');
   if (!c || c.children.length > 0) return;
   var levels = ['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
   var topics = {
-    'HSK 1':['Greetings','Numbers','Family','Food','Time'],
-    'HSK 2':['Shopping','Transport','Weather','Hobbies','Dates'],
-    'HSK 3':['Travel','Work','Health','Education','Culture'],
-    'HSK 4':['Society','Technology','Environment','Media','Sports'],
-    'HSK 5':['Business','Politics','Literature','Science','Philosophy'],
-    'HSK 6':['Academic','Idioms','Classical','Debate','Abstract'],
+    'HSK 1':['Basic Greetings','Numbers & Counting','Introducing Family'],
+    'HSK 2':['At the Restaurant','Shopping & Prices','Hobbies & Sports'],
+    'HSK 3':['Daily Routine','Travel Plans','Health & Body','Job & Workplace'],
+    'HSK 4':['Business Meeting','Online Shopping','Environmental Protection','Travel & Culture'],
+    'HSK 5':['Technology & AI','Health & Fitness','Social Media & Internet','Movie & Entertainment'],
+    'HSK 6':['Global Economy','Chinese Philosophy'],
     'HSK 7':['Formal Writing','Analysis','Research','Translation'],
     'HSK 8':['Specialized','Cross-cultural','Presentation'],
     'HSK 9':['Literary','Creative Writing','Scholarship']
