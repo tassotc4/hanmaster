@@ -168,8 +168,8 @@
 <body>
 <div id="toast" class="tst"></div>
 <nav class="nb"><div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
-<a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight">MandarinCourse</span></a>
-<div class="dn flex items-center gap-6"><a href="#tutor" class="nl">AI Tutor</a><a href="#lessons" class="nl">Lessons</a><a href="#grammar" class="nl">Grammar</a><a href="#dictionary" class="nl">Dictionary</a><a href="#test" class="nl">Level Test</a><a href="#progress" class="nl">Progress</a></div>
+<a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight" data-tr="MandarinCourse">MandarinCourse</span></a>
+<div class="dn flex items-center gap-6"><a href="#tutor" class="nl" data-tr="AI Tutor">AI Tutor</a><a href="#lessons" class="nl" data-tr="Lessons">Lessons</a><a href="#grammar" class="nl" data-tr="Grammar">Grammar</a><a href="#dictionary" class="nl" data-tr="Dictionary">Dictionary</a><a href="#test" class="nl" data-tr="Level Test">Level Test</a><a href="#progress" class="nl" data-tr="Progress">Progress</a></div>
 
   <!-- Language & Theme selectors Group (always visible) -->
   <div class="flex items-center gap-2.5">
@@ -213,28 +213,27 @@
 <div class="relative z-10 text-center px-5 max-w-4xl mx-auto">
 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-7" style="background:rgba(200,53,37,.1);border:1px solid rgba(200,53,37,.22)">
 <div class="td off"><span></span><span></span><span></span><span></span><span></span></div>
-<span class="text-xs font-bold" style="color:var(--accent2)">AI-Powered Speaking Tutor</span></div>
-<h1 class="fc font-black leading-tight mb-5" style="font-size:clamp(2.4rem,6vw,4.2rem)">Learn Mandarin with AI <br><span style="background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent">HSK 1 Free · HSK 2–9 $9/mo</span></h1>
-<p class="text-base md:text-lg mb-9 max-w-2xl mx-auto leading-relaxed" style="color:var(--fg2)">Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.</p>
+<span class="text-xs font-bold" style="color:var(--accent2)" data-tr="AI-Powered Speaking Tutor">AI-Powered Speaking Tutor</span></div>
+<h1 class="fc font-black leading-tight mb-5" style="font-size:clamp(2.4rem,6vw,4.2rem)" data-tr="Learn Mandarin with AI">Learn Mandarin with AI <br><span style="background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent" data-tr="HSK 1 Free · HSK 2–9 $9/mo">HSK 1 Free · HSK 2–9 $9/mo</span></h1>
+<p class="text-base md:text-lg mb-9 max-w-2xl mx-auto leading-relaxed" style="color:var(--fg2)" data-tr="Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.">Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.</p>
 <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
-<button class="bp text-base px-9 py-3.5" onclick="scrollTo('#tutor')"><i class="fas fa-microphone mr-2"></i>Start Speaking Lesson</button>
-<button class="bo" onclick="scrollTo('#test')"><i class="fas fa-brain mr-2"></i>Take Level Test</button></div>
+<button class="bp text-base px-9 py-3.5" data-tr="Start Speaking Lesson" onclick="scrollTo('#tutor')"><i class="fas fa-microphone mr-2"></i>Start Speaking Lesson</button>
+<button class="bo" data-tr="Take Level Test" onclick="scrollTo('#test')"><i class="fas fa-brain mr-2"></i>Take Level Test</button></div>
 <div class="grid grid-cols-4 gap-6 max-w-md mx-auto">
-<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">400+</div><div class="text-xs mt-0.5" style="color:var(--muted)">Lessons</div></div>
-<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">9</div><div class="text-xs mt-0.5" style="color:var(--muted)">Levels</div></div>
-<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">50+</div><div class="text-xs mt-0.5" style="color:var(--muted)">Topics</div></div>
-<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">5M+</div><div class="text-xs mt-0.5" style="color:var(--muted)">Learners</div></div></div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">400+</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Lessons">Lessons</div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">9</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Levels">Levels</div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">50+</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Topics">Topics</div></div>
+<div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">5M+</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Learners">Learners</div></div></div></div>
 </header>
 
 <!-- ========== AI TUTOR ========== -->
 <section id="tutor" class="py-16 px-1.5 md:px-4" style="background:var(--bg2)">
 <div class="max-w-[98%] mx-auto">
-<div class="text-center mb-8 fu"><div class="sl">AI Speaking Tutor</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Your Personal Chinese Speaking Teacher</h2><p style="color:var(--fg2)" class="max-w-lg mx-auto text-sm">Listen to the AI speak Chinese, then respond by <b>typing Chinese</b> in the text box below.</p></div>
+<div class="text-center mb-8 fu"><div class="sl" data-tr="AI Speaking Tutor">AI Speaking Tutor</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Your Personal Chinese Speaking Teacher">Your Personal Chinese Speaking Teacher</h2><p style="color:var(--fg2)" class="max-w-lg mx-auto text-sm" data-tr="Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.">Listen to the AI speak Chinese, then respond by <b>typing Chinese</b> in the text box below.</p></div>
 <div class="flex flex-nowrap overflow-x-auto whitespace-nowrap gap-2 mb-2 fu scrollbar-none" style="-webkit-overflow-scrolling:touch;" id="tutLvTabs"></div>
 <div class="flex flex-wrap gap-2 mb-6 fu" id="tutTopicBtns" style="min-height:32px"></div>
 <script>
 (function(){
-  // Stub: real implementation will be set by app.js — this is a fallback if app.js fails
   window.openTutorTopic = window.openTutorTopic || function(t, i){};
   var c = document.getElementById('tutLvTabs');
   if (!c || c.children.length > 0) return;
@@ -250,33 +249,33 @@
     'HSK 8':['Specialized','Cross-cultural','Presentation'],
     'HSK 9':['Literary','Creative Writing','Scholarship']
   };
+  var sel = document.createElement('select');
+  sel.className = 'tb-select';
   levels.forEach(function(lv, i) {
-    var b = document.createElement('button');
-    b.className = 'tb' + (i === 0 ? ' on' : '');
-    b.textContent = lv;
-    b.onclick = function() {
-      c.querySelectorAll('.tb').forEach(function(x){x.classList.remove('on')});
-      b.classList.add('on');
-      var g = document.getElementById('tutTopicBtns');
-      if (g) {
-        g.innerHTML = '';
-        (topics[lv] || []).forEach(function(t) {
-          var tb = document.createElement('button');
-          tb.className = 'bo text-xs';
-          tb.textContent = t;
-          tb.onclick = function() {
-            if (window.openTutorTopic) window.openTutorTopic(t, i);
-          };
-
-          g.appendChild(tb);
-        });
-      }
-    };
-    c.appendChild(b);
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = lv;
+    sel.appendChild(opt);
   });
-  // Trigger click on the first tab
-  var first = c.querySelector('.tb');
-  if (first) first.click();
+  sel.onchange = function() {
+    var idx = parseInt(sel.value);
+    var lv = levels[idx];
+    var g = document.getElementById('tutTopicBtns');
+    if (g) {
+      g.innerHTML = '';
+      (topics[lv] || []).forEach(function(t) {
+        var tb = document.createElement('button');
+        tb.className = 'bo text-xs';
+        tb.textContent = t;
+        tb.onclick = function() {
+          if (window.openTutorTopic) window.openTutorTopic(t, idx);
+        };
+        g.appendChild(tb);
+      });
+    }
+  };
+  c.appendChild(sel);
+  sel.dispatchEvent(new Event('change'));
 })();
 </script>
 <div class="cd overflow-hidden fu" style="min-height:500px;max-height:640px;display:flex;flex-direction:column">
@@ -337,13 +336,13 @@
 
 <!-- ========== LESSONS ========== -->
 <section id="lessons" class="py-20 px-5">
-<div class="max-w-6xl mx-auto"><div class="text-center mb-10 fu"><div class="sl">Bite-Sized Lessons</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">10-15 Minute Lessons</h2></div>
+<div class="max-w-6xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="Bite-Sized Lessons">Bite-Sized Lessons</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="10-15 Minute Lessons">10-15 Minute Lessons</h2></div>
 <div class="flex flex-nowrap overflow-x-auto whitespace-nowrap gap-2 mb-8 fu scrollbar-none" style="-webkit-overflow-scrolling:touch;" id="lvTabs"></div>
 <!-- STUDY MODE SELECTOR -->
     <div class="flex justify-center gap-2 mb-6 fu">
-      <button id="modeTopicsBtn" class="tb on" onclick="switchLessonsMode('topics')" style="border-radius:20px;padding:6px 16px"><i class="fas fa-grip mr-1"></i> Topics Grid</button>
-      <button id="modeFlashcardsBtn" class="tb" onclick="switchLessonsMode('flashcards')" style="border-radius:20px;padding:6px 16px"><i class="fas fa-clone mr-1"></i> Study Flashcards</button>
-      <button id="modeRadicalsBtn" class="tb" onclick="switchLessonsMode('radicals')" style="border-radius:20px;padding:6px 16px"><i class="fas fa-cubes mr-1"></i> Radical Explorer</button>
+      <button id="modeTopicsBtn" class="tb on" onclick="switchLessonsMode('topics')" style="border-radius:20px;padding:6px 16px" data-tr="Topics Grid"><i class="fas fa-grip mr-1"></i> Topics Grid</button>
+      <button id="modeFlashcardsBtn" class="tb" onclick="switchLessonsMode('flashcards')" style="border-radius:20px;padding:6px 16px" data-tr="Study Flashcards"><i class="fas fa-clone mr-1"></i> Study Flashcards</button>
+      <button id="modeRadicalsBtn" class="tb" onclick="switchLessonsMode('radicals')" style="border-radius:20px;padding:6px 16px" data-tr="Radical Explorer"><i class="fas fa-cubes mr-1"></i> Radical Explorer</button>
     </div>
 
     <!-- TOPICS GRID -->
@@ -354,7 +353,7 @@
       <div class="grid md:grid-cols-3 gap-6">
         <!-- Radicals Grid -->
         <div class="cd p-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] md:col-span-1">
-          <h3 class="font-bold text-sm text-white mb-4"><i class="fas fa-cubes text-[var(--gold)] mr-2"></i>Common Radicals</h3>
+          <h3 class="font-bold text-sm text-white mb-4" data-tr="Common Radicals"><i class="fas fa-cubes text-[var(--gold)] mr-2"></i>Common Radicals</h3>
           <div class="grid grid-cols-3 gap-2" id="radicalsListGrid"></div>
         </div>
         <!-- Radical Details -->
@@ -404,11 +403,11 @@
           </div>
           <!-- Card Back -->
           <div class="absolute inset-0 backface-hidden rotate-y-180 rounded-2xl p-8 flex flex-col items-center justify-center border text-center" style="background:var(--card2); border-color:var(--border);">
-            <span class="text-xs font-bold uppercase tracking-wider text-muted mb-2">Translation & Meaning</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-muted mb-2" data-tr="Translation & Meaning">Translation & Meaning</span>
             <h3 class="text-xl font-bold text-white mb-1" id="fcBackEn">--</h3>
             <p class="text-[10px] text-muted mb-3 italic" id="fcBackTip">--</p>
             <div class="w-full py-2 px-3 rounded-lg border border-[var(--border)] bg-[var(--card)] text-left mb-3">
-              <span class="text-[8px] uppercase tracking-wider font-semibold text-muted block mb-0.5">Example Phrase</span>
+              <span class="text-[8px] uppercase tracking-wider font-semibold text-muted block mb-0.5" data-tr="Example Phrase">Example Phrase</span>
               <span class="fc text-xs text-[var(--fg2)] block" id="fcBackExCn">--</span>
               <span class="text-[10px] text-muted block" id="fcBackExEn">--</span>
             </div>
@@ -417,26 +416,26 @@
             
             <!-- SRS rating buttons -->
             <div class="flex gap-1.5 justify-center w-full mt-1">
-              <button onclick="event.stopPropagation(); rateFlashcard(1)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#ef4444;" title="Again (1m)">Again</button>
-              <button onclick="event.stopPropagation(); rateFlashcard(2)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#f59e0b;" title="Hard (12h)">Hard</button>
-              <button onclick="event.stopPropagation(); rateFlashcard(3)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#3b82f6;" title="Good (1d)">Good</button>
-              <button onclick="event.stopPropagation(); rateFlashcard(4)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#10b981;" title="Easy (4d)">Easy</button>
+              <button onclick="event.stopPropagation(); rateFlashcard(1)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#ef4444;" title="Again (1m)" data-tr="Again">Again</button>
+              <button onclick="event.stopPropagation(); rateFlashcard(2)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#f59e0b;" title="Hard (12h)" data-tr="Hard">Hard</button>
+              <button onclick="event.stopPropagation(); rateFlashcard(3)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#3b82f6;" title="Good (1d)" data-tr="Good">Good</button>
+              <button onclick="event.stopPropagation(); rateFlashcard(4)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#10b981;" title="Easy (4d)" data-tr="Easy">Easy</button>
             </div>
           </div>
         </div>
       </div>
       <!-- Controls -->
       <div class="flex justify-between items-center gap-4 px-2">
-        <button onclick="prevFlashcard()" class="bo flex-1" style="cursor:pointer"><i class="fas fa-arrow-left mr-1"></i> Prev</button>
+        <button onclick="prevFlashcard()" class="bo flex-1" style="cursor:pointer" data-tr="Prev"><i class="fas fa-arrow-left mr-1"></i> Prev</button>
         <span class="text-xs font-semibold text-muted text-center flex-1" id="fcIndexDisplay">1 / 10</span>
-        <button onclick="nextFlashcard()" class="bo flex-1" style="cursor:pointer">Next <i class="fas fa-arrow-right ml-1"></i></button>
+        <button onclick="nextFlashcard()" class="bo flex-1" style="cursor:pointer" data-tr="Next">Next <i class="fas fa-arrow-right ml-1"></i></button>
       </div>
     </div></div></section>
 
 <!-- ========== TRANSLATE ========== -->
 <section id="translate" class="py-20 px-5" style="background:var(--bg)">
 <div class="max-w-3xl mx-auto">
-<div class="text-center mb-10 fu"><div class="sl">Instant Translation</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Translate Any Phrase</h2><p style="color:var(--fg2);font-size:13px">Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.</p></div>
+<div class="text-center mb-10 fu"><div class="sl" data-tr="Instant Translation">Instant Translation</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Translate Any Phrase">Translate Any Phrase</h2><p style="color:var(--fg2);font-size:13px" data-tr="Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.">Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.</p></div>
 <div class="cd p-6 fu">
 <div class="flex gap-3 items-center mb-4">
 <select id="trLang" class="px-3 py-2 rounded-lg text-xs font-semibold" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);outline:none;font-family:inherit;cursor:pointer">
@@ -452,17 +451,17 @@
               <option value="vi-zh">Vietnamese → Chinese</option>
               <option value="to-en">Chinese → English</option>
 </select>
-<button id="trBtn" class="bp flex-1">Translate</button>
+<button id="trBtn" class="bp flex-1" data-tr="Translate">Translate</button>
 </div>
 <div class="relative">
-<textarea id="trInput" placeholder="Enter text to translate..."></textarea>
+<textarea id="trInput" placeholder="Enter text to translate..." data-tr="Enter text to translate..."></textarea>
 <button id="trMic" onclick="translateVoiceInput()" class="absolute right-2.5 bottom-3 text-muted hover:text-accent focus:outline-none" style="background:none;border:none;cursor:pointer;font-size:14px" title="Speak to translate">
   <i id="trMicIc" class="fas fa-microphone"></i>
 </button>
 </div>
 <div class="flex gap-2 mt-3">
-<button id="trSpeak" class="bo flex-1" disabled><i class="fas fa-volume-high mr-1"></i> Speak</button>
-<button id="trCopy" class="bo flex-1" disabled><i class="fas fa-copy mr-1"></i> Copy to Tutor</button>
+<button id="trSpeak" class="bo flex-1" disabled data-tr="Speak"><i class="fas fa-volume-high mr-1"></i> Speak</button>
+<button id="trCopy" class="bo flex-1" disabled data-tr="Copy to Tutor"><i class="fas fa-copy mr-1"></i> Copy to Tutor</button>
 </div>
 <div id="trOutput" class="mt-4"></div>
 </div>
@@ -472,7 +471,7 @@
 <!-- ========== DICTIONARY ========== -->
 <section id="dictionary" class="py-20 px-5" style="background:var(--bg2)">
 <div class="max-w-6xl mx-auto">
-<div class="text-center mb-10 fu"><div class="sl">HSK Dictionary</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Browse HSK Vocabulary</h2><p style="color:var(--fg2);font-size:13px">Browse all HSK vocabulary with pinyin and English translations.</p></div>
+<div class="text-center mb-10 fu"><div class="sl" data-tr="HSK Dictionary">HSK Dictionary</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Browse HSK Vocabulary">Browse HSK Vocabulary</h2><p style="color:var(--fg2);font-size:13px" data-tr="Browse all HSK vocabulary with pinyin and English translations.">Browse all HSK vocabulary with pinyin and English translations.</p></div>
 <div class="flex flex-wrap gap-2 justify-center mb-6 fu" id="dictTabs">
 <button class="dict-tab on" data-lv="1" onclick="buildDictionary(1)">HSK 1</button>
 <button class="dict-tab" data-lv="2" onclick="buildDictionary(2)">HSK 2</button>
@@ -485,7 +484,7 @@
 <button class="dict-tab" data-lv="9" onclick="buildDictionary(9)">HSK 9</button>
 </div>
 <div class="flex gap-3 items-center mb-6 fu">
-<input id="dictSearch" placeholder="Search characters or pinyin..." oninput="filterDictionary()">
+<input id="dictSearch" placeholder="Search characters or pinyin..." oninput="filterDictionary()" data-tr="Search characters or pinyin...">
 </div>
 <div id="dictList"></div>
 </div>
@@ -493,43 +492,43 @@
 
 <!-- ========== GRAMMAR ========== -->
 <section id="grammar" class="py-20 px-5" style="background:var(--bg2)">
-<div class="max-w-6xl mx-auto"><div class="text-center mb-10 fu"><div class="sl">Grammar Deep Dive</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Understand Grammar</h2></div>
+<div class="max-w-6xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="Grammar Deep Dive">Grammar Deep Dive</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Understand Grammar">Understand Grammar</h2></div>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 fu" id="grGrid"></div></div></section>
 
 <!-- ========== LEVEL TEST ========== -->
 <section id="test" class="py-20 px-5">
 <div class="max-w-3xl mx-auto">
-<div class="text-center mb-10 fu"><div class="sl">Level Assessment</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">Know Your Level in 5 Minutes</h2></div>
+<div class="text-center mb-10 fu"><div class="sl" data-tr="Level Assessment">Level Assessment</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Know Your Level in 5 Minutes">Know Your Level in 5 Minutes</h2></div>
 <div class="cd p-7 md:p-9 fu" id="qBox">
-<div id="qSt" class="text-center py-6"><div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),var(--gold))"><i class="fas fa-brain text-2xl text-white"></i></div><h3 class="text-lg font-bold mb-2">Quick Assessment</h3><p class="mb-6 text-sm" style="color:var(--fg2)">10 questions.</p><button class="bp px-9" onclick="startQ()">Start Test <i class="fas fa-arrow-right ml-2"></i></button></div>
+<div id="qSt" class="text-center py-6"><div class="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center" style="background:linear-gradient(135deg,var(--accent),var(--gold))"><i class="fas fa-brain text-2xl text-white"></i></div><h3 class="text-lg font-bold mb-2" data-tr="Quick Assessment">Quick Assessment</h3><p class="mb-6 text-sm" style="color:var(--fg2)" data-tr="10 questions.">10 questions.</p><button class="bp px-9" onclick="startQ()" data-tr="Start Test">Start Test <i class="fas fa-arrow-right ml-2"></i></button></div>
 <div id="qAc" style="display:none"><div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold" style="color:var(--fg2)">Q <span id="qN">1</span>/10</span><span class="text-xs font-bold" style="color:var(--gold)" id="qSc">0 pts</span></div><div class="mb-6" style="padding-bottom:12px"><div style="height:4px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" id="qBr" style="width:10%;background:linear-gradient(90deg,var(--accent),var(--gold))"></div></div></div><div class="flex items-center justify-center gap-3 mb-1.5">
   <div class="fc text-2xl md:text-3xl font-bold" id="qC"></div>
   <button onclick="speakQuizWord()" class="w-8 h-8 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer" title="Listen" id="qPlayBtn" style="outline:none;">
     <i class="fas fa-volume-high text-xs"></i>
   </button>
 </div><div class="text-center mb-6 text-sm" style="color:var(--fg2)" id="qP"></div><div class="grid gap-2.5" id="qOp"></div><div class="text-center mt-5" id="qNW" style="display:none"><button class="bp" onclick="nxtQ()" id="qNB">Next <i class="fas fa-arrow-right ml-1.5"></i></button></div></div>
-<div id="qRe" style="display:none" class="text-center py-3"><div class="w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center" id="rIc" style="background:var(--card2)"></div><h3 class="text-xl font-bold mb-1.5" id="rTi"></h3><p class="mb-1.5 text-sm" style="color:var(--fg2)" id="rDe"></p><div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style="background:rgba(212,166,79,.1);border:1px solid rgba(212,166,79,.25)"><span class="font-bold text-lg" style="color:var(--gold)" id="rLv"></span></div><div class="grid grid-cols-3 gap-3 mb-6"><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--accent)" id="rCo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)">Correct</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--gold)" id="rVo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)">Vocab</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--green)" id="rTm">0m</div><div class="text-xs mt-0.5" style="color:var(--muted)">Time</div></div></div><div class="flex gap-2 justify-center mt-6">
-  <button class="bo px-6" onclick="rstQ()"><i class="fas fa-rotate-left mr-1"></i> Retake</button>
-  <button class="bp px-6" id="rApplyBtn" onclick="applyRecommendedLevel()"><i class="fas fa-graduation-cap mr-1"></i> Start Lessons</button>
+<div id="qRe" style="display:none" class="text-center py-3"><div class="w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center" id="rIc" style="background:var(--card2)"></div><h3 class="text-xl font-bold mb-1.5" id="rTi"></h3><p class="mb-1.5 text-sm" style="color:var(--fg2)" id="rDe"></p><div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style="background:rgba(212,166,79,.1);border:1px solid rgba(212,166,79,.25)"><span class="font-bold text-lg" style="color:var(--gold)" id="rLv"></span></div><div class="grid grid-cols-3 gap-3 mb-6"><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--accent)" id="rCo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Correct">Correct</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--gold)" id="rVo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Vocab">Vocab</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--green)" id="rTm">0m</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Time">Time</div></div></div><div class="flex gap-2 justify-center mt-6">
+  <button class="bo px-6" onclick="rstQ()" data-tr="Retake"><i class="fas fa-rotate-left mr-1"></i> Retake</button>
+  <button class="bp px-6" id="rApplyBtn" onclick="applyRecommendedLevel()" data-tr="Start Lessons"><i class="fas fa-graduation-cap mr-1"></i> Start Lessons</button>
 </div></div></div></div>
 </section>
 
 <!-- ========== PROGRESS ========== -->
 <section id="progress" class="py-20 px-5" style="background:var(--bg2)">
-<div class="max-w-4xl mx-auto"><div class="text-center mb-10 fu"><div class="sl">HSK Progress</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3">9 Levels to Fluency</h2></div>
+<div class="max-w-4xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="HSK Progress">HSK Progress</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="9 Levels to Fluency">9 Levels to Fluency</h2></div>
 <div class="space-y-3 fu" id="hskL"></div>
-<div class="cd p-6 mt-8 fu"><div class="flex items-center justify-between mb-5"><h3 class="font-bold text-base">Today's Progress</h3><span class="text-xs font-semibold" style="color:var(--gold)" id="tDay"></span></div>
+<div class="cd p-6 mt-8 fu"><div class="flex items-center justify-between mb-5"><h3 class="font-bold text-base" data-tr="Today's Progress">Today's Progress</h3><span class="text-xs font-semibold" style="color:var(--gold)" id="tDay"></span></div>
 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-book-open mb-1.5" style="color:var(--accent);font-size:18px"></i><div class="text-xl font-extrabold">12</div><div class="text-xs mt-0.5" style="color:var(--muted)">Words</div></div>
-<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-pen-nib mb-1.5" style="color:var(--gold);font-size:18px"></i><div class="text-xl font-extrabold">5</div><div class="text-xs mt-0.5" style="color:var(--muted)">Chars</div></div>
-<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-microphone mb-1.5" style="color:var(--green);font-size:18px"></i><div class="text-xl font-extrabold">8</div><div class="text-xs mt-0.5" style="color:var(--muted)">Spoken</div></div>
-<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-check-circle mb-1.5" style="color:var(--purple);font-size:18px"></i><div class="text-xl font-extrabold">3</div><div class="text-xs mt-0.5" style="color:var(--muted)">Lessons</div></div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-book-open mb-1.5" style="color:var(--accent);font-size:18px"></i><div class="text-xl font-extrabold">12</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Words">Words</div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-pen-nib mb-1.5" style="color:var(--gold);font-size:18px"></i><div class="text-xl font-extrabold">5</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Chars">Chars</div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-microphone mb-1.5" style="color:var(--green);font-size:18px"></i><div class="text-xl font-extrabold">8</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Spoken">Spoken</div></div>
+<div class="text-center p-3.5 rounded-xl" style="background:var(--card2)"><i class="fas fa-check-circle mb-1.5" style="color:var(--purple);font-size:18px"></i><div class="text-xl font-extrabold">3</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Lessons">Lessons</div></div></div>
   
   <!-- CHARACTER WRITING CANVAS CARD -->
   <div class="cd p-6 md:p-8 fu mt-6">
     <div class="flex flex-col md:flex-row gap-6 items-center">
       <div class="flex-shrink-0 text-center w-full md:w-36">
-        <div class="text-xs font-semibold mb-2 uppercase tracking-wider" style="color:var(--muted)">Reference</div>
+        <div class="text-xs font-semibold mb-2 uppercase tracking-wider" style="color:var(--muted)" data-tr="Reference">Reference</div>
         <div class="w-36 h-36 rounded-2xl flex items-center justify-center fc text-6xl font-black mx-auto" style="background:var(--card2);border:2px solid var(--border);color:var(--gold)" id="rfCh">你</div>
         <div class="mt-2 text-base fc font-bold flex items-center justify-center gap-1.5" style="color:var(--fg2)">
           <span id="rfPy">nǐ</span>
@@ -541,16 +540,16 @@
       </div>
       <div class="flex-1 w-full">
         <div class="flex items-center justify-between mb-2">
-          <div class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted)">Your Writing Grid</div>
+          <div class="text-xs font-semibold uppercase tracking-wider" style="color:var(--muted)" data-tr="Your Writing Grid">Your Writing Grid</div>
           <div class="flex gap-2 items-center">
             <label class="flex items-center gap-1.5 text-xs font-semibold cursor-pointer text-muted" style="background:var(--card2);padding:4px 8px;border-radius:8px;border:1px solid var(--border)">
               <input type="checkbox" id="writeOutlineToggle" onchange="toggleWriteOutline()" checked style="cursor:pointer">
               <span>Outline</span>
             </label>
-            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--gold);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="animateCh()"><i class="fas fa-play mr-1"></i>Animate</button>
-            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--blue);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="quizCh()"><i class="fas fa-pen mr-1"></i>Quiz</button>
-            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--green);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="speakCurrentWritingChar()"><i class="fas fa-volume-up mr-1"></i>Speak</button>
-            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--fg2);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="nxtCh()">Next</button>
+            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--gold);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="animateCh()" data-tr="Animate"><i class="fas fa-play mr-1"></i>Animate</button>
+            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--blue);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="quizCh()" data-tr="Quiz"><i class="fas fa-pen mr-1"></i>Quiz</button>
+            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--green);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="speakCurrentWritingChar()" data-tr="Speak"><i class="fas fa-volume-up mr-1"></i>Speak</button>
+            <button class="px-2.5 py-1 rounded-lg text-xs font-semibold" style="background:var(--card2);color:var(--fg2);border:1px solid var(--border);cursor:pointer;outline:none;" onclick="nxtCh()" data-tr="Next">Next</button>
           </div>
         </div>
         <!-- Hanzi Writer Container -->
@@ -571,12 +570,12 @@
 <div id="grammarPracticeModal" class="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card); border-radius:16px;">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-sm text-white" id="grPracticeTitle">Grammar Practice</h3>
+      <h3 class="font-bold text-sm text-white" id="grPracticeTitle" data-tr="Grammar Practice">Grammar Practice</h3>
       <button onclick="closeGrammarPractice()" class="text-muted hover:text-white border-none bg-none cursor-pointer" style="background:none; border:none;"><i class="fas fa-times"></i></button>
     </div>
     
     <div class="text-center py-4">
-      <span class="text-xs text-muted block mb-1" id="grPracticePrompt">Reconstruct the sentence:</span>
+      <span class="text-xs text-muted block mb-1" id="grPracticePrompt" data-tr="Reconstruct the sentence:">Reconstruct the sentence:</span>
       <h2 class="text-lg font-bold text-[var(--gold)] mb-4" id="grPracticeEn">--</h2>
       
       <!-- Scrambled Words Grid -->
@@ -586,8 +585,8 @@
       <div class="flex flex-wrap gap-2 justify-center min-h-[44px] border border-[var(--border)] rounded-lg p-3 bg-[var(--card2)] mb-5" id="grAnswerCon"></div>
       
       <div class="flex gap-2">
-        <button class="bo flex-1" onclick="resetGrammarPractice()">Reset</button>
-        <button class="bp flex-1" onclick="checkGrammarPractice()">Check</button>
+        <button class="bo flex-1" onclick="resetGrammarPractice()" data-tr="Reset">Reset</button>
+        <button class="bp flex-1" onclick="checkGrammarPractice()" data-tr="Check">Check</button>
       </div>
     </div>
   </div>
@@ -597,7 +596,7 @@
 <div id="premiumModal" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card); border-radius:16px;">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-lg text-white"><i class="fas fa-crown mr-2 text-[var(--gold)]"></i> MandarinCourse Premium</h3>
+      <h3 class="font-bold text-lg text-white" data-tr="MandarinCourse Premium"><i class="fas fa-crown mr-2 text-[var(--gold)]"></i> MandarinCourse Premium</h3>
       <button onclick="togglePremiumModal()" class="text-muted hover:text-white transition" style="background:none;border:none;font-size:18px;cursor:pointer"><i class="fas fa-times"></i></button>
     </div>
     <div class="text-center py-4">
@@ -645,37 +644,37 @@
 <div id="geminiModal" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card);">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-lg text-white"><i class="fas fa-cloud mr-2 text-[var(--gold)]"></i>Settings</h3>
+      <h3 class="font-bold text-lg text-white" data-tr="Settings"><i class="fas fa-cloud mr-2 text-[var(--gold)]"></i>Settings</h3>
       <button onclick="toggleSettingsModal()" class="text-muted hover:text-white" style="background:none;border:none;cursor:pointer"><i class="fas fa-times"></i></button>
     </div>
     <div class="mb-4">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Cloud Account & Sync</label>
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Cloud Account & Sync">Cloud Account & Sync</label>
       <div id="authButtons" style="display:flex;flex-direction:column;gap:8px;">
-        <button onclick="openAuthModal()" class="bp w-full text-center py-2 text-xs font-bold"><i class="fas fa-sign-in-alt mr-1"></i> Sign In / Register</button>
+        <button onclick="openAuthModal()" class="bp w-full text-center py-2 text-xs font-bold" data-tr="Sign In / Register"><i class="fas fa-sign-in-alt mr-1"></i> Sign In / Register</button>
       </div>
       <div id="userInfo" style="display:none;flex-direction:column;gap:8px;">
         <div class="text-xs" style="color:var(--fg2)" id="userEmailDisplay">user@email.com</div>
-        <button onclick="syncNow()" class="bo w-full text-center py-2 text-xs font-bold"><i class="fas fa-sync mr-1"></i> Sync Progress</button>
-        <button onclick="signOutUser()" class="bq w-full text-center py-2 text-xs" style="text-align:center"><i class="fas fa-sign-out-alt mr-1"></i> Sign Out</button>
+        <button onclick="syncNow()" class="bo w-full text-center py-2 text-xs font-bold" data-tr="Sync Progress"><i class="fas fa-sync mr-1"></i> Sync Progress</button>
+        <button onclick="signOutUser()" class="bq w-full text-center py-2 text-xs" style="text-align:center" data-tr="Sign Out"><i class="fas fa-sign-out-alt mr-1"></i> Sign Out</button>
       </div>
     </div>
     <div class="mb-4">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">AI Speaking Speed</label>
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="AI Speaking Speed">AI Speaking Speed</label>
       <select id="speechRateSelect" class="tut-input w-full" style="background-image:none; background: var(--card2);">
-        <option value="1.0">Normal Speed (1.0x)</option>
-        <option value="0.8">Slower (0.8x)</option>
-        <option value="0.7">Slowest (0.7x)</option>
+        <option value="1.0" data-tr="Normal Speed (1.0x)">Normal Speed (1.0x)</option>
+        <option value="0.8" data-tr="Slower (0.8x)">Slower (0.8x)</option>
+        <option value="0.7" data-tr="Slowest (0.7x)">Slowest (0.7x)</option>
       </select>
     </div>
     <div class="mb-4">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Tutor Mode</label>
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Tutor Mode">Tutor Mode</label>
       <select id="tutorModeSelect" class="tut-input w-full" style="background-image:none; background: var(--card2);">
-        <option value="static">Simulated Mode (HSK static lessons)</option>
-        <option value="live">Live AI Mode (Dynamic conversations)</option>
+        <option value="static" data-tr="Simulated Mode (HSK static lessons)">Simulated Mode (HSK static lessons)</option>
+        <option value="live" data-tr="Live AI Mode (Dynamic conversations)">Live AI Mode (Dynamic conversations)</option>
       </select>
     </div>
     <div class="mb-4">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">App Language (Translations)</label>
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="App Language (Translations)">App Language (Translations)</label>
       <select id="appLanguageSelect" class="tut-input w-full" style="background-image:none; background: var(--card2);" onchange="changeAppLanguage(this.value)">
         <option value="en">English</option>
         <option value="es">Español (Spanish)</option>
@@ -690,21 +689,21 @@
       </select>
     </div>
     <div class="mb-5">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Study Reminders</label>
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Study Reminders">Study Reminders</label>
       <div class="flex gap-2 mb-2">
         <select id="reminderIntervalSelect" class="tut-input flex-1" style="background-image:none; background: var(--card2);">
-          <option value="none">No Reminders</option>
-          <option value="daily">Every Day (Daily)</option>
-          <option value="weekly">Every Week (Weekly)</option>
+          <option value="none" data-tr="No Reminders">No Reminders</option>
+          <option value="daily" data-tr="Every Day (Daily)">Every Day (Daily)</option>
+          <option value="weekly" data-tr="Every Week (Weekly)">Every Week (Weekly)</option>
         </select>
         <input type="time" id="reminderTimeInput" class="tut-input w-28" value="10:00" style="background: var(--card2); color: var(--fg);">
       </div>
-      <button onclick="saveReminderSettings()" class="bp w-full text-center py-2 text-xs font-bold" style="padding: 8px 12px;">
+      <button onclick="saveReminderSettings()" class="bp w-full text-center py-2 text-xs font-bold" style="padding: 8px 12px;" data-tr="Save Reminder Schedule">
         <i class="fas fa-bell mr-1"></i> Save Reminder Schedule
       </button>
     </div>
     <div class="flex gap-2">
-      <button class="bp flex-1" onclick="toggleSettingsModal()">Close</button>
+      <button class="bp flex-1" data-tr="Close" onclick="toggleSettingsModal()">Close</button>
     </div>
   </div>
 </div>
@@ -713,18 +712,18 @@
 <div id="authModal" class="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-sm bg-[var(--card)]" style="border:1px solid var(--border);">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="font-bold text-lg text-white" id="authModalTitle">Sign In</h3>
+      <h3 class="font-bold text-lg text-white" id="authModalTitle" data-tr="Sign In">Sign In</h3>
       <button onclick="closeAuthModal()" class="text-muted hover:text-white" style="background:none;border:none;cursor:pointer"><i class="fas fa-times"></i></button>
     </div>
     <div class="mb-3">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Email</label>
-      <input type="email" id="authEmail" class="tut-input w-full" placeholder="your@email.com">
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Email">Email</label>
+      <input type="email" id="authEmail" class="tut-input w-full" placeholder="your@email.com" data-tr="your@email.com">
     </div>
     <div class="mb-4">
-      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted">Password</label>
-      <input type="password" id="authPassword" class="tut-input w-full" placeholder="Min 6 characters">
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Password">Password</label>
+      <input type="password" id="authPassword" class="tut-input w-full" placeholder="Min 6 characters" data-tr="Min 6 characters">
     </div>
-    <button id="authSubmitBtn" class="bp w-full mb-3">Sign In</button>
+    <button id="authSubmitBtn" class="bp w-full mb-3" data-tr="Sign In">Sign In</button>
     <p class="text-xs text-center" id="authToggleText" style="color:var(--muted)"></p>
   </div>
 </div>
@@ -733,9 +732,9 @@
 <section id="faq" class="py-20 px-5" style="background:var(--bg)">
   <div class="max-w-4xl mx-auto">
     <div class="text-center mb-12 fu">
-      <div class="sl">Frequently Asked Questions</div>
-      <h2 class="fc font-bold text-2xl md:text-3xl mb-3">Learn More About MandarinCourse</h2>
-      <p style="color:var(--fg2)" class="text-sm">Direct answers about our features, offline compatibility, and pronunciation grading.</p>
+      <div class="sl" data-tr="Frequently Asked Questions">Frequently Asked Questions</div>
+      <h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Learn More About MandarinCourse">Learn More About MandarinCourse</h2>
+      <p style="color:var(--fg2)" class="text-sm" data-tr="Direct answers about our features, offline compatibility, and pronunciation grading.">Direct answers about our features, offline compatibility, and pronunciation grading.</p>
     </div>
     
     <div class="grid md:grid-cols-2 gap-6">
@@ -765,13 +764,13 @@
 </div></footer>
 
 <div class="mn">
-<button class="mnb act" onclick="navTo('#tutor', this)"><i class="fas fa-microphone"></i>Tutor</button>
-<button class="mnb" onclick="navTo('#lessons', this)"><i class="fas fa-book-open"></i>Lessons</button>
-<button class="mnb" onclick="navTo('#grammar', this)"><i class="fas fa-book"></i>Grammar</button>
-<button class="mnb" onclick="navTo('#dictionary', this)"><i class="fas fa-book-open"></i>Dict</button>
-<button class="mnb" onclick="navTo('#translate', this)"><i class="fas fa-language"></i>Trans</button>
-<button class="mnb" onclick="navTo('#test', this)"><i class="fas fa-brain"></i>Test</button>
-<button class="mnb" onclick="navTo('#progress', this)"><i class="fas fa-chart-line"></i>Progress</button>
+<button class="mnb act" data-tr="Tutor" onclick="navTo('#tutor', this)"><i class="fas fa-microphone"></i>Tutor</button>
+<button class="mnb" data-tr="Lessons" onclick="navTo('#lessons', this)"><i class="fas fa-book-open"></i>Lessons</button>
+<button class="mnb" data-tr="Grammar" onclick="navTo('#grammar', this)"><i class="fas fa-book"></i>Grammar</button>
+<button class="mnb" data-tr="Dict" onclick="navTo('#dictionary', this)"><i class="fas fa-book-open"></i>Dict</button>
+<button class="mnb" data-tr="Trans" onclick="navTo('#translate', this)"><i class="fas fa-language"></i>Trans</button>
+<button class="mnb" data-tr="Test" onclick="navTo('#test', this)"><i class="fas fa-brain"></i>Test</button>
+<button class="mnb" data-tr="Progress" onclick="navTo('#progress', this)"><i class="fas fa-chart-line"></i>Progress</button>
 </div>
 
 <script>document.querySelectorAll('.fu').forEach(function(e){e.classList.add('v')})</script>

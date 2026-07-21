@@ -3548,11 +3548,515 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=đá, 足球=bóng đá.",
     "身=body, 体=form. Together = health.": "身=cơ thể, 体=hình thức. Cùng nhau = sức khỏe.",
     "运=move, 动=action.": "运=di chuyển, 动=hành động.",
-    "迟=late, 到=arrive.": "迟=muộn, 到=đến."
+    "迟=late, 到=arrive.": "迟=muộn, 到=đến.",
+    "Tutor":"Tutor","Lessons":"Lecciones","Grammar":"Gramática","Dict":"Diccionario","Trans":"Traducir","Test":"Examen","Progress":"Progreso",
+    "AI Tutor":"Tutor AI","Dictionary":"Diccionario","Level Test":"Prueba de Nivel",
+    "MandarinCourse":"Curso de Mandarín","Settings":"Ajustes",
+    "Cloud Account & Sync":"Cuenta y Sincronización","Sign In / Register":"Iniciar Sesión / Registrarse",
+    "Sync Progress":"Sincronizar Progreso","Sign Out":"Cerrar Sesión",
+    "AI Speaking Speed":"Velocidad del AI","Normal Speed (1.0x)":"Velocidad Normal (1.0x)",
+    "Slower (0.8x)":"Más Lento (0.8x)","Slowest (0.7x)":"Muy Lento (0.7x)",
+    "Tutor Mode":"Modo Tutor","Simulated Mode (HSK static lessons)":"Modo Simulado (lecciones HSK estáticas)",
+    "Live AI Mode (Dynamic conversations)":"Modo AI en Vivo (conversaciones dinámicas)",
+    "App Language (Translations)":"Idioma de la App (Traducciones)",
+    "Study Reminders":"Recordatorios de Estudio","No Reminders":"Sin Recordatorios",
+    "Every Day (Daily)":"Cada Día (Diario)","Every Week (Weekly)":"Cada Semana (Semanal)",
+    "Save Reminder Schedule":"Guardar Horario","Close":"Cerrar",
+    "AI-Powered Speaking Tutor":"Tutor de Conversación con IA",
+    "Learn Mandarin with AI":"Aprende Mandarín con IA",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Gratis · HSK 2–9 $9/mes",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Domina el chino hablado, los tonos y la escritura con calificación de voz interactiva en tiempo real, trazo de orden de caracteres y repasos personalizados.",
+    "Start Speaking Lesson":"Empezar Lección","Take Level Test":"Hacer Prueba de Nivel",
+    "Levels":"Niveles","Topics":"Temas","Learners":"Estudiantes",
+    "AI Speaking Tutor":"Tutor de Conversación AI",
+    "Your Personal Chinese Speaking Teacher":"Tu Profesor Personal de Chino",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Escucha al AI hablar chino, luego responde escribiendo chino en el cuadro de texto.",
+    "Bite-Sized Lessons":"Lecciones Pequeñas","10-15 Minute Lessons":"Lecciones de 10-15 Minutos",
+    "Topics Grid":"Cuadrícula de Temas","Study Flashcards":"Tarjetas de Estudio",
+    "Radical Explorer":"Explorador de Radicales","Common Radicals":"Radicales Comunes",
+    "Translation & Meaning":"Traducción y Significado","Example Phrase":"Frase de Ejemplo",
+    "Prev":"Anterior","Next":"Siguiente","Again":"Otra vez","Hard":"Difícil","Good":"Bien","Easy":"Fácil",
+    "Instant Translation":"Traducción Instantánea","Translate Any Phrase":"Traduce Cualquier Frase",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduce cualquier idioma al chino con IA. Soporta inglés, español, francés, japonés, coreano, alemán, portugués, italiano, ruso y vietnamita.",
+    "Translate":"Traducir","Enter text to translate...":"Ingresa texto para traducir...",
+    "Speak":"Hablar","Copy to Tutor":"Copiar al Tutor",
+    "HSK Dictionary":"Diccionario HSK","Browse HSK Vocabulary":"Explorar Vocabulario HSK",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Explora todo el vocabulario HSK con pinyin y traducciones al inglés.",
+    "Search characters or pinyin...":"Buscar caracteres o pinyin...",
+    "Grammar Deep Dive":"Gramática en Profundidad","Understand Grammar":"Entiende la Gramática",
+    "Level Assessment":"Evaluación de Nivel","Know Your Level in 5 Minutes":"Conoce tu Nivel en 5 Minutos",
+    "Quick Assessment":"Evaluación Rápida","10 questions.":"10 preguntas.","Start Test":"Comenzar Examen",
+    "Retake":"Repetir","Start Lessons":"Comenzar Lecciones",
+    "HSK Progress":"Progreso HSK","9 Levels to Fluency":"9 Niveles para la Fluidez",
+    "Today's Progress":"Progreso de Hoy","Words":"Palabras","Chars":"Caracteres",
+    "Spoken":"Hablado","Reference":"Referencia","Your Writing Grid":"Tu Cuadrícula de Escritura",
+    "Animate":"Animar","Quiz":"Examen",
+    "Grammar Practice":"Práctica de Gramática","Reconstruct the sentence:":"Reconstruye la oración:",
+    "Reset":"Reiniciar","Check":"Verificar",
+    "MandarinCourse Premium":"Premium de Curso de Mandarín","Sign In":"Iniciar Sesión",
+    "Email":"Correo Electrónico","your@email.com":"tu@email.com","Password":"Contraseña",
+    "Min 6 characters":"Mín. 6 caracteres",
+    "Frequently Asked Questions":"Preguntas Frecuentes",
+    "Learn More About MandarinCourse":"Más Información sobre Curso de Mandarín",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Respuestas directas sobre nuestras funciones, compatibilidad sin conexión y calificación de pronunciación.",
+    "Correct":"Correcto","Vocab":"Vocabulario","Time":"Tiempo",
+    "Record Accent":"Grabar Acento","Due Reviews Only":"Solo Revisiones Pendientes",
+    "Reviews due: 0":"Revisiones pendientes: 0",
+    "Outline":"Contorno","Hint":"Pista"
+  },
+  "fr": {
+    "Tutor":"Tuteur","Lessons":"Leçons","Grammar":"Grammaire","Dict":"Dictionnaire","Trans":"Traduire","Test":"Examen","Progress":"Progrès",
+    "AI Tutor":"Tuteur IA","Dictionary":"Dictionnaire","Level Test":"Test de Niveau",
+    "MandarinCourse":"Cours de Mandarin","Settings":"Paramètres",
+    "Cloud Account & Sync":"Compte et Synchronisation","Sign In / Register":"Connexion / Inscription",
+    "Sync Progress":"Synchroniser le Progrès","Sign Out":"Déconnexion",
+    "AI Speaking Speed":"Vitesse de l'IA","Normal Speed (1.0x)":"Vitesse Normale (1.0x)",
+    "Slower (0.8x)":"Plus Lent (0.8x)","Slowest (0.7x)":"Très Lent (0.7x)",
+    "Tutor Mode":"Mode Tuteur","Simulated Mode (HSK static lessons)":"Mode Simulé (leçons HSK statiques)",
+    "Live AI Mode (Dynamic conversations)":"Mode IA en Direct (conversations dynamiques)",
+    "App Language (Translations)":"Langue de l'App (Traductions)",
+    "Study Reminders":"Rappels d'Étude","No Reminders":"Pas de Rappels",
+    "Every Day (Daily)":"Chaque Jour (Quotidien)","Every Week (Weekly)":"Chaque Semaine (Hebdomadaire)",
+    "Save Reminder Schedule":"Enregistrer le Planning","Close":"Fermer",
+    "AI-Powered Speaking Tutor":"Tuteur de Conversation IA",
+    "Learn Mandarin with AI":"Apprenez le Mandarin avec l'IA",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Gratuit · HSK 2–9 $9/mois",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Maîtrisez le chinois parlé, les tons et l'écriture avec une évaluation vocale interactive en temps réel, le tracé des caractères et des révisions personnalisées.",
+    "Start Speaking Lesson":"Commencer la Leçon","Take Level Test":"Passer le Test de Niveau",
+    "Levels":"Niveaux","Topics":"Sujets","Learners":"Apprenants",
+    "AI Speaking Tutor":"Tuteur de Conversation IA",
+    "Your Personal Chinese Speaking Teacher":"Votre Professeur de Chinois Personnel",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Écoutez l'IA parler chinois, puis répondez en tapant du chinois dans la zone de texte.",
+    "Bite-Sized Lessons":"Leçons Courtes","10-15 Minute Lessons":"Leçons de 10-15 Minutes",
+    "Topics Grid":"Grille de Sujets","Study Flashcards":"Cartes Mémoire",
+    "Radical Explorer":"Explorateur de Radicaux","Common Radicals":"Radicaux Courants",
+    "Translation & Meaning":"Traduction et Sens","Example Phrase":"Exemple de Phrase",
+    "Prev":"Précédent","Next":"Suivant","Again":"Répéter","Hard":"Difficile","Good":"Bien","Easy":"Facile",
+    "Instant Translation":"Traduction Instantanée","Translate Any Phrase":"Traduire N'importe Quelle Phrase",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduisez n'importe quelle langue en chinois avec l'IA. Prend en charge l'anglais, l'espagnol, le français, le japonais, le coréen, l'allemand, le portugais, l'italien, le russe et le vietnamien.",
+    "Translate":"Traduire","Enter text to translate...":"Entrez le texte à traduire...",
+    "Speak":"Parler","Copy to Tutor":"Copier vers le Tuteur",
+    "HSK Dictionary":"Dictionnaire HSK","Browse HSK Vocabulary":"Parcourir le Vocabulaire HSK",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Parcourez tout le vocabulaire HSK avec pinyin et traductions anglaises.",
+    "Search characters or pinyin...":"Rechercher des caractères ou du pinyin...",
+    "Grammar Deep Dive":"Grammaire Approfondie","Understand Grammar":"Comprendre la Grammaire",
+    "Level Assessment":"Évaluation de Niveau","Know Your Level in 5 Minutes":"Connaissez Votre Niveau en 5 Minutes",
+    "Quick Assessment":"Évaluation Rapide","10 questions.":"10 questions.","Start Test":"Commencer le Test",
+    "Retake":"Reprendre","Start Lessons":"Commencer les Leçons",
+    "HSK Progress":"Progrès HSK","9 Levels to Fluency":"9 Niveaux vers la Fluidité",
+    "Today's Progress":"Progrès d'Aujourd'hui","Words":"Mots","Chars":"Caractères",
+    "Spoken":"Parlé","Reference":"Référence","Your Writing Grid":"Votre Grille d'Écriture",
+    "Animate":"Animer","Quiz":"Quiz",
+    "Grammar Practice":"Pratique de Grammaire","Reconstruct the sentence:":"Reconstruisez la phrase :",
+    "Reset":"Réinitialiser","Check":"Vérifier",
+    "MandarinCourse Premium":"Premium Cours de Mandarin","Sign In":"Connexion",
+    "Email":"E-mail","your@email.com":"votre@email.com","Password":"Mot de Passe",
+    "Min 6 characters":"Min 6 caractères",
+    "Frequently Asked Questions":"Foire Aux Questions",
+    "Learn More About MandarinCourse":"En Savoir Plus sur Cours de Mandarin",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Réponses directes sur nos fonctionnalités, la compatibilité hors ligne et l'évaluation de la prononciation.",
+    "Correct":"Correct","Vocab":"Vocabulaire","Time":"Temps",
+    "Record Accent":"Enregistrer l'Accent","Due Reviews Only":"Révisions Attendues Uniquement",
+    "Reviews due: 0":"Révisions en attente : 0",
+    "Outline":"Contour","Hint":"Indice"
+  },
+  "de": {
+    "Tutor":"Tutor","Lessons":"Lektionen","Grammar":"Grammatik","Dict":"Wörterbuch","Trans":"Übersetzen","Test":"Test","Progress":"Fortschritt",
+    "AI Tutor":"AI Tutor","Dictionary":"Wörterbuch","Level Test":"Einstufungstest",
+    "MandarinCourse":"Mandarin-Kurs","Settings":"Einstellungen",
+    "Cloud Account & Sync":"Konto und Synchronisation","Sign In / Register":"Anmelden / Registrieren",
+    "Sync Progress":"Fortschritt synchronisieren","Sign Out":"Abmelden",
+    "AI Speaking Speed":"KI-Sprechgeschwindigkeit","Normal Speed (1.0x)":"Normale Geschwindigkeit (1.0x)",
+    "Slower (0.8x)":"Langsamer (0.8x)","Slowest (0.7x)":"Sehr Langsam (0.7x)",
+    "Tutor Mode":"Tutor-Modus","Simulated Mode (HSK static lessons)":"Simulierter Modus (statische HSK-Lektionen)",
+    "Live AI Mode (Dynamic conversations)":"Live-KI-Modus (dynamische Gespräche)",
+    "App Language (Translations)":"App-Sprache (Übersetzungen)",
+    "Study Reminders":"Lern-Erinnerungen","No Reminders":"Keine Erinnerungen",
+    "Every Day (Daily)":"Jeden Tag (Täglich)","Every Week (Weekly)":"Jede Woche (Wöchentlich)",
+    "Save Reminder Schedule":"Zeitplan speichern","Close":"Schließen",
+    "AI-Powered Speaking Tutor":"KI-gestützter Konversationstutor",
+    "Learn Mandarin with AI":"Lerne Mandarin mit KI",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Kostenlos · HSK 2–9 $9/Monat",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Meistere Chinesisch sprechen, Töne und Schriftzeichen mit interaktiver Echtzeit-Sprachbewertung, Strichfolgen-Nachzeichnung und personalisierten Wiederholungskarten.",
+    "Start Speaking Lesson":"Sprechstunde beginnen","Take Level Test":"Einstufungstest machen",
+    "Levels":"Stufen","Topics":"Themen","Learners":"Lernende",
+    "AI Speaking Tutor":"KI-Konversationstutor",
+    "Your Personal Chinese Speaking Teacher":"Dein persönlicher Chinesisch-Lehrer",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Höre der KI beim Chinesischsprechen zu und antworte, indem du Chinesisch in das Textfeld unten eingibst.",
+    "Bite-Sized Lessons":"Kurze Lektionen","10-15 Minute Lessons":"10-15-minütige Lektionen",
+    "Topics Grid":"Themenraster","Study Flashcards":"Lernkarten",
+    "Radical Explorer":"Radikal-Entdecker","Common Radicals":"Häufige Radikale",
+    "Translation & Meaning":"Übersetzung und Bedeutung","Example Phrase":"Beispielsatz",
+    "Prev":"Zurück","Next":"Weiter","Again":"Wiederholen","Hard":"Schwer","Good":"Gut","Easy":"Leicht",
+    "Instant Translation":"Sofortübersetzung","Translate Any Phrase":"Jede Phrase übersetzen",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Übersetze jede Sprache mit KI ins Chinesische. Unterstützt Englisch, Spanisch, Französisch, Japanisch, Koreanisch, Deutsch, Portugiesisch, Italienisch, Russisch und Vietnamesisch.",
+    "Translate":"Übersetzen","Enter text to translate...":"Text zum Übersetzen eingeben...",
+    "Speak":"Sprechen","Copy to Tutor":"In Tutor kopieren",
+    "HSK Dictionary":"HSK Wörterbuch","Browse HSK Vocabulary":"HSK Wortschatz durchsuchen",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Durchsuche den gesamten HSK-Wortschatz mit Pinyin und englischen Übersetzungen.",
+    "Search characters or pinyin...":"Zeichen oder Pinyin suchen...",
+    "Grammar Deep Dive":"Grammatik vertiefen","Understand Grammar":"Grammatik verstehen",
+    "Level Assessment":"Stufenbewertung","Know Your Level in 5 Minutes":"Finde dein Niveau in 5 Minuten",
+    "Quick Assessment":"Schnellbewertung","10 questions.":"10 Fragen.","Start Test":"Test starten",
+    "Retake":"Wiederholen","Start Lessons":"Lektionen starten",
+    "HSK Progress":"HSK Fortschritt","9 Levels to Fluency":"9 Stufen zur Flüssigkeit",
+    "Today's Progress":"Heutiger Fortschritt","Words":"Wörter","Chars":"Zeichen",
+    "Spoken":"Gesprochen","Reference":"Referenz","Your Writing Grid":"Dein Schreibgitter",
+    "Animate":"Animieren","Quiz":"Quiz",
+    "Grammar Practice":"Grammatikübung","Reconstruct the sentence:":"Rekonstruiere den Satz:",
+    "Reset":"Zurücksetzen","Check":"Prüfen",
+    "MandarinCourse Premium":"Mandarin-Kurs Premium","Sign In":"Anmelden",
+    "Email":"E-Mail","your@email.com":"deine@email.com","Password":"Passwort",
+    "Min 6 characters":"Mind. 6 Zeichen",
+    "Frequently Asked Questions":"Häufig gestellte Fragen",
+    "Learn More About MandarinCourse":"Mehr über Mandarin-Kurs erfahren",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Direkte Antworten zu unseren Funktionen, Offline-Kompatibilität und Aussprachebewertung.",
+    "Correct":"Richtig","Vocab":"Wortschatz","Time":"Zeit",
+    "Record Accent":"Akzent aufnehmen","Due Reviews Only":"Nur fällige Wiederholungen",
+    "Reviews due: 0":"Fällige Wiederholungen: 0",
+    "Outline":"Umriss","Hint":"Hinweis"
+  },
+  "pt": {
+    "Tutor":"Tutor","Lessons":"Lições","Grammar":"Gramática","Dict":"Dicionário","Trans":"Traduzir","Test":"Teste","Progress":"Progresso",
+    "AI Tutor":"Tutor IA","Dictionary":"Dicionário","Level Test":"Teste de Nível",
+    "MandarinCourse":"Curso de Mandarim","Settings":"Configurações",
+    "Cloud Account & Sync":"Conta e Sincronização","Sign In / Register":"Entrar / Registrar",
+    "Sync Progress":"Sincronizar Progresso","Sign Out":"Sair",
+    "AI Speaking Speed":"Velocidade da IA","Normal Speed (1.0x)":"Velocidade Normal (1.0x)",
+    "Slower (0.8x)":"Mais Lento (0.8x)","Slowest (0.7x)":"Muito Lento (0.7x)",
+    "Tutor Mode":"Modo Tutor","Simulated Mode (HSK static lessons)":"Modo Simulado (lições HSK estáticas)",
+    "Live AI Mode (Dynamic conversations)":"Modo IA ao Vivo (conversas dinâmicas)",
+    "App Language (Translations)":"Idioma do App (Traduções)",
+    "Study Reminders":"Lembretes de Estudo","No Reminders":"Sem Lembretes",
+    "Every Day (Daily)":"Todos os Dias (Diário)","Every Week (Weekly)":"Todas as Semanas (Semanal)",
+    "Save Reminder Schedule":"Salvar Agenda","Close":"Fechar",
+    "AI-Powered Speaking Tutor":"Tutor de Conversação com IA",
+    "Learn Mandarin with AI":"Aprenda Mandarim com IA",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Grátis · HSK 2–9 $9/mês",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Domine o chinês falado, tons e escrita de caracteres com avaliação de voz interativa em tempo real, traçado de ordem dos traços e revisões personalizadas.",
+    "Start Speaking Lesson":"Começar Lição","Take Level Test":"Fazer Teste de Nível",
+    "Levels":"Níveis","Topics":"Tópicos","Learners":"Alunos",
+    "AI Speaking Tutor":"Tutor de Conversação IA",
+    "Your Personal Chinese Speaking Teacher":"Seu Professor Pessoal de Chinês",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Ouça a IA falar chinês, depois responda digitando chinês na caixa de texto abaixo.",
+    "Bite-Sized Lessons":"Lições Curtas","10-15 Minute Lessons":"Lições de 10-15 Minutos",
+    "Topics Grid":"Grade de Tópicos","Study Flashcards":"Flashcards de Estudo",
+    "Radical Explorer":"Explorador de Radicais","Common Radicals":"Radicais Comuns",
+    "Translation & Meaning":"Tradução e Significado","Example Phrase":"Frase de Exemplo",
+    "Prev":"Anterior","Next":"Próximo","Again":"Repetir","Hard":"Difícil","Good":"Bom","Easy":"Fácil",
+    "Instant Translation":"Tradução Instantânea","Translate Any Phrase":"Traduza Qualquer Frase",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduza qualquer idioma para chinês com IA. Suporta inglês, espanhol, francês, japonês, coreano, alemão, português, italiano, russo e vietnamita.",
+    "Translate":"Traduzir","Enter text to translate...":"Digite o texto para traduzir...",
+    "Speak":"Falar","Copy to Tutor":"Copiar para o Tutor",
+    "HSK Dictionary":"Dicionário HSK","Browse HSK Vocabulary":"Explorar Vocabulário HSK",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Explore todo o vocabulário HSK com pinyin e traduções em inglês.",
+    "Search characters or pinyin...":"Buscar caracteres ou pinyin...",
+    "Grammar Deep Dive":"Gramática Aprofundada","Understand Grammar":"Entender Gramática",
+    "Level Assessment":"Avaliação de Nível","Know Your Level in 5 Minutes":"Conheça Seu Nível em 5 Minutos",
+    "Quick Assessment":"Avaliação Rápida","10 questions.":"10 perguntas.","Start Test":"Iniciar Teste",
+    "Retake":"Refazer","Start Lessons":"Iniciar Lições",
+    "HSK Progress":"Progresso HSK","9 Levels to Fluency":"9 Níveis para Fluência",
+    "Today's Progress":"Progresso de Hoje","Words":"Palavras","Chars":"Caracteres",
+    "Spoken":"Falado","Reference":"Referência","Your Writing Grid":"Sua Grade de Escrita",
+    "Animate":"Animar","Quiz":"Quiz",
+    "Grammar Practice":"Prática de Gramática","Reconstruct the sentence:":"Reconstrua a frase:",
+    "Reset":"Redefinir","Check":"Verificar",
+    "MandarinCourse Premium":"Premium do Curso de Mandarim","Sign In":"Entrar",
+    "Email":"E-mail","your@email.com":"seu@email.com","Password":"Senha",
+    "Min 6 characters":"Mín. 6 caracteres",
+    "Frequently Asked Questions":"Perguntas Frequentes",
+    "Learn More About MandarinCourse":"Saiba Mais sobre o Curso de Mandarim",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Respostas diretas sobre nossos recursos, compatibilidade offline e avaliação de pronúncia.",
+    "Correct":"Correto","Vocab":"Vocabulário","Time":"Tempo",
+    "Record Accent":"Gravar Sotaque","Due Reviews Only":"Apenas Revisões Pendentes",
+    "Reviews due: 0":"Revisões pendentes: 0",
+    "Outline":"Contorno","Hint":"Dica"
+  },
+  "it": {
+    "Tutor":"Tutor","Lessons":"Lezioni","Grammar":"Grammatica","Dict":"Dizionario","Trans":"Tradurre","Test":"Test","Progress":"Progressi",
+    "AI Tutor":"Tutor IA","Dictionary":"Dizionario","Level Test":"Test di Livello",
+    "MandarinCourse":"Corso di Mandarino","Settings":"Impostazioni",
+    "Cloud Account & Sync":"Account e Sincronizzazione","Sign In / Register":"Accedi / Registrati",
+    "Sync Progress":"Sincronizza Progressi","Sign Out":"Esci",
+    "AI Speaking Speed":"Velocità IA","Normal Speed (1.0x)":"Velocità Normale (1.0x)",
+    "Slower (0.8x)":"Più Lento (0.8x)","Slowest (0.7x)":"Molto Lento (0.7x)",
+    "Tutor Mode":"Modalità Tutor","Simulated Mode (HSK static lessons)":"Modalità Simulata (lezioni HSK statiche)",
+    "Live AI Mode (Dynamic conversations)":"Modalità IA in Diretta (conversazioni dinamiche)",
+    "App Language (Translations)":"Lingua App (Traduzioni)",
+    "Study Reminders":"Promemoria di Studio","No Reminders":"Nessun Promemoria",
+    "Every Day (Daily)":"Ogni Giorno (Giornaliero)","Every Week (Weekly)":"Ogni Settimana (Settimanale)",
+    "Save Reminder Schedule":"Salva Programma","Close":"Chiudi",
+    "AI-Powered Speaking Tutor":"Tutor di Conversazione con IA",
+    "Learn Mandarin with AI":"Impara il Mandarino con l'IA",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Gratuito · HSK 2–9 $9/mese",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Padroneggia il cinese parlato, i toni e la scrittura dei caratteri con valutazione vocale interattiva in tempo reale, tracciamento dell'ordine dei tratti e revisioni personalizzate.",
+    "Start Speaking Lesson":"Inizia Lezione","Take Level Test":"Fai il Test di Livello",
+    "Levels":"Livelli","Topics":"Argomenti","Learners":"Studenti",
+    "AI Speaking Tutor":"Tutor di Conversazione IA",
+    "Your Personal Chinese Speaking Teacher":"Il Tuo Insegnante Personale di Cinese",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Ascolta l'IA parlare cinese, poi rispondi digitando cinese nella casella di testo qui sotto.",
+    "Bite-Sized Lessons":"Lezioni Brevi","10-15 Minute Lessons":"Lezioni da 10-15 Minuti",
+    "Topics Grid":"Griglia Argomenti","Study Flashcards":"Flashcard di Studio",
+    "Radical Explorer":"Esploratore di Radicali","Common Radicals":"Radicali Comuni",
+    "Translation & Meaning":"Traduzione e Significato","Example Phrase":"Frase di Esempio",
+    "Prev":"Precedente","Next":"Successivo","Again":"Ripeti","Hard":"Difficile","Good":"Buono","Easy":"Facile",
+    "Instant Translation":"Traduzione Istantanea","Translate Any Phrase":"Traduci Qualsiasi Frase",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduci qualsiasi lingua in cinese con l'IA. Supporta inglese, spagnolo, francese, giapponese, coreano, tedesco, portoghese, italiano, russo e vietnamita.",
+    "Translate":"Traduci","Enter text to translate...":"Inserisci il testo da tradurre...",
+    "Speak":"Parla","Copy to Tutor":"Copia al Tutor",
+    "HSK Dictionary":"Dizionario HSK","Browse HSK Vocabulary":"Sfoglia il Vocabolario HSK",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Sfoglia tutto il vocabolario HSK con pinyin e traduzioni in inglese.",
+    "Search characters or pinyin...":"Cerca caratteri o pinyin...",
+    "Grammar Deep Dive":"Grammatica Approfondita","Understand Grammar":"Capire la Grammatica",
+    "Level Assessment":"Valutazione del Livello","Know Your Level in 5 Minutes":"Conosci il Tuo Livello in 5 Minuti",
+    "Quick Assessment":"Valutazione Rapida","10 questions.":"10 domande.","Start Test":"Inizia Test",
+    "Retake":"Riprova","Start Lessons":"Inizia Lezioni",
+    "HSK Progress":"Progressi HSK","9 Levels to Fluency":"9 Livelli verso la Fluidità",
+    "Today's Progress":"Progressi di Oggi","Words":"Parole","Chars":"Caratteri",
+    "Spoken":"Parlato","Reference":"Riferimento","Your Writing Grid":"La Tua Griglia di Scrittura",
+    "Animate":"Animare","Quiz":"Quiz",
+    "Grammar Practice":"Pratica di Grammatica","Reconstruct the sentence:":"Ricostruisci la frase:",
+    "Reset":"Reimposta","Check":"Controlla",
+    "MandarinCourse Premium":"Premium Corso di Mandarino","Sign In":"Accedi",
+    "Email":"Email","your@email.com":"tua@email.com","Password":"Password",
+    "Min 6 characters":"Min. 6 caratteri",
+    "Frequently Asked Questions":"Domande Frequenti",
+    "Learn More About MandarinCourse":"Scopri di Più sul Corso di Mandarino",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Risposte dirette sulle nostre funzionalità, compatibilità offline e valutazione della pronuncia.",
+    "Correct":"Corretto","Vocab":"Vocabolario","Time":"Tempo",
+    "Record Accent":"Registra Accento","Due Reviews Only":"Solo Revisioni in Scadenza",
+    "Reviews due: 0":"Revisioni in attesa: 0",
+    "Outline":"Contorno","Hint":"Suggerimento"
+  },
+  "ru": {
+    "Tutor":"Репетитор","Lessons":"Уроки","Grammar":"Грамматика","Dict":"Словарь","Trans":"Перевод","Test":"Тест","Progress":"Прогресс",
+    "AI Tutor":"ИИ Репетитор","Dictionary":"Словарь","Level Test":"Тест Уровня",
+    "MandarinCourse":"Курс Китайского","Settings":"Настройки",
+    "Cloud Account & Sync":"Аккаунт и Синхронизация","Sign In / Register":"Войти / Регистрация",
+    "Sync Progress":"Синхронизировать Прогресс","Sign Out":"Выйти",
+    "AI Speaking Speed":"Скорость ИИ","Normal Speed (1.0x)":"Нормальная Скорость (1.0x)",
+    "Slower (0.8x)":"Медленнее (0.8x)","Slowest (0.7x)":"Очень Медленно (0.7x)",
+    "Tutor Mode":"Режим Репетитора","Simulated Mode (HSK static lessons)":"Симуляция (статические уроки HSK)",
+    "Live AI Mode (Dynamic conversations)":"Живой Режим ИИ (динамические беседы)",
+    "App Language (Translations)":"Язык Приложения (Переводы)",
+    "Study Reminders":"Напоминания","No Reminders":"Без Напоминаний",
+    "Every Day (Daily)":"Каждый День (Ежедневно)","Every Week (Weekly)":"Каждую Неделю (Еженедельно)",
+    "Save Reminder Schedule":"Сохранить Расписание","Close":"Закрыть",
+    "AI-Powered Speaking Tutor":"Разговорный Репетитор на ИИ",
+    "Learn Mandarin with AI":"Учите Китайский с ИИ",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Бесплатно · HSK 2–9 $9/мес",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Освойте разговорный китайский, тоны и письменность с интерактивной оценкой произношения в реальном времени, отслеживанием порядка черт и персонализированными карточками для повторения.",
+    "Start Speaking Lesson":"Начать Урок","Take Level Test":"Пройти Тест Уровня",
+    "Levels":"Уровни","Topics":"Темы","Learners":"Ученики",
+    "AI Speaking Tutor":"Разговорный Репетитор ИИ",
+    "Your Personal Chinese Speaking Teacher":"Ваш Личный Учитель Китайского",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Слушайте, как ИИ говорит по-китайски, затем отвечайте, вводя китайский текст в поле ниже.",
+    "Bite-Sized Lessons":"Короткие Уроки","10-15 Minute Lessons":"Уроки по 10-15 Минут",
+    "Topics Grid":"Сетка Тем","Study Flashcards":"Карточки для Заучивания",
+    "Radical Explorer":"Исследователь Радикалов","Common Radicals":"Распространённые Радикалы",
+    "Translation & Meaning":"Перевод и Значение","Example Phrase":"Пример Фразы",
+    "Prev":"Назад","Next":"Далее","Again":"Повторить","Hard":"Сложно","Good":"Хорошо","Easy":"Легко",
+    "Instant Translation":"Мгновенный Перевод","Translate Any Phrase":"Перевести Любую Фразу",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Переведите любой язык на китайский с помощью ИИ. Поддерживает английский, испанский, французский, японский, корейский, немецкий, португальский, итальянский, русский и вьетнамский.",
+    "Translate":"Перевести","Enter text to translate...":"Введите текст для перевода...",
+    "Speak":"Говорить","Copy to Tutor":"Скопировать Репетитору",
+    "HSK Dictionary":"HSK Словарь","Browse HSK Vocabulary":"Просмотр Лексики HSK",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Просмотрите всю лексику HSK с пиньинем и переводом на английский.",
+    "Search characters or pinyin...":"Поиск иероглифов или пиньиня...",
+    "Grammar Deep Dive":"Углублённая Грамматика","Understand Grammar":"Понимать Грамматику",
+    "Level Assessment":"Оценка Уровня","Know Your Level in 5 Minutes":"Узнайте Свой Уровень за 5 Минут",
+    "Quick Assessment":"Быстрая Оценка","10 questions.":"10 вопросов.","Start Test":"Начать Тест",
+    "Retake":"Пересдать","Start Lessons":"Начать Уроки",
+    "HSK Progress":"Прогресс HSK","9 Levels to Fluency":"9 Уровней к Свободному Владению",
+    "Today's Progress":"Прогресс Сегодня","Words":"Слова","Chars":"Иероглифы",
+    "Spoken":"Произнесено","Reference":"Справка","Your Writing Grid":"Ваша Сетка для Письма",
+    "Animate":"Анимация","Quiz":"Тест",
+    "Grammar Practice":"Практика Грамматики","Reconstruct the sentence:":"Восстановите предложение:",
+    "Reset":"Сброс","Check":"Проверить",
+    "MandarinCourse Premium":"Премиум Курса Китайского","Sign In":"Войти",
+    "Email":"Эл. почта","your@email.com":"ваш@email.com","Password":"Пароль",
+    "Min 6 characters":"Мин. 6 символов",
+    "Frequently Asked Questions":"Часто Задаваемые Вопросы",
+    "Learn More About MandarinCourse":"Узнать Больше о Курсе Китайского",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Прямые ответы о наших функциях, офлайн-совместимости и оценке произношения.",
+    "Correct":"Верно","Vocab":"Лексика","Time":"Время",
+    "Record Accent":"Записать Акцент","Due Reviews Only":"Только Просроченные Повторения",
+    "Reviews due: 0":"Повторений ожидается: 0",
+    "Outline":"Контур","Hint":"Подсказка"
+  },
+  "vi": {
+    "Tutor":"Gia sư","Lessons":"Bài học","Grammar":"Ngữ pháp","Dict":"Từ điển","Trans":"Dịch","Test":"Kiểm tra","Progress":"Tiến bộ",
+    "AI Tutor":"Gia sư AI","Dictionary":"Từ điển","Level Test":"Kiểm tra Trình độ",
+    "MandarinCourse":"Khóa học Tiếng Trung","Settings":"Cài đặt",
+    "Cloud Account & Sync":"Tài khoản & Đồng bộ","Sign In / Register":"Đăng nhập / Đăng ký",
+    "Sync Progress":"Đồng bộ Tiến độ","Sign Out":"Đăng xuất",
+    "AI Speaking Speed":"Tốc độ Nói AI","Normal Speed (1.0x)":"Tốc độ Thường (1.0x)",
+    "Slower (0.8x)":"Chậm hơn (0.8x)","Slowest (0.7x)":"Rất Chậm (0.7x)",
+    "Tutor Mode":"Chế độ Gia sư","Simulated Mode (HSK static lessons)":"Chế độ Mô phỏng (bài học HSK tĩnh)",
+    "Live AI Mode (Dynamic conversations)":"Chế độ AI Trực tiếp (hội thoại động)",
+    "App Language (Translations)":"Ngôn ngữ Ứng dụng (Bản dịch)",
+    "Study Reminders":"Nhắc nhở Học tập","No Reminders":"Không Nhắc nhở",
+    "Every Day (Daily)":"Mỗi Ngày (Hàng ngày)","Every Week (Weekly)":"Mỗi Tuần (Hàng tuần)",
+    "Save Reminder Schedule":"Lưu Lịch trình","Close":"Đóng",
+    "AI-Powered Speaking Tutor":"Gia sư Hội thoại AI",
+    "Learn Mandarin with AI":"Học Tiếng Trung với AI",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Miễn phí · HSK 2–9 $9/tháng",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Làm chủ kỹ năng nói tiếng Trung, thanh điệu và viết chữ với đánh giá giọng nói tương tác thời gian thực, theo dõi thứ tự nét và thẻ ôn tập cá nhân hóa.",
+    "Start Speaking Lesson":"Bắt đầu Bài học Nói","Take Level Test":"Làm Bài Kiểm tra Trình độ",
+    "Levels":"Cấp độ","Topics":"Chủ đề","Learners":"Học viên",
+    "AI Speaking Tutor":"Gia sư Hội thoại AI",
+    "Your Personal Chinese Speaking Teacher":"Giáo viên Tiếng Trung Cá nhân của Bạn",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"Lắng nghe AI nói tiếng Trung, sau đó trả lời bằng cách gõ tiếng Trung vào ô văn bản bên dưới.",
+    "Bite-Sized Lessons":"Bài học Ngắn","10-15 Minute Lessons":"Bài học 10-15 Phút",
+    "Topics Grid":"Lưới Chủ đề","Study Flashcards":"Thẻ Ghi nhớ",
+    "Radical Explorer":"Khám phá Bộ thủ","Common Radicals":"Bộ thủ Thông dụng",
+    "Translation & Meaning":"Dịch nghĩa","Example Phrase":"Ví dụ Câu",
+    "Prev":"Trước","Next":"Sau","Again":"Lặp lại","Hard":"Khó","Good":"Tốt","Easy":"Dễ",
+    "Instant Translation":"Dịch Tức thì","Translate Any Phrase":"Dịch Bất kỳ Cụm từ nào",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Dịch bất kỳ ngôn ngữ nào sang tiếng Trung với AI. Hỗ trợ tiếng Anh, Tây Ban Nha, Pháp, Nhật, Hàn, Đức, Bồ Đào Nha, Ý, Nga và Việt.",
+    "Translate":"Dịch","Enter text to translate...":"Nhập văn bản cần dịch...",
+    "Speak":"Nói","Copy to Tutor":"Sao chép cho Gia sư",
+    "HSK Dictionary":"Từ điển HSK","Browse HSK Vocabulary":"Duyệt Từ vựng HSK",
+    "Browse all HSK vocabulary with pinyin and English translations.":"Duyệt tất cả từ vựng HSK kèm pinyin và bản dịch tiếng Anh.",
+    "Search characters or pinyin...":"Tìm kiếm chữ hoặc pinyin...",
+    "Grammar Deep Dive":"Ngữ pháp Chuyên sâu","Understand Grammar":"Hiểu Ngữ pháp",
+    "Level Assessment":"Đánh giá Trình độ","Know Your Level in 5 Minutes":"Biết Trình độ của Bạn trong 5 Phút",
+    "Quick Assessment":"Đánh giá Nhanh","10 questions.":"10 câu hỏi.","Start Test":"Bắt đầu Kiểm tra",
+    "Retake":"Thi lại","Start Lessons":"Bắt đầu Bài học",
+    "HSK Progress":"Tiến độ HSK","9 Levels to Fluency":"9 Cấp độ đến Sự Lưu loát",
+    "Today's Progress":"Tiến độ Hôm nay","Words":"Từ","Chars":"Chữ",
+    "Spoken":"Đã nói","Reference":"Tham khảo","Your Writing Grid":"Lưới Viết của Bạn",
+    "Animate":"Hoạt hình","Quiz":"Bài kiểm tra",
+    "Grammar Practice":"Luyện tập Ngữ pháp","Reconstruct the sentence:":"Tái tạo câu:",
+    "Reset":"Đặt lại","Check":"Kiểm tra",
+    "MandarinCourse Premium":"Cao cấp Khóa học Tiếng Trung","Sign In":"Đăng nhập",
+    "Email":"Email","your@email.com":"email@cua-ban.com","Password":"Mật khẩu",
+    "Min 6 characters":"Tối thiểu 6 ký tự",
+    "Frequently Asked Questions":"Câu hỏi Thường gặp",
+    "Learn More About MandarinCourse":"Tìm hiểu Thêm về Khóa học Tiếng Trung",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"Câu trả lời trực tiếp về các tính năng, khả năng ngoại tuyến và đánh giá phát âm.",
+    "Correct":"Đúng","Vocab":"Từ vựng","Time":"Thời gian",
+    "Record Accent":"Ghi Âm Giọng","Due Reviews Only":"Chỉ Ôn tập Đến hạn",
+    "Reviews due: 0":"Bài ôn tập đến hạn: 0",
+    "Outline":"Đường viền","Hint":"Gợi ý"
+  },
+  "ja": {
+    "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
+    "AI Tutor":"AIチューター","Dictionary":"辞書","Level Test":"レベルテスト",
+    "MandarinCourse":"中国語コース","Settings":"設定",
+    "Cloud Account & Sync":"アカウントと同期","Sign In / Register":"ログイン / 登録",
+    "Sync Progress":"進捗を同期","Sign Out":"ログアウト",
+    "AI Speaking Speed":"AIの話す速度","Normal Speed (1.0x)":"通常速度 (1.0x)",
+    "Slower (0.8x)":"遅い (0.8x)","Slowest (0.7x)":"最も遅い (0.7x)",
+    "Tutor Mode":"チューターモード","Simulated Mode (HSK static lessons)":"シミュレーションモード（HSK固定レッスン）",
+    "Live AI Mode (Dynamic conversations)":"ライブAIモード（動的会話）",
+    "App Language (Translations)":"アプリ言語（翻訳）",
+    "Study Reminders":"学習リマインダー","No Reminders":"リマインダーなし",
+    "Every Day (Daily)":"毎日","Every Week (Weekly)":"毎週",
+    "Save Reminder Schedule":"スケジュールを保存","Close":"閉じる",
+    "AI-Powered Speaking Tutor":"AI搭載スピーキングチューター",
+    "Learn Mandarin with AI":"AIで中国語を学ぶ",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 無料 · HSK 2–9 $9/月",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"リアルタイムの音声評価、筆順トレース、パーソナライズされた復習デッキで中国語の会話、声調、文字書きをマスターしましょう。",
+    "Start Speaking Lesson":"レッスンを開始","Take Level Test":"レベルテストを受ける",
+    "Levels":"レベル","Topics":"トピック","Learners":"学習者",
+    "AI Speaking Tutor":"AIスピーキングチューター",
+    "Your Personal Chinese Speaking Teacher":"あなただけの中国語教師",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"AIが中国語を話すのを聞いて、下のテキストボックスに中国語を入力して応答してください。",
+    "Bite-Sized Lessons":"短時間レッスン","10-15 Minute Lessons":"10〜15分のレッスン",
+    "Topics Grid":"トピックグリッド","Study Flashcards":"フラッシュカード",
+    "Radical Explorer":"部首エクスプローラー","Common Radicals":"よく使う部首",
+    "Translation & Meaning":"翻訳と意味","Example Phrase":"例文",
+    "Prev":"前へ","Next":"次へ","Again":"もう一度","Hard":"難しい","Good":"良い","Easy":"簡単",
+    "Instant Translation":" instant翻訳","Translate Any Phrase":"どんなフレーズも翻訳",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"AIを使ってあらゆる言語を中国語に翻訳。英語、スペイン語、フランス語、日本語、韓国語、ドイツ語、ポルトガル語、イタリア語、ロシア語、ベトナム語に対応。",
+    "Translate":"翻訳","Enter text to translate...":"翻訳するテキストを入力...",
+    "Speak":"話す","Copy to Tutor":"チューターにコピー",
+    "HSK Dictionary":"HSK辞書","Browse HSK Vocabulary":"HSK語彙を閲覧",
+    "Browse all HSK vocabulary with pinyin and English translations.":"ピンインと英語訳付きの全HSK語彙を閲覧できます。",
+    "Search characters or pinyin...":"漢字またはピンインを検索...",
+    "Grammar Deep Dive":"文法を深く学ぶ","Understand Grammar":"文法を理解する",
+    "Level Assessment":"レベル診断","Know Your Level in 5 Minutes":"5分であなたのレベルを診断",
+    "Quick Assessment":"クイック診断","10 questions.":"10問。","Start Test":"テスト開始",
+    "Retake":"再受験","Start Lessons":"レッスンを開始",
+    "HSK Progress":"HSK進捗","9 Levels to Fluency":"9レベルで流暢に",
+    "Today's Progress":"今日の進捗","Words":"単語","Chars":"文字",
+    "Spoken":"発話","Reference":"参考","Your Writing Grid":"あなたの書き方グリッド",
+    "Animate":"アニメーション","Quiz":"クイズ",
+    "Grammar Practice":"文法練習","Reconstruct the sentence:":"文を再構築してください：",
+    "Reset":"リセット","Check":"確認",
+    "MandarinCourse Premium":"プレミアム中国語コース","Sign In":"ログイン",
+    "Email":"メール","your@email.com":"your@email.com","Password":"パスワード",
+    "Min 6 characters":"6文字以上",
+    "Frequently Asked Questions":"よくある質問",
+    "Learn More About MandarinCourse":"中国語コースの詳細",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"機能、オフライン対応、発音評価についての直接的な回答。",
+    "Correct":"正解","Vocab":"語彙","Time":"時間",
+    "Record Accent":"アクセント録音","Due Reviews Only":"復習予定のみ",
+    "Reviews due: 0":"復習予定: 0",
+    "Outline":"輪郭","Hint":"ヒント"
+  },
+  "ko": {
+    "Tutor":"튜터","Lessons":"레슨","Grammar":"문법","Dict":"사전","Trans":"번역","Test":"테스트","Progress":"진행도",
+    "AI Tutor":"AI 튜터","Dictionary":"사전","Level Test":"레벨 테스트",
+    "MandarinCourse":"중국어 코스","Settings":"설정",
+    "Cloud Account & Sync":"계정 및 동기화","Sign In / Register":"로그인 / 회원가입",
+    "Sync Progress":"진행도 동기화","Sign Out":"로그아웃",
+    "AI Speaking Speed":"AI 말하기 속도","Normal Speed (1.0x)":"보통 속도 (1.0x)",
+    "Slower (0.8x)":"느리게 (0.8x)","Slowest (0.7x)":"가장 느리게 (0.7x)",
+    "Tutor Mode":"튜터 모드","Simulated Mode (HSK static lessons)":"시뮬레이션 모드 (HSK 고정 레슨)",
+    "Live AI Mode (Dynamic conversations)":"라이브 AI 모드 (동적 대화)",
+    "App Language (Translations)":"앱 언어 (번역)",
+    "Study Reminders":"학습 알림","No Reminders":"알림 없음",
+    "Every Day (Daily)":"매일","Every Week (Weekly)":"매주",
+    "Save Reminder Schedule":"일정 저장","Close":"닫기",
+    "AI-Powered Speaking Tutor":"AI 기반 회화 튜터",
+    "Learn Mandarin with AI":"AI로 중국어 배우기",
+    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 무료 · HSK 2–9 $9/월",
+    "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"실시간 음성 평가, 필순 추적, 맞춤형 복습 카드로 중국어 회화, 성조, 한자 쓰기를 마스터하세요.",
+    "Start Speaking Lesson":"회화 레슨 시작","Take Level Test":"레벨 테스트 보기",
+    "Levels":"레벨","Topics":"주제","Learners":"학습자",
+    "AI Speaking Tutor":"AI 회화 튜터",
+    "Your Personal Chinese Speaking Teacher":"당신의 개인 중국어 선생님",
+    "Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.":"AI가 중국어로 말하는 것을 듣고, 아래 텍스트 상자에 중국어를 입력하여 응답하세요.",
+    "Bite-Sized Lessons":"짧은 레슨","10-15 Minute Lessons":"10-15분 레슨",
+    "Topics Grid":"주제 그리드","Study Flashcards":"플래시카드",
+    "Radical Explorer":"부수 탐험","Common Radicals":"자주 쓰는 부수",
+    "Translation & Meaning":"번역 및 의미","Example Phrase":"예문",
+    "Prev":"이전","Next":"다음","Again":"다시","Hard":"어려움","Good":"좋음","Easy":"쉬움",
+    "Instant Translation":"즉시 번역","Translate Any Phrase":"모든 문장 번역",
+    "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"AI로 모든 언어를 중국어로 번역하세요. 영어, 스페인어, 프랑스어, 일본어, 한국어, 독일어, 포르투갈어, 이탈리아어, 러시아어, 베트남어를 지원합니다.",
+    "Translate":"번역","Enter text to translate...":"번역할 텍스트 입력...",
+    "Speak":"말하기","Copy to Tutor":"튜터에게 복사",
+    "HSK Dictionary":"HSK 사전","Browse HSK Vocabulary":"HSK 어휘 찾아보기",
+    "Browse all HSK vocabulary with pinyin and English translations.":"병음과 영어 번역이 포함된 모든 HSK 어휘를 찾아보세요.",
+    "Search characters or pinyin...":"한자 또는 병음 검색...",
+    "Grammar Deep Dive":"문법 심층 학습","Understand Grammar":"문법 이해하기",
+    "Level Assessment":"레벨 평가","Know Your Level in 5 Minutes":"5분 안에 당신의 레벨을 알아보세요",
+    "Quick Assessment":"빠른 평가","10 questions.":"10문제.","Start Test":"테스트 시작",
+    "Retake":"재응시","Start Lessons":"레슨 시작",
+    "HSK Progress":"HSK 진행도","9 Levels to Fluency":"9레벨로 유창하게",
+    "Today's Progress":"오늘의 진행도","Words":"단어","Chars":"글자",
+    "Spoken":"말하기","Reference":"참조","Your Writing Grid":"필기 그리드",
+    "Animate":"애니메이션","Quiz":"퀴즈",
+    "Grammar Practice":"문법 연습","Reconstruct the sentence:":"문장을 재구성하세요:",
+    "Reset":"초기화","Check":"확인",
+    "MandarinCourse Premium":"프리미엄 중국어 코스","Sign In":"로그인",
+    "Email":"이메일","your@email.com":"your@email.com","Password":"비밀번호",
+    "Min 6 characters":"최소 6자",
+    "Frequently Asked Questions":"자주 묻는 질문",
+    "Learn More About MandarinCourse":"중국어 코스 자세히 알아보기",
+    "Direct answers about our features, offline compatibility, and pronunciation grading.":"기능, 오프라인 호환성 및 발음 평가에 대한 직접적인 답변.",
+    "Correct":"정답","Vocab":"어휘","Time":"시간",
+    "Record Accent":"발음 녹음","Due Reviews Only":"복습 예정만",
+    "Reviews due: 0":"복습 예정: 0",
+    "Outline":"외곽선","Hint":"힌트"
   }
 };
 
 function t(englishString) {
+  if (englishString == null) return '';
+  englishString = String(englishString);
   if (!englishString) return '';
   if (currentAppLang === 'en') return englishString;
   const dict = OFFLINE_DICTIONARY[currentAppLang];
@@ -3794,7 +4298,7 @@ dialogue:[
 ]}
 ];
 
-const LV=[{n:'HSK 1',d:'148 words — Basic',ls:45,tp:['Greetings','Numbers','Family','Food','Time'],dn:true,pc:100},{n:'HSK 2',d:'358 words — Daily',ls:50,tp:['Shopping','Transport','Weather','Hobbies','Dates'],dn:true,pc:100},{n:'HSK 3',d:'604 words — Opinions',ls:55,tp:['Travel','Work','Health','Education','Culture'],dn:false,pc:72},{n:'HSK 4',d:'1,187 words — Complex',ls:50,tp:['Society','Technology','Environment','Media','Sports'],dn:false,pc:35},{n:'HSK 5',d:'2,465 words — Professional',ls:50,tp:['Business','Politics','Literature','Science','Philosophy'],dn:false,pc:0},{n:'HSK 6',d:'4,966 words — Near-native',ls:45,tp:['Academic','Idioms','Classical','Debate','Abstract'],dn:false,pc:0},{n:'HSK 7',d:'76 words — Advanced',ls:35,tp:['Formal Writing','Analysis','Research','Translation'],dn:false,pc:0},{n:'HSK 8',d:'131 words — Professional',ls:30,tp:['Specialized','Cross-cultural','Presentation'],dn:false,pc:0},{n:'HSK 9',d:'69 words — Mastery',ls:25,tp:['Literary','Creative Writing','Scholarship'],dn:false,pc:0}];
+const LV=[{n:'HSK 1',d:'350 words — Basic',ls:45,tp:['Greetings','Numbers','Family','Food','Time'],dn:true,pc:100},{n:'HSK 2',d:'550 words — Daily',ls:50,tp:['Shopping','Transport','Weather','Hobbies','Dates'],dn:true,pc:100},{n:'HSK 3',d:'750 words — Opinions',ls:55,tp:['Travel','Work','Health','Education','Culture'],dn:false,pc:72},{n:'HSK 4',d:'950 words — Complex',ls:50,tp:['Society','Technology','Environment','Media','Sports'],dn:false,pc:35},{n:'HSK 5',d:'1,150 words — Professional',ls:50,tp:['Business','Politics','Literature','Science','Philosophy'],dn:false,pc:0},{n:'HSK 6',d:'1,350 words — Near-native',ls:45,tp:['Academic','Idioms','Classical','Debate','Abstract'],dn:false,pc:0},{n:'HSK 7',d:'1,550 words — Advanced',ls:35,tp:['Formal Writing','Analysis','Research','Translation'],dn:false,pc:0},{n:'HSK 8',d:'1,750 words — Proficient',ls:30,tp:['Specialized','Cross-cultural','Presentation'],dn:false,pc:0},{n:'HSK 9',d:'1,889 words — Mastery',ls:25,tp:['Literary','Creative Writing','Scholarship'],dn:false,pc:0}];
 let curLv = 0;
 const TD={Greetings:['Self Intro','Hello/Goodbye','Thank You','Titles','Polite'],Numbers:['1-10','11-99','100-10K','Phone','Prices'],Family:['Members','Age','Occupations','Appearance','Personality'],Food:['Fruits/Veg','Meals','Restaurant','Drinks','Cooking'],Time:['Weekdays','Months','Clock','Duration','Frequency'],Shopping:['Clothes','Colors','Bargaining','Payment','Returns'],Transport:['Directions','Taxi','Bus/Subway','Train','Traffic'],Weather:['Basic','Seasons','Temperature','Forecast','Activities'],Hobbies:['Sports','Music','Movies','Reading','Games'],Dates:['Birthdays','Anniversaries','Holidays','Invitations','Scheduling'],Travel:['Airport','Hotel','Sightseeing','Help','Emergencies'],Work:['Office','Meetings','Emails','Phone','Cards'],Health:['Doctor','Symptoms','Medicine','Insurance','Fitness'],Education:['Subjects','Classroom','Exams','Homework','Graduation'],Culture:['Festivals','Traditions','Food','Calligraphy','Kung Fu'],Society:['Population','Housing','Community','Social Media','Trends'],Technology:['Internet','Smartphones','Apps','AI','E-commerce'],Environment:['Nature','Climate','Pollution','Recycling','Animals'],Media:['News','Social Media','Ads','Journalism','Entertainment'],Sports:['Olympics','Basketball','Soccer','Martial Arts','Esports'],Business:['Negotiation','Contracts','Partnership','Finance','Marketing'],Politics:['Government','Elections','Policy','International','History'],Literature:['Poetry','Novels','Essays','Authors','Devices'],Science:['Physics','Biology','Chemistry','Space','Medicine'],Philosophy:['Confucius','Laozi','Buddhism','Ethics','Logic'],Academic:['Research','Papers','Conferences','Peer Review','Citations'],Idioms:['Chengyu','Common','Animal','Number','Nature'],Classical:['Classical','Poetry','Historical','Philosophical','Parallel Prose'],Debate:['Structure','Counter-arguments','Rhetoric','Formal','Persuasion'],Abstract:['Concepts','Theories','Hypotheses','Analysis','Synthesis'],'Formal Writing':['Reports','Proposals','Letters','Essays','Summaries'],Analysis:['Data','Case Studies','Comparative','Critical','Synthesis'],Research:['Literature Review','Methodology','Fieldwork','Data','Publication'],Translation:['Theory','Techniques','Literary','Technical','Interpreting'],'Specialized':['Legal','Medical','Financial','Technical','Diplomatic'],'Cross-cultural':['Differences','Etiquette','Styles','Stereotypes','Adaptation'],Presentation:['Public Speaking','Slides','Q&A','Persuasive','Impromptu'],'Literary Analysis':['Poetry','Novel','Drama','Essay','Comparative'],'Creative Writing':['Stories','Poetry','Essay','Drama','Experimental'],'Scholarship':['Proposals','Grant Writing','Publishing','Papers','Collaboration']};
 const PYI=['b','p','m','f','d','t','n','l','g','k','h','j','q','x','zh','ch','sh','r','z','c','s','y','w'];
@@ -3860,7 +4364,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.openTutorTopic = function(topic, levelIdx) {
     openTopicLesson(topic, levelIdx);
   };
-  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();
+  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();translateUI();
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -4517,31 +5021,33 @@ function buildTutorTabs(){
   const levels=[...new Set(TL.map(l=>l.level).filter(Boolean))];
   const lvOrder=['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
   levels.sort((a,b)=>lvOrder.indexOf(a)-lvOrder.indexOf(b));
+  const sel=document.createElement('select');
+  sel.className='tb-select';
   levels.forEach((lv,i)=>{
-    const b=document.createElement('button');
-    b.className='tb'+(i===0?' on':'');
-    b.textContent=lv;
-    b.onclick=()=>{
-      c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
-      g.innerHTML='';
-      TL.forEach((lesson,idx)=>{
-        if(lesson.level!==lv)return;
-        const tb=document.createElement('button');
-        tb.className='bo text-xs';
-        tb.textContent=lesson.title;
-        tb.onclick=()=>openTutorTopic(lesson.title, levels.indexOf(lv));
-        g.appendChild(tb);
-      });
-    };
-    c.appendChild(b);
+    const opt=document.createElement('option');
+    opt.value=i;
+    opt.textContent=t(lv);
+    sel.appendChild(opt);
   });
-  const first=c.querySelector('.tb');
-  if(first)first.click();
+  sel.onchange=()=>{
+    const idx=parseInt(sel.value);
+    const lv=levels[idx];
+    g.innerHTML='';
+    TL.forEach((lesson,idx2)=>{
+      if(lesson.level!==lv)return;
+      const tb=document.createElement('button');
+      tb.className='bo text-xs';
+      tb.textContent=t(lesson.title);
+      tb.onclick=()=>openTutorTopic(lesson.title, idx);
+      g.appendChild(tb);
+    });
+  };
+  c.appendChild(sel);
+  sel.dispatchEvent(new Event('change'));
 }
 
 // ===== LESSONS =====
-function buildLvTabs(){const c=document.getElementById('lvTabs');LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=l.n;b.onclick=()=>{
+function buildLvTabs(){const c=document.getElementById('lvTabs');LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=t(l.n);b.onclick=()=>{
       curLv=i;
       c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
       b.classList.add('on');
@@ -6325,19 +6831,47 @@ function createFloatingCharacters() {
 
 // Translations moved to top
 
+function translateUI() {
+  document.querySelectorAll('[data-tr]').forEach(el => {
+    const key = el.getAttribute('data-tr');
+    if (!key) return;
+    const tr = t(key);
+    if (el.hasAttribute('placeholder')) {
+      el.setAttribute('placeholder', tr);
+    } else if (el.hasAttribute('title')) {
+      el.setAttribute('title', tr);
+    } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      el.value = tr;
+    } else {
+      // For elements with icons, replace last text node only
+      const childNodes = el.childNodes;
+      let lastText = null;
+      for (let i = childNodes.length - 1; i >= 0; i--) {
+        if (childNodes[i].nodeType === 3 && childNodes[i].textContent.trim()) {
+          lastText = childNodes[i];
+          break;
+        }
+      }
+      if (lastText) lastText.textContent = ' ' + tr;
+      else el.textContent = tr;
+    }
+  });
+}
+
 function changeAppLanguage(lang) {
   currentAppLang = lang;
   localStorage.setItem('app_lang', lang);
   
   // Re-build all visual elements to apply translations instantly
   if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
-  buildTutLessons();
+  buildTutorTabs();
   buildLvTabs();
   buildGr();
   buildHSK();
   buildPy();
   buildRadicals();
   buildHero();
+  translateUI();
   
   const dropdown = document.getElementById('langDropdown');
   if (dropdown) dropdown.style.display = 'none';
