@@ -413,9 +413,9 @@
               <span class="fc text-xs text-[var(--fg2)] block" id="fcBackExCn">--</span>
               <span class="text-[10px] text-muted block" id="fcBackExEn">--</span>
             </div>
-            
-
-            
+            <button onclick="event.stopPropagation(); speakFlashcard()" class="w-9 h-9 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer mx-auto mb-2" title="Play AI Voice" style="outline:none;">
+              <i class="fas fa-volume-high text-xs"></i>
+            </button>
             <!-- SRS rating buttons -->
             <div class="flex gap-1.5 justify-center w-full mt-1">
               <button onclick="event.stopPropagation(); rateFlashcard(1)" class="px-2 py-1 rounded text-[9px] font-bold border-none text-white cursor-pointer" style="background:#ef4444;" title="Again (1m)" data-tr="Again">Again</button>
