@@ -270,3 +270,16 @@ const EXTRA_RADICALS = [
 ];
 
 const EXTRA_WRITING_CHARS = '你好学习中文汉语说听读写朋友老师学生谢对不起再见吃饭喝水大小多少今天明天昨天高兴快乐家'.split('');
+const WRITING_CHAR_DATA = {
+  '你':{py:'nǐ',m:'you'},'好':{py:'hǎo',m:'good'},'学':{py:'xué',m:'to learn'},'习':{py:'xí',m:'to practice'},
+  '中':{py:'zhōng',m:'middle, China'},'文':{py:'wén',m:'language, writing'},'汉':{py:'hàn',m:'Chinese'},'语':{py:'yǔ',m:'language'},
+  '说':{py:'shuō',m:'to speak'},'听':{py:'tīng',m:'to listen'},'读':{py:'dú',m:'to read'},'写':{py:'xiě',m:'to write'},
+  '朋':{py:'péng',m:'friend'},'友':{py:'yǒu',m:'friend'},'老':{py:'lǎo',m:'old'},'师':{py:'shī',m:'teacher'},
+  '学':{py:'xué',m:'to learn'},'生':{py:'shēng',m:'student, life'},'谢':{py:'xiè',m:'to thank'},'对':{py:'duì',m:'correct, toward'},
+  '不':{py:'bù',m:'not'},'起':{py:'qǐ',m:'to rise'},'再':{py:'zài',m:'again'},'见':{py:'jiàn',m:'to see'},
+  '吃':{py:'chī',m:'to eat'},'饭':{py:'fàn',m:'rice, meal'},'喝':{py:'hē',m:'to drink'},'水':{py:'shuǐ',m:'water'},
+  '大':{py:'dà',m:'big'},'小':{py:'xiǎo',m:'small'},'多':{py:'duō',m:'many'},'少':{py:'shǎo',m:'few'},
+  '今':{py:'jīn',m:'today, now'},'天':{py:'tiān',m:'sky, day'},'明':{py:'míng',m:'bright'},'天':{py:'tiān',m:'sky, day'},
+  '昨':{py:'zuó',m:'yesterday'},'天':{py:'tiān',m:'sky, day'},'高':{py:'gāo',m:'tall, high'},'兴':{py:'xìng',m:'prosperous, happy'},
+  '快':{py:'kuài',m:'fast, happy'},'乐':{py:'lè',m:'happy'},'家':{py:'jiā',m:'home, family'}
+};

@@ -11106,6 +11106,12 @@ function speakCurrentWritingChar() {
 function clrCv() {
   const charEl = document.getElementById('rfCh');
   const char = charEl ? charEl.textContent : '你';
+  const lookup = typeof WRITING_CHAR_DATA !== 'undefined' ? WRITING_CHAR_DATA : {};
+  const data = lookup[char] || {};
+  const rfPy = document.getElementById('rfPy');
+  if (rfPy) rfPy.textContent = data.py || '--';
+  const rfMn = document.getElementById('rfMn');
+  if (rfMn) rfMn.textContent = data.m || '--';
   initHanziWriter(char);
 }
 function nxtCh(){
