@@ -13027,7 +13027,7 @@ function selectRadical(idx) {
   if (!listCon) return;
   listCon.innerHTML = '';
   
-  rad.examples.forEach(char => {
+  (rad.examples || rad.ex || []).forEach(char => {
     let wordItem = { cn: char, py: '', en: 'Character' };
     if (RADICAL_EXAMPLES_DICT[char]) {
       wordItem = { cn: char, py: RADICAL_EXAMPLES_DICT[char].py, en: RADICAL_EXAMPLES_DICT[char].en };
