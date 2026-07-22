@@ -10004,7 +10004,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.openTutorTopic = function(topic, levelIdx) {
     openTopicLesson(topic, levelIdx);
   };
-  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGr();buildHSK();initCv();translateUI();
+  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildHSK();initCv();translateUI();
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -10790,6 +10790,23 @@ else {
 function playPy(el,py){document.querySelectorAll('.pyc.pl').forEach(e=>e.classList.remove('pl'));if(el&&el.classList)el.classList.add('pl');speak(py);setTimeout(()=>{if(el&&el.classList)el.classList.remove('pl')},600)}
 
 // ===== GRAMMAR =====
+let grammarLevel = 0;
+
+function buildGrLvTabs() {
+  const c = document.getElementById('grLvTabs');
+  if (!c) return;
+  c.innerHTML = '';
+  const levels = ['All','HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
+  levels.forEach((l,i) => {
+    const b = document.createElement('button');
+    b.textContent = l;
+    b.className = 'px-4 py-2 rounded-full text-xs font-bold border-none cursor-pointer transition' + (i === grammarLevel ? ' on' : '');
+    b.style.cssText = (i === grammarLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--green);color:#fff';
+    b.onclick = () => { grammarLevel = i; buildGrLvTabs(); buildGr(); };
+    c.appendChild(b);
+  });
+}
+
 function addSpeakToSentences(html) {
   return html.replace(/<span class="fc font-bold text-lg">([^<]+)<\/span>/g, (m, cn) => {
     const esc = cn.replace(/'/g, "\\'");
@@ -10802,7 +10819,12 @@ function buildGr(){
   if (!g) return;
   g.innerHTML = '';
   
-  GR.forEach(gr => {
+  const filtered = grammarLevel === 0 ? GR : GR.filter(gr => {
+    const lvNum = parseInt(gr.lv.replace('HSK ',''));
+    return lvNum === grammarLevel;
+  });
+  
+  filtered.forEach(gr => {
     const d = document.createElement('div');
     d.className = 'flip';
     d.style.height = '260px';
@@ -12844,7 +12866,7 @@ function changeAppLanguage(lang) {
   if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
   buildTutorTabs();
   buildLvTabs();
-  buildGr();
+  buildGrLvTabs(); buildGr();
   buildHSK();
   buildPy();
   buildRadicals();
