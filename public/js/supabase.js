@@ -16,6 +16,9 @@ async function checkSession() {
     document.getElementById('userEmailDisplay').textContent = session.user.email;
     document.getElementById('authButtons').style.display = 'none';
     document.getElementById('userInfo').style.display = 'flex';
+    document.getElementById('navSignInBtn').style.display = 'none';
+    document.getElementById('navUserInfo').style.display = 'flex';
+    document.getElementById('navUserEmail').textContent = session.user.email;
     syncProgressFromCloud(session.user.id);
   }
 }
@@ -37,6 +40,9 @@ async function signInWithEmail(email, password) {
     document.getElementById('userEmailDisplay').textContent = session.user.email;
     document.getElementById('authButtons').style.display = 'none';
     document.getElementById('userInfo').style.display = 'flex';
+    document.getElementById('navSignInBtn').style.display = 'none';
+    document.getElementById('navUserInfo').style.display = 'flex';
+    document.getElementById('navUserEmail').textContent = session.user.email;
     syncProgressFromCloud(session.user.id);
   }
   closeAuthModal();
@@ -50,6 +56,8 @@ async function signOutUser() {
   await supabaseClient.auth.signOut();
   document.getElementById('authButtons').style.display = 'flex';
   document.getElementById('userInfo').style.display = 'none';
+  document.getElementById('navSignInBtn').style.display = 'flex';
+  document.getElementById('navUserInfo').style.display = 'none';
   toast('Signed out.', 'var(--gold)');
 }
 

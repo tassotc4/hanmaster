@@ -173,6 +173,18 @@
 
   <!-- Language & Theme selectors Group (always visible) -->
   <div class="flex items-center gap-2.5">
+    <!-- Navbar Auth -->
+    <div id="navbarAuth" class="flex items-center gap-1.5">
+      <button id="navSignInBtn" onclick="openAuthModal()" class="w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] cursor-pointer" style="background:var(--card2);color:var(--accent2);outline:none;" title="Sign In / Register">
+        <i class="fas fa-user text-sm"></i>
+      </button>
+      <div id="navUserInfo" style="display:none;" class="flex items-center gap-1.5">
+        <span id="navUserEmail" class="text-xs font-medium hidden sm:inline" style="color:var(--fg2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
+        <button onclick="toggleSettingsModal()" class="w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] cursor-pointer" style="background:var(--card2);color:var(--green);outline:none;" title="Account">
+          <i class="fas fa-user-check text-sm"></i>
+        </button>
+      </div>
+    </div>
     <!-- Language Selector -->
     <div class="relative inline-block text-left">
       <button id="langBtn" onclick="toggleLangDropdown(event)" class="w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] cursor-pointer" style="background:var(--card2);color:var(--blue);outline:none;" title="Select Language">
