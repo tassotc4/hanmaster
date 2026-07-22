@@ -11082,9 +11082,9 @@ function initHanziWriter(char) {
     showCharacter: false,
     showOutline: showOutline,
     padding: 5,
-    strokeColor: '#F5EDE6',
-    outlineColor: '#3d3028',
-    drawingColor: '#c83525'
+    strokeColor: '#000000',
+    outlineColor: '#999999',
+    drawingColor: '#555555'
   });
   writer.quiz();
 }
