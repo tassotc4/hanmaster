@@ -78,6 +78,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 .theme-jade { --accent: #2e8b57 !important; --accent2: #3cb371 !important; }
 .theme-sapphire { --accent: #1e90ff !important; --accent2: #00bfff !important; }
 .theme-amber { --accent: #ff8c00 !important; --accent2: #ffa500 !important; }
+.theme-light { --bg: #FFF8F5 !important; --bg2: #FFF0EB !important; --card: #FFFFFF !important; --card2: #FFF0EB !important; --border: #F5DDD0 !important; --fg: #3A2A1E !important; --fg2: #7A6B5D !important; --muted: #B5A597 !important; }
 
 .cd:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(200, 53, 37, 0.15); border-color: var(--accent) !important; }
 .float-char { position: absolute; font-family: 'Noto Serif SC', serif; color: rgba(245, 237, 230, 0.025); font-weight: 800; pointer-events: none; z-index: 1; animation: floatUp 15s linear infinite; }

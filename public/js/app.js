@@ -9946,6 +9946,8 @@ const PYF=['a','o','e','i','u','ü','ai','ei','ui','ao','ou','iu','ie','üe','er
 const TONES=[{c:'mā',m:'mother',t:'1st Tone — High flat',p:'M20,35 L60,35 L100,35 L140,35 L180,35'},{c:'má',m:'hemp',t:'2nd Tone — Rising',p:'M20,38 Q60,36 100,20 Q140,8 180,5'},{c:'mǎ',m:'horse',t:'3rd Tone — Dipping',p:'M20,15 Q50,40 100,40 Q150,40 180,15'},{c:'mà',m:'to scold',t:'4th Tone — Falling',p:'M20,5 Q60,8 100,25 Q140,35 180,40'}];
 const GR = [...(typeof EXTRA_GRAMMAR !== 'undefined' ? EXTRA_GRAMMAR : [])];
 const QZ = [...(typeof EXTRA_QUIZ !== 'undefined' ? EXTRA_QUIZ : [])];
+let quizLevel = 0;
+let filteredQZ = [...QZ].sort(() => Math.random() - 0.5).slice(0, 10);
 const WCH = typeof EXTRA_WRITING_CHARS !== 'undefined' ? EXTRA_WRITING_CHARS : "你好学习中文".split('');
 
 let tutLesson=null,tutStep=0,tutScores=[],srOn=false,recognition=null,micAvailable=false,geminiHistory=[],currentLiveTarget='',suggestedUserTarget=''; let mediaRecorder=null, audioChunks=[], lastUserAudioUrl=null, currentTurnId='', userAudioEl=null, activeMicStream=null; let _cachedChineseVoice=null; const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) || (window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
@@ -10004,7 +10006,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   window.openTutorTopic = function(topic, levelIdx) {
     openTopicLesson(topic, levelIdx);
   };
-  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildHSK();initCv();translateUI();
+  buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildQzLvTabs();resetQuiz();buildHSK();initCv();updateDailyStats();translateUI();
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -10628,7 +10630,7 @@ function processScore(text,sc,target,turnId){
   document.getElementById('tutHint').innerHTML=fb;
   addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">'+t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
   // Gamification: XP per spoken line
-  addXP(2, 'Phrase spoken');
+  addXP(2, 'Phrase spoken'); trackDaily('spoken');
   if (sc === 100) {
     localStorage.setItem('perfect_score_achieved', 'true');
     toast('💯 ' + t('Perfect score!'), 'var(--gold)', 3000);
@@ -10657,7 +10659,7 @@ function finishTutor(){
   document.getElementById('scoreWrap').style.display='none';document.getElementById('tutTip').style.display='none';
   setBtns(false);
   // Gamification: XP for completing lesson
-  addXP(10, 'Lesson completed');
+  addXP(10, 'Lesson completed'); trackDaily('lessons');
   const lessonsDone = parseInt(localStorage.getItem('lessons_completed') || '0') + 1;
   localStorage.setItem('lessons_completed', lessonsDone.toString());
   if (avg >= 80) addXP(5, 'High score bonus');
@@ -10801,7 +10803,7 @@ function buildGrLvTabs() {
     const b = document.createElement('button');
     b.textContent = l;
     b.className = 'px-4 py-2 rounded-full text-xs font-bold border-none cursor-pointer transition' + (i === grammarLevel ? ' on' : '');
-    b.style.cssText = (i === grammarLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--green);color:#fff';
+    b.style.cssText = (i === grammarLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--card2);color:var(--fg)';
     b.onclick = () => { grammarLevel = i; buildGrLvTabs(); buildGr(); };
     c.appendChild(b);
   });
@@ -10878,10 +10880,10 @@ function buildGr(){
 
 // ===== QUIZ SPEECH =====
 function speakQuizWord() {
-  if (typeof QZ !== 'undefined' && typeof qIdx !== 'undefined') {
-    const q = QZ[qIdx];
+  if (typeof filteredQZ !== 'undefined' && typeof qIdx !== 'undefined') {
+    const q = filteredQZ[qIdx];
     if (q && q.c) {
-      speak(q.c, 0.7); // Speak at 0.7 speed
+      speak(q.c, 0.7);
     }
   }
 }
@@ -10904,10 +10906,31 @@ function unlockIOSAudio() {
   }
 }
 
+function buildQzLvTabs() {
+  const c = document.getElementById('qzLvTabs');
+  if (!c) return;
+  c.innerHTML = '';
+  const levels = ['All','HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
+  levels.forEach((l,i) => {
+    const b = document.createElement('button');
+    b.textContent = l;
+    b.className = 'px-4 py-2 rounded-full text-xs font-bold border-none cursor-pointer transition';
+    b.style.cssText = (i === quizLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--card2);color:var(--fg)';
+    b.onclick = () => { quizLevel = i; buildQzLvTabs(); resetQuiz(); };
+    c.appendChild(b);
+  });
+}
+function resetQuiz() {
+  const pool = quizLevel === 0 ? QZ : QZ.filter(q => q.l === quizLevel);
+  filteredQZ = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(10, pool.length));
+  document.getElementById('qSt').style.display = 'block';
+  document.getElementById('qAc').style.display = 'none';
+  document.getElementById('qRe').style.display = 'none';
+}
 function startQ(){qIdx=0;qScore=0;qStartT=Date.now();document.getElementById('qSt').style.display='none';document.getElementById('qAc').style.display='block';document.getElementById('qRe').style.display='none';showQ()}
-function showQ(){const q=QZ[qIdx];document.getElementById('qN').textContent=qIdx+1;document.getElementById('qSc').textContent=qScore+' '+t('pts');document.getElementById('qBr').style.width=((qIdx+1)/10*100)+'%';document.getElementById('qC').textContent=q.c;document.getElementById('qP').textContent=q.p;const o=document.getElementById('qOp');o.innerHTML='';q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='bq';b.textContent=opt;b.onclick=()=>ansQ(i,b);o.appendChild(b)});document.getElementById('qNW').style.display='none'; speakQuizWord();}
-function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===QZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[QZ[qIdx].a].classList.add('ok')}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<9?t('Next')+' <i class="fas fa-arrow-right ml-1.5"></i>':t('See Results')+' <i class="fas fa-trophy ml-1.5"></i>'}
-function nxtQ(){if(qIdx<9){qIdx++;showQ()}else showRes()}
+function showQ(){const q=filteredQZ[qIdx];document.getElementById('qN').textContent=qIdx+1;document.getElementById('qSc').textContent=qScore+' '+t('pts');document.getElementById('qBr').style.width=((qIdx+1)/filteredQZ.length*100)+'%';document.getElementById('qC').textContent=q.c;document.getElementById('qP').textContent=q.p;const o=document.getElementById('qOp');o.innerHTML='';q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='bq';b.textContent=opt;b.onclick=()=>ansQ(i,b);o.appendChild(b)});document.getElementById('qNW').style.display='none';speakQuizWord();}
+function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===filteredQZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[filteredQZ[qIdx].a].classList.add('ok')}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<filteredQZ.length-1?t('Next')+' <i class="fas fa-arrow-right ml-1.5"></i>':t('See Results')+' <i class="fas fa-trophy ml-1.5"></i>'}
+function nxtQ(){if(qIdx<filteredQZ.length-1){qIdx++;showQ()}else showRes()}
 function showRes(){
   const t=Math.round((Date.now()-qStartT)/60000);
   let lv='HSK 1',de=t('Perfect starting point!'),ic='<i class="fas fa-seedling text-3xl" style="color:var(--green)"></i>',vo='150';
@@ -11086,7 +11109,7 @@ function clrCv() {
   initHanziWriter(char);
 }
 function nxtCh(){
-  curWI = (curWI + 1) % WCH.length;
+  trackDaily('chars'); curWI = (curWI + 1) % WCH.length;
   const ch = WCH[curWI];
   const rfCh = document.getElementById('rfCh');
   if (rfCh) rfCh.textContent = ch.c;
@@ -11133,7 +11156,7 @@ function rateFlashcard(score) {
   
   const rates = ["", t("Again (1m)"), t("Hard (12h)"), t("Good (1d)"), t("Easy (4d)")];
   toast(t("Card rescheduled: ") + rates[score], "var(--green)");
-  addXP(1, 'Flashcard review');
+  addXP(1, 'Flashcard review'); trackDaily('words');
   
   nextFlashcard();
 }
@@ -11763,6 +11786,23 @@ function getXP() {
   return parseInt(localStorage.getItem('xp_total') || '0');
 }
 
+function trackDaily(activity) {
+  const today = new Date().toISOString().slice(0,10);
+  const data = JSON.parse(localStorage.getItem('daily_activity') || '{}');
+  if (!data[today]) data[today] = {words:0, chars:0, spoken:0, lessons:0};
+  data[today][activity] = (data[today][activity] || 0) + 1;
+  localStorage.setItem('daily_activity', JSON.stringify(data));
+  updateDailyStats();
+}
+function updateDailyStats() {
+  const today = new Date().toISOString().slice(0,10);
+  const data = JSON.parse(localStorage.getItem('daily_activity') || '{}');
+  const d = data[today] || {words:0, chars:0, spoken:0, lessons:0};
+  ['words','chars','spoken','lessons'].forEach(k => {
+    const el = document.getElementById('stat' + k.charAt(0).toUpperCase() + k.slice(1));
+    if (el) el.textContent = d[k];
+  });
+}
 function addXP(amount, reason) {
   const current = getXP();
   const newTotal = current + amount;
@@ -12866,7 +12906,7 @@ function changeAppLanguage(lang) {
   if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
   buildTutorTabs();
   buildLvTabs();
-  buildGrLvTabs(); buildGr();
+  buildGrLvTabs(); buildGr(); buildQzLvTabs(); resetQuiz(); updateDailyStats();
   buildHSK();
   buildPy();
   buildRadicals();
@@ -12975,7 +13015,7 @@ function toggleLangDropdown(e) {
 }
 
 function changeTheme(themeName) {
-  document.documentElement.classList.remove('theme-jade', 'theme-sapphire', 'theme-amber');
+  document.documentElement.classList.remove('theme-jade', 'theme-sapphire', 'theme-amber', 'theme-light');
   if (themeName !== 'default') {
     document.documentElement.classList.add('theme-' + themeName);
   }
