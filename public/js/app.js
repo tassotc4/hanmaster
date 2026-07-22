@@ -10792,19 +10792,20 @@ else {
 function playPy(el,py){document.querySelectorAll('.pyc.pl').forEach(e=>e.classList.remove('pl'));if(el&&el.classList)el.classList.add('pl');speak(py);setTimeout(()=>{if(el&&el.classList)el.classList.remove('pl')},600)}
 
 // ===== GRAMMAR =====
-let grammarLevel = 0;
+let grammarLevel = 1;
 
 function buildGrLvTabs() {
   const c = document.getElementById('grLvTabs');
   if (!c) return;
   c.innerHTML = '';
-  const levels = ['All','HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
+  const levels = ['HSK 1','HSK 2','HSK 3','HSK 4','HSK 5','HSK 6','HSK 7','HSK 8','HSK 9'];
   levels.forEach((l,i) => {
+    const idx = i + 1;
     const b = document.createElement('button');
     b.textContent = l;
-    b.className = 'px-4 py-2 rounded-full text-xs font-bold border-none cursor-pointer transition' + (i === grammarLevel ? ' on' : '');
-    b.style.cssText = (i === grammarLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--card2);color:var(--fg)';
-    b.onclick = () => { grammarLevel = i; buildGrLvTabs(); buildGr(); };
+    b.className = 'px-4 py-2 rounded-full text-xs font-bold border-none cursor-pointer transition' + (idx === grammarLevel ? ' on' : '');
+    b.style.cssText = (idx === grammarLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--card2);color:var(--fg)';
+    b.onclick = () => { grammarLevel = idx; buildGrLvTabs(); buildGr(); };
     c.appendChild(b);
   });
 }
@@ -10821,7 +10822,7 @@ function buildGr(){
   if (!g) return;
   g.innerHTML = '';
   
-  const filtered = grammarLevel === 0 ? GR : GR.filter(gr => {
+  const filtered = GR.filter(gr => {
     const lvNum = parseInt(gr.lv.replace('HSK ',''));
     return lvNum === grammarLevel;
   });
