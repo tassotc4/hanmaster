@@ -821,6 +821,24 @@
 <div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg flex items-center justify-center fc font-black" style="background:var(--accent);color:#fff;font-size:12px">汉</div><span class="font-bold text-sm">MandarinCourse</span><span class="text-xs" style="color:var(--muted)">&copy; 2026</span></div>
 </div></footer>
 
+<!-- ===== PODCAST PLAYER ===== -->
+<div id="podcastPlayer" class="fixed bottom-0 left-0 right-0 z-[99] transition-transform duration-300" style="transform:translateY(100%);background:var(--card);border-top:1px solid var(--border);padding:8px 16px max(env(safe-area-inset-bottom),8px)">
+  <div class="max-w-4xl mx-auto flex items-center gap-3">
+    <div class="flex-1 min-w-0">
+      <div class="h-1 rounded-full mb-2" style="background:var(--card2)"><div class="h-full rounded-full transition-all" id="podProgress" style="width:0%;background:var(--accent)"></div></div>
+      <div class="text-xs font-semibold truncate" id="podTitle" style="color:var(--fg)">—</div>
+      <div class="text-[10px] truncate" id="podSub" style="color:var(--muted)">—</div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button onclick="podPrev()" class="w-7 h-7 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--muted);outline:none" id="podPrevBtn"><i class="fas fa-backward-step text-xs"></i></button>
+      <button onclick="podToggle()" class="w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--accent);color:#fff;outline:none" id="podPlayBtn"><i class="fas fa-play text-sm"></i></button>
+      <button onclick="podNext()" class="w-7 h-7 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--muted);outline:none" id="podNextBtn"><i class="fas fa-forward-step text-xs"></i></button>
+      <button onclick="podSpeed()" class="text-[10px] font-bold px-2 py-1 rounded border-none cursor-pointer" style="background:var(--card2);color:var(--gold);outline:none" id="podSpeedBtn">1.0x</button>
+      <button onclick="podClose()" class="w-7 h-7 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--muted);outline:none"><i class="fas fa-xmark text-xs"></i></button>
+    </div>
+  </div>
+</div>
+
 <div class="mn">
 <button class="mnb act" data-tr="Tutor" onclick="navTo('#tutor', this)"><i class="fas fa-microphone"></i>Tutor</button>
 <button class="mnb" data-tr="Lessons" onclick="navTo('#lessons', this)"><i class="fas fa-book-open"></i>Lessons</button>

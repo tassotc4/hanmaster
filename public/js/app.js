@@ -10728,7 +10728,7 @@ function buildTopics(){
     const d=document.createElement('div');
     d.className='cd p-5 cursor-pointer';
     d.onclick=()=>openTopicLesson(topicName);
-    d.innerHTML='<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t(topicName)+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' '+t('lessons')+'</p></div><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:'+(lv.dn?'rgba(56,169,106,.1)':'rgba(212,166,79,.1)')+';color:'+(lv.dn?'var(--green)':'var(--gold)')+'">'+done+'/'+ls.length+'</span></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+(done/ls.length*100)+'%;background:'+(lv.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div>';
+    d.innerHTML='<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t(topicName)+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' '+t('lessons')+'</p></div><div class="flex items-center gap-2"><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:'+(lv.dn?'rgba(56,169,106,.1)':'rgba(212,166,79,.1)')+';color:'+(lv.dn?'var(--green)':'var(--gold)')+'">'+done+'/'+ls.length+'</span><button onclick="event.stopPropagation();podcastTopic(\''+topicName+'\')" class="w-7 h-7 rounded-full flex items-center justify-center border-none cursor-pointer transition-opacity hover:opacity-80" style="background:var(--card2);color:var(--accent);outline:none" title="'+t('Listen')+'"><i class="fas fa-headphones text-xs"></i></button></div></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+(done/ls.length*100)+'%;background:'+(lv.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div>';
     g.appendChild(d);
   });
 }
@@ -12526,6 +12526,169 @@ function updatePremiumUI() {
   buildHSK();
 }
 
+// ===== PODCAST MODE =====
+let podQueue = [];
+let podIdx = 0;
+let podLineIdx = 0;
+let podPlaying = false;
+let podSpeedRate = 1.0;
+let podTimer = null;
+
+function podcastTopic(topicName) {
+  const lessonTitles = TD[topicName];
+  if (!lessonTitles) return toast(t('No lessons for this topic'), 'var(--accent2)');
+  const lessons = [];
+  lessonTitles.forEach(function(title) {
+    const found = TL.find(function(l) { return l.title === title; });
+    if (found) lessons.push(found);
+  });
+  if (lessons.length === 0) return toast(t('No lesson data found'), 'var(--accent2)');
+  podQueue = lessons;
+  podIdx = 0;
+  podLineIdx = 0;
+  showPodcastPlayer();
+  updatePodDisplay();
+  podPlay();
+}
+
+function showPodcastPlayer() {
+  const el = document.getElementById('podcastPlayer');
+  if (el) el.style.transform = 'translateY(0)';
+  const mn = document.querySelector('.mn');
+  if (mn) mn.style.bottom = '84px';
+}
+
+function hidePodcastPlayer() {
+  const el = document.getElementById('podcastPlayer');
+  if (el) el.style.transform = 'translateY(100%)';
+  const mn = document.querySelector('.mn');
+  if (mn) mn.style.bottom = '0';
+  podStop();
+}
+
+function podPlay() {
+  if (podQueue.length === 0) return;
+  podPlaying = true;
+  var btn = document.getElementById('podPlayBtn');
+  if (btn) btn.innerHTML = '<i class="fas fa-pause text-sm"></i>';
+  podPlayLine();
+}
+
+function podPause() {
+  podPlaying = false;
+  var btn = document.getElementById('podPlayBtn');
+  if (btn) btn.innerHTML = '<i class="fas fa-play text-sm"></i>';
+  if (podTimer) { clearTimeout(podTimer); podTimer = null; }
+  try { if (!isMobileDevice) window.speechSynthesis.cancel(); } catch(e) {}
+}
+
+function podToggle() {
+  if (podPlaying) podPause();
+  else podPlay();
+}
+
+function podStop() {
+  podPause();
+  podQueue = [];
+  podIdx = 0;
+  podLineIdx = 0;
+}
+
+function podNext() {
+  try { window.speechSynthesis.cancel(); } catch(e) {}
+  if (podTimer) { clearTimeout(podTimer); podTimer = null; }
+  podIdx = Math.min(podIdx + 1, podQueue.length - 1);
+  podLineIdx = 0;
+  updatePodDisplay();
+  if (podPlaying) setTimeout(function() { podPlayLine(); }, 300);
+}
+
+function podPrev() {
+  try { window.speechSynthesis.cancel(); } catch(e) {}
+  if (podTimer) { clearTimeout(podTimer); podTimer = null; }
+  podIdx = Math.max(podIdx - 1, 0);
+  podLineIdx = 0;
+  updatePodDisplay();
+  if (podPlaying) setTimeout(function() { podPlayLine(); }, 300);
+}
+
+function podSpeed() {
+  var rates = [0.5, 0.7, 1.0, 1.25, 1.5, 2.0];
+  var cur = rates.indexOf(podSpeedRate);
+  podSpeedRate = rates[(cur + 1) % rates.length];
+  var btn = document.getElementById('podSpeedBtn');
+  if (btn) btn.textContent = podSpeedRate + 'x';
+}
+
+function updatePodDisplay() {
+  var lesson = podQueue[podIdx];
+  if (!lesson) return;
+  var titleEl = document.getElementById('podTitle');
+  var subEl = document.getElementById('podSub');
+  var progEl = document.getElementById('podProgress');
+  if (titleEl) titleEl.textContent = t(lesson.title);
+  if (subEl) subEl.textContent = lesson.level + ' \u00B7 ' + (podIdx + 1) + '/' + podQueue.length;
+  if (progEl) progEl.style.width = ((podIdx) / Math.max(1, podQueue.length - 1) * 100) + '%';
+}
+
+function podSpeak(text, lang, cb) {
+  if (!window.speechSynthesis) { if (cb) cb(); return; }
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = lang || 'zh-CN';
+  u.rate = podSpeedRate;
+  if (lang !== 'en-US') {
+    var voice = getChineseVoice();
+    if (voice) u.voice = voice;
+  }
+  u.onend = function() { if (cb) cb(); };
+  u.onerror = function() { if (cb) cb(); };
+  try { speechSynthesis.speak(u); } catch(e) { if (cb) cb(); }
+}
+
+function podPlayLine() {
+  if (!podPlaying) return;
+  var lesson = podQueue[podIdx];
+  if (!lesson) { podPause(); return; }
+  var lines = lesson.dialogue;
+  if (!lines || podLineIdx >= lines.length) {
+    if (podIdx < podQueue.length - 1) {
+      podIdx++;
+      podLineIdx = 0;
+      updatePodDisplay();
+      podTimer = setTimeout(function() { podPlayLine(); }, 1000);
+    } else {
+      podPause();
+      var progEl = document.getElementById('podProgress');
+      if (progEl) progEl.style.width = '100%';
+      toast(t('Podcast complete!') + ' \u{1F44D}', 'var(--gold)');
+    }
+    return;
+  }
+  var line = lines[podLineIdx];
+  podSpeak(line.cn, 'zh-CN', function() {
+    podSpeak(line.en, 'en-US', function() {
+      podLineIdx++;
+      var totalLines = 0;
+      var passedLines = 0;
+      for (var i = 0; i < podQueue.length; i++) {
+        var ls = podQueue[i].dialogue;
+        if (!ls) continue;
+        if (i < podIdx) passedLines += ls.length;
+        else if (i === podIdx) passedLines += podLineIdx;
+        totalLines += ls.length;
+      }
+      var pct = totalLines > 0 ? (passedLines / totalLines) * 100 : 0;
+      var progEl = document.getElementById('podProgress');
+      if (progEl) progEl.style.width = pct + '%';
+      podTimer = setTimeout(function() { podPlayLine(); }, 500);
+    });
+  });
+}
+
+function podClose() {
+  podStop();
+  hidePodcastPlayer();
+}
 // ===== FLOATING DIAGNOSTICS CONSOLE LOGGING =====
 const logs = [];
 

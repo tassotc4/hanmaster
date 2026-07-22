@@ -48,7 +48,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 .srs{width:48px;height:48px;border-radius:50%;border:2px solid var(--blue);background:rgba(72,152,213,.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
 .srs:hover{background:rgba(72,152,213,.15);transform:scale(1.08)}
 .ldd{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
-.mn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(13,10,8,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:90;padding:6px 0 max(env(safe-area-inset-bottom),6px)}
+.mn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(13,10,8,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:90;padding:6px 0 max(env(safe-area-inset-bottom),6px);transition:bottom .3s}
 @media(max-width:768px){.mn{display:flex}.dn{display:none!important}body{padding-bottom:68px}}
 .mnb{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 2px;color:var(--muted);font-size:9px;font-weight:700;cursor:pointer;transition:color .25s;background:none;border:none;font-family:inherit}
 .mnb.act{color:var(--accent)}.mnb i{font-size:18px}
