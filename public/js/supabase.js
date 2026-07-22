@@ -9,6 +9,12 @@ function initSupabase() {
   checkSession();
 }
 
+function applyAdminStatus(email) {
+  if (email === MANDARINCOURSE_CONFIG.ADMIN_EMAIL) {
+    localStorage.setItem('is_premium', 'true');
+  }
+}
+
 async function checkSession() {
   if (!supabaseClient) return;
   const { data: { session } } = await supabaseClient.auth.getSession();
@@ -19,6 +25,9 @@ async function checkSession() {
     document.getElementById('navSignInBtn').style.display = 'none';
     document.getElementById('navUserInfo').style.display = 'flex';
     document.getElementById('navUserEmail').textContent = session.user.email;
+    applyAdminStatus(session.user.email);
+    updatePremiumUI();
+    buildLvTabs();
     syncProgressFromCloud(session.user.id);
   }
 }
@@ -43,6 +52,9 @@ async function signInWithEmail(email, password) {
     document.getElementById('navSignInBtn').style.display = 'none';
     document.getElementById('navUserInfo').style.display = 'flex';
     document.getElementById('navUserEmail').textContent = session.user.email;
+    applyAdminStatus(session.user.email);
+    updatePremiumUI();
+    buildLvTabs();
     syncProgressFromCloud(session.user.id);
   }
   closeAuthModal();
