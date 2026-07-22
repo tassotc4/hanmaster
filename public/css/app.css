@@ -19,6 +19,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 .sl::before{content:'';width:22px;height:2px;background:var(--gold);border-radius:1px}
 .pf{height:100%;border-radius:3px;transition:width .5s ease}
 .tb{padding:8px 16px;border-radius:10px;font-weight:600;font-size:12px;cursor:pointer;transition:all .25s;background:transparent;color:var(--muted);border:none;font-family:inherit;white-space:nowrap}
+.scrollbar-none{scrollbar-width:none;-ms-overflow-style:none;touch-action:pan-x;overscroll-behavior-x:contain}
+.scrollbar-none::-webkit-scrollbar{display:none}
 .tb.on{background:var(--accent);color:#fff}.tb:hover:not(.on){color:var(--fg);background:var(--card2)}
 .tb-select{width:100%;padding:10px 14px;border-radius:12px;font-size:14px;font-weight:600;outline:none;font-family:inherit;background:var(--card2);border:1.5px solid var(--border);color:var(--fg);cursor:pointer;margin-bottom:10px}
 .hc{position:absolute;font-family:'Noto Serif SC',serif;color:rgba(200,53,37,.04);font-weight:900;animation:cu 28s infinite linear;pointer-events:none}
