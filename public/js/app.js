@@ -11112,13 +11112,9 @@ function nxtCh(){
   trackDaily('chars'); curWI = (curWI + 1) % WCH.length;
   const ch = WCH[curWI];
   const rfCh = document.getElementById('rfCh');
-  if (rfCh) rfCh.textContent = ch.c;
-  const rfPy = document.getElementById('rfPy');
-  if (rfPy) rfPy.textContent = ch.py;
-  const rfMn = document.getElementById('rfMn');
-  if (rfMn) rfMn.textContent = ch.m;
+  if (rfCh && ch) rfCh.textContent = ch;
   clrCv();
-  speak(ch.c, 0.7);
+  if (ch) speak(ch, 0.7);
 }
 function toggleWriteOutline() {
   const toggle = document.getElementById('writeOutlineToggle');
