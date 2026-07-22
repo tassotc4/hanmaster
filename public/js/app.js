@@ -10711,11 +10711,9 @@ function buildLvTabs(){const c=document.getElementById('lvTabs');if(!c)return;c.
         showPremiumPaywall('HSK ' + (i + 1));
         return;
       }
-      if (lessonsMode === 'topics') {
-        buildTopics();
-      } else {
-        buildFlashcards();
-      }
+      if (lessonsMode === 'topics') buildTopics();
+      else if (lessonsMode === 'podcast') buildPodcastTopics();
+      else buildFlashcards();
     };c.appendChild(b)})}
 function buildTopics(){
   const g=document.getElementById('tpGrid');
@@ -12109,14 +12107,16 @@ function switchLessonsMode(mode) {
   const topicsBtn = document.getElementById('modeTopicsBtn');
   const flashcardsBtn = document.getElementById('modeFlashcardsBtn');
   const radicalsBtn = document.getElementById('modeRadicalsBtn');
+  const podcastBtn = document.getElementById('modePodcastBtn');
   
-  if (topicsCon) topicsCon.style.display = (mode === 'topics') ? 'grid' : 'none';
+  if (topicsCon) topicsCon.style.display = (mode === 'topics' || mode === 'podcast') ? 'grid' : 'none';
   if (flashcardsCon) flashcardsCon.style.display = (mode === 'flashcards') ? 'block' : 'none';
   if (radicalsCon) radicalsCon.style.display = (mode === 'radicals') ? 'block' : 'none';
   
   if (topicsBtn) { if (mode === 'topics') topicsBtn.classList.add('on'); else topicsBtn.classList.remove('on'); }
   if (flashcardsBtn) { if (mode === 'flashcards') flashcardsBtn.classList.add('on'); else flashcardsBtn.classList.remove('on'); }
   if (radicalsBtn) { if (mode === 'radicals') radicalsBtn.classList.add('on'); else radicalsBtn.classList.remove('on'); }
+  if (podcastBtn) { if (mode === 'podcast') podcastBtn.classList.add('on'); else podcastBtn.classList.remove('on'); }
   
   if (mode === 'topics') {
     buildTopics();
@@ -12124,6 +12124,8 @@ function switchLessonsMode(mode) {
     buildFlashcards();
   } else if (mode === 'radicals') {
     buildRadicals();
+  } else if (mode === 'podcast') {
+    buildPodcastTopics();
   }
 }
 
@@ -12394,7 +12396,9 @@ async function subscribePremium() {
           localStorage.setItem('is_premium', 'true');
           togglePremiumModal();
           updatePremiumUI();
-          if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
+          if (lessonsMode === 'topics') buildTopics();
+          else if (lessonsMode === 'podcast') buildPodcastTopics();
+          else buildFlashcards();
           toast("Purchase successful! Welcome to Premium.", "var(--green)");
         } else {
           toast("Entitlement activation failed.", "var(--accent)");
@@ -12413,11 +12417,9 @@ async function subscribePremium() {
       localStorage.setItem('is_premium', 'true');
       togglePremiumModal();
       updatePremiumUI();
-      if (lessonsMode === 'topics') {
-        buildTopics();
-      } else {
-        buildFlashcards();
-      }
+      if (lessonsMode === 'topics') buildTopics();
+      else if (lessonsMode === 'podcast') buildPodcastTopics();
+      else buildFlashcards();
       toast("Welcome to MandarinCourse Premium! HSK 1-9 Unlocked.", "var(--green)");
     }, 1200);
   }
@@ -12549,6 +12551,21 @@ function podcastTopic(topicName) {
   showPodcastPlayer();
   updatePodDisplay();
   podPlay();
+}
+
+function buildPodcastTopics() {
+  const g = document.getElementById('tpGrid');
+  if (!g) return;
+  g.innerHTML = '';
+  const lv = LV[curLv];
+  lv.tp.forEach(function(topicName) {
+    const ls = TD[topicName] || ['L1','L2','L3'];
+    const d = document.createElement('div');
+    d.className = 'cd p-5 cursor-pointer';
+    d.onclick = function() { podcastTopic(topicName); };
+    d.innerHTML = '<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t(topicName)+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' '+t('lessons')+'</p></div><span class="w-8 h-8 rounded-full flex items-center justify-center" style="background:var(--accent);color:#fff"><i class="fas fa-play text-xs"></i></span></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div style="width:0%;height:100%;background:var(--accent);border-radius:2px;transition:width .3s"></div></div><div class="text-[10px] font-semibold mt-2" style="color:var(--muted)"><i class="fas fa-headphones mr-1"></i>'+t('Tap to listen to all lessons')+'</div>';
+    g.appendChild(d);
+  });
 }
 
 function showPodcastPlayer() {
@@ -13069,7 +13086,9 @@ function changeAppLanguage(lang) {
   localStorage.setItem('app_lang', lang);
   
   // Re-build all visual elements to apply translations instantly
-  if (lessonsMode === 'topics') buildTopics(); else buildFlashcards();
+  if (lessonsMode === 'topics') buildTopics();
+  else if (lessonsMode === 'podcast') buildPodcastTopics();
+  else buildFlashcards();
   buildTutorTabs();
   buildLvTabs();
   buildGrLvTabs(); buildGr(); buildQzLvTabs(); resetQuiz(); updateDailyStats();
