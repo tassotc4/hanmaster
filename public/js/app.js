@@ -10961,9 +10961,9 @@ function buildHSK(){
     const isPremium = (localStorage.getItem('is_premium') === 'true');
     let cls = 'background:var(--card2);color:var(--muted)';
     if (isPremium) {
-      cls = (i === curLv) ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(200,53,37,.3)' : 'background:var(--green);color:#fff';
+      cls = (i === curLv) ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(var(--st),.3)' : 'background:var(--green);color:#fff';
     } else {
-      cls = i < 1 ? 'background:var(--green);color:#fff' : i === 1 ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(200,53,37,.3)' : 'background:var(--card2);color:var(--muted)';
+      cls = i < 1 ? 'background:var(--green);color:#fff' : i === 1 ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(var(--st),.3)' : 'background:var(--card2);color:var(--muted)';
     }
     
     // Container wrapper for card + collapsible words list
@@ -10973,7 +10973,7 @@ function buildHSK(){
     // Level Card
     const d = document.createElement('div');
     d.className = 'cd p-4 flex items-center gap-4 cursor-pointer';
-    d.innerHTML = '<div class="ldd" style="'+cls+'">'+(i+1)+'</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><h4 class="font-bold text-sm">'+t(l.n)+'</h4>'+(i===2?'<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(200,53,37,.1);color:var(--accent)">'+t('Current')+'</span>':'')+'</div><p class="text-xs mb-2" style="color:var(--muted)">'+t(l.d)+' ('+t('Click to view vocabulary')+')</p><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+l.pc+'%;background:'+(l.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div></div><div class="text-right flex-shrink-0"><div class="text-sm font-bold" style="color:'+(l.dn?'var(--green)':'var(--gold)')+'">'+l.pc+'%</div><div class="text-xs" style="color:var(--muted)">'+t(l.ls)+'</div></div>';
+    d.innerHTML = '<div class="ldd" style="'+cls+'">'+(i+1)+'</div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 mb-0.5"><h4 class="font-bold text-sm">'+t(l.n)+'</h4>'+(i===2?'<span class="text-xs px-2 py-0.5 rounded-full" style="background:rgba(var(--st),.1);color:var(--accent)">'+t('Current')+'</span>':'')+'</div><p class="text-xs mb-2" style="color:var(--muted)">'+t(l.d)+' ('+t('Click to view vocabulary')+')</p><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+l.pc+'%;background:'+(l.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div></div><div class="text-right flex-shrink-0"><div class="text-sm font-bold" style="color:'+(l.dn?'var(--green)':'var(--gold)')+'">'+l.pc+'%</div><div class="text-xs" style="color:var(--muted)">'+t(l.ls)+'</div></div>';
     
     // Collapsible Words list
     const wordsDiv = document.createElement('div');
@@ -12732,7 +12732,7 @@ function startComparisonRecord() {
       const btn = document.getElementById('compRecBtn');
       const ic = document.getElementById('compRecIc');
       if (btn && ic) {
-        btn.style.background = 'rgba(200,53,37,.1)';
+        btn.style.background = 'rgba(var(--st),.1)';
         btn.style.color = 'var(--accent)';
         ic.className = 'fas fa-stop text-[8px]';
       }
@@ -12816,7 +12816,7 @@ function renderGrPracticeGrid() {
   currentGrAnswer.forEach((char, idx) => {
     const btn = document.createElement('button');
     btn.className = 'px-3 py-1.5 rounded-lg text-sm font-bold border border-[var(--accent)] cursor-pointer text-white';
-    btn.style.background = 'rgba(200,53,37,.1)';
+    btn.style.background = 'rgba(var(--st),.1)';
     btn.onclick = () => {
       currentGrScrambled.push(char);
       currentGrAnswer.splice(idx, 1);
