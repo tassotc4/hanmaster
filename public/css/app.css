@@ -78,7 +78,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 .theme-jade { --accent: #2e8b57 !important; --accent2: #3cb371 !important; }
 .theme-sapphire { --accent: #1e90ff !important; --accent2: #00bfff !important; }
 .theme-amber { --accent: #ff8c00 !important; --accent2: #ffa500 !important; }
-.theme-light { --bg: #FFF8F5 !important; --bg2: #FFF0EB !important; --card: #FFFFFF !important; --card2: #FFF0EB !important; --border: #F5DDD0 !important; --fg: #3A2A1E !important; --fg2: #7A6B5D !important; --muted: #B5A597 !important; --accent: #0d7377 !important; --accent2: #14919b !important; --st: 13,115,119 !important; }
+.theme-light { --bg: #F5F3F0 !important; --bg2: #EDEAE5 !important; --card: #FFFFFF !important; --card2: #EDEAE5 !important; --border: #DDD8D0 !important; --fg: #2D2823 !important; --fg2: #7A7269 !important; --muted: #B0A89E !important; --accent: #0d7377 !important; --accent2: #14919b !important; --st: 13,115,119 !important; }
+.theme-light #langDropdown button,
+.theme-light #themeDropdown button { color: var(--fg) !important; }
+.theme-light #langDropdown button:hover,
+.theme-light #themeDropdown button:hover { color: var(--fg) !important; }
+.theme-light .nb { background: rgba(245,243,240,.95) !important; }
 
 .cd:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(var(--st), 0.15); border-color: var(--accent) !important; }
 .float-char { position: absolute; font-family: 'Noto Serif SC', serif; color: rgba(245, 237, 230, 0.025); font-weight: 800; pointer-events: none; z-index: 1; animation: floatUp 15s linear infinite; }
