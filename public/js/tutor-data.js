@@ -201,7 +201,7 @@ const EXTRA_TUTOR_LESSONS = [
     {who:"bot",cn:"还有哪些因素影响了经济增长？",en:"What other factors have affected economic growth?"},
     {who:"you",cn:"技术创新和政府政策是两个重要因素。",en:"Technological innovation and government policy are two important factors."},
     {who:"bot",cn:"请综合对比一下今年和去年的数据。",en:"Please do a comprehensive comparison of this year's and last year's data."},
-    {who:"you",cn":"经过综合评估，今年的增长率比去年提高了约百分之五。",en:"After comprehensive assessment, this year's growth rate has increased by about 5 percent compared to last year."}
+    {who:"you",cn:"经过综合评估，今年的增长率比去年提高了约百分之五。",en:"After comprehensive assessment, this year's growth rate has increased by about 5 percent compared to last year."}
   ]},
   {title:"Research",level:"HSK 7",icon:"fa-flask",
   words:[

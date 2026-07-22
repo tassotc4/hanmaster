@@ -10627,6 +10627,15 @@ function processScore(text,sc,target,turnId){
   let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> '+t('Great!')+'</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> '+t('Getting there')+'</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> '+t('Keep practicing')+'</span>';
   document.getElementById('tutHint').innerHTML=fb;
   addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">'+t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  // Gamification: XP per spoken line
+  addXP(2, 'Phrase spoken');
+  if (sc === 100) {
+    localStorage.setItem('perfect_score_achieved', 'true');
+    toast('💯 ' + t('Perfect score!'), 'var(--gold)', 3000);
+    addXP(5, 'Perfect score');
+    checkBadges();
+  }
+  
   if (localStorage.getItem('tutor_mode') === 'live') {
     setTimeout(() => {
       sendToGemini(text);
@@ -10647,6 +10656,12 @@ function finishTutor(){
   document.getElementById('tutWd').textContent='--';document.getElementById('tutWp').textContent='--';document.getElementById('tutWm').textContent='--';
   document.getElementById('scoreWrap').style.display='none';document.getElementById('tutTip').style.display='none';
   setBtns(false);
+  // Gamification: XP for completing lesson
+  addXP(10, 'Lesson completed');
+  const lessonsDone = parseInt(localStorage.getItem('lessons_completed') || '0') + 1;
+  localStorage.setItem('lessons_completed', lessonsDone.toString());
+  if (avg >= 80) addXP(5, 'High score bonus');
+  checkBadges();
 }
 
 function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
@@ -10883,7 +10898,12 @@ function showRes(){
     lv='HSK 2';de=t('Ready for HSK 2!');ic='<i class="fas fa-book text-3xl" style="color:var(--blue)"></i>';vo='300';
     recommendedLvIdx = 1;
   }
-document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m'}
+document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m'
+  // Gamification: XP for completing test
+  addXP(Math.round(qScore / 2), 'Level test');
+  if (qScore >= 80) addXP(10, 'Excellent test score');
+  checkBadges();
+}
 function rstQ(){document.getElementById('qRe').style.display='none';document.getElementById('qSt').style.display='block'}
 
 // ===== HSK =====
@@ -11091,6 +11111,7 @@ function rateFlashcard(score) {
   
   const rates = ["", t("Again (1m)"), t("Hard (12h)"), t("Good (1d)"), t("Easy (4d)")];
   toast(t("Card rescheduled: ") + rates[score], "var(--green)");
+  addXP(1, 'Flashcard review');
   
   nextFlashcard();
 }
@@ -11569,6 +11590,15 @@ function sendToGemini(userText) {
     addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
     speak(cleanReply);
     
+    // Auto-listen in Voice Mode
+    if (voiceModeActive) {
+      setTimeout(() => {
+        if (voiceModeActive && !srOn) {
+          tutSpeak();
+        }
+      }, 2000);
+    }
+    
     // Immersive Roleplay Status Updates for Live Mode
     let botRole = "Tutor", userRole = "Student";
     if (isRoleplayActive) {
@@ -11604,6 +11634,306 @@ function useHint() {
     input.value = suggestedUserTarget;
   }
   toast(t("Hint selected! Speak now or click Submit."), "var(--gold)");
+}
+
+// ===== AI GRAMMAR CHECK =====
+function grammarCheck() {
+  const input = document.getElementById('grammarInput');
+  const text = input ? input.value.trim() : '';
+  if (!text) { toast(t('Please enter Chinese text to check'), 'var(--gold)'); return; }
+  
+  const btn = document.getElementById('grammarCheckBtn');
+  if (btn) btn.disabled = true;
+  const loaderId = 'gc-' + Date.now();
+  const resultDiv = document.getElementById('grammarResult');
+  if (resultDiv) resultDiv.innerHTML = '<div id="' + loaderId + '" class="animate-pulse" style="padding:12px"><i class="fas fa-spinner fa-spin mr-2"></i>' + t('Analyzing grammar...') + '</div>';
+  
+  const langName = currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
+  
+  const payload = {
+    contents: [{ role: "user", parts: [{ text: text }] }],
+    systemInstruction: "You are a professional Chinese grammar tutor. Analyze the Chinese text below and provide clear grammar feedback. Format your response in " + langName + " as:\n\n**📝 Original Text**: [the text]\n\n**✅ Issues Found**: (list each issue with the incorrect part, correction, and grammar rule in simple terms. If no issues, write: No grammar issues found! Your Chinese looks great!)\n\n**💡 Tips**: (1-2 practical grammar tips related to the text)\n\n**✨ Improved Version**: (a corrected version if needed, otherwise: None needed — it's correct!)\n\nBe concise and encouraging. Use the learner's native language (" + langName + ") for explanations."
+  };
+  
+  fetch('/api/chat', {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then(res => {
+    if (!res.ok) return res.json().then(errData => { throw new Error(errData.error?.error?.message || errData.error?.message || errData.error || "HTTP " + res.status); });
+    return res.json();
+  })
+  .then(data => {
+    const el = document.getElementById(loaderId);
+    if (el) el.remove();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '(No response)';
+    if (resultDiv) resultDiv.innerHTML = '<div class="cd p-4 rounded-xl" style="background:var(--card2);border:1px solid var(--border);line-height:1.7">' + reply.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') + '</div>';
+    if (btn) btn.disabled = false;
+    // Save to history
+    saveGrammarCheck(text, reply);
+    addXP(3, 'Grammar check');
+    toast(t('Grammar analysis complete! +3 XP'), 'var(--green)');
+  })
+  .catch(err => {
+    console.error("Grammar Check Error:", err);
+    const el = document.getElementById(loaderId);
+    if (el) el.remove();
+    if (resultDiv) resultDiv.innerHTML = '<div style="color:var(--accent);padding:8px">⚠️ ' + t('Error checking grammar: ') + err.message + '</div>';
+    if (btn) btn.disabled = false;
+  });
+}
+
+function saveGrammarCheck(text, result) {
+  let history = JSON.parse(localStorage.getItem('grammar_history') || '[]');
+  history.unshift({ text: text.substring(0, 100), result: result.substring(0, 200), time: Date.now() });
+  if (history.length > 10) history = history.slice(0, 10);
+  localStorage.setItem('grammar_history', JSON.stringify(history));
+  showGrammarHistory();
+}
+
+function showGrammarHistory() {
+  const container = document.getElementById('grammarHistory');
+  const list = document.getElementById('grammarHistoryList');
+  if (!container || !list) return;
+  const history = JSON.parse(localStorage.getItem('grammar_history') || '[]');
+  if (history.length === 0) { container.style.display = 'none'; return; }
+  container.style.display = 'block';
+  list.innerHTML = history.map((item, i) => {
+    const date = new Date(item.time);
+    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return '<div class="cd p-2.5 rounded-xl" style="background:var(--card2);border:1px solid var(--border);cursor:pointer" onclick="document.getElementById(\'grammarInput\').value=\'' + item.text.replace(/'/g, "\\'") + '\';grammarCheck()"><div class="font-medium text-sm" style="color:var(--fg2)">' + item.text + '</div><div class="text-[10px]" style="color:var(--muted)">' + dateStr + '</div></div>';
+  }).join('');
+}
+
+// ===== VOICE MODE AUTO-LISTEN =====
+let voiceModeActive = false;
+
+function toggleVoiceMode() {
+  voiceModeActive = !voiceModeActive;
+  localStorage.setItem('voice_mode', voiceModeActive ? 'on' : 'off');
+  const btn = document.getElementById('tutVoiceModeBtn');
+  const label = document.getElementById('tutVoiceModeLabel');
+  if (voiceModeActive) {
+    if (btn) { btn.style.background = 'var(--green)'; btn.style.color = '#fff'; }
+    if (label) label.textContent = t('On');
+    toast(t('Voice Mode ON — AI will auto-listen after each response'), 'var(--green)');
+  } else {
+    if (btn) { btn.style.background = 'var(--card2)'; btn.style.color = 'var(--muted)'; }
+    if (label) label.textContent = t('Voice');
+    toast(t('Voice Mode OFF'), 'var(--gold)');
+  }
+}
+
+function initVoiceMode() {
+  const saved = localStorage.getItem('voice_mode');
+  if (saved === 'on') {
+    voiceModeActive = true;
+    const btn = document.getElementById('tutVoiceModeBtn');
+    const label = document.getElementById('tutVoiceModeLabel');
+    if (btn) { btn.style.background = 'var(--green)'; btn.style.color = '#fff'; }
+    if (label) label.textContent = 'On';
+  }
+}
+
+// ===== GAMIFICATION SYSTEM =====
+function getXP() {
+  return parseInt(localStorage.getItem('xp_total') || '0');
+}
+
+function addXP(amount, reason) {
+  const current = getXP();
+  const newTotal = current + amount;
+  localStorage.setItem('xp_total', newTotal.toString());
+  // Track XP by source
+  const sources = JSON.parse(localStorage.getItem('xp_sources') || '{}');
+  sources[reason || 'general'] = (sources[reason || 'general'] || 0) + amount;
+  localStorage.setItem('xp_sources', JSON.stringify(sources));
+  updateGamificationDisplay();
+  // Check level up
+  const oldLevel = getLevel(current);
+  const newLevel = getLevel(newTotal);
+  if (newLevel > oldLevel) {
+    toast('🎉 ' + t('Level Up! You reached Level ') + newLevel + '!', 'var(--gold)', 4000);
+    checkBadges();
+  }
+}
+
+function getLevel(xp) {
+  if (xp >= 5000) return 20;
+  if (xp >= 4000) return 18;
+  if (xp >= 3000) return 15;
+  if (xp >= 2000) return 12;
+  if (xp >= 1500) return 10;
+  if (xp >= 1000) return 8;
+  if (xp >= 750) return 7;
+  if (xp >= 500) return 6;
+  if (xp >= 350) return 5;
+  if (xp >= 200) return 4;
+  if (xp >= 100) return 3;
+  if (xp >= 50) return 2;
+  return 1;
+}
+
+function getXPForNextLevel(xp) {
+  const level = getLevel(xp);
+  const thresholds = [0, 50, 100, 200, 350, 500, 750, 1000, 1500, 2000, 3000, 4000, 5000, 6500, 8000, 10000];
+  const idx = Math.min(level, thresholds.length - 1);
+  return thresholds[idx] || 100;
+}
+
+function updateGamificationDisplay() {
+  const xp = getXP();
+  const level = getLevel(xp);
+  const nextThreshold = getXPForNextLevel(xp);
+  const prevThreshold = level > 1 ? getXPForNextLevel(level - 1) : 0;
+  const xpIntoLevel = xp - prevThreshold;
+  const xpNeeded = nextThreshold - prevThreshold;
+  const pct = xpNeeded > 0 ? Math.min(100, Math.round((xpIntoLevel / xpNeeded) * 100)) : 100;
+  
+  const xpEl = document.getElementById('xpDisplay');
+  const lvEl = document.getElementById('levelDisplay');
+  const barEl = document.getElementById('xpProgressBar');
+  const textEl = document.getElementById('xpProgressText');
+  const labelEl = document.getElementById('xpProgressLabel');
+  
+  if (xpEl) xpEl.textContent = xp;
+  if (lvEl) lvEl.textContent = level;
+  if (barEl) barEl.style.width = pct + '%';
+  if (textEl) textEl.textContent = xpIntoLevel + ' / ' + xpNeeded + ' XP';
+  if (labelEl) labelEl.textContent = t('XP to next level');
+  
+  // Update streak
+  const streakDays = parseInt(localStorage.getItem('streak_days') || '0');
+  const streakEl = document.getElementById('streakDisplay');
+  if (streakEl) streakEl.textContent = streakDays;
+  
+  // Update badges
+  const badges = JSON.parse(localStorage.getItem('earned_badges') || '[]');
+  const badgeEl = document.getElementById('badgeCount');
+  if (badgeEl) badgeEl.textContent = badges.length;
+}
+
+function checkBadges() {
+  const xp = getXP();
+  const level = getLevel(xp);
+  const streakDays = parseInt(localStorage.getItem('streak_days') || '0');
+  let badges = JSON.parse(localStorage.getItem('earned_badges') || '[]');
+  const had = badges.length;
+  
+  const badgeDefs = [
+    { id: 'first_lesson', name: 'First Steps', icon: '🌱', check: () => parseInt(localStorage.getItem('lessons_completed') || '0') >= 1 },
+    { id: 'level_3', name: 'Rising Star', icon: '⭐', check: () => level >= 3 },
+    { id: 'level_5', name: 'Chinese Scholar', icon: '📚', check: () => level >= 5 },
+    { id: 'level_10', name: 'Master Linguist', icon: '🏆', check: () => level >= 10 },
+    { id: 'streak_3', name: '3-Day Streak', icon: '🔥', check: () => streakDays >= 3 },
+    { id: 'streak_7', name: 'Weekly Warrior', icon: '💪', check: () => streakDays >= 7 },
+    { id: 'streak_30', name: 'Monthly Master', icon: '👑', check: () => streakDays >= 30 },
+    { id: 'score_100', name: 'Perfect Score', icon: '💯', check: () => localStorage.getItem('perfect_score_achieved') === 'true' },
+    { id: 'grammar_10', name: 'Grammar Guru', icon: '✍️', check: () => JSON.parse(localStorage.getItem('grammar_history') || '[]').length >= 10 },
+    { id: 'xp_1000', name: 'Dedicated', icon: '🎯', check: () => xp >= 1000 },
+  ];
+  
+  badgeDefs.forEach(def => {
+    if (def.check() && !badges.find(b => b.id === def.id)) {
+      badges.push({ id: def.id, name: def.name, icon: def.icon, earned: Date.now() });
+    }
+  });
+  
+  localStorage.setItem('earned_badges', JSON.stringify(badges));
+  updateGamificationDisplay();
+  
+  if (badges.length > had) {
+    const newlyEarned = badges[badges.length - 1];
+    toast('🏅 ' + t('Badge Unlocked: ') + newlyEarned.name + ' ' + newlyEarned.icon, 'var(--gold)', 4000);
+  }
+}
+
+function showAchievements() {
+  const badges = JSON.parse(localStorage.getItem('earned_badges') || '[]');
+  const xp = getXP();
+  const level = getLevel(xp);
+  const streakDays = parseInt(localStorage.getItem('streak_days') || '0');
+  
+  let html = '<div class="cd p-5" style="background:var(--card);border:1px solid var(--border);border-radius:16px;max-height:400px;overflow-y:auto">';
+  html += '<div class="flex items-center justify-between mb-4"><h3 class="font-bold text-lg text-white">' + t('Achievements') + '</h3><button onclick="closeModal(\'achievementsModal\')" class="text-muted hover:text-white" style="background:none;border:none;cursor:pointer"><i class="fas fa-times"></i></button></div>';
+  html += '<div class="grid grid-cols-2 gap-2 mb-4 text-center text-xs" style="color:var(--muted)"><div><span class="text-lg font-extrabold" style="color:var(--gold)">' + xp + '</span><br>XP</div><div><span class="text-lg font-extrabold" style="color:var(--purple)">' + level + '</span><br>Level</div><div><span class="text-lg font-extrabold" style="color:var(--accent)">' + streakDays + '</span><br>Streak</div><div><span class="text-lg font-extrabold" style="color:var(--green)">' + badges.length + '</span><br>Badges</div></div>';
+  
+  const badgeDefs = [
+    { id: 'first_lesson', name: 'First Steps', icon: '🌱', desc: 'Complete your first lesson' },
+    { id: 'level_3', name: 'Rising Star', icon: '⭐', desc: 'Reach Level 3' },
+    { id: 'level_5', name: 'Chinese Scholar', icon: '📚', desc: 'Reach Level 5' },
+    { id: 'level_10', name: 'Master Linguist', icon: '🏆', desc: 'Reach Level 10' },
+    { id: 'streak_3', name: '3-Day Streak', icon: '🔥', desc: 'Study 3 days in a row' },
+    { id: 'streak_7', name: 'Weekly Warrior', icon: '💪', desc: 'Study 7 days in a row' },
+    { id: 'streak_30', name: 'Monthly Master', icon: '👑', desc: 'Study 30 days in a row' },
+    { id: 'score_100', name: 'Perfect Score', icon: '💯', desc: 'Score 100 on a tutor phrase' },
+    { id: 'grammar_10', name: 'Grammar Guru', icon: '✍️', desc: 'Check grammar 10 times' },
+    { id: 'xp_1000', name: 'Dedicated', icon: '🎯', desc: 'Earn 1,000 XP' },
+  ];
+  
+  html += '<div class="text-xs font-semibold mb-2" style="color:var(--muted)">' + t('Badges') + '</div>';
+  html += '<div class="grid grid-cols-2 gap-2">';
+  badgeDefs.forEach(def => {
+    const earned = badges.find(b => b.id === def.id);
+    if (earned) {
+      html += '<div class="cd p-2.5 rounded-xl text-center" style="background:rgba(212,166,79,0.08);border:1px solid rgba(212,166,79,0.2)"><div class="text-xl mb-1">' + def.icon + '</div><div class="text-xs font-semibold" style="color:var(--gold)">' + def.name + '</div><div class="text-[9px]" style="color:var(--muted)">' + new Date(earned.earned).toLocaleDateString() + '</div></div>';
+    } else {
+      html += '<div class="cd p-2.5 rounded-xl text-center" style="background:var(--card2);opacity:0.4"><div class="text-xl mb-1">🔒</div><div class="text-xs font-semibold" style="color:var(--muted)">' + def.name + '</div><div class="text-[9px]" style="color:var(--muted)">' + def.desc + '</div></div>';
+    }
+  });
+  html += '</div></div>';
+  
+  // Show in a modal overlay
+  let modal = document.getElementById('achievementsModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'achievementsModal';
+    modal.className = 'fixed inset-0 z-[1200] flex items-center justify-center p-4 bg-black/80';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = '<div class="w-full max-w-sm">' + html + '</div>';
+  modal.style.display = 'flex';
+}
+
+function closeModal(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+function initGamification() {
+  // Restore XP from localStorage
+  updateGamificationDisplay();
+  checkBadges();
+  
+  // Daily login XP
+  const today = new Date().toDateString();
+  const lastLogin = localStorage.getItem('last_login_date');
+  if (lastLogin !== today) {
+    addXP(5, 'Daily login');
+    localStorage.setItem('last_login_date', today);
+    
+    // Track streak
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    let streak = parseInt(localStorage.getItem('streak_days') || '0');
+    if (lastLogin === yesterday) {
+      streak += 1;
+    } else {
+      streak = 1;
+    }
+    localStorage.setItem('streak_days', streak.toString());
+    localStorage.setItem('last_streak_date', today);
+    updateGamificationDisplay();
+    checkBadges();
+    
+    // Streak milestone bonuses
+    if (streak === 3) { toast('🔥 ' + t('3-day streak! +10 XP bonus'), 'var(--gold)', 3000); addXP(10, 'Streak 3 days'); }
+    if (streak === 7) { toast('💪 ' + t('7-day streak! +25 XP bonus'), 'var(--gold)', 3000); addXP(25, 'Streak 7 days'); }
+    if (streak === 30) { toast('👑 ' + t('30-day streak! +100 XP bonus'), 'var(--gold)', 4000); addXP(100, 'Streak 30 days'); }
+  }
+  
+  initVoiceMode();
+  showGrammarHistory();
 }
 
 // ===== MAPPING HSK CARDS TO TUTOR LESSONS =====
@@ -12752,4 +13082,5 @@ function filterDictionary() {
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof initTranslate === 'function') initTranslate();
   buildDictionary(1);
+  initGamification();
 });
