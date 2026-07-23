@@ -10735,6 +10735,73 @@ function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
 function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);document.getElementById('tutChat').scrollTop=9999}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
 
+// ===== DOCUMENT UPLOAD =====
+function handleDocUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const area = document.getElementById('docUploadArea');
+  const nameEl = document.getElementById('docFileName');
+  const actions = document.getElementById('docActions');
+  area.style.display = 'flex';
+  nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+  actions.style.display = 'flex';
+  document.getElementById('docResultArea').style.display = 'none';
+  document.getElementById('docResultArea').innerHTML = '';
+}
+
+function clearDocUpload() {
+  document.getElementById('docFileInput').value = '';
+  document.getElementById('docUploadArea').style.display = 'none';
+  document.getElementById('docFileName').textContent = '';
+  document.getElementById('docActions').style.display = 'none';
+  document.getElementById('docResultArea').style.display = 'none';
+  document.getElementById('docResultArea').innerHTML = '';
+}
+
+function processDocument(action) {
+  const file = document.getElementById('docFileInput').files[0];
+  if (!file) return toast('Please select a file first', 'var(--accent)');
+  const isPremium = localStorage.getItem('is_premium') === 'true';
+  if (!isPremium) {
+    showPremiumPaywall('Document Upload');
+    return;
+  }
+  const resultArea = document.getElementById('docResultArea');
+  resultArea.style.display = 'block';
+  resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Processing document...</div></div>';
+  document.getElementById('docActions').style.display = 'none';
+  const formData = new FormData();
+  formData.append('document', file);
+  formData.append('action', action);
+  fetch('/api/upload-document', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) {
+        resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2">Error: ' + (data.error.message || data.error || 'Unknown error') + '</div>';
+        return;
+      }
+      resultArea.innerHTML = '<div class="font-bold mb-1" style="color:var(--gold)">' + actionLabels[action] + '</div>'
+        + '<div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(data.response) + '</div>';
+    })
+    .catch(err => {
+      resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2">Upload failed: ' + err.message + '</div>';
+    });
+}
+
+const actionLabels = {
+  'summarize': 'Summary',
+  'fix-errors': 'Error Corrections',
+  'translate-zh2en': 'Chinese → English Translation',
+  'translate-en2zh': 'English → Chinese Translation',
+  'business-translate': 'Business Translation'
+};
+
+function escapeHtml(text) {
+  const d = document.createElement('div');
+  d.textContent = text;
+  return d.innerHTML;
+}
+
 function buildTutorTabs(){
   const c=document.getElementById('tutLvTabs');
   const g=document.getElementById('tutTopicBtns');

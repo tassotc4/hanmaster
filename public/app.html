@@ -365,6 +365,20 @@
     </button>
   </div>
   <button class="tut-submit" id="tutSubmitBtn" onclick="tutTypeSubmit()" disabled data-tr="Submit">Submit</button>
+  <button id="docUploadBtn" onclick="document.getElementById('docFileInput').click()" class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--card2);color:var(--gold);cursor:pointer;border:none;outline:none" title="Upload Document (PDF, DOCX, TXT, Image)"><i class="fas fa-upload text-sm"></i></button>
+</div>
+<div id="docUploadArea" style="display:none;margin-top:6px" class="flex flex-col gap-2">
+  <input type="file" id="docFileInput" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload(this)">
+  <div class="flex items-center gap-2 text-xs" style="color:var(--muted)" id="docFileName"></div>
+  <div class="flex flex-wrap gap-1.5" id="docActions" style="display:none">
+    <button onclick="processDocument('summarize')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-align-left mr-1"></i> Summarize</button>
+    <button onclick="processDocument('fix-errors')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-pen-fancy mr-1"></i> Fix Errors</button>
+    <button onclick="processDocument('translate-zh2en')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-language mr-1"></i> Chinese→English</button>
+    <button onclick="processDocument('translate-en2zh')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-language mr-1"></i> English→Chinese</button>
+    <button onclick="processDocument('business-translate')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-briefcase mr-1"></i> Business Translate</button>
+    <button onclick="clearDocUpload()" class="bq text-[10px] py-1.5 px-3" style="color:var(--accent)"><i class="fas fa-times mr-1"></i> Clear</button>
+  </div>
+  <div id="docResultArea" style="display:none" class="cd p-3 mt-1 text-xs leading-relaxed" style="background:var(--card2);border-radius:8px;max-height:300px;overflow-y:auto"></div>
 </div>
 </div></div></div>
 </section>

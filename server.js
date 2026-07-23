@@ -9,6 +9,10 @@ const staticDir = path.join(__dirname, 'public');
 const PAYPAL_API = process.env.PAYPAL_SANDBOX ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
+const multer = require('multer');
+const pdfParse = require('pdf-parse');
+const mammoth = require('mammoth');
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 // VAPID keys for push notifications
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY || 'BEzl9Z-eURZF1kqxzhwSxf6WInX8IGKpddG-sw3J58ShazCzbtiHwuXG51XlD1zocw0Vqkdrta94dziWfTHIQG4';
@@ -579,6 +583,91 @@ app.get('/api/podcast-download/:id', (req, res) => {
   } else {
     // Return info if file doesn't exist yet
     res.json({ error: 'File not yet published', episode: ep });
+  }
+});
+
+// ===== DOCUMENT UPLOAD & AI PROCESSING =====
+app.post('/api/upload-document', upload.single('document'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const action = req.body.action || 'summarize';
+    const file = req.file;
+    let extractedText = '';
+
+    // Extract text based on file type
+    if (file.mimetype === 'application/pdf') {
+      const pdfData = await pdfParse(file.buffer);
+      extractedText = pdfData.text;
+    } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const result = await mammoth.extractRawText({ buffer: file.buffer });
+      extractedText = result.value;
+    } else if (file.mimetype === 'text/plain') {
+      extractedText = file.buffer.toString('utf-8');
+    } else if (file.mimetype.startsWith('image/')) {
+      // Handwriting/image — use Groq vision model
+      const apiKey = process.env.GROQ_API_KEY;
+      if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });
+      const base64 = file.buffer.toString('base64');
+      const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: 'llama-3.2-90b-vision-preview',
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: 'Transcribe all Chinese and English text from this image exactly as written. If it is handwritten Chinese, convert it to digital Chinese text. Return only the transcribed text.' },
+              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}` } }
+            ]
+          }],
+          temperature: 0.1,
+          max_tokens: 4096
+        })
+      });
+      const visionData = await visionResp.json();
+      if (!visionResp.ok) return res.status(visionResp.status).json({ error: visionData });
+      extractedText = visionData.choices?.[0]?.message?.content || '';
+    } else {
+      return res.status(400).json({ error: 'Unsupported file type. Accepted: PDF, DOCX, TXT, JPG, PNG' });
+    }
+
+    if (!extractedText.trim()) return res.status(400).json({ error: 'No text could be extracted from the document' });
+    if (extractedText.length > 50000) extractedText = extractedText.slice(0, 50000) + '\n... [truncated]';
+
+    // Define system prompt based on action
+    const actionPrompts = {
+      'summarize': 'You are a Chinese language tutor. Summarize the following document in Chinese (with pinyin) and English. Keep it concise: main points, key vocabulary, and a short overall summary.',
+      'fix-errors': 'You are a Chinese language tutor. The user has written a Chinese document below. Fix all grammar, vocabulary, and character errors. Show the corrected version in Chinese, then list each error with the correction and a brief explanation in English.',
+      'translate-zh2en': 'Translate the following Chinese document to English. Preserve the original meaning, tone, and formatting as much as possible.',
+      'translate-en2zh': 'Translate the following English document to Chinese (Simplified). Preserve the original meaning, tone, and formatting as much as possible.',
+      'business-translate': 'You are a professional business translator. Translate the following document between Chinese and English as needed. Provide both the translation and a brief business context analysis (key terms, cultural notes, formality level).'
+    };
+
+    const systemPrompt = actionPrompts[action] || actionPrompts['summarize'];
+    const groqKey = process.env.GROQ_API_KEY;
+    if (!groqKey) return res.status(500).json({ error: 'Server key not configured' });
+
+    const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${groqKey}` },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: extractedText }
+        ],
+        temperature: 0.2,
+        max_tokens: 4096
+      })
+    });
+    const groqData = await groqResp.json();
+    if (!groqResp.ok) return res.status(groqResp.status).json({ error: groqData });
+
+    const aiResponse = groqData.choices?.[0]?.message?.content || '';
+    res.json({ text: extractedText.slice(0, 2000), response: aiResponse, action });
+  } catch (err) {
+    console.error('Document upload error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
