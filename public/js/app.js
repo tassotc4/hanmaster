@@ -12392,18 +12392,18 @@ function addXP(amount, reason) {
   const current = getXP();
   const newTotal = current + amount;
   localStorage.setItem('xp_total', newTotal.toString());
-  // Track XP by source
   const sources = JSON.parse(localStorage.getItem('xp_sources') || '{}');
   sources[reason || 'general'] = (sources[reason || 'general'] || 0) + amount;
   localStorage.setItem('xp_sources', JSON.stringify(sources));
   updateGamificationDisplay();
-  // Check level up
   const oldLevel = getLevel(current);
   const newLevel = getLevel(newTotal);
   if (newLevel > oldLevel) {
     toast('🎉 ' + t('Level Up! You reached Level ') + newLevel + '!', 'var(--gold)', 4000);
     checkBadges();
   }
+  maybeTrackActivity(amount, reason);
+  try { trackDailyXP(amount); drawProgressChart(); updateActivityFeed(); } catch {}
 }
 
 function getLevel(xp) {
@@ -12690,40 +12690,6 @@ let flashcardList = [];
 let curFcIdx = 0;
 let lessonsMode = 'topics';
 
-function switchLessonsMode(mode) {
-  lessonsMode = mode;
-  const topicsCon = document.getElementById('tpGrid');
-  const flashcardsCon = document.getElementById('flashcardsCon');
-  const radicalsCon = document.getElementById('radicalsCon');
-  const topicsBtn = document.getElementById('modeTopicsBtn');
-  const flashcardsBtn = document.getElementById('modeFlashcardsBtn');
-  const radicalsBtn = document.getElementById('modeRadicalsBtn');
-  const podcastBtn = document.getElementById('modePodcastBtn');
-  const weakBtn = document.getElementById('modeWeakBtn');
-  
-  if (topicsCon) topicsCon.style.display = (mode === 'topics' || mode === 'podcast') ? 'grid' : 'none';
-  if (flashcardsCon) flashcardsCon.style.display = (mode === 'flashcards' || mode === 'weak') ? 'block' : 'none';
-  if (radicalsCon) radicalsCon.style.display = (mode === 'radicals') ? 'block' : 'none';
-  
-  if (topicsBtn) { if (mode === 'topics') topicsBtn.classList.add('on'); else topicsBtn.classList.remove('on'); }
-  if (flashcardsBtn) { if (mode === 'flashcards') flashcardsBtn.classList.add('on'); else flashcardsBtn.classList.remove('on'); }
-  if (radicalsBtn) { if (mode === 'radicals') radicalsBtn.classList.add('on'); else radicalsBtn.classList.remove('on'); }
-  if (podcastBtn) { if (mode === 'podcast') podcastBtn.classList.add('on'); else podcastBtn.classList.remove('on'); }
-  if (weakBtn) { if (mode === 'weak') weakBtn.classList.add('on'); else weakBtn.classList.remove('on'); }
-  
-  if (mode === 'topics') {
-    buildTopics();
-  } else if (mode === 'flashcards') {
-    buildFlashcards();
-  } else if (mode === 'radicals') {
-    buildRadicals();
-  } else if (mode === 'podcast') {
-    buildPodcastTopics();
-  } else if (mode === 'weak') {
-    buildWeakFlashcards();
-  }
-}
-
 function buildFlashcards() {
   const levelName = LV[curLv].n;
   flashcardList = [];
@@ -12953,10 +12919,6 @@ function colorCodePronunciation(target, spoken) {
 // ===== WRITING CANVAS TRACING TEMPLATE OUTLINE =====
 function drawDottedOutline() {
   // Bypassed for Hanzi Writer integration
-}
-
-function toggleWriteOutline() {
-  clrCv();
 }
 
 // ===== PREMIUM SUBSCRIPTION PAYWALL MODAL =====
@@ -14433,17 +14395,47 @@ function answerStoryQuestion(qi, oi, btn) {
 // ===== HSK EXAM SIMULATION =====
 let examQuestions = [], examIdx = 0, examScore = 0, examTimer = null, examTimeLeft = 0;
 
+// ===== ENHANCED HSK EXAM (level-specific with sections) =====
+let examSection = 'listening', examSectionIdx = 0, examSectionScore = 0;
+const EXAM_SECTIONS = ['listening','reading','vocabulary'];
+const EXAM_TIMES = {listening:120, reading:120, vocabulary:60};
+
 function startHSKExam() {
-  const pool = QZ.length > 0 ? QZ : [{l:1,q:'Nǐ hǎo',c:'你好',o:['Hello','Goodbye','Thanks','Sorry'],a:0}];
-  examQuestions = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
-  examIdx = 0;
-  examScore = 0;
-  examTimeLeft = 300; // 5 minutes
+  const lv = parseInt(document.querySelector('.dict-tab.on')?.dataset?.lv || '1');
+  const pool = QZ.filter(q => q.l === lv);
+  if (pool.length < 3) { toast(t('Not enough questions for HSK')+' '+lv, 'var(--gold)', 2000); return; }
+  examQuestions = [...pool].sort(() => Math.random() - 0.5);
+  examIdx = 0; examScore = 0; examSectionIdx = 0; examSectionScore = 0;
+  examSection = 'listening';
+  examTimeLeft = EXAM_TIMES[examSection];
   const overlay = document.getElementById('listenQuizOverlay');
   overlay.style.display = 'flex';
+  showExamSectionIntro();
+}
+
+function showExamSectionIntro() {
+  const secNames = {listening:t('Listening'), reading:t('Reading'), vocabulary:t('Vocabulary')};
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="text-align:center;padding:16px 0">'
+    + '<div style="font-size:40px;margin-bottom:12px">' + (examSection==='listening'?'🎧':examSection==='reading'?'📖':'📝') + '</div>'
+    + '<h3 style="margin:0 0 6px;font-size:18px;color:var(--fg)">' + secNames[examSection] + ' ' + t('Section') + '</h3>'
+    + '<p style="margin:0 0 4px;font-size:13px;color:var(--muted)">' + EXAM_TIMES[examSection]/60 + ':00 ' + t('minutes') + '</p>'
+    + '<p style="margin:0 0 20px;font-size:12px;color:var(--fg2)">' + (examSection==='listening'?t('Listen and choose the correct answer'):examSection==='reading'?t('Read the character and choose the meaning'):t('Match pinyin to the correct character')) + '</p>'
+    + '<button onclick="startExamSection()" class="bp px-10 py-2.5 text-xs font-bold">' + t('Start') + ' <i class="fas fa-arrow-right ml-1"></i></button></div>';
+}
+
+function startExamSection() {
+  const perSection = Math.min(4, Math.floor(examQuestions.length / 3));
+  const start = examSectionIdx * perSection;
+  const end = Math.min(start + perSection, examQuestions.length);
+  examSectionPool = examQuestions.slice(start, end);
+  examIdx = 0; examSectionScore = 0;
+  examTimeLeft = EXAM_TIMES[examSection];
   showExamQuestion();
   startExamTimer();
 }
+
+let examSectionPool = [];
 
 function startExamTimer() {
   if (examTimer) clearInterval(examTimer);
@@ -14454,59 +14446,223 @@ function startExamTimer() {
       const m = Math.floor(examTimeLeft / 60);
       const s = examTimeLeft % 60;
       el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-      if (examTimeLeft <= 60) el.style.color = 'var(--accent)';
+      if (examTimeLeft <= 30) el.style.color = 'var(--accent)';
     }
-    if (examTimeLeft <= 0) {
-      clearInterval(examTimer);
-      showExamResult();
-    }
+    if (examTimeLeft <= 0) { clearInterval(examTimer); finishExamSection(); }
   }, 1000);
 }
 
 function showExamQuestion() {
-  if (examIdx >= examQuestions.length) { showExamResult(); return; }
-  const q = examQuestions[examIdx];
+  if (examIdx >= examSectionPool.length) { clearInterval(examTimer); finishExamSection(); return; }
+  const q = examSectionPool[examIdx];
+  const secNames = {listening:t('Listening'), reading:t('Reading'), vocabulary:t('Vocabulary')};
   const content = document.getElementById('listenQuizContent');
-  content.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
-    + '<div style="font-size:12px;color:var(--muted)">' + t('HSK Exam') + ' ' + (examIdx+1) + '/' + examQuestions.length + '</div>'
-    + '<div id="examTimer" style="font-size:14px;font-weight:700;color:var(--gold);font-family:monospace">5:00</div>'
-    + '</div>'
-    + '<div style="margin-bottom:6px;height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div style="width:' + ((examIdx)/examQuestions.length*100) + '%;height:100%;background:var(--accent);border-radius:2px;transition:width .3s"></div></div>'
-    + '<div style="font-size:20px;font-weight:bold;color:var(--fg);text-align:center;margin-bottom:4px">' + q.c + '</div>'
-    + '<div style="font-size:13px;color:var(--fg2);text-align:center;margin-bottom:14px">' + q.p + '</div>'
-    + '<div class="grid gap-2" id="examOptions"></div>'
-    + '<div id="examFeedback" class="text-sm mt-3 text-center" style="min-height:24px"></div>';
+  content.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'
+    + '<div style="font-size:11px;color:var(--muted)">' + secNames[examSection] + ' · ' + (examIdx+1) + '/' + examSectionPool.length + '</div>'
+    + '<div id="examTimer" style="font-size:14px;font-weight:700;color:var(--gold);font-family:monospace">' + Math.floor(examTimeLeft/60) + ':' + (examTimeLeft%60<10?'0':'') + examTimeLeft + '</div></div>'
+    + '<div style="margin-bottom:8px;height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div style="width:' + ((examSectionIdx*examSectionPool.length + examIdx)/(examQuestions.length)*100) + '%;height:100%;background:var(--accent);border-radius:2px;transition:width .3s"></div></div>';
+  
+  if (examSection === 'listening') {
+    content.innerHTML += '<div style="text-align:center;margin-bottom:12px"><button onclick="speak(\''+q.c+'\',0.7)" style="width:56px;height:56px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;outline:none;box-shadow:0 4px 16px rgba(200,53,37,0.4)" id="examListenBtn"><i class="fas fa-volume-high text-lg"></i></button><div style="font-size:11px;color:var(--muted);margin-top:6px">'+t('Tap to listen')+'</div></div>';
+    setTimeout(() => speak(q.c, 0.7), 300);
+  } else if (examSection === 'reading') {
+    content.innerHTML += '<div style="font-size:28px;font-weight:bold;color:var(--fg);text-align:center;margin-bottom:8px">' + q.c + '</div><div style="font-size:13px;color:var(--fg2);text-align:center;margin-bottom:12px">' + q.p + '</div>';
+  } else {
+    const py = q.p.split(' ').map(() => '___').join(' ');
+    content.innerHTML += '<div style="font-size:13px;color:var(--fg2);text-align:center;margin-bottom:4px">' + py + '</div><div style="font-size:28px;font-weight:bold;color:var(--gold);text-align:center;margin-bottom:12px">' + q.c + '</div>';
+  }
+  
+  content.innerHTML += '<div class="grid gap-2" id="examOptions"></div><div id="examFeedback" class="text-sm mt-2 text-center" style="min-height:20px"></div>';
   
   const optsDiv = document.getElementById('examOptions');
   q.o.forEach((opt, i) => {
-    const b = document.createElement('button');
-    b.className = 'bq';
-    b.textContent = opt;
+    const b = document.createElement('button'); b.className = 'bq'; b.textContent = opt;
     b.onclick = () => {
       document.querySelectorAll('#examOptions .bq').forEach(x => x.disabled = true);
       const fb = document.getElementById('examFeedback');
-      if (i === q.a) { b.classList.add('ok'); examScore += 10; fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓</span>'; }
+      if (i === q.a) { b.classList.add('ok'); examScore += 10; examSectionScore += 10; fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓</span>'; }
       else { b.classList.add('no'); document.querySelectorAll('#examOptions .bq')[q.a].classList.add('ok'); fb.innerHTML = '<span style="color:var(--accent);font-weight:600">✗ ' + q.o[q.a] + '</span>'; }
-      setTimeout(() => { examIdx++; showExamQuestion(); }, 1000);
+      setTimeout(() => { examIdx++; showExamQuestion(); }, 800);
     };
     optsDiv.appendChild(b);
   });
 }
 
-function showExamResult() {
+function finishExamSection() {
   if (examTimer) { clearInterval(examTimer); examTimer = null; }
+  examSectionIdx++;
+  if (examSectionIdx >= 3) { showExamResult(); return; }
+  examSection = EXAM_SECTIONS[examSectionIdx];
+  examTimeLeft = EXAM_TIMES[examSection];
+  showExamSectionIntro();
+}
+
+function showExamResult() {
   const pct = Math.round((examScore / (examQuestions.length * 10)) * 100);
   const content = document.getElementById('listenQuizContent');
   content.innerHTML = '<div style="font-size:40px;text-align:center;margin-bottom:12px">' + (pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪') + '</div>'
     + '<h3 style="text-align:center;margin:0 0 6px;font-size:18px;color:var(--fg)">' + t('HSK Exam Complete') + '</h3>'
-    + '<p style="text-align:center;margin:0 0 4px;font-size:14px;color:var(--muted)">' + t('Score:') + ' ' + examScore + '/' + (examQuestions.length * 10) + '</p>'
-    + '<p style="text-align:center;margin:0 0 4px;font-size:13px;color:var(--gold)">' + pct + '% ' + t('accuracy') + '</p>'
-    + '<p style="text-align:center;margin:0 0 20px;font-size:12px;color:var(--muted)">' + t('Time:') + ' ' + Math.floor((300 - examTimeLeft) / 60) + 'm ' + ((300 - examTimeLeft) % 60) + 's</p>'
+    + '<p style="text-align:center;margin:0 0 4px;font-size:14px;color:var(--muted)">' + t('Score:') + ' ' + examScore + '/' + (examQuestions.length * 10) + ' (' + pct + '%)</p>'
+    + '<p style="text-align:center;margin:0 0 20px;font-size:12px;color:var(--fg2)">' + t('3 sections completed') + '</p>'
     + '<div style="text-align:center"><button onclick="closeListenQuiz()" class="bp px-8 py-2.5 text-xs font-bold">' + t('Done') + '</button></div>';
   addXP(Math.round(examScore / 2), 'HSK Exam');
   if (pct >= 80) addXP(20, 'Excellent exam score');
   checkBadges();
+  // Save exam result to activity feed
+  const lv = parseInt(document.querySelector('.dict-tab.on')?.dataset?.lv || '1');
+  addActivity('HSK ' + lv + ' ' + t('Exam') + ': ' + pct + '%');
 }
+
+// ===== COMMUNITY: FRIEND SYSTEM =====
+function getFriends() {
+  try { return JSON.parse(localStorage.getItem('friends') || '[]'); } catch { return []; }
+}
+
+function saveFriends(f) { localStorage.setItem('friends', JSON.stringify(f)); }
+
+function addFriend(name) {
+  const f = getFriends();
+  if (!name || f.find(x => x.toLowerCase() === name.toLowerCase())) return false;
+  f.push(name);
+  saveFriends(f);
+  return true;
+}
+
+function removeFriend(name) {
+  saveFriends(getFriends().filter(x => x.toLowerCase() !== name.toLowerCase()));
+}
+
+function showFriendManager() {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  const friends = getFriends();
+  overlay.innerHTML = '<div style="background:var(--card);border-radius:16px;padding:24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)" onclick="event.stopPropagation()">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    + '<h3 style="margin:0;font-size:18px;color:var(--fg)"><i class="fas fa-user-group mr-2" style="color:var(--gold)"></i> '+t('Friends')+'</h3>'
+    + '<button onclick="this.closest(\'div[style*\'].parentElement.remove()" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button></div>'
+    + '<div style="margin-bottom:12px;display:flex;gap:6px"><input id="friendInput" placeholder="'+t('Add friend name')+'" style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none" maxlength="20">'
+    + '<button onclick="addFriendFromManager()" style="padding:8px 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;outline:none">'+t('Add')+'</button></div>'
+    + '<div id="friendList">' + (friends.length === 0 ? '<div style="text-align:center;padding:20px 0;color:var(--muted);font-size:13px">'+t('No friends yet')+'</div>' : friends.map((f,i) => '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--fg);font-size:14px">'+f+'</span><button onclick="removeFriend(\''+f+'\');this.closest(\'div\').remove()" style="padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;outline:none">'+t('Remove')+'</button></div>').join('')) + '</div></div>';
+  document.body.appendChild(overlay);
+}
+
+function addFriendFromManager() {
+  const input = document.getElementById('friendInput');
+  if (!input || !input.value.trim()) return;
+  if (addFriend(input.value.trim())) {
+    input.value = '';
+    document.querySelector('[id^="friendList"]').closest('div[style*="background"]').remove();
+    showFriendManager();
+  } else { toast(t('Friend already added'), 'var(--gold)', 1500); }
+}
+
+// ===== ACTIVITY FEED =====
+function addActivity(text) {
+  const feed = JSON.parse(localStorage.getItem('activity_feed') || '[]');
+  feed.unshift({ text, time: Date.now() });
+  if (feed.length > 50) feed.length = 50;
+  localStorage.setItem('activity_feed', JSON.stringify(feed));
+  updateActivityFeed();
+}
+
+function updateActivityFeed() {
+  const el = document.getElementById('activityFeed');
+  if (!el) return;
+  const feed = JSON.parse(localStorage.getItem('activity_feed') || '[]');
+  if (feed.length === 0) { el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">'+t('No activity yet')+'</div>'; return; }
+  el.innerHTML = feed.slice(0, 10).map(a => {
+    const d = new Date(a.time);
+    const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--fg2)">'+escHtml(a.text)+'</span><span style="color:var(--muted);font-size:10px">'+dateStr+'</span></div>';
+  }).join('');
+}
+
+// Hook activity into XP gains (patched into addXP above)
+function maybeTrackActivity(amount, source) {
+  if (amount > 0 && source && !source.includes('Daily login')) {
+    try { addActivity('+' + amount + ' XP (' + source + ')'); } catch {}
+  }
+}
+
+// Enhanced leaderboard with friend highlighting
+const _origShowLeaderboard = showLeaderboard;
+function showLeaderboard() {
+  const overlay = document.createElement('div');
+  overlay.id = 'leaderboardOverlay2';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  const friends = getFriends();
+  const card = document.createElement('div');
+  card.style.cssText = 'background:var(--card);border-radius:16px;padding:24px;max-width:450px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)';
+  card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    + '<h3 style="margin:0;font-size:18px;color:var(--fg)">🏆 '+t('Leaderboard')+'</h3>'
+    + '<div style="display:flex;gap:6px"><button onclick="showFriendManager()" style="padding:6px 12px;border-radius:8px;border:1px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer;font-size:10px;outline:none"><i class="fas fa-user-group mr-1"></i> '+t('Friends')+'</button>'
+    + '<button onclick="this.closest(\'#leaderboardOverlay2\').remove()" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button></div></div>'
+    + '<div id="leaderboardList2" style="text-align:center;padding:30px 0;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> '+t('Loading...')+'</div>'
+    + '<div style="margin-top:10px;display:flex;gap:6px"><input id="lbNameInput2" placeholder="'+t('Your name')+'" style="flex:1;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none" maxlength="20">'
+    + '<button onclick="submitLBScore()" style="padding:8px 16px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;outline:none">'+t('Submit')+'</button></div>';
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  fetchLB();
+}
+
+async function fetchLB() {
+  try {
+    const r = await fetch('/api/leaderboard'); const d = await r.json();
+    const list = document.getElementById('leaderboardList2'); if (!list) return;
+    const friends = getFriends();
+    if (!d.length) { list.innerHTML = '<div style="padding:30px 0;color:var(--muted)">'+t('No scores yet. Be the first!')+'</div>'; return; }
+    list.innerHTML = d.map((s,i) => {
+      const isFriend = friends.some(f => s.name.toLowerCase().includes(f.toLowerCase()));
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);' + (isFriend ? 'background:rgba(212,166,79,0.08);border-radius:8px;padding:6px 8px' : '') + '">'
+      + '<span style="width:22px;text-align:center;font-weight:bold;font-size:12px;color:'+(i<3?'var(--gold)':'var(--muted)')+'">'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</span>'
+      + '<span style="flex:1;font-weight:'+(isFriend?'700':'500')+';color:var(--fg);font-size:13px">'+escHtml(s.name)+(isFriend?' <span style="color:var(--gold);font-size:9px">★</span>':'')+'</span>'
+      + '<span style="color:var(--muted);font-size:10px">'+s.level+'</span>'
+      + '<span style="font-weight:bold;color:var(--accent);font-size:13px">'+s.score+'</span></div>';
+    }).join('');
+  } catch { const list = document.getElementById('leaderboardList2'); if (list) list.innerHTML = '<div style="padding:30px 0;color:var(--muted)">'+t('Failed to load')+'</div>'; }
+}
+
+async function submitLBScore() {
+  const name = document.getElementById('lbNameInput2');
+  if (!name || !name.value.trim()) { toast(t('Please enter your name'), '#e74c3c', 1500); return; }
+  const xp = parseInt(localStorage.getItem('total_xp') || '0');
+  const lvIdx = parseInt(localStorage.getItem('curLv') || '0');
+  const level = (typeof LV !== 'undefined' && LV[lvIdx]) ? LV[lvIdx].n : 'HSK 1';
+  try {
+    const r = await fetch('/api/leaderboard/save', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name:name.value.trim(),score:xp,level}) });
+    if (r.ok) { toast(t('Score submitted!'), 'var(--accent)', 1500); fetchLB(); }
+  } catch { toast(t('Failed to submit'), '#e74c3c', 1500); }
+}
+
+// ===== GLOBAL ERROR HANDLER =====
+window.addEventListener('error', function(e) {
+  console.error('Global error:', e.message, e.filename, e.lineno);
+  // Don't show for minor/resource errors
+  if (e.message && (e.message.includes('Script error') || e.message.includes('favicon') || e.message.includes('manifest'))) return;
+  const el = document.getElementById('globalError');
+  if (!el) return;
+  el.style.display = 'flex';
+  el.querySelector('.ge-text').textContent = e.message || 'An unexpected error occurred';
+});
+
+// Add loading state helper
+function showLoading(el, msg) {
+  if (!el) return;
+  const orig = el.innerHTML;
+  el.dataset.origHtml = orig;
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)"><i class="fas fa-spinner fa-spin" style="font-size:20px;display:block;margin-bottom:8px"></i><span style="font-size:13px">' + (msg || t('Loading...')) + '</span></div>';
+  return () => { el.innerHTML = el.dataset.origHtml || orig; };
+}
+
+// Add empty state helper
+function showEmpty(el, msg) {
+  if (!el) return;
+  el.innerHTML = '<div style="text-align:center;padding:30px 10px;color:var(--muted)"><i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:8px;color:var(--border)"></i><span style="font-size:13px">' + (msg || t('Nothing here yet')) + '</span></div>';
+}
+
+// ===== SENTENCE GENERATOR =====
 
 // ===== SENTENCE GENERATOR =====
 async function openSentenceGenerator() {
@@ -14717,13 +14873,13 @@ document.addEventListener('DOMContentLoaded', function() {
   buildDictionary(1);
   initGamification();
   
-  // Onboarding for first-time users
   if (!localStorage.getItem('onboarding_done')) {
     setTimeout(showOnboarding, 800);
   }
   
-  // Init push notifications if enabled
   if (localStorage.getItem('push_enabled') === 'true') {
     setTimeout(initPushNotifications, 3000);
   }
+  
+  setTimeout(updateActivityFeed, 500);
 });

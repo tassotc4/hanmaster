@@ -13,6 +13,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" as="style">
+<link rel="preload" href="/css/app.css" as="style">
+<link rel="preload" href="/js/app.js" as="script">
+<link rel="preload" href="/js/vocab-data.js" as="script">
+<link rel="preload" href="/js/extra-content.js" as="script">
+<style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}</style>
 <meta name="description" content="Learn Mandarin online free with MandarinCourse's AI Chinese tutor. HSK 1-9 vocabulary (10,000+ words), real-time tone visualizer, SRS flashcards, stroke order writing, and voice grading. The best free mandarin course with AI speaking practice.">
 <meta name="keywords" content="mandarin course, learn mandarin online free, free chinese course, AI chinese tutor, learn chinese online free, mandarin speaking practice, HSK 1-9, chinese language learning, mandarin for beginners, AI language tutor">
 <meta name="robots" content="index, follow">
@@ -652,6 +658,15 @@
   <div class="flex gap-3 mt-5 fu">
     <button onclick="shareProgress()" class="flex-1 p-3.5 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border-none cursor-pointer" style="background:var(--card2);color:var(--gold);outline:none"><i class="fas fa-share-nodes"></i> <span data-tr="Share Progress">Share Progress</span></button>
     <button onclick="reviewWeakWords()" class="flex-1 p-3.5 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border-none cursor-pointer" style="background:var(--card2);color:var(--accent);outline:none"><i class="fas fa-bookmark"></i> <span data-tr="Weak Words">Weak Words</span> <span id="weakCount" style="background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px">0</span></button>
+    <button onclick="showFriendManager()" class="flex-1 p-3.5 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border-none cursor-pointer" style="background:var(--card2);color:var(--green);outline:none"><i class="fas fa-user-group"></i> <span data-tr="Friends">Friends</span></button>
+  </div>
+  
+  <!-- ACTIVITY FEED -->
+  <div class="cd p-5 fu mt-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-sm" style="color:var(--fg)"><i class="fas fa-rss mr-1" style="color:var(--green)"></i> <span data-tr="Activity Feed">Activity Feed</span></h3>
+    </div>
+    <div id="activityFeed" style="max-height:240px;overflow-y:auto"></div>
   </div>
   
   <!-- CHARACTER WRITING CANVAS CARD -->
@@ -1035,6 +1050,18 @@
     <div style="display:flex;gap:10px;justify-content:center">
       <button onclick="skipOnboarding()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:14px;outline:none">Skip</button>
       <button onclick="nextOnboarding()" id="onboardNextBtn" style="padding:10px 24px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:14px;font-weight:600;outline:none">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="globalError" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;padding:28px 24px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="font-size:44px;margin-bottom:10px"><i class="fas fa-triangle-exclamation" style="color:var(--accent)"></i></div>
+    <h3 style="margin:0 0 6px;font-size:17px;color:var(--fg)"><span data-tr="Something went wrong">Something went wrong</span></h3>
+    <p class="ge-text" style="margin:0 0 20px;font-size:13px;color:var(--muted);line-height:1.5">Error</p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button onclick="document.getElementById('globalError').style.display='none'" style="padding:8px 20px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--muted);cursor:pointer;font-size:13px;outline:none"><span data-tr="Dismiss">Dismiss</span></button>
+      <button onclick="location.reload()" style="padding:8px 20px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:13px;font-weight:600;outline:none"><i class="fas fa-rotate mr-1"></i><span data-tr="Reload">Reload</span></button>
     </div>
   </div>
 </div>

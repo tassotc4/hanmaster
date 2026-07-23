@@ -9,8 +9,8 @@ const nodemailer = require('nodemailer');
 const webpush = require('web-push');
 
 // VAPID keys for push notifications
-const vapidPublicKey = process.env.VAPID_PUBLIC_KEY || 'BEquQ_39qIy57pQoO6_YrWns8yRzImWu5WuUi0CkHnZPdvu3Uc0jY2W53wPPFz9bX0eKMz-8a3bDPeOMJS2ExDc';
-const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || 'jGWQq6_iQJNAqYecZEv68WrsYvfoo_8ttHmyIkf7d7E';
+const vapidPublicKey = process.env.VAPID_PUBLIC_KEY || 'BEzl9Z-eURZF1kqxzhwSxf6WInX8IGKpddG-sw3J58ShazCzbtiHwuXG51XlD1zocw0Vqkdrta94dziWfTHIQG4';
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || 'qBAiN51N4Arasyq4wELlHRwtEhhPHutJ0jDZanRtbqM';
 webpush.setVapidDetails('mailto:admin@mandarincourse.app', vapidPublicKey, vapidPrivateKey);
 
 // In-memory push subscriptions
@@ -28,6 +28,7 @@ function getMailTransporter() {
   }
   return mailTransporter;
 }
+function smtpConfigured() { return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS); }
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir));
@@ -199,6 +200,14 @@ app.post('/api/save-reminder', (req, res) => {
   if (existing >= 0) global._reminders[existing] = { email, frequency: frequency || 'daily', time: time || '09:00', timezone: timezone || 'UTC', updated_at: new Date().toISOString() };
   else global._reminders.push({ email, frequency: frequency || 'daily', time: time || '09:00', timezone: timezone || 'UTC', created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
   res.json({ ok: true });
+});
+
+app.post('/api/test-smtp', (req, res) => {
+  const { key } = req.body || {};
+  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  const transporter = getMailTransporter();
+  if (!transporter) return res.json({ ok: false, error: 'SMTP not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS env vars on Render.' });
+  transporter.verify().then(() => res.json({ ok: true })).catch(e => res.json({ ok: false, error: e.message }));
 });
 
 app.post('/api/send-reminder', async (req, res) => {
