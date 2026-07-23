@@ -13910,6 +13910,29 @@ function updateProfileDisplay() {
   }
 }
 
+function loadProfile() {
+  updateProfileDisplay();
+  var nameInput = document.getElementById('profileNameInput');
+  var saveBtn = document.getElementById('saveProfileBtn');
+  var editBtn = document.getElementById('editProfileBtn');
+  if (nameInput) nameInput.style.display = 'none';
+  if (saveBtn) saveBtn.style.display = 'none';
+  if (editBtn) editBtn.style.display = 'block';
+  // Load from Supabase if signed in
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    supabaseClient.auth.getSession().then(function(s) {
+      if (s.data && s.data.session) {
+        supabaseClient.from('user_profiles').select('display_name').eq('user_id', s.data.session.user.id).single().then(function(r) {
+          if (r.data && r.data.display_name) {
+            localStorage.setItem('user_display_name', r.data.display_name);
+            updateProfileDisplay();
+          }
+        }).catch(function(){});
+      }
+    }).catch(function(){});
+  }
+}
+
 // A. Theme & Language Dropdowns
 function toggleThemeDropdown(e) {
   if (e) e.stopPropagation();
