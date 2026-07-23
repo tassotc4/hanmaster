@@ -622,7 +622,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });
       const base64 = file.buffer.toString('base64');
-      const model = 'llama-3.2-11b-vision-preview';
+      const model = 'qwen/qwen3.6-27b';
       const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
@@ -636,7 +636,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
             ]
           }],
           temperature: 0.1,
-          max_tokens: 4096
+          max_tokens: 8192
         })
       });
       const visionData = await visionResp.json();
