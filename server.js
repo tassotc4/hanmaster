@@ -118,6 +118,21 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+app.post('/api/tts', async (req, res) => {
+  const { text, lang } = req.body || {};
+  if (!text || !lang) return res.status(400).json({ error: 'Missing text or lang' });
+  try {
+    const url = 'https://translate.google.com/translate_tts?ie=UTF-8&q=' + encodeURIComponent(text.substring(0,200)) + '&tl=' + encodeURIComponent(lang) + '&client=tw-ob&ttsspeed=1';
+    const resp = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' } });
+    if (!resp.ok) return res.status(502).json({ error: 'TTS upstream returned ' + resp.status });
+    const buf = await resp.arrayBuffer();
+    res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buf.byteLength, 'Cache-Control': 'public, max-age=86400' });
+    res.send(Buffer.from(buf));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post('/api/paypal/create-order', async (req, res) => {
   const accessToken = await getPayPalAccessToken();
   if (!accessToken) return res.status(500).json({ error: 'Failed to get PayPal token' });

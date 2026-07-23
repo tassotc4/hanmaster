@@ -12754,8 +12754,26 @@ function getVoiceForLang(lang) {
   return voices.length > 0 ? voices[0] : null;
 }
 
+function podSpeakViaApi(text, lang, cb) {
+  fetch('/api/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:text, lang:lang}) })
+  .then(function(r) { if (!r.ok) throw new Error('TTS API error'); return r.blob(); })
+  .then(function(blob) {
+    var url = URL.createObjectURL(blob);
+    var a = new Audio(url);
+    a.onended = function() { URL.revokeObjectURL(url); if (cb) cb(); };
+    a.onerror = function() { URL.revokeObjectURL(url); if (cb) cb(); };
+    a.play().catch(function(){if(cb)cb();});
+  })
+  .catch(function(){if(cb)cb();});
+}
+
 function podSpeak(text, lang, cb) {
   if (!window.speechSynthesis) { if (cb) cb(); return; }
+  var langPrefix = (lang || '').split('-')[0];
+  if (langPrefix === 'vi' || langPrefix === 'th' || langPrefix === 'id' || langPrefix === 'ms' || langPrefix === 'tl') {
+    podSpeakViaApi(text, lang, cb);
+    return;
+  }
   var u = new SpeechSynthesisUtterance(text);
   u.lang = lang || 'zh-CN';
   u.rate = podSpeedRate;
