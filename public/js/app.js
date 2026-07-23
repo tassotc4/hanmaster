@@ -10777,7 +10777,8 @@ function clearDocUpload() {
 }
 
 function processDocument(action) {
-  const file = document.getElementById('docFileInput').files[0];
+  const fileInput = document.getElementById('docFileInput');
+  let file = fileInput.files[0];
   if (!file) return toast('Please select a file first', 'var(--accent)');
   const isPremium = localStorage.getItem('is_premium') === 'true';
   if (!isPremium) {
@@ -10789,6 +10790,30 @@ function processDocument(action) {
   resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Processing document...</div></div>';
   document.getElementById('docActions').style.display = 'none';
   
+  // Compress images to stay under Groq free tier token limit
+  if (file.type.startsWith('image/')) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      const maxDim = 600;
+      if (w > maxDim) { h = h * maxDim / w; w = maxDim; }
+      if (h > maxDim) { w = w * maxDim / h; h = maxDim; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(function(blob) {
+        if (!blob) { sendDoc(file, action, resultArea); return; }
+        sendDoc(new File([blob], file.name, { type: 'image/jpeg' }), action, resultArea);
+      }, 'image/jpeg', 0.6);
+    };
+    img.onerror = function() { sendDoc(file, action, resultArea); };
+    img.src = URL.createObjectURL(file);
+  } else {
+    sendDoc(file, action, resultArea);
+  }
+}
+
+function sendDoc(file, action, resultArea) {
   const formData = new FormData();
   formData.append('document', file);
   formData.append('action', action);
