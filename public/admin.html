@@ -63,19 +63,12 @@ VAPID_PRIVATE_KEY=qBAiN51N4Arasyq4wELlHRwtEhhPHutJ0jDZanRtbqM
 </div>
 </div>
 <div class="card mb-6" style="border-color:var(--green)">
-<h3 class="font-bold text-sm mb-2" style="color:var(--green)"><i class="fas fa-check-circle mr-1"></i> SMTP Status</h3>
+<h3 class="font-bold text-sm mb-2" style="color:var(--green)"><i class="fas fa-check-circle mr-1"></i> Email Status</h3>
 <div id="smtpStatus" class="text-xs" style="color:var(--fg2)">Checking...</div>
 </div>
 <div class="card mb-6">
 <h3 class="font-bold text-sm mb-3"><i class="fas fa-envelope mr-1"></i> Send Test Reminder</h3>
-<div class="text-xs mb-2" style="color:var(--fg2)">Set these env vars in Render Dashboard → Environment Variables first:</div>
-<code style="display:block;background:var(--bg2);padding:8px 12px;border-radius:8px;margin:6px 0;font-size:11px;cursor:pointer" onclick="copyKeys('SMTP_HOST','SMTP_USER','SMTP_PASS')" title="Click to copy">
-SMTP_HOST=smtp.gmail.com<br>
-SMTP_PORT=587<br>
-SMTP_USER=your_email@gmail.com<br>
-SMTP_PASS=your_app_password<br>
-SMTP_SECURE=false
-</code>
+<div class="text-xs mb-2" style="color:var(--fg2)">Send a test email to verify delivery:</div>
 <div class="flex gap-2 mt-2">
 <input id="testEmail" type="email" placeholder="user@example.com" class="flex-1 p-2.5 rounded-lg border text-xs" style="background:var(--bg2);border-color:var(--border);color:var(--fg);outline:none">
 <button onclick="sendTestReminder()" class="px-4 py-2.5 rounded-lg font-bold text-xs" style="background:var(--accent);color:#fff;border:none;cursor:pointer">Send</button>
@@ -116,8 +109,8 @@ function login() {
     document.getElementById('statMemory').textContent = (d.memory && d.memory.rss ? (d.memory.rss / 1024 / 1024).toFixed(0) : '?');
     document.getElementById('statNode').textContent = d.node;
     var info = document.getElementById('serverInfo');
-    info.innerHTML = '<div>Environment: ' + d.env + '</div><div>SMTP Configured: ' + (d.smtp_configured ? '<span style="color:var(--green)">Yes</span>' : '<span style="color:var(--accent)">No</span>') + '</div><div>Uptime: ' + Math.floor(d.uptime) + 's</div><div>Reminders: ' + d.reminders + '</div>';
-    document.getElementById('smtpStatus').innerHTML = d.smtp_configured ? '<span style="color:var(--green)">✓ SMTP is configured</span>' : '<span style="color:var(--accent)">✗ SMTP not configured — reminders will fail. Add SMTP_HOST, SMTP_USER, SMTP_PASS in Render env vars.</span>';
+    info.innerHTML = '<div>Environment: ' + d.env + '</div><div>Mailgun: ' + (d.mailgun_configured ? '<span style="color:var(--green)">Yes ✓</span>' : '<span style="color:var(--accent)">No</span>') + '</div><div>Uptime: ' + Math.floor(d.uptime) + 's</div><div>Reminders: ' + d.reminders + '</div>';
+    document.getElementById('smtpStatus').innerHTML = d.mailgun_configured ? '<span style="color:var(--green)">✓ Mailgun is configured — email sending active</span>' : '<span style="color:var(--accent)">✗ Mailgun not configured. Add MAILGUN_API_KEY and MAILGUN_DOMAIN in Render env vars.</span>';
   })
   .catch(function(e) { alert('Error: ' + e.message); });
 }
@@ -132,7 +125,7 @@ function sendTestReminder() {
 function testSMTPConfig() {
   fetch('/api/test-smtp', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key:adminKey}) })
   .then(function(r) { return r.json(); })
-  .then(function(d) { document.getElementById('testResult').textContent = d.ok ? '✓ SMTP config is valid' : (d.error || 'Test failed'); })
+  .then(function(d) { document.getElementById('testResult').textContent = d.ok ? '✓ Email delivery is working (' + (d.via || 'mailgun') + ')' : (d.error || 'Test failed'); })
   .catch(function(e) { document.getElementById('testResult').textContent = 'Error: ' + e.message; });
 }
 function sendTestPush() {
