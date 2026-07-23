@@ -13,6 +13,22 @@ self.addEventListener('activate', e => {
   );
 });
 
+self.addEventListener('push', e => {
+  const data = e.data ? e.data.json() : {};
+  self.registration.showNotification(data.title || 'MandarinCourse', {
+    body: data.body || 'Time to practice Chinese!',
+    icon: 'https://cdn-icons-png.flaticon.com/512/3898/3898083.png',
+    badge: 'https://cdn-icons-png.flaticon.com/512/3898/3898083.png',
+    vibrate: [200,100,200],
+    data: { url: data.url || '/app' }
+  });
+});
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close();
+  e.waitUntil(clients.openWindow(e.notification.data.url || '/app'));
+});
+
 self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request).then(response => {

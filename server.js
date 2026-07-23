@@ -294,6 +294,46 @@ async function getPayPalAccessToken() {
   }
 }
 
+// ===== LEADERBOARD API =====
+const leaderboardScores = [];
+app.post('/api/leaderboard/save', (req, res) => {
+  const { name, score, level } = req.body || {};
+  if (!name || !score) return res.status(400).json({ error: 'Missing name or score' });
+  leaderboardScores.push({ name: name.slice(0,30), score: +score || 0, level: level || 'HSK 1', date: new Date().toISOString() });
+  leaderboardScores.sort((a,b) => b.score - a.score);
+  if (leaderboardScores.length > 200) leaderboardScores.length = 200;
+  res.json({ ok: true });
+});
+
+app.get('/api/leaderboard', (req, res) => {
+  res.json(leaderboardScores.slice(0, 50));
+});
+
+// ===== PODCAST MP3 DOWNLOAD =====
+const PODCAST_EPISODES = [
+  { id:'ep1', title:'Greetings & Introductions', file:'podcast-ep1.mp3', duration:'8:30' },
+  { id:'ep2', title:'Numbers & Daily Life', file:'podcast-ep2.mp3', duration:'10:15' },
+  { id:'ep3', title:'Food & Restaurant', file:'podcast-ep3.mp3', duration:'9:45' },
+  { id:'ep4', title:'Travel & Directions', file:'podcast-ep4.mp3', duration:'11:00' },
+  { id:'ep5', title:'Chinese Culture & Customs', file:'podcast-ep5.mp3', duration:'12:20' },
+];
+
+app.get('/api/podcast-episodes', (req, res) => {
+  res.json(PODCAST_EPISODES);
+});
+
+app.get('/api/podcast-download/:id', (req, res) => {
+  const ep = PODCAST_EPISODES.find(e => e.id === req.params.id);
+  if (!ep) return res.status(404).json({ error: 'Episode not found' });
+  const filePath = path.join(__dirname, 'public', 'audio', ep.file);
+  if (require('fs').existsSync(filePath)) {
+    res.download(filePath, ep.file);
+  } else {
+    // Return info if file doesn't exist yet
+    res.json({ error: 'File not yet published', episode: ep });
+  }
+});
+
 // Redirect HTTP to HTTPS in production
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {

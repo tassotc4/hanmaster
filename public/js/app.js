@@ -11935,6 +11935,13 @@ function updateGamificationDisplay() {
   const badges = JSON.parse(localStorage.getItem('earned_badges') || '[]');
   const badgeEl = document.getElementById('badgeCount');
   if (badgeEl) badgeEl.textContent = badges.length;
+  
+  // Update rank display
+  const rankEl = document.getElementById('rankDisplay');
+  if (rankEl) {
+    const storedRank = localStorage.getItem('leaderboard_rank');
+    rankEl.textContent = storedRank ? '#' + storedRank : '-';
+  }
 }
 
 function checkBadges() {
@@ -12705,6 +12712,14 @@ function podSpeed() {
   podSpeedRate = rates[(cur + 1) % rates.length];
   var btn = document.getElementById('podSpeedBtn');
   if (btn) btn.textContent = podSpeedRate + 'x';
+}
+
+function podDownload() {
+  var lesson = podQueue[podIdx];
+  if (!lesson) return;
+  var epId = 'ep' + (podIdx + 1);
+  window.open('/api/podcast-download/' + epId, '_blank');
+  toast(t('Downloading podcast episode...'), 'var(--green)', 2000);
 }
 
 function updatePodDisplay() {
@@ -13525,8 +13540,130 @@ function filterDictionary() {
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv && (!q || w.c.includes(q) || w.p.includes(q) || w.e.toLowerCase().includes(q))) : [];
   list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
 }
+// ===== ONBOARDING WALKTHROUGH =====
+const ONBOARDING_STEPS = [
+  { title:'Welcome!', desc:'Master Chinese with AI-powered tutor, HSK lessons, flashcards, and more.', icon:'🎉' },
+  { title:'Choose Your Level', desc:'Select HSK 1-9 in Lessons. HSK 1 is free — upgrade for full access.', icon:'📚' },
+  { title:'Practice with AI Tutor', desc:'Tap the mic to speak. AI grades your pronunciation in real time.', icon:'🎤' },
+  { title:'Test Yourself', desc:'Take quizzes to earn XP, track streaks, and unlock achievements.', icon:'🏆' },
+];
+let onboardStep = 0;
+
+function showOnboarding() {
+  const o = document.getElementById('onboardingOverlay');
+  if (o) o.style.display = 'flex';
+  onboardStep = 0;
+  renderOnboardStep();
+}
+
+function renderOnboardStep() {
+  const s = ONBOARDING_STEPS[onboardStep];
+  document.getElementById('onboardTitle').textContent = s.title;
+  document.getElementById('onboardDesc').textContent = s.desc;
+  document.querySelectorAll('.onboard-dot').forEach((d,i) => {
+    d.style.background = i === onboardStep ? 'var(--accent)' : 'var(--border)';
+  });
+  const btn = document.getElementById('onboardNextBtn');
+  if (onboardStep === ONBOARDING_STEPS.length - 1) {
+    btn.textContent = 'Get Started';
+    btn.onclick = finishOnboarding;
+  } else {
+    btn.textContent = 'Next';
+    btn.onclick = nextOnboarding;
+  }
+}
+
+function nextOnboarding() {
+  if (onboardStep < ONBOARDING_STEPS.length - 1) {
+    onboardStep++;
+    renderOnboardStep();
+  }
+}
+
+function skipOnboarding() {
+  const o = document.getElementById('onboardingOverlay');
+  if (o) o.style.display = 'none';
+  localStorage.setItem('onboarding_done', 'true');
+}
+
+function finishOnboarding() {
+  skipOnboarding();
+  navTo('#lessons');
+}
+
+// ===== COMMUNITY LEADERBOARD =====
+function showLeaderboard() {
+  const overlay = document.createElement('div');
+  overlay.id = 'leaderboardOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  
+  const card = document.createElement('div');
+  card.style.cssText = 'background:var(--card);border-radius:16px;padding:24px;max-width:450px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)';
+  card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    + '<h3 style="margin:0;font-size:18px;color:var(--fg)">🏆 '+t('Leaderboard')+'</h3>'
+    + '<button onclick="this.closest(\'#leaderboardOverlay\').remove()" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none;display:flex;align-items:center;justify-content:center"><i class="fas fa-xmark"></i></button>'
+    + '</div>'
+    + '<div id="leaderboardList" style="text-align:center;padding:40px 0;color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> Loading...</div>'
+    + '<div style="margin-top:12px;display:flex;gap:8px"><input id="lbNameInput" placeholder="'+t('Your name')+'" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:14px;outline:none" maxlength="20">'
+    + '<button onclick="submitLeaderboardScore()" style="padding:10px 20px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:14px;font-weight:600;outline:none">'+t('Submit')+'</button></div>';
+  
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  fetchLeaderboard();
+}
+
+async function fetchLeaderboard() {
+  try {
+    const r = await fetch('/api/leaderboard');
+    const d = await r.json();
+    const list = document.getElementById('leaderboardList');
+    if (!list) return;
+    if (!d.length) {
+      list.innerHTML = '<div style="padding:40px 0;color:var(--muted)">'+t('No scores yet. Be the first!')+'</div>';
+      return;
+    }
+    list.innerHTML = d.map((s,i) => '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">'
+      + '<span style="width:24px;text-align:center;font-weight:bold;color:'+(i<3?'var(--gold)':'var(--muted)')+'">'+(i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1))+'</span>'
+      + '<span style="flex:1;font-weight:500;color:var(--fg)">'+escHtml(s.name)+'</span>'
+      + '<span style="color:var(--muted);font-size:12px">'+s.level+'</span>'
+      + '<span style="font-weight:bold;color:var(--accent)">'+s.score+' XP</span>'
+      + '</div>').join('');
+  } catch {
+    const list = document.getElementById('leaderboardList');
+    if (list) list.innerHTML = '<div style="padding:40px 0;color:var(--muted)">'+t('Failed to load leaderboard')+'</div>';
+  }
+}
+
+async function submitLeaderboardScore() {
+  const name = document.getElementById('lbNameInput');
+  if (!name || !name.value.trim()) { toast(t('Please enter your name'), '#e74c3c', 2000); return; }
+  const xp = parseInt(localStorage.getItem('total_xp') || '0');
+  const lvIdx = parseInt(localStorage.getItem('curLv') || '0');
+  const level = (typeof LV !== 'undefined' && LV[lvIdx]) ? LV[lvIdx].n : 'HSK 1';
+  try {
+    const r = await fetch('/api/leaderboard/save', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name.value.trim(), score: xp, level })
+    });
+    if (r.ok) { toast(t('Score submitted!'), 'var(--accent)', 2000); fetchLeaderboard(); }
+  } catch { toast(t('Failed to submit'), '#e74c3c', 2000); }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof initTranslate === 'function') initTranslate();
   buildDictionary(1);
   initGamification();
+  
+  // Onboarding for first-time users
+  if (!localStorage.getItem('onboarding_done')) {
+    setTimeout(showOnboarding, 800);
+  }
 });
