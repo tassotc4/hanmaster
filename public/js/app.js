@@ -12930,99 +12930,39 @@ function showPremiumPaywall(levelName) {
   if (typeof paypal !== 'undefined') renderPayPalButtons();
 }
 
-async function initCapacitorPurchases() {
-  if (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform()) {
-    try {
-      const { Purchases } = Capacitor.Plugins;
-      if (Purchases) {
-        // Set RevenueCat credentials based on platform
-        var apiKey = MANDARINCOURSE_CONFIG.REVENUECAT_IOS_KEY || MANDARINCOURSE_CONFIG.REVENUECAT_ANDROID_KEY || '';
-        if (!apiKey) { console.warn('RevenueCat API key not configured. Native purchases disabled.'); return; }
-        apiKey = Capacitor.getPlatform() === 'ios' ? (MANDARINCOURSE_CONFIG.REVENUECAT_IOS_KEY || apiKey) : (MANDARINCOURSE_CONFIG.REVENUECAT_ANDROID_KEY || apiKey);
-        await Purchases.configure({ apiKey: apiKey });
-        console.log("Capacitor Purchases configured successfully.");
-        
-        // Sync subscription state on load
-        const customerInfo = await Purchases.getCustomerInfo();
-        if (customerInfo && customerInfo.entitlements.active["premium_unlock"]) {
-          localStorage.setItem('is_premium', 'true');
-          updatePremiumUI();
-        } else {
-          localStorage.removeItem('is_premium');
-        }
-      }
-    } catch(e) {
-      console.error("Capacitor Purchases initialization failed:", e);
-    }
-  }
+function initCapacitorPurchases() {
+  // Native purchases not available in PWA mode — PayPal handles payments instead
 }
 
-async function subscribePremium() {
-  const isNative = typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform();
-  
-  if (isNative) {
-    try {
-      const { Purchases } = Capacitor.Plugins;
-      if (!Purchases) {
-        toast("Billing plugin not found.", "var(--accent)");
-        return;
-      }
-      
-      toast("Contacting App Store Billing...", "var(--gold)");
-      
-      const offerings = await Purchases.getOfferings();
-      if (offerings.current && offerings.current.availablePackages.length > 0) {
-        const pkg = offerings.current.availablePackages[0]; // lifetime or monthly package
-        const purchaseResult = await Purchases.purchasePackage({ aPackage: pkg });
-        
-        if (purchaseResult.customerInfo.entitlements.active["premium_unlock"]) {
-          localStorage.setItem('is_premium', 'true');
-          togglePremiumModal();
-          updatePremiumUI();
-          if (lessonsMode === 'topics') buildTopics();
-          else if (lessonsMode === 'podcast') buildPodcastTopics();
-          else buildFlashcards();
-          toast("Purchase successful! Welcome to Premium.", "var(--green)");
-        } else {
-          toast("Entitlement activation failed.", "var(--accent)");
-        }
-      } else {
-        toast("No premium products available currently.", "var(--gold)");
-      }
-    } catch (err) {
-      console.error("Native purchase error:", err);
-      toast(err.message || "Purchase cancelled.", "var(--accent)");
-    }
-  } else {
-    // Web / PWA: use real PayPal server API
-    toast("Contacting PayPal...", "var(--gold)");
-    fetch('/api/paypal/create-order', { method:'POST' })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.id) throw new Error(data.error || 'Failed to create order');
-      return fetch('/api/paypal/capture-order', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ orderId: data.id })
-      });
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(details) {
-      if (details.status === 'COMPLETED') {
-        localStorage.setItem('is_premium', 'true');
-        togglePremiumModal();
-        updatePremiumUI();
-        if (lessonsMode === 'topics') buildTopics();
-        else if (lessonsMode === 'podcast') buildPodcastTopics();
-        else buildFlashcards();
-        toast("Welcome to MandarinCourse Premium! HSK 1-9 Unlocked.", "var(--green)");
-      } else {
-        toast("Payment not completed. Please try again.", "var(--accent)");
-      }
-    })
-    .catch(function(err) {
-      toast("Payment error: " + (err.message || "Please try again."), "var(--accent)");
+function subscribePremium() {
+  // Web / PWA: use PayPal server API
+  toast("Contacting PayPal...", "var(--gold)");
+  fetch('/api/paypal/create-order', { method:'POST' })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (!data.id) throw new Error(data.error || 'Failed to create order');
+    return fetch('/api/paypal/capture-order', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ orderId: data.id })
     });
-  }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(details) {
+    if (details.status === 'COMPLETED') {
+      localStorage.setItem('is_premium', 'true');
+      togglePremiumModal();
+      updatePremiumUI();
+      if (lessonsMode === 'topics') buildTopics();
+      else if (lessonsMode === 'podcast') buildPodcastTopics();
+      else buildFlashcards();
+      toast("Welcome to MandarinCourse Premium! HSK 1-9 Unlocked.", "var(--green)");
+    } else {
+      toast("Payment not completed. Please try again.", "var(--accent)");
+    }
+  })
+  .catch(function(err) {
+    toast("Payment error: " + (err.message || "Please try again."), "var(--accent)");
+  });
 }
 
 // ===== PREMIUM UNLOCK & HSK 4-9 DYNAMIC LESSON GENERATOR =====
@@ -14278,6 +14218,26 @@ const STORIES = [
   {level:'HSK 4',title:'环境保护',content:'现在环境问题越来越严重了。我们城市经常有雾霾，空气污染很厉害。为了保护环境，很多人开始骑自行车上班。我们也应该少用塑料袋，把垃圾分类。节约用水也很重要。如果每个人都注意环保，我们的地球会变得更美好。',questions:[{q:'城市有什么环境问题？',o:['噪音','雾霾','堵车','洪水'],a:1},{q:'为了保护环境，很多人怎样上班？',o:['开车','坐地铁','骑自行车','走路'],a:2},{q:'我们应该怎样做？',o:['多用塑料袋','不分类垃圾','浪费水','少用塑料袋'],a:3}]},
   {level:'HSK 5',title:'人工智能',content:'人工智能是当今最热门的话题之一。人工智能技术已经广泛应用于我们的日常生活，比如手机语音助手、自动驾驶汽车和智能家居。专家认为，人工智能将会改变很多行业，包括医疗、教育和制造业。但是也有人担心，人工智能可能取代很多人的工作。',questions:[{q:'人工智能是什么？',o:['一种食物','一种技术','一种动物','一种音乐'],a:1},{q:'人工智能已经用在什么地方？',o:['农业','捕鱼','语音助手','建筑'],a:2},{q:'有人担心什么？',o:['AI太贵','AI取代工作','AI不好用','AI不安全'],a:1}]},
   {level:'HSK 6',title:'全球化',content:'全球化是指世界各国之间的经济、文化和政治联系越来越紧密。随着交通和通信技术的发展，人们可以更容易地去其他国家旅行、学习和工作。全球化促进了国际贸易和文化交流。但是全球化也带来了一些问题，比如文化差异的冲突和贫富差距的扩大。如何平衡全球化的利与弊是每个国家都需要考虑的问题。',questions:[{q:'全球化是指什么？',o:['国家之间的竞争','国家之间的联系','国家之间的战争','国家之间的隔离'],a:1},{q:'什么技术促进了全球化？',o:['农业技术','交通和通信技术','医疗技术','军事技术'],a:1},{q:'全球化带来了什么问题？',o:['经济繁荣','文化冲突','和平发展','科技进步'],a:1}]},
+  {level:'HSK 4',title:'中国茶文化',content:'中国是茶的故乡。中国人喝茶已经有几千年的历史了。茶有很多种类，比如绿茶、红茶、乌龙茶和普洱茶。不同的人喜欢不同的茶。喝茶不仅可以解渴，还对身体有好处。在中国，客人来了，主人通常会泡茶招待。茶文化是中国文化的重要部分。',questions:[{q:'中国喝茶的历史有多久？',o:['几百年','几千年','一百年','一万年'],a:1},{q:'下面哪个不是茶种类？',o:['绿茶','红茶','可乐','普洱茶'],a:2},{q:'客人来了，主人通常会做什么？',o:['倒酒','泡茶','做饭','切水果'],a:1}]},
+  {level:'HSK 4',title:'春节习俗',content:'春节是中国最重要的传统节日。每年春节，在外地工作的人都会回家和家人团聚。人们会贴春联、放鞭炮、吃年夜饭。长辈会给孩子们发红包，里面装着压岁钱。春节晚会也是很多人必看的节目。春节一般会庆祝十五天，直到元宵节结束。',questions:[{q:'春节是什么？',o:['传统节日','现代节日','外国节日','体育节日'],a:0},{q:'长辈给孩子们什么？',o:['礼物','红包','新衣服','玩具'],a:1},{q:'春节庆祝多少天？',o:['七天','十天','十五天','一个月'],a:2}]},
+  {level:'HSK 5',title:'健康饮食',content:'现代人越来越关注健康饮食。营养学家建议我们每天吃五种不同颜色的蔬菜和水果。全谷物食品比精制食品更有营养。我们应该少吃油炸食品和高糖饮料。多吃鱼、豆腐和坚果对心脏有好处。此外，每天喝足够的水也很重要，大约八杯水。健康的饮食习惯能帮助我们预防很多疾病。',questions:[{q:'营养学家建议每天吃几种颜色的蔬菜水果？',o:['三种','四种','五种','六种'],a:2},{q:'什么对心脏有好处？',o:['油炸食品','高糖饮料','鱼和豆腐','白米饭'],a:2},{q:'每天应该喝多少水？',o:['四杯','六杯','八杯','十杯'],a:2}]},
+  {level:'HSK 5',title:'中国高铁',content:'中国拥有世界上最大的高速铁路网络。高铁的速度可以达到每小时350公里。从北京到上海只需要四个半小时。高铁非常方便、准时，而且价格合理。很多人出差或旅行都会选择坐高铁。中国高铁技术也越来越先进，已经开始向其他国家出口。高铁改变了中国人的出行方式。',questions:[{q:'中国高铁速度可以达到多少？',o:['200公里/小时','300公里/小时','350公里/小时','400公里/小时'],a:2},{q:'北京到上海坐高铁需要多久？',o:['两个半小时','三个半小时','四个半小时','五个半小时'],a:2},{q:'高铁的优势不包括什么？',o:['方便','准时','便宜','速度快'],a:2}]},
+  {level:'HSK 6',title:'社交媒体',content:'社交媒体已经成为现代人生活中不可或缺的一部分。越来越多的人通过微信、微博、抖音等平台获取新闻、分享生活和与朋友交流。社交媒体让人们的信息传播变得更加快速和广泛。然而，社交媒体也带来了一些问题，比如信息过载、隐私泄露和网络成瘾。专家建议我们合理使用社交媒体，控制每天的使用时间。',questions:[{q:'社交媒体已经成为什么？',o:['可有可无','必不可少','浪费时间','无关紧要'],a:1},{q:'社交媒体传播信息有什么特点？',o:['慢而窄','快而广','快而窄','慢而广'],a:1},{q:'专家建议怎样使用社交媒体？',o:['越多越好','完全不用','合理使用','只用来工作'],a:2}]},
+  {level:'HSK 6',title:'共享经济',content:'共享经济是一种新兴的经济模式。在中国，共享单车、共享充电宝和共享汽车都很受欢迎。这种模式让人们可以共享资源，减少浪费，更加环保。用户只需要通过手机应用程序就可以随时使用这些服务。共享经济也创造了新的就业机会。不过，共享经济也面临一些挑战，比如监管问题和商业模式的可持续性。',questions:[{q:'共享经济是一种什么模式？',o:['传统模式','新兴模式','落后模式','国外模式'],a:1},{q:'用户如何享受共享服务？',o:['打电话','发邮件','通过手机应用','去实体店'],a:2},{q:'共享经济的挑战不包括什么？',o:['监管问题','商业模式','用户数量','可持续性'],a:2}]},
+  {level:'HSK 7',title:'量子计算',content:'量子计算是一种基于量子力学原理的新型计算方式。与传统计算机使用比特不同，量子计算机使用量子比特。量子比特可以同时处于0和1的叠加态，这使得量子计算机在某些特定任务上的计算速度远超传统计算机。例如，在密码破解、药物研发和气候模拟等领域，量子计算展现出了巨大的潜力。目前，全球各大科技公司都在积极研发量子计算机，但距离大规模商用还有很长的路要走。',questions:[{q:'量子计算机使用什么？',o:['比特','量子比特','字节','字符'],a:1},{q:'量子计算的独特优势是什么？',o:['价格便宜','体积小','叠加态计算','耗电少'],a:2},{q:'量子计算目前在什么阶段？',o:['大规模商用','研发阶段','已经淘汰','普及阶段'],a:1}]},
+  {level:'HSK 7',title:'丝绸之路',content:'丝绸之路是古代连接中国和西方的重要贸易路线。它起源于汉代，全长约7000公里。通过丝绸之路，中国的丝绸、茶叶、瓷器和造纸术传到了西方，而西方的葡萄、胡桃、玻璃和佛教也传入了中国。丝绸之路不仅促进了贸易往来，也推动了东西方文化的交流与融合。今天，中国提出的"一带一路"倡议正是对丝绸之路精神的继承和发展。',questions:[{q:'丝绸之路起源于哪个朝代？',o:['唐代','宋代','汉代','明代'],a:2},{q:'丝绸之路全长约多少公里？',o:['5000','6000','7000','8000'],a:2},{q:'现代对丝绸之路精神的继承叫什么？',o:['改革开放','一带一路','西部开发','南南合作'],a:1}]},
+  {level:'HSK 8',title:'人工智能伦理',content:'随着人工智能技术的快速发展，AI伦理问题日益引起全球关注。自动驾驶汽车在遇到不可避免的事故时应该如何决策？面部识别技术是否侵犯个人隐私？AI算法是否存在种族或性别歧视？这些问题都需要我们认真思考。各国政府和国际组织正在制定AI伦理准则，强调透明度、公平性和问责制。专家认为，发展负责任的人工智能需要技术专家、伦理学家和政策制定者的共同努力。',questions:[{q:'AI伦理问题什么时候引起了关注？',o:['一直存在','近年来','从未被关注','20年前'],a:1},{q:'AI伦理准则强调什么？',o:['速度和效率','成本和收益','透明度和公平性','市场规模'],a:2},{q:'谁需要共同努力发展负责任的AI？',o:['只有程序员','只有政府','技术专家、伦理学家和政策制定者','只有企业'],a:2}]},
+  {level:'HSK 8',title:'太空探索',content:'人类对太空的探索从未停止。从1969年阿姆斯特朗登上月球，到如今国际空间站的长期驻留，太空技术取得了巨大的进步。中国也在太空探索领域取得了举世瞩目的成就，包括载人航天工程、嫦娥探月工程和天问火星探测任务。太空探索不仅拓展了人类对宇宙的认识，也推动了新材料、通信技术和医学研究的发展。未来，人类还计划登陆火星和建立月球基地。',questions:[{q:'阿姆斯特朗什么时候登上月球？',o:['1959年','1969年','1979年','1989年'],a:1},{q:'中国的火星探测任务叫什么？',o:['嫦娥','天宫','天问','北斗'],a:2},{q:'太空探索推动了哪些领域的发展？',o:['只有通信','新材料、通信和医学','只有医学','只有农业'],a:1}]},
+  {level:'HSK 9',title:'跨文化交际',content:'在全球化时代，跨文化交际能力变得越来越重要。不同文化背景的人在交流时，不仅语言不同，思维方式、价值观念和非语言行为也有很大差异。例如，在一些文化中，直接的目光接触表示诚实和自信，在另一些文化中则可能被视为不礼貌。高语境文化和低语境文化的沟通风格也截然不同。要有效地进行跨文化交际，我们需要培养文化敏感性，学会换位思考，并避免文化刻板印象。',questions:[{q:'跨文化交际能力为什么越来越重要？',o:['因为语言变简单了','全球化时代','因为文化变少了','因为人变少了'],a:1},{q:'直接目光接触在不同文化中可能意味着什么？',o:['都一样','完全不同','只有礼貌的意思','只有不礼貌的意思'],a:1},{q:'如何有效进行跨文化交际？',o:['坚持自己的文化','培养文化敏感性','避免交流','只用英语'],a:1}]},
+  {level:'HSK 9',title:'气候变化',content:'气候变化是当今世界面临的最严峻的挑战之一。工业革命以来，人类活动导致大气中的温室气体浓度显著增加，全球平均气温已经上升了约1.1摄氏度。气候变化导致极端天气事件更加频繁，海平面上升，生态系统遭到破坏。国际社会通过《巴黎协定》确立了将全球升温控制在1.5摄氏度以内的目标。实现这一目标需要各国大幅减少碳排放，转向可再生能源，并推广低碳生活方式。',questions:[{q:'全球平均气温上升了多少？',o:['0.5度','1.1度','2度','3度'],a:1},{q:'《巴黎协定》的目标是什么？',o:['停止工业发展','升温控制在1.5度以内','完全使用太阳能','减少人口'],a:1},{q:'实现气候目标需要什么？',o:['减少碳排放','增加碳排放','保持现状','只靠技术'],a:0}]},
+  {level:'HSK 4',title:'手机支付',content:'在中国，手机支付非常流行。大部分人出门不带钱包，只带手机。你可以用手机支付买东西、打车、交水电费，甚至买菜。最常用的支付方式是微信支付和支付宝。手机支付非常方便，只要扫一下二维码就可以完成支付。即使是街边的小摊贩也支持手机支付。不过，使用手机支付时也要注意安全，不要随便扫描陌生人的二维码。',questions:[{q:'在中国大部分人出门带什么？',o:['钱包','手机','现金','信用卡'],a:1},{q:'最常用的支付方式是什么？',o:['银行卡','现金','微信支付和支付宝','Apple Pay'],a:2},{q:'使用手机支付要注意什么？',o:['多带现金','安全','带信用卡','不用手机'],a:1}]},
+  {level:'HSK 4',title:'网上购物',content:'网上购物在中国非常普遍。淘宝、京东和拼多多是最受欢迎的购物网站。你可以在网上买到几乎所有东西，从衣服、电子产品到食品和家具。网上购物有很多优点，比如价格便宜、种类多、送货上门。但是也有缺点，比如不能试穿、送货时间较长。双十一是一年中最火爆的购物节，这一天很多商品都有很大的折扣，人们会买很多东西。',questions:[{q:'中国最受欢迎的购物网站不包括哪个？',o:['淘宝','京东','拼多多','亚马逊'],a:3},{q:'网上购物的优点不包括什么？',o:['价格便宜','种类多','可以试穿','送货上门'],a:2},{q:'双十一是做什么的？',o:['节日','购物节','春节','国庆'],a:1}]},
+  {level:'HSK 5',title:'故宫博物院',content:'故宫位于北京的中心，是明清两代的皇家宫殿，现在被称为故宫博物院。故宫有超过600年的历史，占地面积约72万平方米，有9000多个房间。故宫的建筑体现了中国古代建筑艺术的最高水平。博物院收藏了超过186万件珍贵文物，其中包括书画、陶瓷、玉器和钟表等。每年有数以百万计的游客从世界各地来到故宫参观。故宫已被联合国教科文组织列为世界文化遗产。',questions:[{q:'故宫有多少年历史？',o:['400多年','500多年','600多年','700多年'],a:2},{q:'故宫有多少个房间？',o:['5000多个','7000多个','9000多个','11000多个'],a:2},{q:'故宫被列为什么？',o:['国家公园','世界文化遗产','自然保护区','现代建筑'],a:1}]},
+  {level:'HSK 5',title:'中国人的姓氏',content:'中国人的姓氏有着悠久的历史。常见的中国姓氏有几百个，其中王、李、张、刘、陈是最常见的五大姓氏。中国人的姓名通常是姓在前，名在后，这与西方人的习惯相反。在古代，中国女人结婚后不会改姓。有些姓氏来自于地名，有些来自于职业。每个姓氏背后往往都有一个有趣的历史故事。了解姓氏文化可以帮助我们更好地理解中国历史。',questions:[{q:'中国最常见的五大姓氏不包括哪个？',o:['王','李','赵','张'],a:2},{q:'中国人的姓名顺序是什么？',o:['名在前姓在后','姓在前名在后','和西方一样','随便'],a:1},{q:'姓氏可以来自于什么？',o:['只有地名','只有职业','地名和职业','颜色'],a:2}]},
+  {level:'HSK 3',title:'在图书馆',content:'我们学校有一个很大的图书馆。图书馆里有各种各样的书，有中文书，也有英文书。我每个星期都去图书馆借书。我最近借了一本关于中国历史的书，很有意思。图书馆里还有电脑，我们可以上网查资料。图书馆很安静，大家都在认真看书。我经常在图书馆学习到下午五点关门。',questions:[{q:'图书馆里有什么样的书？',o:['只有中文书','只有英文书','中文书和英文书','没有书'],a:2},{q:'我最近借了什么书？',o:['小说','中国历史','漫画','字典'],a:1},{q:'图书馆几点关门？',o:['四点','五点','六点','七点'],a:1}]},
+  {level:'HSK 3',title:'我的爱好',content:'我的爱好是摄影。我爸爸送给我一台相机作为生日礼物，从那以后我就爱上了拍照。周末我常常去公园或者山上拍风景照。摄影让我学会了观察生活中的美好事物。我已经拍了上千张照片了，我把它们都保存在电脑里。我最好的照片是在海边拍的日出，非常漂亮。我长大后想当一名摄影师。',questions:[{q:'谁送给我相机？',o:['妈妈','爸爸','朋友','哥哥'],a:1},{q:'我周末常常去哪里拍照？',o:['超市','公园或山上','家里','学校'],a:1},{q:'我长大后想做什么？',o:['老师','医生','摄影师','司机'],a:2}]},
+  {level:'HSK 2',title:'在饭店',content:'今天我和朋友去一家中餐馆吃饭。服务员给我们菜单。我们点了两个菜和一碗米饭。我点了宫保鸡丁，朋友点了鱼香肉丝。菜很好吃，但是有点辣。我们每人还喝了一杯果汁。吃完饭，我付了钱。一共花了六十块钱。服务员说欢迎下次再来。我们很高兴地离开了。',questions:[{q:'我在哪里吃饭？',o:['家里','食堂','中餐馆','西餐馆'],a:2},{q:'我们点了几个菜？',o:['一个','两个','三个','四个'],a:1},{q:'一共花了多少钱？',o:['四十','五十','六十','七十'],a:2}]},
+  {level:'HSK 2',title:'我的房间',content:'我的房间不大，但是很干净整洁。房间的墙上贴着一张中国地图。窗户旁边有一张书桌，我每天在书桌上做作业。床在书桌的左边，床单是蓝色的。房间的角落有一个书架，上面放着很多中文书。墙上还有一张我画的画，画的是长城。我很喜欢我的房间。',questions:[{q:'墙上贴着什么？',o:['海报','中国地图','照片','日历'],a:1},{q:'床在书桌的哪边？',o:['右边','前面','左边','后面'],a:2},{q:'我画了什么？',o:['天安门','长城','故宫','熊猫'],a:1}]},
 ];
 let storyIdx = 0, storyScore = 0, storyAnswers = [];
 

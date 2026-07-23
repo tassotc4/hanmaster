@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MandarinCourse</string>
+    <string name="title_activity_main">MandarinCourse</string>
+    <string name="package_name">app.mandarincourse.app</string>
+    <string name="custom_url_scheme">app.mandarincourse.app</string>
+</resources>
