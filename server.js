@@ -6,6 +6,15 @@ const PORT = process.env.PORT || 8080;
 const staticDir = path.join(__dirname, 'public');
 const PAYPAL_API = process.env.PAYPAL_SANDBOX ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 const nodemailer = require('nodemailer');
+const webpush = require('web-push');
+
+// VAPID keys for push notifications
+const vapidPublicKey = process.env.VAPID_PUBLIC_KEY || 'BEquQ_39qIy57pQoO6_YrWns8yRzImWu5WuUi0CkHnZPdvu3Uc0jY2W53wPPFz9bX0eKMz-8a3bDPeOMJS2ExDc';
+const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY || 'jGWQq6_iQJNAqYecZEv68WrsYvfoo_8ttHmyIkf7d7E';
+webpush.setVapidDetails('mailto:admin@mandarincourse.app', vapidPublicKey, vapidPrivateKey);
+
+// In-memory push subscriptions
+const pushSubscriptions = [];
 
 let mailTransporter = null;
 function getMailTransporter() {
@@ -293,6 +302,68 @@ async function getPayPalAccessToken() {
     return null;
   }
 }
+
+// ===== PUSH NOTIFICATIONS =====
+app.get('/api/vapid-public-key', (req, res) => {
+  res.json({ publicKey: vapidPublicKey });
+});
+
+app.post('/api/subscribe', (req, res) => {
+  const sub = req.body;
+  if (!sub || !sub.endpoint) return res.status(400).json({ error: 'Invalid subscription' });
+  const existing = pushSubscriptions.findIndex(s => s.endpoint === sub.endpoint);
+  if (existing !== -1) pushSubscriptions[existing] = sub;
+  else pushSubscriptions.push(sub);
+  if (pushSubscriptions.length > 500) pushSubscriptions.length = 500;
+  console.log('Push subscriptions:', pushSubscriptions.length);
+  res.json({ ok: true });
+});
+
+app.post('/api/unsubscribe', (req, res) => {
+  const { endpoint } = req.body || {};
+  if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
+  const idx = pushSubscriptions.findIndex(s => s.endpoint === endpoint);
+  if (idx !== -1) pushSubscriptions.splice(idx, 1);
+  res.json({ ok: true });
+});
+
+app.post('/api/send-push-test', async (req, res) => {
+  const { key } = req.body || {};
+  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  let sent = 0, failed = 0;
+  for (const sub of pushSubscriptions) {
+    try {
+      await webpush.sendNotification(sub, JSON.stringify({
+        title: 'MandarinCourse',
+        body: 'Time to practice Chinese! 🎯',
+        url: '/app'
+      }));
+      sent++;
+    } catch (e) {
+      if (e.statusCode === 410) failed++; // expired
+    }
+  }
+  res.json({ ok: true, sent, failed, total: pushSubscriptions.length });
+});
+
+// Periodic push reminder (every 6 hours)
+setInterval(async () => {
+  if (pushSubscriptions.length === 0) return;
+  for (const sub of pushSubscriptions) {
+    try {
+      await webpush.sendNotification(sub, JSON.stringify({
+        title: 'MandarinCourse',
+        body: 'Keep your streak alive! Practice Chinese now.',
+        url: '/app'
+      }));
+    } catch (e) {
+      if (e.statusCode === 410) {
+        const idx = pushSubscriptions.indexOf(sub);
+        if (idx !== -1) pushSubscriptions.splice(idx, 1);
+      }
+    }
+  }
+}, 6 * 60 * 60 * 1000);
 
 // ===== LEADERBOARD API =====
 const leaderboardScores = [];

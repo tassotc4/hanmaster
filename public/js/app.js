@@ -11586,7 +11586,12 @@ function toggleInputSpeech() {
 function toggleSettingsModal() {
   const modal = document.getElementById('geminiModal');
   if (modal) {
-    modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+    const showing = modal.style.display !== 'flex';
+    modal.style.display = showing ? 'flex' : 'none';
+    if (showing) {
+      updatePushToggleUI();
+      loadProfile();
+    }
   }
 }
 
@@ -13591,6 +13596,86 @@ function finishOnboarding() {
   navTo('#lessons');
 }
 
+// ===== PUSH NOTIFICATIONS =====
+let vapidPublicKey = null;
+
+async function initPushNotifications() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  
+  // Check if already subscribed
+  if (localStorage.getItem('push_enabled') !== 'true') return;
+  
+  try {
+    const perm = await Notification.requestPermission();
+    if (perm !== 'granted') return;
+    
+    // Fetch VAPID public key
+    if (!vapidPublicKey) {
+      const r = await fetch('/api/vapid-public-key');
+      const d = await r.json();
+      vapidPublicKey = d.publicKey;
+    }
+    
+    const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapidPublicKey)
+      });
+    }
+    
+    // Send subscription to server
+    await fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(subscription)
+    });
+    
+    console.log('Push notifications enabled');
+  } catch (e) {
+    console.warn('Push init failed:', e);
+  }
+}
+
+function togglePushNotifications(enabled) {
+  if (enabled) {
+    localStorage.setItem('push_enabled', 'true');
+    initPushNotifications();
+  } else {
+    localStorage.setItem('push_enabled', 'false');
+    // Unsubscribe
+    navigator.serviceWorker.ready.then(reg => {
+      reg.pushManager.getSubscription().then(sub => {
+        if (sub) {
+          sub.unsubscribe();
+          fetch('/api/unsubscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: sub.endpoint })
+          });
+        }
+      });
+    });
+  }
+}
+
+// Helper: base64url to Uint8Array
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  return Uint8Array.from([...rawData].map(ch => ch.charCodeAt(0)));
+}
+
+// ===== SETTINGS: Push notification toggle =====
+// Called when settings modal opens to reflect current state
+function updatePushToggleUI() {
+  const toggle = document.getElementById('pushToggle');
+  if (toggle) toggle.checked = localStorage.getItem('push_enabled') === 'true';
+}
+
 // ===== COMMUNITY LEADERBOARD =====
 function showLeaderboard() {
   const overlay = document.createElement('div');
@@ -13665,5 +13750,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Onboarding for first-time users
   if (!localStorage.getItem('onboarding_done')) {
     setTimeout(showOnboarding, 800);
+  }
+  
+  // Init push notifications if enabled
+  if (localStorage.getItem('push_enabled') === 'true') {
+    setTimeout(initPushNotifications, 3000);
   }
 });

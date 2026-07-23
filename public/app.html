@@ -782,6 +782,17 @@
         <i class="fas fa-bell mr-1"></i> Save Reminder Schedule
       </button>
     </div>
+    <div class="mb-5">
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Push Notifications">Push Notifications</label>
+      <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--card2)">
+        <span class="text-sm" style="color:var(--fg)" data-tr="Receive practice reminders via push">Receive practice reminders via push</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="pushToggle" class="sr-only peer" onchange="togglePushNotifications(this.checked)">
+          <div class="w-10 h-5 rounded-full peer peer-checked:bg-[var(--accent)]" style="background:var(--border);transition:background 0.2s"></div>
+          <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-5" style="box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>
+        </label>
+      </div>
+    </div>
     <div class="flex gap-2">
       <button class="bp flex-1" data-tr="Close" onclick="toggleSettingsModal()">Close</button>
     </div>

@@ -37,7 +37,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);paddi
 <h3 class="font-bold text-sm mb-3">Server Info</h3>
 <div class="text-xs space-y-2" style="color:var(--fg2)" id="serverInfo"></div>
 </div>
-<div class="card">
+<div class="card mb-6">
 <h3 class="font-bold text-sm mb-3">Send Test Reminder</h3>
 <div class="flex gap-2">
 <input id="testEmail" type="email" placeholder="user@example.com" class="flex-1 p-2.5 rounded-lg border text-xs" style="background:var(--bg2);border-color:var(--border);color:var(--fg);outline:none">
@@ -45,12 +45,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);paddi
 </div>
 <div id="testResult" class="text-xs mt-2" style="color:var(--green)"></div>
 </div>
+<div class="card">
+<h3 class="font-bold text-sm mb-3">Send Test Push Notification</h3>
+<p class="text-xs mb-3" style="color:var(--fg2)">Broadcasts to all subscribed users</p>
+<button onclick="sendTestPush()" class="px-4 py-2.5 rounded-lg font-bold text-xs" style="background:var(--accent);color:#fff;border:none;cursor:pointer"><i class="fas fa-bell mr-1"></i> Send Push to All</button>
+<div id="pushResult" class="text-xs mt-2" style="color:var(--green)"></div>
+</div>
 </div>
 </div>
 <script>
+var adminKey = '';
 function login() {
-  var key = document.getElementById('adminKey').value;
-  if (!key) return;
+  adminKey = document.getElementById('adminKey').value;
+  if (!adminKey) return;
   fetch('/api/admin/stats', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key:key}) })
   .then(function(r) { return r.json(); })
   .then(function(d) {
@@ -73,6 +80,12 @@ function sendTestReminder() {
   .then(function(r) { return r.json(); })
   .then(function(d) { document.getElementById('testResult').textContent = d.ok ? 'Sent!' : 'Error: ' + d.error; })
   .catch(function(e) { document.getElementById('testResult').textContent = 'Error: ' + e.message; });
+}
+function sendTestPush() {
+  fetch('/api/send-push-test', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key:adminKey}) })
+  .then(function(r) { return r.json(); })
+  .then(function(d) { document.getElementById('pushResult').textContent = 'Sent to ' + d.sent + ', failed ' + d.failed + ' (' + d.total + ' subs)'; })
+  .catch(function(e) { document.getElementById('pushResult').textContent = 'Error: ' + e.message; });
 }
 </script>
 </body>
