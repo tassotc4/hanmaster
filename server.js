@@ -594,14 +594,26 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
     const file = req.file;
     let extractedText = '';
 
-    // Determine MIME type from file extension as fallback
-    const ext = path.extname(file.originalname).toLowerCase();
-    const imageExts = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.heic', '.heif'];
-    if (!file.mimetype || file.mimetype === 'application/octet-stream') {
-      if (imageExts.includes(ext)) file.mimetype = 'image/' + (ext === '.jpg' ? 'jpeg' : ext.replace('.', ''));
-      else if (ext === '.pdf') file.mimetype = 'application/pdf';
-      else if (ext === '.docx') file.mimetype = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-      else if (ext === '.txt') file.mimetype = 'text/plain';
+    // Detect type from magic bytes when MIME is generic/missing
+    const buf = file.buffer;
+    const magic = buf[0].toString(16).padStart(2,'0') + buf[1].toString(16).padStart(2,'0');
+    if (!file.mimetype || file.mimetype === 'application/octet-stream' || file.mimetype === '') {
+      if (magic === 'ffd8') file.mimetype = 'image/jpeg';
+      else if (magic === '8950') file.mimetype = 'image/png';
+      else if (magic === '2550') file.mimetype = 'application/pdf';
+      else if (buf.slice(0,4).toString() === 'PK\u0003\u0004') { // .docx / .zip
+        file.mimetype = file.originalname.toLowerCase().endsWith('.docx') ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/octet-stream';
+      }
+      // Fallback to extension
+      else {
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (['.jpg','.jpeg'].includes(ext)) file.mimetype = 'image/jpeg';
+        else if (ext === '.png') file.mimetype = 'image/png';
+        else if (ext === '.webp') file.mimetype = 'image/webp';
+        else if (ext === '.bmp') file.mimetype = 'image/bmp';
+        else if (ext === '.pdf') file.mimetype = 'application/pdf';
+        else if (ext === '.txt') file.mimetype = 'text/plain';
+      }
     }
 
     // Extract text based on file type
