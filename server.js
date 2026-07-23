@@ -82,10 +82,10 @@ async function sendEmailViaMailgun(to, subject, html) {
     const data = await resp.json();
     if (resp.ok) { console.log('Mailgun success:', data.id); return data; }
     console.error('Mailgun error:', resp.status, JSON.stringify(data));
-    return null;
+    return { error: data.message || data.error || 'HTTP ' + resp.status };
   } catch (e) {
     console.error('Mailgun exception:', e.message);
-    return null;
+    return { error: e.message };
   }
 }
 
@@ -342,7 +342,8 @@ app.get('/api/test-mailgun', async (req, res) => {
       'Mailgun Diagnostic',
       '<p>Test from MandarinCourse</p>'
     );
-    if (testResult) return res.json({ ok: true, via: 'mailgun', id: testResult.id });
+    if (testResult && testResult.id) return res.json({ ok: true, via: 'mailgun', id: testResult.id });
+    if (testResult && testResult.error) return res.json({ ok: false, error: 'Mailgun API: ' + testResult.error + '. Also verify that your MAILGUN_FROM email exists or set it to postmaster@' + process.env.MAILGUN_DOMAIN });
     // Check if the issue is domain or API key
     const resp = await fetch('https://api.mailgun.net/v3/domains/' + domain, {
       headers: { 'Authorization': 'Basic ' + Buffer.from('api:' + apiKey).toString('base64') }
