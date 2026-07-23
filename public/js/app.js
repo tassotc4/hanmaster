@@ -10777,7 +10777,7 @@ function clearDocUpload() {
 }
 
 function processDocument(action) {
-  const file = document.getElementById('docFileInput').files[0];
+  let file = document.getElementById('docFileInput').files[0];
   if (!file) return toast('Please select a file first', 'var(--accent)');
   const isPremium = localStorage.getItem('is_premium') === 'true';
   if (!isPremium) {
@@ -10788,14 +10788,37 @@ function processDocument(action) {
   resultArea.style.display = 'block';
   resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Processing document...</div></div>';
   document.getElementById('docActions').style.display = 'none';
+  
+  // Compress images over 1MB for faster upload
+  if (file.type.startsWith('image/') && file.size > 1048576) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let w = img.width, h = img.height;
+      if (w > 1600) { h = h * 1600 / w; w = 1600; }
+      if (h > 1600) { w = w * 1600 / h; h = 1600; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(function(blob) {
+        sendDoc(blob || file, file.name, action, resultArea);
+      }, 'image/jpeg', 0.85);
+    };
+    img.src = URL.createObjectURL(file);
+    return;
+  }
+  sendDoc(file, file.name, action, resultArea);
+}
+
+function sendDoc(file, fileName, action, resultArea) {
   const formData = new FormData();
-  formData.append('document', file);
+  formData.append('document', file, fileName);
   formData.append('action', action);
   fetch('/api/upload-document', { method: 'POST', body: formData })
     .then(r => r.json())
     .then(data => {
       if (data.error) {
-        resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2">Error: ' + (data.error.message || data.error || 'Unknown error') + '</div>';
+        const msg = typeof data.error === 'object' ? (data.error.error || JSON.stringify(data.error)) : data.error;
+        resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2">Error: ' + msg.slice(0, 300) + '</div>';
         return;
       }
       resultArea.innerHTML = '<div class="font-bold mb-1" style="color:var(--gold)">' + actionLabels[action] + '</div>'
