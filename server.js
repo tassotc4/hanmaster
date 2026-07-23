@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const dns = require('dns');
+dns.setDefaultResultOrder('ipv4first');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const staticDir = path.join(__dirname, 'public');
@@ -17,17 +19,43 @@ webpush.setVapidDetails('mailto:admin@mandarincourse.app', vapidPublicKey, vapid
 const pushSubscriptions = [];
 
 let mailTransporter = null;
+let smtpHostResolved = null;
+async function resolveSmtpHost(host) {
+  try {
+    const addrs = await dns.promises.resolve4(host);
+    if (addrs && addrs.length > 0) return addrs[0];
+  } catch {}
+  return host;
+}
 function getMailTransporter() {
   if (!mailTransporter && process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    const host = process.env.SMTP_HOST;
+    const port = parseInt(process.env.SMTP_PORT || '587');
+    const secure = process.env.SMTP_SECURE === 'true';
     mailTransporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
+      host: host,
+      port: port,
+      secure: secure,
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
       connectionTimeout: 10000,
       greetingTimeout: 10000,
       socketTimeout: 15000
     });
+    resolveSmtpHost(host).then(resolved => {
+      if (resolved !== host) {
+        smtpHostResolved = resolved;
+        console.log('SMTP host resolved to IPv4:', resolved);
+        mailTransporter = nodemailer.createTransport({
+          host: resolved,
+          port: port,
+          secure: secure,
+          auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+          socketTimeout: 15000
+        });
+      }
+    }).catch(() => {});
   }
   return mailTransporter;
 }
