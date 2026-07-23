@@ -10791,20 +10791,22 @@ function processDocument(action) {
   document.getElementById('docActions').style.display = 'none';
   
   // Compress images to stay under Groq free tier token limit
-  if (file.type.startsWith('image/')) {
+  const imgExts = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.heic', '.heif'];
+  const isImg = file.type.startsWith('image/') || imgExts.some(e => file.name.toLowerCase().endsWith(e));
+  if (isImg) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
       let w = img.width, h = img.height;
-      const maxDim = 600;
-      if (w > maxDim) { h = h * maxDim / w; w = maxDim; }
-      if (h > maxDim) { w = w * maxDim / h; h = maxDim; }
+      const maxDim = 400;
+      if (w > h && w > maxDim) { h = h * maxDim / w; w = maxDim; }
+      else if (h > maxDim) { w = w * maxDim / h; h = maxDim; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       canvas.toBlob(function(blob) {
         if (!blob) { sendDoc(file, action, resultArea); return; }
         sendDoc(new File([blob], file.name, { type: 'image/jpeg' }), action, resultArea);
-      }, 'image/jpeg', 0.6);
+      }, 'image/jpeg', 0.5);
     };
     img.onerror = function() { sendDoc(file, action, resultArea); };
     img.src = URL.createObjectURL(file);
