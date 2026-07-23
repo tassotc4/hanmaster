@@ -12722,16 +12722,36 @@ function podTranslate(text, lang, cb) {
 
 function getVoiceForLang(lang) {
   if (lang === 'zh-CN') return getChineseVoice();
-  var voices = speechSynthesis.getVoices().filter(function(v) { return v.lang.startsWith(lang.split('-')[0]); });
-  if (voices.length === 0) return null;
-  var preferred = ['neural','natural','premium','online','enhanced','xiaoxiao','huihui','yunxi','yunyang','yaoyao','kangkang','tingting','meijia','helena','sara','enrica','isabella','zira','hazel','heera','prabhat','thanapong','an','sinji','sumi','tomoko','namu','nuri','seoyeon','jina','iveta','katya','marcos','carla','leticia','joana','antoni','jordi','elena','brian','emma','ava','mia','sofia','mateo','daniel','anna','ingrid','hanna','claus','louise','thomas','jean','nicole','pierre','renaud','brigitte','yuna','haruka','hina','moe','ayane','shiori','seiichi','lihua','zhimoh','zhimo','yunzhe','yunfan','yunwen','yunxi','yunye','yunhao','yunxia','yunyang','yunfeng','xiaoyan','xiaochen','xiaohan','xiaomeng','xiaomo','xiaoshuang','xiaozhen','xiaoyou','xiaoxiao','huihui','yaoyao','kangkang'];
-  for (var i = 0; i < preferred.length; i++) {
-    var found = voices.find(function(v) { return v.name.toLowerCase().includes(preferred[i]); });
+  var allVoices = speechSynthesis.getVoices();
+  var voices = allVoices.filter(function(v) { return v.lang.startsWith(lang.split('-')[0]); });
+  if (voices.length === 0) {
+    // Retry once after voices load
+    if (typeof speechSynthesis.onvoiceschanged !== 'undefined') {
+      try { speechSynthesis.onvoiceschanged = null; } catch(e) {}
+    }
+    return null;
+  }
+  var langPrefix = lang.split('-')[0];
+  var preferred = {};
+  preferred.vi = ['microsoft an - vietnamese','microsoft an','an vietnam','an viet','female vietnam','vietnamese','online vietnam','neural vietnam'];
+  preferred.es = ['helena','sara','enrica','isabella','elena','jordi','antoni','garcia','neural','natural','premium','online','enhanced'];
+  preferred.fr = ['denise','yvette','cecile','sylvie','jean','pierre','renaud','nicole','brigitte','claire','julie','nathalie','amelie','neural','natural','premium','online','enhanced'];
+  preferred.ja = ['nanami','ayane','shiori','seiichi','haruka','hina','moe','yuna','tomoko','sumi','kyoko','neural','natural','premium','online','enhanced'];
+  preferred.ko = ['inpyo','sunhi','seoyeon','nuri','jina','namu','neural','natural','premium','online','enhanced'];
+  preferred.de = ['katja','heike','hans','claus','louise','thomas','anna','ingrid','hanna','stefan','petra','neural','natural','premium','online','enhanced'];
+  preferred.pt = ['marcos','carla','leticia','joana','luciana','felipe','neural','natural','premium','online','enhanced'];
+  preferred.it = ['elisa','federica','fabiola','andrea','pierpaolo','simona','barbara','neural','natural','premium','online','enhanced'];
+  preferred.ru = ['iveta','katya','milena','dariya','marina','neural','natural','premium','online','enhanced'];
+  // Try matching voice name or any female/localized name
+  var langPrefs = preferred[langPrefix] || ['neural','natural','premium','online','enhanced','female'];
+  for (var i = 0; i < langPrefs.length; i++) {
+    var found = voices.find(function(v) { return v.name.toLowerCase().includes(langPrefs[i]); });
     if (found) return found;
   }
-  var female = voices.find(function(v) { return /female|xiaoxiao|huihui|yaoyao|tingting|meijia|sara|zira|helena|emma|anna|carla|leticia|bridgitte|nicole/i.test(v.name); });
-  if (female) return female;
-  return voices[0];
+  // Try to find a voice with a proper name (Microsoft/Google voices with a space in the name)
+  var nameVoice = voices.find(function(v) { return /[a-z]{3,} [a-z]{3,}/i.test(v.name); });
+  if (nameVoice) return nameVoice;
+  return voices.length > 0 ? voices[0] : null;
 }
 
 function podSpeak(text, lang, cb) {
