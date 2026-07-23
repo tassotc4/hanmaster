@@ -12716,6 +12716,11 @@ function podSpeak(text, lang, cb) {
   try { speechSynthesis.speak(u); } catch(e) { if (cb) cb(); }
 }
 
+function podLangCode() {
+  var map = {es:'es-ES',fr:'fr-FR',ja:'ja-JP',ko:'ko-KR',de:'de-DE',pt:'pt-BR',it:'it-IT',ru:'ru-RU',vi:'vi-VN'};
+  return map[currentAppLang] || 'en-US';
+}
+
 function podPlayLine() {
   if (!podPlaying) return;
   var lesson = podQueue[podIdx];
@@ -12737,7 +12742,9 @@ function podPlayLine() {
   }
   var line = lines[podLineIdx];
   podSpeak(line.cn, 'zh-CN', function() {
-    podSpeak(line.en, 'en-US', function() {
+    var trText = t(line.en);
+    var isSame = (trText === line.en || currentAppLang === 'en');
+    podSpeak(trText, isSame ? 'en-US' : podLangCode(), function() {
       podLineIdx++;
       var totalLines = 0;
       var passedLines = 0;
