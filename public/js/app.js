@@ -12702,6 +12702,24 @@ function updatePodDisplay() {
   if (progEl) progEl.style.width = ((podIdx) / Math.max(1, podQueue.length - 1) * 100) + '%';
 }
 
+var _podTrCache = {};
+
+function podTranslate(text, lang, cb) {
+  if (lang === 'en' || lang === 'en-US') { cb(text); return; }
+  var key = lang + '|' + text;
+  if (_podTrCache[key]) { cb(_podTrCache[key]); return; }
+  var langName = ({es:'Spanish',fr:'French',ja:'Japanese',ko:'Korean',de:'German',pt:'Portuguese',it:'Italian',ru:'Russian',vi:'Vietnamese'})[lang] || 'English';
+  fetch('/api/chat', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({contents:[{role:'user',parts:[{text:text}]}],systemInstruction:'Translate to '+langName+'. Reply ONLY with the translation. No quotes, no extra text.'})
+  }).then(function(r){return r.json();}).then(function(data){
+    var reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || text;
+    reply = reply.replace(/^["']|["']$/g,'').trim();
+    _podTrCache[key] = reply;
+    cb(reply);
+  }).catch(function(){cb(text);});
+}
+
 function podSpeak(text, lang, cb) {
   if (!window.speechSynthesis) { if (cb) cb(); return; }
   var u = new SpeechSynthesisUtterance(text);
@@ -12742,23 +12760,24 @@ function podPlayLine() {
   }
   var line = lines[podLineIdx];
   podSpeak(line.cn, 'zh-CN', function() {
-    var trText = t(line.en);
-    var isSame = (trText === line.en || currentAppLang === 'en');
-    podSpeak(trText, isSame ? 'en-US' : podLangCode(), function() {
-      podLineIdx++;
-      var totalLines = 0;
-      var passedLines = 0;
-      for (var i = 0; i < podQueue.length; i++) {
-        var ls = podQueue[i].dialogue;
-        if (!ls) continue;
-        if (i < podIdx) passedLines += ls.length;
-        else if (i === podIdx) passedLines += podLineIdx;
-        totalLines += ls.length;
-      }
-      var pct = totalLines > 0 ? (passedLines / totalLines) * 100 : 0;
-      var progEl = document.getElementById('podProgress');
-      if (progEl) progEl.style.width = pct + '%';
-      podTimer = setTimeout(function() { podPlayLine(); }, 500);
+    var trLang = currentAppLang === 'en' ? 'en' : currentAppLang;
+    podTranslate(line.en, trLang, function(trText) {
+      podSpeak(trText, trLang === 'en' ? 'en-US' : podLangCode(), function() {
+        podLineIdx++;
+        var totalLines = 0;
+        var passedLines = 0;
+        for (var i = 0; i < podQueue.length; i++) {
+          var ls = podQueue[i].dialogue;
+          if (!ls) continue;
+          if (i < podIdx) passedLines += ls.length;
+          else if (i === podIdx) passedLines += podLineIdx;
+          totalLines += ls.length;
+        }
+        var pct = totalLines > 0 ? (passedLines / totalLines) * 100 : 0;
+        var progEl = document.getElementById('podProgress');
+        if (progEl) progEl.style.width = pct + '%';
+        podTimer = setTimeout(function() { podPlayLine(); }, 500);
+      });
     });
   });
 }
