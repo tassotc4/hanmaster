@@ -594,16 +594,18 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
     const file = req.file;
     let extractedText = '';
 
+    // Determine MIME type from file extension as fallback
+    const ext = path.extname(file.originalname).toLowerCase();
+    const imageExts = ['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.heic', '.heif'];
+    if (!file.mimetype || file.mimetype === 'application/octet-stream') {
+      if (imageExts.includes(ext)) file.mimetype = 'image/' + (ext === '.jpg' ? 'jpeg' : ext.replace('.', ''));
+      else if (ext === '.pdf') file.mimetype = 'application/pdf';
+      else if (ext === '.docx') file.mimetype = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      else if (ext === '.txt') file.mimetype = 'text/plain';
+    }
+
     // Extract text based on file type
-    if (file.mimetype === 'application/pdf') {
-      const pdfData = await pdfParse(file.buffer);
-      extractedText = pdfData.text;
-    } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      const result = await mammoth.extractRawText({ buffer: file.buffer });
-      extractedText = result.value;
-    } else if (file.mimetype === 'text/plain') {
-      extractedText = file.buffer.toString('utf-8');
-    } else if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith('image/')) {
       // Handwriting/image — use Groq vision model
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });
@@ -632,8 +634,16 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       }
       extractedText = visionData.choices?.[0]?.message?.content || '';
       if (!extractedText) return res.status(500).json({ error: 'Vision model returned empty result. Try a clearer photo with visible text.' });
+    } else if (file.mimetype === 'application/pdf') {
+      const pdfData = await pdfParse(file.buffer);
+      extractedText = pdfData.text;
+    } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const result = await mammoth.extractRawText({ buffer: file.buffer });
+      extractedText = result.value;
+    } else if (file.mimetype === 'text/plain') {
+      extractedText = file.buffer.toString('utf-8');
     } else {
-      return res.status(400).json({ error: 'Unsupported file type. Accepted: PDF, DOCX, TXT, JPG, PNG, WEBP, BMP, HEIC' });
+      return res.status(400).json({ error: 'Unsupported file type (' + file.mimetype + '). Accepted: PDF, DOCX, TXT, JPG, PNG, WEBP, BMP, HEIC' });
     }
 
     if (!extractedText.trim()) return res.status(400).json({ error: 'No text could be extracted from the document' });
