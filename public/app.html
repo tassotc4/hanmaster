@@ -372,6 +372,7 @@
       <button id="modeFlashcardsBtn" class="tb" onclick="switchLessonsMode('flashcards')" style="border-radius:20px;padding:6px 16px" data-tr="Study Flashcards"><i class="fas fa-clone mr-1"></i> Study Flashcards</button>
       <button id="modeRadicalsBtn" class="tb" onclick="switchLessonsMode('radicals')" style="border-radius:20px;padding:6px 16px" data-tr="Radical Explorer"><i class="fas fa-cubes mr-1"></i> Radical Explorer</button>
       <button id="modePodcastBtn" class="tb" onclick="switchLessonsMode('podcast')" style="border-radius:20px;padding:6px 16px" data-tr="Podcast"><i class="fas fa-headphones mr-1"></i> Podcast</button>
+      <button id="modeWeakBtn" class="tb" onclick="switchLessonsMode('weak')" style="border-radius:20px;padding:6px 16px" data-tr="Weak Words"><i class="fas fa-bookmark mr-1"></i> Weak Words</button>
     </div>
 
     <!-- TOPICS GRID -->
@@ -551,9 +552,14 @@
     <i class="fas fa-volume-high text-xs"></i>
   </button>
 </div><div class="text-center mb-6 text-sm" style="color:var(--fg2)" id="qP"></div><div class="grid gap-2.5" id="qOp"></div><div class="text-center mt-5" id="qNW" style="display:none"><button class="bp" onclick="nxtQ()" id="qNB">Next <i class="fas fa-arrow-right ml-1.5"></i></button></div></div>
-<div id="qRe" style="display:none" class="text-center py-3"><div class="w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center" id="rIc" style="background:var(--card2)"></div><h3 class="text-xl font-bold mb-1.5" id="rTi"></h3><p class="mb-1.5 text-sm" style="color:var(--fg2)" id="rDe"></p><div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style="background:rgba(212,166,79,.1);border:1px solid rgba(212,166,79,.25)"><span class="font-bold text-lg" style="color:var(--gold)" id="rLv"></span></div><div class="grid grid-cols-3 gap-3 mb-6"><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--accent)" id="rCo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Correct">Correct</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--gold)" id="rVo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Vocab">Vocab</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--green)" id="rTm">0m</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Time">Time</div></div></div><div class="flex gap-2 justify-center mt-6">
+<div id="qRe" style="display:none" class="text-center py-3"><div class="w-20 h-20 rounded-full mx-auto mb-5 flex items-center justify-center" id="rIc" style="background:var(--card2)"></div><h3 class="text-xl font-bold mb-1.5" id="rTi"></h3><p class="mb-1.5 text-sm" style="color:var(--fg2)" id="rDe"></p><div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6" style="background:rgba(212,166,79,.1);border:1px solid rgba(212,166,79,.25)"><span class="font-bold text-lg" style="color:var(--gold)" id="rLv"></span></div><div class="grid grid-cols-3 gap-3 mb-6"><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--accent)" id="rCo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Correct">Correct</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--gold)" id="rVo">0</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Vocab">Vocab</div></div><div class="p-3 rounded-xl" style="background:var(--card2)"><div class="text-xl font-extrabold" style="color:var(--green)" id="rTm">0m</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Time">Time</div></div></div><div class="flex gap-2 justify-center mt-6" style="flex-wrap:wrap">
   <button class="bo px-6" onclick="rstQ()" data-tr="Retake"><i class="fas fa-rotate-left mr-1"></i> Retake</button>
   <button class="bp px-6" id="rApplyBtn" onclick="applyRecommendedLevel()" data-tr="Start Lessons"><i class="fas fa-graduation-cap mr-1"></i> Start Lessons</button>
+  <button class="bo px-6" id="rRevBtn" onclick="showReviewMistakes()" style="display:none;border-color:var(--gold);color:var(--gold)"><i class="fas fa-list-check mr-1"></i> <span data-tr="Review Mistakes">Review Mistakes</span></button>
+</div>
+<div class="flex justify-center gap-3 mt-6">
+  <button class="bo px-5 py-2 text-xs" onclick="startListeningQuiz()" style="border-color:var(--accent);color:var(--accent)"><i class="fas fa-headphones mr-1"></i> <span data-tr="Listening Quiz">Listening Quiz</span></button>
+  <button class="bo px-5 py-2 text-xs" onclick="reviewWeakWords()" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-bookmark mr-1"></i> <span data-tr="Weak Words">Weak Words</span></button>
 </div></div></div></div>
 </section>
 
@@ -599,6 +605,20 @@
   <div class="mt-3 w-full bg-[var(--card2)] rounded-xl p-1.5" style="border:1px solid var(--border)">
   <div class="flex justify-between text-[10px] px-1 mb-1" style="color:var(--muted)"><span id="xpProgressLabel" data-tr="XP to next level">XP to next level</span><span id="xpProgressText">0 / 100</span></div>
   <div class="w-full h-2 rounded-full" style="background:var(--border)"><div class="h-full rounded-full" id="xpProgressBar" style="width:0%;background:linear-gradient(90deg,var(--gold),var(--accent));transition:width .5s ease"></div></div>
+  </div>
+  
+  <!-- DAILY CHALLENGE CARD -->
+  <div class="cd p-5 fu mt-6" style="cursor:pointer" onclick="startDailyChallenge()">
+    <div class="flex items-center justify-between">
+      <div><h3 class="font-bold text-sm" style="color:var(--fg)">🔥 <span data-tr="Daily Challenge">Daily Challenge</span></h3><p class="text-xs mt-1" style="color:var(--muted)"><span data-tr="Answer one question daily for bonus XP">Answer one question daily for bonus XP</span></p></div>
+      <div id="dailyChallengeStatus" style="text-align:right;font-size:12px;font-weight:600"><span style="color:var(--accent)">⚡ <span data-tr="Ready!">Ready!</span></span></div>
+    </div>
+  </div>
+  
+  <!-- SHARE & WEAK WORDS ACTION ROW -->
+  <div class="flex gap-3 mt-5 fu">
+    <button onclick="shareProgress()" class="flex-1 p-3.5 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border-none cursor-pointer" style="background:var(--card2);color:var(--gold);outline:none"><i class="fas fa-share-nodes"></i> <span data-tr="Share Progress">Share Progress</span></button>
+    <button onclick="reviewWeakWords()" class="flex-1 p-3.5 rounded-xl flex items-center justify-center gap-2 text-xs font-bold border-none cursor-pointer" style="background:var(--card2);color:var(--accent);outline:none"><i class="fas fa-bookmark"></i> <span data-tr="Weak Words">Weak Words</span> <span id="weakCount" style="background:var(--accent);color:#fff;border-radius:10px;padding:1px 7px;font-size:10px">0</span></button>
   </div>
   
   <!-- CHARACTER WRITING CANVAS CARD -->
@@ -783,6 +803,17 @@
       </button>
     </div>
     <div class="mb-5">
+      <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Theme">Theme</label>
+      <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--card2)">
+        <span class="text-sm" style="color:var(--fg)" data-tr="Light mode">Light mode</span>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" id="themeToggle" class="sr-only peer" onchange="toggleTheme(this.checked)">
+          <div class="w-10 h-5 rounded-full peer peer-checked:bg-[var(--accent)]" style="background:var(--border);transition:background 0.2s"></div>
+          <div class="absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white transition-transform peer-checked:translate-x-5" style="box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>
+        </label>
+      </div>
+    </div>
+    <div class="mb-5">
       <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Push Notifications">Push Notifications</label>
       <div class="flex items-center justify-between p-3 rounded-xl" style="background:var(--card2)">
         <span class="text-sm" style="color:var(--fg)" data-tr="Receive practice reminders via push">Receive practice reminders via push</span>
@@ -884,6 +915,57 @@
 <button class="mnb" data-tr="Progress" onclick="navTo('#progress', this)"><i class="fas fa-chart-line"></i>Progress</button>
 <button class="mnb" data-tr="Tones" onclick="window.location.href='/pinyin-chart'"><i class="fas fa-music"></i>Tones</button>
 <button class="mnb" data-tr="Rank" onclick="showLeaderboard()"><i class="fas fa-trophy"></i>Rank</button>
+</div>
+
+<!-- ===== REVIEW MISTAKES MODAL ===== -->
+<div id="reviewModal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;padding:24px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;font-size:18px;color:var(--fg)"><i class="fas fa-list-check mr-2" style="color:var(--gold)"></i><span data-tr="Review Mistakes">Review Mistakes</span></h3>
+      <button onclick="document.getElementById('reviewModal').style.display='none'" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div id="reviewList"></div>
+  </div>
+</div>
+
+<!-- ===== LISTENING QUIZ MODE OVERLAY ===== -->
+<div id="listenQuizOverlay" style="display:none;position:fixed;inset:0;z-index:9997;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;padding:24px;max-width:450px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;font-size:18px;color:var(--fg)"><i class="fas fa-headphones mr-2" style="color:var(--accent)"></i><span data-tr="Listening Quiz">Listening Quiz</span></h3>
+      <button onclick="closeListenQuiz()" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div id="listenQuizContent" class="text-center py-8" style="color:var(--muted)"><i class="fas fa-spinner fa-spin"></i> <span data-tr="Loading...">Loading...</span></div>
+  </div>
+</div>
+
+<!-- ===== FEEDBACK BUTTON ===== -->
+<button onclick="showFeedbackModal()" style="position:fixed;bottom:90px;right:16px;z-index:9995;width:44px;height:44px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(200,53,37,0.4);display:flex;align-items:center;justify-content:center;outline:none" title="Send Feedback" id="feedbackFAB">
+  <i class="fas fa-comment"></i>
+</button>
+
+<!-- ===== FEEDBACK MODAL ===== -->
+<div id="feedbackModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h3 style="margin:0;font-size:18px;color:var(--fg)"><i class="fas fa-message mr-2" style="color:var(--gold)"></i><span data-tr="Feedback">Feedback / Report</span></h3>
+      <button onclick="document.getElementById('feedbackModal').style.display='none'" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="mb-3">
+      <select id="feedbackType" style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none">
+        <option value="bug" data-tr="Bug Report">Bug Report</option>
+        <option value="quiz" data-tr="Wrong Quiz Answer">Wrong Quiz Answer</option>
+        <option value="tutor" data-tr="Tutor Issue">Tutor Issue</option>
+        <option value="feature" data-tr="Feature Request">Feature Request</option>
+        <option value="other" data-tr="Other">Other</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <textarea id="feedbackText" rows="4" placeholder="Describe your feedback..." style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none;resize:vertical"></textarea>
+    </div>
+    <button onclick="submitFeedback()" class="bp w-full text-center py-2.5 text-xs font-bold"><i class="fas fa-paper-plane mr-1"></i> <span data-tr="Send">Send</span></button>
+    <div id="feedbackResult" class="text-xs mt-2 text-center" style="color:var(--green)"></div>
+  </div>
 </div>
 
 <script>document.querySelectorAll('.fu').forEach(function(e){e.classList.add('v')})</script>

@@ -10003,6 +10003,7 @@ const WCH = typeof EXTRA_WRITING_CHARS !== 'undefined' ? EXTRA_WRITING_CHARS : "
 
 let tutLesson=null,tutStep=0,tutScores=[],srOn=false,recognition=null,micAvailable=false,geminiHistory=[],currentLiveTarget='',suggestedUserTarget=''; let mediaRecorder=null, audioChunks=[], lastUserAudioUrl=null, currentTurnId='', userAudioEl=null, activeMicStream=null; let _cachedChineseVoice=null; const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) || (window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
 let qIdx=0,qScore=0,qStartT=0,strokeCnt=0,curWI=0,drawing=false,ctx,canvas;
+let wrongAnswers = [], listenMode = false, dailyChallengeDone = false;
 // PWA & Advanced features globals
 let writer = null;
 let srsFilterActive = false;
@@ -10065,6 +10066,15 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('tutTypeInput').addEventListener('keydown',e=>{if(e.key==='Enter')tutTypeSubmit()});
   initSupabase();
   initPayPalSDK();
+  
+  // Init theme
+  initTheme();
+  
+  // Init daily challenge status
+  checkDailyChallenge();
+  
+  // Update weak words badge
+  updateWeakCount();
 });
 
 function initPayPalSDK() {
@@ -10988,7 +10998,7 @@ function resetQuiz() {
 }
 function startQ(){qIdx=0;qScore=0;qStartT=Date.now();document.getElementById('qSt').style.display='none';document.getElementById('qAc').style.display='block';document.getElementById('qRe').style.display='none';showQ()}
 function showQ(){const q=filteredQZ[qIdx];document.getElementById('qN').textContent=qIdx+1;document.getElementById('qSc').textContent=qScore+' '+t('pts');document.getElementById('qBr').style.width=((qIdx+1)/filteredQZ.length*100)+'%';document.getElementById('qC').textContent=q.c;document.getElementById('qP').textContent=q.p;const o=document.getElementById('qOp');o.innerHTML='';q.o.forEach((opt,i)=>{const b=document.createElement('button');b.className='bq';b.textContent=opt;b.onclick=()=>ansQ(i,b);o.appendChild(b)});document.getElementById('qNW').style.display='none';speakQuizWord();}
-function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===filteredQZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[filteredQZ[qIdx].a].classList.add('ok')}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<filteredQZ.length-1?t('Next')+' <i class="fas fa-arrow-right ml-1.5"></i>':t('See Results')+' <i class="fas fa-trophy ml-1.5"></i>'}
+function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===filteredQZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[filteredQZ[qIdx].a].classList.add('ok');wrongAnswers.push({q:filteredQZ[qIdx],selected:i})}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<filteredQZ.length-1?t('Next')+' <i class="fas fa-arrow-right ml-1.5"></i>':t('See Results')+' <i class="fas fa-trophy ml-1.5"></i>'}
 function nxtQ(){if(qIdx<filteredQZ.length-1){qIdx++;showQ()}else showRes()}
 function showRes(){
   const t=Math.round((Date.now()-qStartT)/60000);
@@ -11002,13 +11012,307 @@ function showRes(){
     lv='HSK 2';de=t('Ready for HSK 2!');ic='<i class="fas fa-book text-3xl" style="color:var(--blue)"></i>';vo='300';
     recommendedLvIdx = 1;
   }
-document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m'
+document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m';
+  document.getElementById('rRevBtn').style.display = wrongAnswers.length > 0 ? 'inline-flex' : 'none';
+  // Save weak words
+  if (wrongAnswers.length > 0) {
+    let weak = JSON.parse(localStorage.getItem('weak_words') || '[]');
+    wrongAnswers.forEach(w => {
+      if (!weak.find(x => x.q.c === w.q.c)) weak.push(w.q);
+    });
+    localStorage.setItem('weak_words', JSON.stringify(weak));
+  }
   // Gamification: XP for completing test
   addXP(Math.round(qScore / 2), 'Level test');
   if (qScore >= 80) addXP(10, 'Excellent test score');
   checkBadges();
 }
-function rstQ(){document.getElementById('qRe').style.display='none';document.getElementById('qSt').style.display='block'}
+function rstQ(){document.getElementById('qRe').style.display='none';document.getElementById('qSt').style.display='block';wrongAnswers=[]}
+
+// ===== REVIEW MISTAKES =====
+function showReviewMistakes() {
+  const modal = document.getElementById('reviewModal');
+  if (!modal || wrongAnswers.length === 0) return;
+  const list = document.getElementById('reviewList');
+  list.innerHTML = wrongAnswers.map(w => {
+    const q = w.q;
+    return '<div style="padding:12px;margin-bottom:10px;border-radius:12px;background:var(--card2);border:1px solid var(--border)">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+      + '<span style="font-size:20px;font-weight:bold;color:var(--fg)">' + q.c + '</span>'
+      + '<span style="color:var(--fg2);font-size:13px">' + q.p + '</span>'
+      + '<button onclick="speak(\''+q.c+'\',0.7)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--card);color:var(--blue);cursor:pointer;outline:none"><i class="fas fa-volume-high text-xs"></i></button>'
+      + '</div>'
+      + '<div style="font-size:12px;margin-bottom:4px"><span style="color:var(--muted)">' + t('Your answer:') + '</span> <span style="color:var(--accent);font-weight:600">' + q.o[w.selected] + '</span></div>'
+      + '<div style="font-size:12px"><span style="color:var(--muted)">' + t('Correct:') + '</span> <span style="color:var(--green);font-weight:600">' + q.o[q.a] + '</span></div>'
+      + '</div>';
+  }).join('');
+  modal.style.display = 'flex';
+}
+
+// ===== LISTENING QUIZ =====
+function startListeningQuiz() {
+  listenMode = true;
+  const pool = quizLevel === 0 ? QZ : QZ.filter(q => q.l === quizLevel);
+  if (pool.length === 0) { toast(t('No questions for this level'), 'var(--accent)', 2000); return; }
+  listenQPool = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(5, pool.length));
+  listenQIdx = 0;
+  listenQScore = 0;
+  document.getElementById('listenQuizOverlay').style.display = 'flex';
+  showListenQuestion();
+}
+
+let listenQPool = [], listenQIdx = 0, listenQScore = 0;
+
+function showListenQuestion() {
+  if (listenQIdx >= listenQPool.length) { showListenResult(); return; }
+  const q = listenQPool[listenQIdx];
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="margin-bottom:16px"><div style="font-size:12px;color:var(--muted);margin-bottom:8px">' + t('Listen and choose the correct translation:') + '</div>'
+    + '<button onclick="playListenAudio()" style="width:64px;height:64px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;outline:none;box-shadow:0 4px 20px rgba(200,53,37,0.4)" id="listenPlayBtn"><i class="fas fa-volume-high text-xl"></i></button>'
+    + '<div style="font-size:11px;color:var(--muted)">' + t('Question') + ' ' + (listenQIdx+1) + '/' + listenQPool.length + '</div></div>'
+    + '<div class="grid gap-2" id="listenOptions"></div>'
+    + '<div id="listenFeedback" class="text-sm mt-4" style="min-height:24px"></div>';
+  
+  const optsDiv = document.getElementById('listenOptions');
+  q.o.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'bq';
+    b.textContent = opt;
+    b.onclick = () => answerListenQ(i, b);
+    optsDiv.appendChild(b);
+  });
+  
+  setTimeout(playListenAudio, 500);
+}
+
+function playListenAudio() {
+  const q = listenQPool[listenQIdx];
+  if (q && q.c) speak(q.c, 0.7);
+}
+
+function answerListenQ(i, btn) {
+  document.querySelectorAll('#listenOptions .bq').forEach(b => b.disabled = true);
+  const q = listenQPool[listenQIdx];
+  const fb = document.getElementById('listenFeedback');
+  if (i === q.a) {
+    btn.classList.add('ok');
+    listenQScore += 10;
+    fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓ ' + t('Correct!') + '</span>';
+  } else {
+    btn.classList.add('no');
+    document.querySelectorAll('#listenOptions .bq')[q.a].classList.add('ok');
+    fb.innerHTML = '<span style="color:var(--accent);font-weight:600">✗ ' + t('Correct:') + ' ' + q.o[q.a] + '</span> <span style="color:var(--muted)">(' + q.c + ')</span>';
+  }
+  setTimeout(() => { listenQIdx++; showListenQuestion(); }, 1500);
+}
+
+function showListenResult() {
+  const content = document.getElementById('listenQuizContent');
+  const pct = Math.round((listenQScore / (listenQPool.length * 10)) * 100);
+  content.innerHTML = '<div style="font-size:40px;margin-bottom:12px">' + (pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪') + '</div>'
+    + '<h3 style="margin:0 0 6px;font-size:18px;color:var(--fg)">' + t('Listening Quiz Complete') + '</h3>'
+    + '<p style="margin:0 0 20px;font-size:14px;color:var(--muted)">' + listenQScore + '/' + (listenQPool.length * 10) + ' ' + t('points') + '</p>'
+    + '<button onclick="closeListenQuiz()" class="bp px-8 py-2.5 text-xs font-bold">' + t('Done') + '</button>';
+  addXP(Math.round(listenQScore / 2), 'Listening quiz');
+  checkBadges();
+}
+
+function closeListenQuiz() {
+  document.getElementById('listenQuizOverlay').style.display = 'none';
+  listenMode = false;
+}
+
+// ===== THEME TOGGLE =====
+function applyTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.style.setProperty('--bg', '#F5F0EB');
+    document.documentElement.style.setProperty('--bg2', '#EDE8E2');
+    document.documentElement.style.setProperty('--card', '#FFFFFF');
+    document.documentElement.style.setProperty('--card2', '#F5F1EC');
+    document.documentElement.style.setProperty('--border', '#E0D8D0');
+    document.documentElement.style.setProperty('--fg', '#1A1614');
+    document.documentElement.style.setProperty('--fg2', '#5A4E44');
+    document.documentElement.style.setProperty('--muted', '#8A7A6A');
+  } else {
+    document.documentElement.style.setProperty('--bg', '#0D0A08');
+    document.documentElement.style.setProperty('--bg2', '#141110');
+    document.documentElement.style.setProperty('--card', '#1E1915');
+    document.documentElement.style.setProperty('--card2', '#28221C');
+    document.documentElement.style.setProperty('--border', '#362E25');
+    document.documentElement.style.setProperty('--fg', '#F5EDE6');
+    document.documentElement.style.setProperty('--fg2', '#B5A597');
+    document.documentElement.style.setProperty('--muted', '#7A6B5D');
+  }
+  localStorage.setItem('theme', theme);
+  const toggle = document.getElementById('themeToggle');
+  if (toggle) toggle.checked = theme === 'light';
+}
+
+function toggleTheme(light) {
+  applyTheme(light ? 'light' : 'dark');
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('theme') || 'dark';
+  applyTheme(saved);
+}
+
+// ===== SHARE PROGRESS =====
+function shareProgress() {
+  const xp = getXP();
+  const level = getLevel(xp);
+  const streak = parseInt(localStorage.getItem('streak_days') || '0');
+  const badges = JSON.parse(localStorage.getItem('earned_badges') || '[]');
+  const text = '🇨🇳 I\'ve earned ' + xp + ' XP, Level ' + level + ', ' + streak + '-day streak, and ' + badges.length + ' badges on MandarinCourse! Learn Chinese with AI: https://mandarincourse.app';
+  
+  if (navigator.share) {
+    navigator.share({ title: 'My MandarinCourse Progress', text: text, url: 'https://mandarincourse.app' }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      toast(t('Progress copied to clipboard! Share it anywhere 🎉'), 'var(--green)', 3000);
+    }).catch(() => {
+      // Fallback: show in a prompt
+      prompt(t('Copy this text:'), text);
+    });
+  }
+}
+
+// ===== DAILY CHALLENGE =====
+function checkDailyChallenge() {
+  const today = new Date().toDateString();
+  const last = localStorage.getItem('daily_challenge_date');
+  const done = localStorage.getItem('daily_challenge_done');
+  dailyChallengeDone = last === today && done === 'true';
+  updateDailyChallengeUI();
+}
+
+function startDailyChallenge() {
+  if (dailyChallengeDone) { toast(t('Already completed today\'s challenge!'), 'var(--gold)', 2000); return; }
+  // Pick one random question from any level
+  const pool = QZ.length > 0 ? QZ : [{l:1,q:'Nǐ hǎo',c:'你好',o:['Hello','Goodbye','Thanks','Sorry'],a:0}];
+  const q = pool[Math.floor(Math.random() * pool.length)];
+  
+  const content = document.getElementById('listenQuizContent');
+  if (!content) return;
+  document.getElementById('listenQuizOverlay').style.display = 'flex';
+  
+  content.innerHTML = '<div style="margin-bottom:16px"><div style="font-size:24px;margin-bottom:8px">🔥</div>'
+    + '<div style="font-size:12px;color:var(--muted)">' + t('Daily Challenge') + '</div></div>'
+    + '<div style="font-size:22px;font-weight:bold;color:var(--fg);margin-bottom:4px">' + q.c + '</div>'
+    + '<div style="font-size:13px;color:var(--fg2);margin-bottom:16px">' + q.p + '</div>'
+    + '<div class="grid gap-2" id="dailyOptions"></div>'
+    + '<div id="dailyFeedback" class="text-sm mt-4" style="min-height:24px"></div>';
+  
+  const optsDiv = document.getElementById('dailyOptions');
+  q.o.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'bq';
+    b.textContent = opt;
+    b.onclick = () => {
+      document.querySelectorAll('#dailyOptions .bq').forEach(x => x.disabled = true);
+      const fb = document.getElementById('dailyFeedback');
+      if (i === q.a) {
+        b.classList.add('ok');
+        fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓ ' + t('Correct! +15 XP bonus') + '</span>';
+        addXP(15, 'Daily challenge');
+        dailyChallengeDone = true;
+        localStorage.setItem('daily_challenge_date', new Date().toDateString());
+        localStorage.setItem('daily_challenge_done', 'true');
+        // Track daily challenge streak
+        let streak = parseInt(localStorage.getItem('daily_challenge_streak') || '0');
+        streak++;
+        localStorage.setItem('daily_challenge_streak', streak.toString());
+        toast('🔥 ' + streak + '-' + t('day daily challenge streak!'), 'var(--gold)', 2500);
+      } else {
+        b.classList.add('no');
+        document.querySelectorAll('#dailyOptions .bq')[q.a].classList.add('ok');
+        fb.innerHTML = '<span style="color:var(--accent);font-weight:600">✗ ' + t('Correct:') + ' ' + q.o[q.a] + '</span>';
+      }
+      updateDailyChallengeUI();
+      checkBadges();
+    };
+    optsDiv.appendChild(b);
+  });
+}
+
+function updateDailyChallengeUI() {
+  const el = document.getElementById('dailyChallengeStatus');
+  if (!el) return;
+  if (dailyChallengeDone) {
+    const streak = localStorage.getItem('daily_challenge_streak') || '0';
+    el.innerHTML = '<span style="color:var(--green)">✓ ' + t('Done today') + '</span> <span style="color:var(--gold)">🔥 ' + streak + 'd</span>';
+  } else {
+    el.innerHTML = '<span style="color:var(--accent)">⚡ ' + t('Ready!') + '</span>';
+  }
+}
+
+// ===== FEEDBACK =====
+function showFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'flex';
+  document.getElementById('feedbackResult').textContent = '';
+  document.getElementById('feedbackText').value = '';
+}
+
+async function submitFeedback() {
+  const type = document.getElementById('feedbackType').value;
+  const text = document.getElementById('feedbackText').value.trim();
+  if (!text) { toast(t('Please enter your feedback'), 'var(--accent)', 2000); return; }
+  try {
+    const r = await fetch('/api/feedback', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, text, user: localStorage.getItem('supabase_user_email') || 'anonymous' })
+    });
+    const d = await r.json();
+    if (d.ok) {
+      document.getElementById('feedbackResult').textContent = '✓ ' + t('Thanks for your feedback!');
+      document.getElementById('feedbackText').value = '';
+      setTimeout(() => document.getElementById('feedbackModal').style.display = 'none', 1500);
+    }
+  } catch {
+    document.getElementById('feedbackResult').textContent = '✗ ' + t('Failed to send');
+  }
+}
+
+// ===== WEAK WORDS FLASHCARD REVIEW =====
+function reviewWeakWords() {
+  let weak = JSON.parse(localStorage.getItem('weak_words') || '[]');
+  if (weak.length === 0) { toast(t('No weak words yet! Take a quiz first.'), 'var(--gold)', 2000); return; }
+  // Show review modal
+  showReviewMistakesFromArray(weak);
+}
+
+function showReviewMistakesFromArray(words) {
+  const modal = document.getElementById('reviewModal');
+  if (!modal || words.length === 0) return;
+  const list = document.getElementById('reviewList');
+  list.innerHTML = words.map(q => {
+    return '<div style="padding:12px;margin-bottom:10px;border-radius:12px;background:var(--card2);border:1px solid var(--border)">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">'
+      + '<span style="font-size:20px;font-weight:bold;color:var(--fg)">' + q.c + '</span>'
+      + '<span style="color:var(--fg2);font-size:13px">' + q.p + '</span>'
+      + '<button onclick="speak(\''+q.c+'\',0.7)" style="width:28px;height:28px;border-radius:50%;border:none;background:var(--card);color:var(--blue);cursor:pointer;outline:none"><i class="fas fa-volume-high text-xs"></i></button>'
+      + '</div>'
+      + '<div style="font-size:12px;color:var(--muted)">' + q.o[q.a] + '</div>'
+      + '<button onclick="removeWeakWord(\''+q.c+'\')" style="margin-top:6px;padding:4px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;outline:none">' + t('Remove') + '</button>'
+      + '</div>';
+  }).join('');
+  modal.style.display = 'flex';
+}
+
+function updateWeakCount() {
+  const el = document.getElementById('weakCount');
+  if (el) {
+    const weak = JSON.parse(localStorage.getItem('weak_words') || '[]');
+    el.textContent = weak.length;
+  }
+}
+
+function removeWeakWord(cn) {
+  let weak = JSON.parse(localStorage.getItem('weak_words') || '[]');
+  weak = weak.filter(w => w.c !== cn);
+  localStorage.setItem('weak_words', JSON.stringify(weak));
+  showReviewMistakesFromArray(weak);
+}
 
 // ===== HSK =====
 function buildHSK(){
@@ -12180,15 +12484,17 @@ function switchLessonsMode(mode) {
   const flashcardsBtn = document.getElementById('modeFlashcardsBtn');
   const radicalsBtn = document.getElementById('modeRadicalsBtn');
   const podcastBtn = document.getElementById('modePodcastBtn');
+  const weakBtn = document.getElementById('modeWeakBtn');
   
   if (topicsCon) topicsCon.style.display = (mode === 'topics' || mode === 'podcast') ? 'grid' : 'none';
-  if (flashcardsCon) flashcardsCon.style.display = (mode === 'flashcards') ? 'block' : 'none';
+  if (flashcardsCon) flashcardsCon.style.display = (mode === 'flashcards' || mode === 'weak') ? 'block' : 'none';
   if (radicalsCon) radicalsCon.style.display = (mode === 'radicals') ? 'block' : 'none';
   
   if (topicsBtn) { if (mode === 'topics') topicsBtn.classList.add('on'); else topicsBtn.classList.remove('on'); }
   if (flashcardsBtn) { if (mode === 'flashcards') flashcardsBtn.classList.add('on'); else flashcardsBtn.classList.remove('on'); }
   if (radicalsBtn) { if (mode === 'radicals') radicalsBtn.classList.add('on'); else radicalsBtn.classList.remove('on'); }
   if (podcastBtn) { if (mode === 'podcast') podcastBtn.classList.add('on'); else podcastBtn.classList.remove('on'); }
+  if (weakBtn) { if (mode === 'weak') weakBtn.classList.add('on'); else weakBtn.classList.remove('on'); }
   
   if (mode === 'topics') {
     buildTopics();
@@ -12198,6 +12504,8 @@ function switchLessonsMode(mode) {
     buildRadicals();
   } else if (mode === 'podcast') {
     buildPodcastTopics();
+  } else if (mode === 'weak') {
+    buildWeakFlashcards();
   }
 }
 
@@ -12252,6 +12560,30 @@ function buildFlashcards() {
       tip: w.tip || "",
       exCn: exCn || w.cn,
       exEn: exEn || w.en,
+      level: levelName
+    });
+  });
+  
+  curFcIdx = 0;
+  showFlashcard();
+}
+
+function buildWeakFlashcards() {
+  flashcardList = [];
+  const weak = JSON.parse(localStorage.getItem('weak_words') || '[]');
+  const levelName = 'Weak Words';
+  
+  const statsDisp = document.getElementById('srsStatsDisplay');
+  if (statsDisp) statsDisp.textContent = t("Weak words: ") + weak.length;
+  
+  weak.forEach(q => {
+    flashcardList.push({
+      cn: q.c,
+      py: q.p,
+      en: q.o[q.a],
+      tip: '',
+      exCn: q.c,
+      exEn: q.o[q.a],
       level: levelName
     });
   });

@@ -405,6 +405,22 @@ app.get('/api/podcast-download/:id', (req, res) => {
   }
 });
 
+// ===== FEEDBACK API =====
+const feedbackLog = [];
+app.post('/api/feedback', (req, res) => {
+  const { type, text, user } = req.body || {};
+  if (!text) return res.status(400).json({ error: 'Missing text' });
+  feedbackLog.push({ type: type || 'other', text: text.slice(0,1000), user: user || 'anonymous', date: new Date().toISOString() });
+  console.log('Feedback (' + type + '):', text.slice(0,100));
+  res.json({ ok: true });
+});
+
+app.get('/api/feedback', (req, res) => {
+  const { key } = req.query || {};
+  if (key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
+  res.json(feedbackLog.slice(-50).reverse());
+});
+
 // Redirect HTTP to HTTPS in production
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
