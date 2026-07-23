@@ -12720,15 +12720,27 @@ function podTranslate(text, lang, cb) {
   }).catch(function(){cb(text);});
 }
 
+function getVoiceForLang(lang) {
+  if (lang === 'zh-CN') return getChineseVoice();
+  var voices = speechSynthesis.getVoices().filter(function(v) { return v.lang.startsWith(lang.split('-')[0]); });
+  if (voices.length === 0) return null;
+  var preferred = ['neural','natural','premium','online','enhanced','xiaoxiao','huihui','yunxi','yunyang','yaoyao','kangkang','tingting','meijia','helena','sara','enrica','isabella','zira','hazel','heera','prabhat','thanapong','an','sinji','sumi','tomoko','namu','nuri','seoyeon','jina','iveta','katya','marcos','carla','leticia','joana','antoni','jordi','elena','brian','emma','ava','mia','sofia','mateo','daniel','anna','ingrid','hanna','claus','louise','thomas','jean','nicole','pierre','renaud','brigitte','yuna','haruka','hina','moe','ayane','shiori','seiichi','lihua','zhimoh','zhimo','yunzhe','yunfan','yunwen','yunxi','yunye','yunhao','yunxia','yunyang','yunfeng','xiaoyan','xiaochen','xiaohan','xiaomeng','xiaomo','xiaoshuang','xiaozhen','xiaoyou','xiaoxiao','huihui','yaoyao','kangkang'];
+  for (var i = 0; i < preferred.length; i++) {
+    var found = voices.find(function(v) { return v.name.toLowerCase().includes(preferred[i]); });
+    if (found) return found;
+  }
+  var female = voices.find(function(v) { return /female|xiaoxiao|huihui|yaoyao|tingting|meijia|sara|zira|helena|emma|anna|carla|leticia|bridgitte|nicole/i.test(v.name); });
+  if (female) return female;
+  return voices[0];
+}
+
 function podSpeak(text, lang, cb) {
   if (!window.speechSynthesis) { if (cb) cb(); return; }
   var u = new SpeechSynthesisUtterance(text);
   u.lang = lang || 'zh-CN';
   u.rate = podSpeedRate;
-  if (lang !== 'en-US') {
-    var voice = getChineseVoice();
-    if (voice) u.voice = voice;
-  }
+  var voice = getVoiceForLang(lang);
+  if (voice) u.voice = voice;
   u.onend = function() { if (cb) cb(); };
   u.onerror = function() { if (cb) cb(); };
   try { speechSynthesis.speak(u); } catch(e) { if (cb) cb(); }
