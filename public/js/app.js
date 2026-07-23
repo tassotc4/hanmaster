@@ -14270,7 +14270,7 @@ function switchLessonsMode(mode) {
   const weakBtn = document.getElementById('modeWeakBtn');
   const storiesBtn = document.getElementById('modeStoriesBtn');
   
-  if (topicsCon) topicsCon.style.display = (mode === 'topics' || mode === 'podcast') ? 'grid' : 'none';
+  if (topicsCon) topicsCon.style.display = (mode === 'topics' || mode === 'podcast' || mode === 'stories') ? 'grid' : 'none';
   if (flashcardsCon) flashcardsCon.style.display = (mode === 'flashcards' || mode === 'weak') ? 'block' : 'none';
   if (radicalsCon) radicalsCon.style.display = (mode === 'radicals') ? 'block' : 'none';
   
