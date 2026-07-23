@@ -15018,15 +15018,11 @@ function shareReferral() {
 setInterval(checkPremiumExpiry, 60000);
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(checkPremiumExpiry, 100);
-  // Check URL for referral code
+  // Check URL for referral code — auto-apply silently
   const params = new URLSearchParams(window.location.search);
   const ref = params.get('ref');
   if (ref && ref.length >= 4) {
-    setTimeout(function() {
-      if (confirm(t('Referral code detected:') + ' ' + ref + '. ' + t('Apply code for 1 month free premium?'))) {
-        applyReferral(ref.toUpperCase());
-      }
-    }, 1500);
+    setTimeout(function() { applyReferral(ref.toUpperCase()); }, 1500);
   }
 });
 
