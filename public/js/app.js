@@ -14867,6 +14867,106 @@ function escHtml(s) {
   return d.innerHTML;
 }
 
+// ===== REFERRAL PROGRAM =====
+function getReferralCode() {
+  let code = localStorage.getItem('referral_code');
+  if (!code) {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    code = '';
+    for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    localStorage.setItem('referral_code', code);
+  }
+  return code;
+}
+
+function applyReferral(code) {
+  if (!code || code.length < 4) { toast(t('Invalid referral code'), 'var(--gold)', 2000); return false; }
+  const used = JSON.parse(localStorage.getItem('referral_used') || '[]');
+  if (used.includes(code.toUpperCase())) { toast(t('Referral code already used'), 'var(--gold)', 2000); return false; }
+  if (code.toUpperCase() === getReferralCode()) { toast(t("Can't use your own code"), 'var(--gold)', 2000); return false; }
+  used.push(code.toUpperCase());
+  localStorage.setItem('referral_used', JSON.stringify(used));
+  // Award 30 days premium to both users
+  const expiry = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  const existing = parseInt(localStorage.getItem('premium_expiry') || '0');
+  localStorage.setItem('premium_expiry', Math.max(expiry, existing).toString());
+  localStorage.setItem('is_premium', 'true');
+  updatePremiumUI();
+  addXP(100, 'Referral bonus');
+  toast(t('Referral applied! You both get 1 month free premium!'), 'var(--green)', 4000);
+  return true;
+}
+
+function checkPremiumExpiry() {
+  const expiry = parseInt(localStorage.getItem('premium_expiry') || '0');
+  if (expiry > 0 && Date.now() > expiry) {
+    localStorage.removeItem('is_premium');
+    localStorage.removeItem('premium_expiry');
+    updatePremiumUI();
+  }
+}
+
+function showReferralScreen() {
+  const code = getReferralCode();
+  const shareUrl = 'https://mandarincourse.app/app?ref=' + code;
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px';
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  const expiry = parseInt(localStorage.getItem('premium_expiry') || '0');
+  const isActive = localStorage.getItem('is_premium') === 'true' && expiry > Date.now();
+  const daysLeft = isActive ? Math.ceil((expiry - Date.now()) / (24*60*60*1000)) : 0;
+  overlay.innerHTML = '<div style="background:var(--card);border-radius:16px;padding:28px 24px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.5);text-align:center" onclick="event.stopPropagation()">'
+    + '<div style="font-size:48px;margin-bottom:8px">🎁</div>'
+    + '<h3 style="margin:0 0 4px;font-size:18px;color:var(--fg)">' + t('Refer & Earn') + '</h3>'
+    + '<p style="margin:0 0 6px;font-size:13px;color:var(--fg2)">' + t('Share your code — you both get 1 month free premium') + '</p>'
+    + (isActive ? '<p style="font-size:11px;color:var(--green);margin-bottom:12px">' + t('Your premium:') + ' ' + daysLeft + ' ' + t('days left') + '</p>' : '<p style="font-size:11px;color:var(--muted);margin-bottom:12px">' + t('No active premium yet') + '</p>')
+    + '<div style="display:flex;gap:6px;margin-bottom:16px;justify-content:center"><code id="refCodeDisplay" style="background:var(--card2);padding:10px 20px;border-radius:10px;font-size:18px;letter-spacing:3px;font-weight:700;color:var(--gold);cursor:pointer" onclick="copyReferralCode()" title="' + t('Click to copy') + '">' + code + '</code></div>'
+    + '<div style="display:flex;gap:6px;margin-bottom:16px"><input id="refInput" placeholder="' + t('Enter a friend\'s referral code') + '" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:14px;text-transform:uppercase;outline:none;text-align:center" maxlength="6">'
+    + '<button onclick="applyReferralFromScreen()" style="padding:10px 20px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:14px;font-weight:600;outline:none">' + t('Apply') + '</button></div>'
+    + '<div style="display:flex;gap:8px"><button onclick="shareReferral()" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--green);color:#fff;cursor:pointer;font-size:13px;font-weight:600;outline:none"><i class="fas fa-share-nodes mr-1"></i> ' + t('Share Link') + '</button>'
+    + '<button onclick="this.closest(\'div[style*="background"]\').remove()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;outline:none">' + t('Close') + '</button></div></div>';
+  document.body.appendChild(overlay);
+}
+
+function applyReferralFromScreen() {
+  const input = document.getElementById('refInput');
+  if (!input || !input.value.trim()) return;
+  if (applyReferral(input.value.trim().toUpperCase())) {
+    document.querySelector('[onclick*="applyReferralFromScreen"]').closest('div[style*="background"]').remove();
+  }
+}
+
+function copyReferralCode() {
+  const code = getReferralCode();
+  navigator.clipboard.writeText(code).then(function() { toast(t('Copied!'), 'var(--green)', 1500); });
+}
+
+function shareReferral() {
+  const code = getReferralCode();
+  const text = t('Learn Chinese with me on MandarinCourse! Use my referral code:') + ' ' + code;
+  if (navigator.share) {
+    navigator.share({ title: 'MandarinCourse', text: text, url: 'https://mandarincourse.app/app?ref=' + code }).catch(function(){});
+  } else {
+    navigator.clipboard.writeText(text + ' https://mandarincourse.app/app?ref=' + code).then(function() { toast(t('Copied to clipboard!'), 'var(--green)', 1500); });
+  }
+}
+
+// Check premium expiry on load and periodically
+setInterval(checkPremiumExpiry, 60000);
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(checkPremiumExpiry, 100);
+  // Check URL for referral code
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if (ref && ref.length >= 4) {
+    setTimeout(function() {
+      if (confirm(t('Referral code detected:') + ' ' + ref + '. ' + t('Apply code for 1 month free premium?'))) {
+        applyReferral(ref.toUpperCase());
+      }
+    }, 1500);
+  }
+});
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', function() {
   if (typeof initTranslate === 'function') initTranslate();
