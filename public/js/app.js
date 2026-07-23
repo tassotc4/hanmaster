@@ -12537,13 +12537,25 @@ let podSpeedRate = 1.0;
 let podTimer = null;
 
 function podcastTopic(topicName) {
-  const lessonTitles = TD[topicName];
-  if (!lessonTitles) return toast(t('No lessons for this topic'), 'var(--accent2)');
-  const lessons = [];
-  lessonTitles.forEach(function(title) {
-    const found = TL.find(function(l) { return l.title === title; });
-    if (found) lessons.push(found);
-  });
+  var lessons = [];
+  var allLv = getLessonsForLevel(curLv);
+  var name = topicName.toLowerCase();
+  var simKey = [['greeting','Basic Greetings'],['numbers','Numbers & Counting'],['family','Introducing Family'],['food','Restaurant'],['restaurant','Restaurant'],['time','Daily Routine'],['shopping','Shopping & Prices'],['hobby','Hobbies & Sports'],['sport','Hobbies & Sports'],['routine','Daily Routine'],['travel','Travel Plans'],['health','Health & Body'],['job','Job & Workplace'],['workplace','Job & Workplace'],['business','Business Meeting'],['online','Online Shopping'],['environment','Environmental Protection'],['travel plan','Travel Plans'],['technology','Technology & AI'],['ai','Technology & AI'],['fitness','Health & Fitness'],['social','Social Media & Internet'],['movie','Movie & Entertainment'],['economy','Global Economy'],['philosophy','Chinese Philosophy']];
+  var matchedTitle = null;
+  for (var i = 0; i < simKey.length; i++) {
+    if (name.includes(simKey[i][0])) { matchedTitle = simKey[i][1]; break; }
+  }
+  if (matchedTitle) {
+    for (var i = 0; i < allLv.length; i++) {
+      if (allLv[i].title && allLv[i].title.toLowerCase().includes(matchedTitle.toLowerCase())) {
+        lessons.push(allLv[i]);
+      }
+    }
+  }
+  if (lessons.length === 0) {
+    // fallback: use first lesson
+    if (allLv.length > 0) lessons.push(allLv[0]);
+  }
   if (lessons.length === 0) return toast(t('No lesson data found'), 'var(--accent2)');
   podQueue = lessons;
   podIdx = 0;
