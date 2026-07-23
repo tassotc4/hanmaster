@@ -60,6 +60,34 @@ function getMailTransporter() {
   return mailTransporter;
 }
 function smtpConfigured() { return !!(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS); }
+function mailgunConfigured() { return !!(process.env.MAILGUN_API_KEY && process.env.MAILGUN_DOMAIN); }
+
+async function sendEmailViaMailgun(to, subject, html) {
+  if (!mailgunConfigured()) return null;
+  const key = process.env.MAILGUN_API_KEY;
+  const domain = process.env.MAILGUN_DOMAIN;
+  const from = process.env.MAILGUN_FROM || 'app@' + domain;
+  const url = 'https://api.mailgun.net/v3/' + domain + '/messages';
+  const body = new URLSearchParams();
+  body.append('from', from);
+  body.append('to', to);
+  body.append('subject', subject);
+  body.append('html', html);
+  try {
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Authorization': 'Basic ' + Buffer.from('api:' + key).toString('base64'), 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString()
+    });
+    const data = await resp.json();
+    if (resp.ok) return data;
+    console.error('Mailgun error:', data);
+    return null;
+  } catch (e) {
+    console.error('Mailgun exception:', e.message);
+    return null;
+  }
+}
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir));
@@ -94,7 +122,8 @@ app.post('/api/admin/stats', (req, res) => {
     memory: process.memoryUsage(),
     node: process.version,
     env: process.env.NODE_ENV || 'development',
-    smtp_configured: !!process.env.SMTP_HOST
+    smtp_configured: !!process.env.SMTP_HOST,
+    mailgun_configured: mailgunConfigured()
   });
 });
 
@@ -236,10 +265,19 @@ app.post('/api/save-reminder', (req, res) => {
 app.post('/api/test-smtp', async (req, res) => {
   const { key } = req.body || {};
   if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  
+  if (mailgunConfigured()) {
+    const result = await sendEmailViaMailgun(
+      process.env.MAILGUN_TO || 'tassotc4@yahoo.com',
+      'MandarinCourse SMTP Test',
+      '<p>Test email from MandarinCourse via Mailgun API.</p>'
+    );
+    if (result) return res.json({ ok: true, via: 'mailgun', id: result.id });
+    return res.json({ ok: false, error: 'Mailgun API test failed. Check MAILGUN_API_KEY and MAILGUN_DOMAIN.' });
+  }
+  
   const host = process.env.SMTP_HOST || 'not set';
   const port = parseInt(process.env.SMTP_PORT || '587');
-  
-  // First test TCP connectivity
   const net = require('net');
   try {
     await new Promise((resolve, reject) => {
@@ -248,10 +286,8 @@ app.post('/api/test-smtp', async (req, res) => {
       sock.setTimeout(5000, () => { sock.destroy(); reject(new Error('TCP timeout')); });
     });
   } catch (e) {
-    return res.json({ ok: false, error: 'Cannot reach ' + host + ':' + port + ' - ' + e.message + '. Your cloud provider may block outbound SMTP.' });
+    return res.json({ ok: false, error: 'Cannot reach ' + host + ':' + port + ' - SMTP blocked. Use Mailgun API instead (set MAILGUN_API_KEY and MAILGUN_DOMAIN).' });
   }
-  
-  // TCP works, now test SMTP handshake
   const transporter = getMailTransporter();
   if (!transporter) return res.json({ ok: false, error: 'SMTP not configured.' });
   try {
@@ -265,22 +301,30 @@ app.post('/api/test-smtp', async (req, res) => {
 app.post('/api/send-reminder', async (req, res) => {
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ error: 'Email required' });
+  const html = '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue your learning journey.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a><p style="font-size:12px;color:#7A6B5D;margin-top:24px">You received this because you set up study reminders on MandarinCourse.</p></div>';
+  
+  // Try Mailgun API first (always works, uses HTTPS port 443)
+  if (mailgunConfigured()) {
+    const result = await sendEmailViaMailgun(email, 'Your Daily Chinese Study Reminder', html);
+    if (result) return res.json({ ok: true, via: 'mailgun', id: result.id });
+    return res.json({ ok: false, error: 'Mailgun failed. Check MAILGUN_API_KEY in Render env vars.' });
+  }
+  
+  // Fallback to SMTP
   const transporter = getMailTransporter();
   if (!transporter) {
-    console.log('REMINDER (no SMTP): To ' + email + ' - Your Daily Chinese Study Reminder');
-    return res.json({ ok: true, note: 'Logged (SMTP not configured)' });
+    console.log('REMINDER (no SMTP): To ' + email);
+    return res.json({ ok: true, note: 'Logged (no email provider configured). Add MAILGUN_API_KEY to Render env vars for email delivery.' });
   }
   try {
     await transporter.sendMail({
       from: '"MandarinCourse" <' + (process.env.SMTP_FROM || process.env.SMTP_USER) + '>',
-      to: email,
-      subject: 'Your Daily Chinese Study Reminder',
-      html: '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue your learning journey.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a><p style="font-size:12px;color:#7A6B5D;margin-top:24px">You received this because you set up study reminders on MandarinCourse.</p></div>'
+      to: email, subject: 'Your Daily Chinese Study Reminder', html
     });
     res.json({ ok: true });
   } catch (err) {
-    console.log('REMINDER FAILED (SMTP error): ' + err.message + ' - would have sent to ' + email);
-    res.json({ ok: true, note: 'Logged (SMTP error: ' + err.message + ')' });
+    console.log('REMINDER FAILED:', err.message);
+    res.json({ ok: true, note: 'Logged (SMTP error). Use Mailgun API instead - add MAILGUN_API_KEY to Render env vars.' });
   }
 });
 
@@ -303,29 +347,33 @@ app.get('/api/debug-dns', async (req, res) => {
 });
 
 // Check reminders every 10 minutes and send due emails
-if (process.env.SMTP_HOST) {
-  setInterval(async () => {
-    if (!Array.isArray(global._reminders)) return;
-    const transporter = getMailTransporter();
-    if (!transporter) return;
-    const now = new Date();
-    const currentHour = now.getUTCHours().toString().padStart(2,'0');
-    const currentMin = now.getUTCMinutes().toString().padStart(2,'0');
-    const currentTime = currentHour + ':' + currentMin;
-    for (const r of global._reminders) {
-      if (r.time && r.time === currentTime) {
-        try {
-          await transporter.sendMail({
-            from: '"MandarinCourse" <' + (process.env.SMTP_FROM || process.env.SMTP_USER) + '>',
-            to: r.email,
-            subject: 'Your Daily Chinese Study Reminder',
-            html: '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue learning.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a></div>'
-          });
-        } catch(e) { console.error('Reminder send failed:', e.message); }
+const reminderHtml = '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue learning.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a></div>';
+setInterval(async () => {
+  if (!Array.isArray(global._reminders)) return;
+  const now = new Date();
+  const currentHour = now.getUTCHours().toString().padStart(2,'0');
+  const currentMin = now.getUTCMinutes().toString().padStart(2,'0');
+  const currentTime = currentHour + ':' + currentMin;
+  for (const r of global._reminders) {
+    if (r.time && r.time === currentTime) {
+      if (mailgunConfigured()) {
+        await sendEmailViaMailgun(r.email, 'Your Daily Chinese Study Reminder', reminderHtml);
+      } else {
+        const transporter = getMailTransporter();
+        if (transporter) {
+          try {
+            await transporter.sendMail({
+              from: '"MandarinCourse" <' + (process.env.SMTP_FROM || process.env.SMTP_USER) + '>',
+              to: r.email, subject: 'Your Daily Chinese Study Reminder', html: reminderHtml
+            });
+          } catch(e) { console.error('Reminder send failed:', e.message); }
+        } else {
+          console.log('REMINDER due for ' + r.email + ' but no email provider configured');
+        }
       }
     }
-  }, 60000);
-}
+  }
+}, 60000);
 
 app.post('/api/paypal/create-order', async (req, res) => {
   const accessToken = await getPayPalAccessToken();
