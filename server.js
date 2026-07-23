@@ -23,7 +23,10 @@ function getMailTransporter() {
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
       secure: process.env.SMTP_SECURE === 'true',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      connectionTimeout: 10000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000
     });
   }
   return mailTransporter;
@@ -207,7 +210,9 @@ app.post('/api/test-smtp', (req, res) => {
   if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
   const transporter = getMailTransporter();
   if (!transporter) return res.json({ ok: false, error: 'SMTP not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS env vars on Render.' });
-  transporter.verify().then(() => res.json({ ok: true })).catch(e => res.json({ ok: false, error: e.message }));
+  let timedOut = false;
+  const timer = setTimeout(() => { timedOut = true; res.json({ ok: false, error: 'Connection timed out after 15s. Check SMTP_HOST, port, and credentials. Gmail app passwords require 2FA enabled.' }); }, 15000);
+  transporter.verify().then(() => { if (!timedOut) { clearTimeout(timer); res.json({ ok: true }); } }).catch(e => { if (!timedOut) { clearTimeout(timer); res.json({ ok: false, error: e.message }); } });
 });
 
 app.post('/api/send-reminder', async (req, res) => {
