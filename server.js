@@ -66,7 +66,7 @@ async function sendEmailViaMailgun(to, subject, html) {
   if (!mailgunConfigured()) return null;
   const key = process.env.MAILGUN_API_KEY;
   const domain = process.env.MAILGUN_DOMAIN;
-  const from = process.env.MAILGUN_FROM || 'app@' + domain;
+  const from = process.env.MAILGUN_FROM || 'postmaster@' + domain;
   const url = 'https://api.mailgun.net/v3/' + domain + '/messages';
   const body = new URLSearchParams();
   body.append('from', from);
@@ -336,16 +336,21 @@ app.get('/api/test-mailgun', async (req, res) => {
   const apiKey = process.env.MAILGUN_API_KEY;
   // Test domain validity
   try {
-    const resp = await fetch('https://api.mailgun.net/v3/' + domain, {
+    // Try actual send to diagnose the issue
+    const testResult = await sendEmailViaMailgun(
+      'tassotc4@yahoo.com',
+      'Mailgun Diagnostic',
+      '<p>Test from MandarinCourse</p>'
+    );
+    if (testResult) return res.json({ ok: true, via: 'mailgun', id: testResult.id });
+    // Check if the issue is domain or API key
+    const resp = await fetch('https://api.mailgun.net/v3/domains/' + domain, {
       headers: { 'Authorization': 'Basic ' + Buffer.from('api:' + apiKey).toString('base64') }
     });
-    if (resp.status === 401) return res.json({ ok: false, error: 'Invalid API key. Get it from Mailgun Dashboard → Settings → API Keys' });
-    if (resp.status === 404) return res.json({ ok: false, error: 'Domain not found. Check MAILGUN_DOMAIN in env vars' });
-    if (resp.status === 200) {
-      const data = await resp.json();
-      return res.json({ ok: true, domain: data.name || domain, state: data.state });
-    }
-    return res.json({ ok: false, error: 'Unexpected status: ' + resp.status });
+    if (resp.status === 401) return res.json({ ok: false, error: 'Invalid API key. Get it from Mailgun Dashboard → Settings → API Keys (private key starting with key-).' });
+    if (resp.status === 404) return res.json({ ok: false, error: 'Domain "' + domain + '" not found. Go to Mailgun → Domains and copy the exact domain name. Also ensure your recipient tassotc4@yahoo.com is added to Authorized Recipients and verified.' });
+    const data = await resp.json();
+    return res.json({ ok: false, error: 'Domain found but send failed. Check that tassotc4@yahoo.com is an Authorized Recipient in Mailgun → Send → Authorized Recipients. Domain state: ' + (data.domain ? data.domain.state : 'unknown') });
   } catch (e) {
     return res.json({ ok: false, error: 'Mailgun API unreachable: ' + e.message });
   }
