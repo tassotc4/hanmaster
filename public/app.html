@@ -38,6 +38,16 @@
 <link rel="alternate" hreflang="ru" href="https://mandarincourse.app/app?lang=ru">
 <link rel="alternate" hreflang="vi" href="https://mandarincourse.app/app?lang=vi">
 <link rel="alternate" hreflang="x-default" href="https://mandarincourse.app/app">
+<link rel="preload" href="/css/app.css" as="style">
+<link rel="preload" href="/js/app.js" as="script">
+<link rel="preload" href="/js/vocab-data.js" as="script">
+<link rel="preload" href="/js/extra-content.js" as="script">
+<link rel="preload" href="/js/tutor-data.js" as="script">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="https://api.groq.com">
+<link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
+<meta name="theme-color" content="#0D0A08">
 
 <script type="application/ld+json">
 {
@@ -526,6 +536,10 @@
 <div class="cd p-4 md:p-6 fu max-w-2xl mx-auto">
 <textarea id="grammarInput" class="tut-input w-full mb-3" rows="4" placeholder="Paste Chinese text here — e.g. 我昨天去商店买书。" data-tr-placeholder="Paste Chinese text here — e.g. 我昨天去商店买书。" style="resize:vertical"></textarea>
 <button onclick="grammarCheck()" class="bp w-full mb-4" id="grammarCheckBtn"><i class="fas fa-check-double mr-1"></i> <span data-tr="Check Grammar">Check Grammar</span></button>
+<div class="flex gap-2 mb-4">
+  <button onclick="startGrammarExercise()" class="bo flex-1 text-center py-2.5 text-xs font-bold" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-puzzle-piece mr-1"></i> <span data-tr="Grammar Exercises">Grammar Exercises</span></button>
+  <button onclick="startPronunciationPractice()" class="bo flex-1 text-center py-2.5 text-xs font-bold" style="border-color:var(--accent);color:var(--accent)"><i class="fas fa-microphone mr-1"></i> <span data-tr="Pronunciation">Pronunciation</span></button>
+</div>
 <div id="grammarResult" class="text-sm leading-relaxed" style="color:var(--fg2);min-height:60px"></div>
 <div id="grammarHistory" class="mt-4" style="display:none">
   <div class="text-xs font-semibold mb-2" style="color:var(--muted)" data-tr="Recent Checks">Recent Checks</div>

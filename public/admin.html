@@ -37,6 +37,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);paddi
 <h3 class="font-bold text-sm mb-3">Server Info</h3>
 <div class="text-xs space-y-2" style="color:var(--fg2)" id="serverInfo"></div>
 </div>
+<div class="card mb-6" style="border-color:var(--gold)">
+<h3 class="font-bold text-sm mb-2" style="color:var(--gold)"><i class="fas fa-envelope mr-1"></i> SMTP Setup Guide</h3>
+<div class="text-xs space-y-1.5" style="color:var(--fg2)">
+<p>Email reminders need SMTP env vars on Render:</p>
+<code style="display:block;background:var(--bg2);padding:8px 12px;border-radius:8px;margin:6px 0;font-size:11px">
+SMTP_HOST=smtp.gmail.com<br>
+SMTP_PORT=587<br>
+SMTP_USER=your_email@gmail.com<br>
+SMTP_PASS=your_app_password<br>
+SMTP_SECURE=false
+</code>
+<p>For Gmail: enable 2FA → create App Password. For other providers, adjust host/port.</p>
+</div>
+</div>
 <div class="card mb-6">
 <h3 class="font-bold text-sm mb-3">Send Test Reminder</h3>
 <div class="flex gap-2">

@@ -11120,6 +11120,12 @@ function showListenResult() {
 function closeListenQuiz() {
   document.getElementById('listenQuizOverlay').style.display = 'none';
   listenMode = false;
+  grammarExIdx = 0;
+  pronIdx = 0;
+  pronScore = 0;
+  if (pronMediaRecorder && pronMediaRecorder.state === 'recording') {
+    pronMediaRecorder.stop();
+  }
 }
 
 // ===== THEME TOGGLE =====
@@ -12052,6 +12058,216 @@ function useHint() {
 }
 
 // ===== AI GRAMMAR CHECK =====
+// ===== GRAMMAR EXERCISES =====
+const GRAMMAR_EXERCISES = [
+  {id:'ge1',pattern:'了 (perfective)',prompt:t('Fill in the blank with 了'),cn:'我昨天买___一本书。',answer:'了',options:['了','过','的','着'],explanation:t('了 indicates completion of an action.')},
+  {id:'ge2',pattern:'把 (object-fronting)',prompt:t('Reorder using 把'),cn:'我把门关___。',answer:'上',options:['上','开','了','好'],explanation:t('把 + object + verb + complement')},
+  {id:'ge3',pattern:'被 (passive)',prompt:t('Fill in the blank with 被'),cn:'他___老师批评了。',answer:'被',options:['被','把','让','给'],explanation:t('被 introduces the agent in passive sentences.')},
+  {id:'ge4',pattern:'比 (comparison)',prompt:t('Fill in the blank with 比'),cn:'他___我高。',answer:'比',options:['比','跟','对','为'],explanation:t('比 is used for comparisons: A + 比 + B + Adj')},
+  {id:'ge5',pattern:'是...的 (emphasis)',prompt:t('Fill in the blanks'),cn:'我___昨天来___。',answer:'是',options:['是','的','了','在'],explanation:t('是...的 emphasizes time/place/manner of a past action.')},
+  {id:'ge6',pattern:'正在 (progressive)',prompt:t('Fill in the blank'),cn:'他___吃东西。',answer:'正在',options:['正在','已经','了','过'],explanation:t('正在 indicates an action in progress.')},
+  {id:'ge7',pattern:'虽然...但是 (although...)',prompt:t('Fill in the blanks'),cn:'___天气不好，___他还是出去了。',answer:'虽然',options:['虽然','但是','因为','所以'],explanation:t('虽然...但是 = although...but/still...')},
+  {id:'ge8',pattern:'因为...所以 (because...so)',prompt:t('Fill in the blanks'),cn:'___下雨，___我没去。',answer:'因为',options:['因为','所以','虽然','但是'],explanation:t('因为...所以 = because...therefore...')},
+  {id:'ge9',pattern:'一边...一边 (simultaneous)',prompt:t('Fill in the blank'),cn:'他一边走路___唱歌。',answer:'一边',options:['一边','一起','一下','一样'],explanation:t('一边 + Verb1 + 一边 + Verb2 = doing two things simultaneously')},
+  {id:'ge10',pattern:'才 (only then)',prompt:t('Fill in the blank'),cn:'他九点___起床。',answer:'才',options:['才','就','还','也'],explanation:t('才 indicates lateness or "only then"')},
+  {id:'ge11',pattern:'就 (immediately)',prompt:t('Fill in the blank'),cn:'我马上___来。',answer:'就',options:['就','才','还','再'],explanation:t('就 indicates immediacy or "right away"')},
+  {id:'ge12',pattern:'过 (experience)',prompt:t('Fill in the blank'),cn:'我去___中国。',answer:'过',options:['过','了','着','的'],explanation:t('过 indicates having experienced something.')},
+  {id:'ge13',pattern:'着 (continuous state)',prompt:t('Fill in the blank'),cn:'门开___。',answer:'着',options:['着','了','过','的'],explanation:t('着 indicates a continuing state or action.')},
+  {id:'ge14',pattern:'从...到 (from...to)',prompt:t('Fill in the blanks'),cn:'我___家___学校走路。',answer:'从',options:['从','到','在','离'],explanation:t('从...到 = from...to (place or time)')},
+  {id:'ge15',pattern:'除了...以外 (except/besides)',prompt:t('Fill in the blank'),cn:'___你以外，大家都来了。',answer:'除了',options:['除了','因为','虽然','如果'],explanation:t('除了...以外 = except for / besides')},
+];
+let grammarExIdx = 0, grammarExScore = 0;
+
+function startGrammarExercise() {
+  grammarExIdx = 0;
+  grammarExScore = 0;
+  showGrammarExercise();
+}
+
+function showGrammarExercise() {
+  if (grammarExIdx >= GRAMMAR_EXERCISES.length) {
+    showGrammarExerciseResult();
+    return;
+  }
+  const ex = GRAMMAR_EXERCISES[grammarExIdx];
+  const content = document.getElementById('listenQuizContent');
+  if (!content) return;
+  document.getElementById('listenQuizOverlay').style.display = 'flex';
+  content.innerHTML = '<div style="text-align:center;margin-bottom:16px">'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">' + t('Grammar Exercise') + ' ' + (grammarExIdx+1) + '/' + GRAMMAR_EXERCISES.length + ' · <span style="color:var(--gold)">' + ex.pattern + '</span></div>'
+    + '<div style="font-size:12px;color:var(--fg2)">' + ex.prompt + '</div></div>'
+    + '<div style="font-size:22px;font-weight:bold;color:var(--fg);text-align:center;margin-bottom:16px;padding:12px;border-radius:12px;background:var(--card2)">' + ex.cn + '</div>'
+    + '<div class="grid gap-2" id="geOptions"></div>'
+    + '<div id="geFeedback" class="text-sm mt-4 text-center" style="min-height:24px"></div>';
+  
+  const optsDiv = document.getElementById('geOptions');
+  ex.options.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'bq';
+    b.textContent = opt;
+    b.onclick = () => {
+      document.querySelectorAll('#geOptions .bq').forEach(x => x.disabled = true);
+      const fb = document.getElementById('geFeedback');
+      if (opt === ex.answer) {
+        b.classList.add('ok');
+        grammarExScore += 10;
+        fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓ ' + t('Correct!') + '</span><br><span style="color:var(--muted);font-size:12px">' + ex.explanation + '</span>';
+      } else {
+        b.classList.add('no');
+        fb.innerHTML = '<span style="color:var(--accent);font-weight:600">✗ ' + t('Correct:') + ' "' + ex.answer + '"</span><br><span style="color:var(--muted);font-size:12px">' + ex.explanation + '</span>';
+        // Highlight correct answer
+        document.querySelectorAll('#geOptions .bq').forEach(x => { if (x.textContent === ex.answer) x.classList.add('ok'); });
+      }
+      setTimeout(() => { grammarExIdx++; showGrammarExercise(); }, 2000);
+    };
+    optsDiv.appendChild(b);
+  });
+}
+
+function showGrammarExerciseResult() {
+  const content = document.getElementById('listenQuizContent');
+  const pct = Math.round((grammarExScore / (GRAMMAR_EXERCISES.length * 10)) * 100);
+  content.innerHTML = '<div style="font-size:40px;text-align:center;margin-bottom:12px">' + (pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪') + '</div>'
+    + '<h3 style="text-align:center;margin:0 0 6px;font-size:18px;color:var(--fg)">' + t('Grammar Practice Complete') + '</h3>'
+    + '<p style="text-align:center;margin:0 0 8px;font-size:14px;color:var(--muted)">' + grammarExScore + '/' + (GRAMMAR_EXERCISES.length * 10) + ' ' + t('points') + '</p>'
+    + '<p style="text-align:center;margin:0 0 20px;font-size:13px;color:var(--gold)">' + Math.round(pct) + '% ' + t('accuracy') + '</p>'
+    + '<div style="text-align:center"><button onclick="closeListenQuiz()" class="bp px-8 py-2.5 text-xs font-bold">' + t('Done') + '</button></div>';
+  addXP(Math.round(grammarExScore / 3), 'Grammar exercise');
+  checkBadges();
+}
+
+// ===== PRONUNCIATION PRACTICE =====
+let pronWordList = [], pronIdx = 0, pronScore = 0, pronMediaRecorder = null, pronChunks = [];
+
+function startPronunciationPractice() {
+  const level = parseInt(localStorage.getItem('curLv') || '0');
+  const allWords = [];
+  getLessonsForLevel(level).forEach(lesson => {
+    lesson.words.forEach(w => { if (!allWords.find(x => x.cn === w.cn)) allWords.push(w); });
+  });
+  if (allWords.length === 0) {
+    // Fallback to basic words
+    allWords.push({cn:'你好',py:'nǐ hǎo',en:'Hello'},{cn:'谢谢',py:'xiè xiè',en:'Thank you'},{cn:'再见',py:'zài jiàn',en:'Goodbye'});
+  }
+  pronWordList = allWords.sort(() => Math.random() - 0.5).slice(0, 5);
+  pronIdx = 0;
+  pronScore = 0;
+  showPronWord();
+}
+
+function showPronWord() {
+  if (pronIdx >= pronWordList.length) { showPronResult(); return; }
+  const w = pronWordList[pronIdx];
+  const overlay = document.getElementById('listenQuizOverlay');
+  overlay.style.display = 'flex';
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="text-align:center;margin-bottom:12px">'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:4px">' + t('Pronunciation Practice') + ' ' + (pronIdx+1) + '/' + pronWordList.length + '</div>'
+    + '<div style="font-size:32px;font-weight:900;color:var(--gold);margin-bottom:4px">' + w.cn + '</div>'
+    + '<div style="font-size:14px;color:var(--fg2);margin-bottom:16px">' + w.py + ' · ' + t(w.en) + '</div>'
+    + '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">'
+    + '<button onclick="speak(\''+w.cn+'\',0.7)" style="width:48px;height:48px;border-radius:50%;border:none;background:var(--card2);color:var(--blue);cursor:pointer;outline:none"><i class="fas fa-volume-high"></i></button>'
+    + '<button onclick="startPronRecording()" id="pronRecBtn" style="width:48px;height:48px;border-radius:50%;border:none;background:var(--accent);color:#fff;cursor:pointer;outline:none"><i class="fas fa-microphone"></i></button>'
+    + '</div>'
+    + '<div id="pronStatus" style="font-size:12px;color:var(--muted);margin-bottom:12px">' + t('Tap the mic to record your voice') + '</div>'
+    + '<div id="pronResult" style="font-size:13px;min-height:30px"></div>'
+    + '<div id="pronNextBtn" style="display:none;text-align:center;margin-top:12px">'
+    + '<button onclick="nextPronWord()" class="bp px-8 py-2 text-xs font-bold">' + t('Next') + ' <i class="fas fa-arrow-right ml-1"></i></button></div></div>';
+}
+
+function startPronRecording() {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    document.getElementById('pronStatus').textContent = t('Recording not supported in this browser');
+    return;
+  }
+  const btn = document.getElementById('pronRecBtn');
+  if (pronMediaRecorder && pronMediaRecorder.state === 'recording') {
+    pronMediaRecorder.stop();
+    btn.innerHTML = '<i class="fas fa-microphone"></i>';
+    document.getElementById('pronStatus').textContent = t('Processing...');
+    return;
+  }
+  pronChunks = [];
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    pronMediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4' });
+    pronMediaRecorder.ondataavailable = e => { if (e.data.size > 0) pronChunks.push(e.data); };
+    pronMediaRecorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(pronChunks, { type: pronMediaRecorder.mimeType });
+      evaluatePronWord(blob);
+    };
+    pronMediaRecorder.start();
+    btn.innerHTML = '<i class="fas fa-stop"></i>';
+    btn.style.background = 'var(--accent2)';
+    document.getElementById('pronStatus').textContent = t('Recording... tap stop when done');
+  }).catch(() => {
+    document.getElementById('pronStatus').textContent = t('Microphone access denied');
+  });
+}
+
+async function evaluatePronWord(audioBlob) {
+  const w = pronWordList[pronIdx];
+  document.getElementById('pronStatus').textContent = t('AI is evaluating...');
+  try {
+    // Convert blob to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(audioBlob);
+    reader.onload = async () => {
+      const base64 = reader.result.split(',')[1];
+      const mimeType = audioBlob.type;
+      const payload = {
+        contents: [{ role: 'user', parts: [{ inlineData: { data: base64, mimeType: mimeType } }] }],
+        systemInstruction: 'You are a Chinese pronunciation checker. Transcribe the Chinese speech in the audio accurately using Whisper. If the speech matches "' + w.cn + '" (pinyin: ' + w.py + '), respond with: CORRECT|transcribed_text. If it does not match, respond with: WRONG|transcribed_text|expected_word. Only respond in this format.'
+      };
+      const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const d = await r.json();
+      const reply = (d.candidates?.[0]?.content?.parts?.[0]?.text || '');
+      const resultEl = document.getElementById('pronResult');
+      const statusEl = document.getElementById('pronStatus');
+      const nextBtn = document.getElementById('pronNextBtn');
+      
+      if (reply.startsWith('CORRECT')) {
+        const transcribed = reply.split('|')[1] || '';
+        resultEl.innerHTML = '<span style="color:var(--green);font-weight:600">✓ ' + t('Great pronunciation!') + '</span><br><span style="color:var(--muted);font-size:11px">' + t('You said:') + ' ' + escHtml(transcribed) + '</span>';
+        pronScore += 10;
+        statusEl.textContent = '';
+      } else if (reply.startsWith('WRONG')) {
+        const parts = reply.split('|');
+        const transcribed = parts[1] || '';
+        resultEl.innerHTML = '<span style="color:var(--accent);font-weight:600">✗ ' + t('Try again') + '</span><br><span style="color:var(--muted);font-size:11px">' + t('You said:') + ' ' + escHtml(transcribed) + '<br>' + t('Expected:') + ' ' + w.cn + ' (' + w.py + ')</span>';
+        statusEl.textContent = t('Listen to the correct pronunciation and try again');
+      } else {
+        resultEl.innerHTML = '<span style="color:var(--gold)">' + t('Could not analyze. Try speaking clearly.') + '</span>';
+        statusEl.textContent = '';
+      }
+      nextBtn.style.display = 'block';
+      document.getElementById('pronRecBtn').style.background = 'var(--accent)';
+      document.getElementById('pronRecBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+    };
+  } catch {
+    document.getElementById('pronResult').innerHTML = '<span style="color:var(--accent)">' + t('Error analyzing pronunciation') + '</span>';
+    document.getElementById('pronNextBtn').style.display = 'block';
+  }
+}
+
+function nextPronWord() {
+  pronIdx++;
+  showPronWord();
+}
+
+function showPronResult() {
+  const content = document.getElementById('listenQuizContent');
+  const pct = pronWordList.length > 0 ? Math.round((pronScore / (pronWordList.length * 10)) * 100) : 0;
+  content.innerHTML = '<div style="font-size:40px;text-align:center;margin-bottom:12px">' + (pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪') + '</div>'
+    + '<h3 style="text-align:center;margin:0 0 6px;font-size:18px;color:var(--fg)">' + t('Pronunciation Practice Complete') + '</h3>'
+    + '<p style="text-align:center;margin:0 0 4px;font-size:14px;color:var(--muted)">' + t('Score:') + ' ' + pronScore + '/' + (pronWordList.length * 10) + '</p>'
+    + '<p style="text-align:center;margin:0 0 20px;font-size:13px;color:var(--gold)">' + pct + '% ' + t('accuracy') + '</p>'
+    + '<div style="text-align:center"><button onclick="closeListenQuiz()" class="bp px-8 py-2.5 text-xs font-bold">' + t('Done') + '</button></div>';
+  addXP(Math.round(pronScore / 2), 'Pronunciation practice');
+  checkBadges();
+}
+
+// ===== GRAMMAR CHECK =====
 function grammarCheck() {
   const input = document.getElementById('grammarInput');
   const text = input ? input.value.trim() : '';
