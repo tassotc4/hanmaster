@@ -9741,7 +9741,13 @@ dialogue:[
 {who:"bot",cn:"太辛苦了！你要多休息。",en:"That's too hard! You should rest more."},
 {who:"you",cn:"好的，谢谢老师。",en:"Okay, thank you teacher."},
 {who:"bot",cn:"不客气。今天就到这里，再见！",en:"You're welcome. That's all for today, goodbye!"},
-{who:"you",cn:"老师再见！",en:"Goodbye teacher!"}
+{who:"you",cn:"老师再见！",en:"Goodbye teacher!"},
+{who:"bot",cn:"对了，你住在哪里？",en:"By the way, where do you live?"},
+{who:"you",cn:"我住在学校附近。",en:"I live near the school."},
+{who:"bot",cn:"走路去学校方便吗？",en:"Is it convenient to walk to school?"},
+{who:"you",cn:"很方便，只要十分钟。",en:"Very convenient, only ten minutes."},
+{who:"bot",cn:"那太好了！明天见！",en:"That's great! See you tomorrow!"},
+{who:"you",cn:"明天见！",en:"See you tomorrow!"}
 ]},
 {title:"Numbers & Counting",level:"HSK 1",icon:"fa-calculator",
 words:[
@@ -9762,7 +9768,12 @@ dialogue:[
 {who:"bot",cn:"两百块可以买很多书。你想买书吗？",en:"Two hundred yuan can buy many books. Do you want to buy books?"},
 {who:"you",cn:"我想买，一本书多少钱？",en:"I want to buy, how much is one book?"},
 {who:"bot",cn:"一本书十块钱。两百块可以买二十本。",en:"One book is ten yuan. Two hundred yuan can buy twenty books."},
-{who:"you",cn:"太好了，谢谢你告诉我！",en:"Great, thank you for telling me!"}
+{who:"you",cn:"太好了，谢谢你告诉我！",en:"Great, thank you for telling me!"},
+{who:"bot",cn:"不客气。你几岁？",en:"You're welcome. How old are you?"},
+{who:"you",cn:"我二十岁。你呢？",en:"I'm twenty years old. And you?"},
+{who:"bot",cn:"我二十五岁。你住在几号楼？",en:"I'm twenty-five. Which building do you live in?"},
+{who:"you",cn:"我住在三号楼。",en:"I live in building three."},
+{who:"bot",cn:"三号楼在图书馆旁边。",en:"Building three is next to the library."}
 ]},
 {title:"Introducing Family",level:"HSK 1",icon:"fa-people-roof",
 words:[
@@ -9783,7 +9794,13 @@ dialogue:[
 {who:"bot",cn:"你爸爸妈妈做什么工作？",en:"What do your dad and mom do for work?"},
 {who:"you",cn:"我爸爸是医生，我妈妈是老师。",en:"My dad is a doctor, my mom is a teacher."},
 {who:"bot",cn:"真好！你有女儿和儿子吗？",en:"Great! Do you have a daughter and a son?"},
-{who:"you",cn:"我没有，我还没结婚呢。",en:"I don't have, I'm not married yet."}
+{who:"you",cn:"我没有，我还没结婚呢。",en:"I don't have, I'm not married yet."},
+{who:"bot",cn:"没关系。你姐姐有孩子吗？",en:"No problem. Does your sister have children?"},
+{who:"you",cn:"她有一个女儿，两岁了。",en:"She has a daughter, two years old."},
+{who:"bot",cn:"太可爱了！你常回家吗？",en:"So cute! Do you often go home?"},
+{who:"you",cn:"我每个周末都回家。",en:"I go home every weekend."},
+{who:"bot",cn:"你真是个好孩子！",en:"You're really a good child!"},
+{who:"you",cn:"谢谢！我很爱我的家人。",en:"Thanks! I love my family very much."}
 ]},
 {title:"At the Restaurant",level:"HSK 2",icon:"fa-utensils",
 words:[
@@ -9804,7 +9821,11 @@ dialogue:[
 {who:"bot",cn:"我要一杯冰水，谢谢。",en:"I want a cup of ice water, thank you."},
 {who:"you",cn:"没问题，请稍等，菜马上来。",en:"No problem, please wait a moment, the food will be served shortly."},
 {who:"bot",cn:"服务员，买单！一共多少钱？",en:"Waiter, check please! How much is it in total?"},
-{who:"you",cn:"一共两百块钱。谢谢光临！",en:"Two hundred yuan in total. Thank you for coming!"}
+{who:"you",cn:"一共两百块钱。谢谢光临！",en:"Two hundred yuan in total. Thank you for coming!"},
+{who:"bot",cn:"味道真不错，我下次还来。",en:"The taste is really good, I'll come again next time."},
+{who:"you",cn:"欢迎下次光临！祝你愉快！",en:"Welcome back next time! Have a nice day!"},
+{who:"bot",cn:"再见！",en:"Goodbye!"},
+{who:"you",cn:"再见，慢走！",en:"Goodbye, take care!"}
 ]},
 {title:"Shopping & Prices",level:"HSK 2",icon:"fa-cart-shopping",
 words:[
@@ -9825,7 +9846,11 @@ dialogue:[
 {who:"bot",cn:"好吧，给你两百五十块。你想试一下吗？",en:"Okay, you can have it for two hundred and fifty. Do you want to try it on?"},
 {who:"you",cn:"好的，我去试衣间试一下。",en:"Okay, I will go to the fitting room to try it on."},
 {who:"bot",cn:"非常合适！给你打包好吗？",en:"Very suitable! Shall I pack it for you?"},
-{who:"you",cn:"好的，买单，给你钱！",en:"Okay, checkout, here is the money!"}
+{who:"you",cn:"好的，买单，给你钱！",en:"Okay, checkout, here is the money!"},
+{who:"bot",cn:"欢迎下次再来！我们有新款式会通知你。",en:"Welcome back next time! We'll notify you about new styles."},
+{who:"you",cn:"好的，我可以加你的微信吗？",en:"Okay, can I add your WeChat?"},
+{who:"bot",cn:"当然可以，这是我的二维码。",en:"Of course, this is my QR code."},
+{who:"you",cn:"谢谢！这件衣服我很喜欢。",en:"Thanks! I really like this coat."}
 ]},
 {title:"Hobbies & Sports",level:"HSK 2",icon:"fa-basketball",
 words:[
@@ -9846,7 +9871,12 @@ dialogue:[
 {who:"bot",cn:"下午三点在学校操场集合。",en:"Meet at the school playground at 3:00 PM."},
 {who:"you",cn:"没问题，我一定准时到。",en:"No problem, I will definitely arrive on time."},
 {who:"bot",cn:"踢完足球我们还可以去唱歌，怎么样？",en:"After playing soccer we can also go sing karaoke, how about that?"},
-{who:"you",cn:"太棒了，我很期待！",en:"Excellent, I look forward to it!"}
+{who:"you",cn:"太棒了，我很期待！",en:"Excellent, I look forward to it!"},
+{who:"bot",cn:"你平时也喜欢跑步吗？",en:"Do you also like running usually?"},
+{who:"you",cn:"喜欢，我每天早上跑三公里。",en:"Yes, I run three kilometers every morning."},
+{who:"bot",cn:"真厉害！周末打网球你感兴趣吗？",en:"Impressive! Are you interested in playing tennis on weekends?"},
+{who:"you",cn:"感兴趣，但是我还不会打。",en:"I'm interested, but I don't know how to play yet."},
+{who:"bot",cn:"没关系，我可以教你！",en:"No problem, I can teach you!"}
 ]},
 {title:"Daily Routine",level:"HSK 3",icon:"fa-clock",
 words:[
@@ -9869,7 +9899,12 @@ dialogue:[
 {who:"bot",cn:"下班回家后你做什么？",en:"What do you do after getting off work and going home?"},
 {who:"you",cn:"我做晚饭，看看电视，然后看书学习。",en:"I make dinner, watch TV, and then read books and study."},
 {who:"bot",cn:"你每天几点睡觉？",en:"What time do you go to sleep every day?"},
-{who:"you",cn:"我晚上十一点准时睡觉。",en:"I go to sleep at eleven o'clock sharp at night."}
+{who:"you",cn:"我晚上十一点准时睡觉。",en:"I go to sleep at eleven o'clock sharp at night."},
+{who:"bot",cn:"你的生活习惯很健康！周末你睡懒觉吗？",en:"Your living habits are very healthy! Do you sleep in on weekends?"},
+{who:"you",cn:"周末我会睡到八点，然后去散步。",en:"On weekends I sleep until eight, then go for a walk."},
+{who:"bot",cn:"散步对身体很好。你每天工作几个小时？",en:"Walking is very good for health. How many hours do you work every day?"},
+{who:"you",cn:"我每天工作八个小时，周末不工作。",en:"I work eight hours every day, and don't work on weekends."},
+{who:"bot",cn:"工作与生活平衡很重要！",en:"Work-life balance is very important!"}
 ]},
 {title:"Travel Plans",level:"HSK 3",icon:"fa-plane",
 words:[
@@ -9892,7 +9927,13 @@ dialogue:[
 {who:"bot",cn:"你打算住在哪家宾馆？订好了吗？",en:"Which hotel do you plan to stay at? Have you booked it?"},
 {who:"you",cn:"我订了一家靠近天安门广场的宾馆。",en:"I booked a hotel near Tiananmen Square."},
 {who:"bot",cn:"那很方便！祝你旅游愉快！",en:"That is very convenient! Wish you a pleasant trip!"},
-{who:"you",cn:"谢谢老师，回来给你看照片！",en:"Thank you teacher, I will show you photos when I get back!"}
+{who:"you",cn:"谢谢老师，回来给你看照片！",en:"Thank you teacher, I will show you photos when I get back!"},
+{who:"bot",cn:"你准备去几天？",en:"How many days are you planning to go?"},
+{who:"you",cn:"我计划去五天四晚。",en:"I plan to go for five days and four nights."},
+{who:"bot",cn:"那你会去故宫和长城吗？",en:"Will you go to the Forbidden City and the Great Wall?"},
+{who:"you",cn:"当然！长城是我最想去的地方！",en:"Of course! The Great Wall is where I most want to go!"},
+{who:"bot",cn:"到了北京一定要尝一下北京烤鸭。",en:"When you arrive in Beijing, you must try Peking duck."},
+{who:"you",cn:"好的，我朋友也推荐我去吃烤鸭。",en:"Okay, my friend also recommended I eat roast duck."}
 ]},
 {title:"Health & Body",level:"HSK 3",icon:"fa-heartpulse",
 words:[
@@ -9913,7 +9954,11 @@ dialogue:[
 {who:"bot",cn:"那就赶紧吃药，然后去床上躺着休息。",en:"Then take the medicine immediately, and go lie down in bed to rest."},
 {who:"you",cn:"好的，我喝了很多热水，现在就去睡觉。",en:"Okay, I drank a lot of hot water, I am going to sleep now."},
 {who:"bot",cn:"多喝水、多睡觉身体才能好得快。",en:"Drinking more water and sleeping more will make your body recover faster."},
-{who:"you",cn:"谢谢你的关心，明天见。",en:"Thank you for your care, see you tomorrow."}
+{who:"you",cn:"谢谢你的关心，明天见。",en:"Thank you for your care, see you tomorrow."},
+{who:"bot",cn:"你经常感冒吗？",en:"Do you often catch colds?"},
+{who:"you",cn:"不经常，一年一两次。可能是最近太累了。",en:"Not often, once or twice a year. Maybe I've been too tired lately."},
+{who:"bot",cn:"注意身体！健康比工作更重要。",en:"Take care of yourself! Health is more important than work."},
+{who:"you",cn:"你说得对。我会好好休息的。",en:"You're right. I will rest well."}
 ]},
 {title:"Job & Workplace",level:"HSK 3",icon:"fa-briefcase",
 words:[
@@ -9934,7 +9979,13 @@ dialogue:[
 {who:"bot",cn:"同事们关系怎么样？大家互相帮助吗？",en:"How is the relationship between colleagues? Do they help each other?"},
 {who:"you",cn:"同事们人都很好，工作上经常互相支持。",en:"The colleagues are all very nice, supporting each other in work."},
 {who:"bot",cn:"那很不错！你上班会迟到吗？",en:"That's great! Are you ever late for work?"},
-{who:"you",cn:"我每天都很早到公司，从来不迟到。",en:"I arrive at the company very early every day, never late."}
+{who:"you",cn:"我每天都很早到公司，从来不迟到。",en:"I arrive at the company very early every day, never late."},
+{who:"bot",cn:"真是个好员工。你午餐一般在哪儿吃？",en:"What a good employee. Where do you usually have lunch?"},
+{who:"you",cn:"我通常在公司的食堂吃午饭。",en:"I usually eat lunch in the company cafeteria."},
+{who:"bot",cn:"食堂的菜好吃吗？",en:"Is the food in the cafeteria good?"},
+{who:"you",cn:"还不错，而且价格很便宜。",en:"Not bad, and the prices are very cheap."},
+{who:"bot",cn:"那你下班后有什么爱好？",en:"Do you have any hobbies after work?"},
+{who:"you",cn:"我喜欢下班后去健身房锻炼一个小时。",en:"I like to go to the gym for an hour after work."}
 ]}
 ];
 
@@ -10086,9 +10137,18 @@ function observeFu(){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.is
 function toast(m,c){const t=document.getElementById('toast');t.textContent=m;t.style.borderColor=c||'var(--border)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 function getChineseVoice(){
   if (_cachedChineseVoice) return _cachedChineseVoice;
-  const voices = speechSynthesis.getVoices();
-  _cachedChineseVoice = voices.find(v => v.lang.startsWith('zh') && /neural|natural|premium|online|xiaoxiao|yunxi|yunyang|huihui/i.test(v.name))
-    || voices.find(v => v.lang.startsWith('zh'));
+  const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('zh'));
+  if (voices.length === 0) return null;
+  var preferredNames = ['xiaoxiao','huihui','yunxi','yunyang','yaoyao','kangkang','tingting','meijia','mei-jia','zhizhi','najia','zhimo','xiaochen','xiaohan','xiaomeng','xiaomo','xiaoshuang','xiaoyan','xiaoyou','xiaozhen','yunfeng','yunhao','yunxia','yunye','yunjian'];
+  for (var i = 0; i < preferredNames.length; i++) {
+    var found = voices.find(function(v) { return v.name.toLowerCase().includes(preferredNames[i]); });
+    if (found) { _cachedChineseVoice = found; return found; }
+  }
+  var female = voices.find(function(v) { return /female|xiaoxiao|huihui|yaoyao|tingting|meijia/i.test(v.name); });
+  if (female) { _cachedChineseVoice = female; return female; }
+  var neural = voices.find(function(v) { return /neural|natural|premium|online/i.test(v.name); });
+  if (neural) { _cachedChineseVoice = neural; return neural; }
+  _cachedChineseVoice = voices[0];
   return _cachedChineseVoice;
 }
 
@@ -12537,25 +12597,7 @@ let podSpeedRate = 1.0;
 let podTimer = null;
 
 function podcastTopic(topicName) {
-  var lessons = [];
-  var allLv = getLessonsForLevel(curLv);
-  var name = topicName.toLowerCase();
-  var simKey = [['greeting','Basic Greetings'],['numbers','Numbers & Counting'],['family','Introducing Family'],['food','Restaurant'],['restaurant','Restaurant'],['time','Daily Routine'],['shopping','Shopping & Prices'],['hobby','Hobbies & Sports'],['sport','Hobbies & Sports'],['routine','Daily Routine'],['travel','Travel Plans'],['health','Health & Body'],['job','Job & Workplace'],['workplace','Job & Workplace'],['business','Business Meeting'],['online','Online Shopping'],['environment','Environmental Protection'],['travel plan','Travel Plans'],['technology','Technology & AI'],['ai','Technology & AI'],['fitness','Health & Fitness'],['social','Social Media & Internet'],['movie','Movie & Entertainment'],['economy','Global Economy'],['philosophy','Chinese Philosophy']];
-  var matchedTitle = null;
-  for (var i = 0; i < simKey.length; i++) {
-    if (name.includes(simKey[i][0])) { matchedTitle = simKey[i][1]; break; }
-  }
-  if (matchedTitle) {
-    for (var i = 0; i < allLv.length; i++) {
-      if (allLv[i].title && allLv[i].title.toLowerCase().includes(matchedTitle.toLowerCase())) {
-        lessons.push(allLv[i]);
-      }
-    }
-  }
-  if (lessons.length === 0) {
-    // fallback: use first lesson
-    if (allLv.length > 0) lessons.push(allLv[0]);
-  }
+  var lessons = getLessonsForLevel(curLv);
   if (lessons.length === 0) return toast(t('No lesson data found'), 'var(--accent2)');
   podQueue = lessons;
   podIdx = 0;
