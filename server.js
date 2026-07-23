@@ -66,7 +66,7 @@ async function sendEmailViaMailgun(to, subject, html) {
   if (!mailgunConfigured()) return null;
   const key = process.env.MAILGUN_API_KEY;
   const domain = process.env.MAILGUN_DOMAIN;
-  const from = process.env.MAILGUN_FROM || 'postmaster@' + domain;
+  const from = process.env.MAILGUN_FROM || 'MandarinCourse <noreply@' + domain + '>'; // e.g. "MandarinCourse <noreply@mandarincourse.app>"
   const url = 'https://api.mailgun.net/v3/' + domain + '/messages';
   const body = new URLSearchParams();
   body.append('from', from);
