@@ -10075,6 +10075,10 @@ document.addEventListener('DOMContentLoaded',()=>{
   
   // Update weak words badge
   updateWeakCount();
+  
+  // Draw progress chart
+  setTimeout(drawProgressChart, 500);
+  window.addEventListener('resize', drawProgressChart);
 });
 
 function initPayPalSDK() {
@@ -11123,6 +11127,10 @@ function closeListenQuiz() {
   grammarExIdx = 0;
   pronIdx = 0;
   pronScore = 0;
+  examIdx = 0;
+  examScore = 0;
+  if (examTimer) { clearInterval(examTimer); examTimer = null; }
+  storyIdx = 0;
   if (pronMediaRecorder && pronMediaRecorder.state === 'recording') {
     pronMediaRecorder.stop();
   }
@@ -14082,7 +14090,7 @@ function buildDictionary(level) {
   const list = document.getElementById('dictList');
   if (!list) return;
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv) : [];
-  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div><div style="font-size:10px;margin-top:4px"><span onclick="event.stopPropagation();showEtymology(\''+w.c+'\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">\uD83D\uDD0D '+t('Breakdown')+'</span></div></div>').join('');
 }
 function filterDictionary() {
   const q = document.getElementById('dictSearch').value.trim().toLowerCase();
@@ -14281,6 +14289,429 @@ async function submitLeaderboardScore() {
     });
     if (r.ok) { toast(t('Score submitted!'), 'var(--accent)', 2000); fetchLeaderboard(); }
   } catch { toast(t('Failed to submit'), '#e74c3c', 2000); }
+}
+
+// ===== READING STORIES =====
+const STORIES = [
+  {level:'HSK 1',title:'我的家',content:'我叫小明。我家有三口人，爸爸、妈妈和我。爸爸是老师，妈妈是医生。我今年十岁，在学校读书。我家有一只猫，它很可爱。',questions:[{q:'我家有几口人？',o:['三口','四口','五口','六口'],a:0},{q:'爸爸做什么工作？',o:['医生','老师','司机','工人'],a:1},{q:'我今年几岁？',o:['八岁','九岁','十岁','十一岁'],a:2}]},
+  {level:'HSK 1',title:'去学校',content:'我每天早上七点起床。我刷牙洗脸，吃早饭。然后我坐公交车去学校。学校很大，有很多树和花。我喜欢在学校学习中文。',questions:[{q:'我几点起床？',o:['六点','七点','八点','九点'],a:1},{q:'我怎么去学校？',o:['走路','骑自行车','坐公交车','坐地铁'],a:2},{q:'我喜欢在学校学什么？',o:['英文','中文','数学','画画'],a:1}]},
+  {level:'HSK 2',title:'去超市',content:'今天是星期六，我和妈妈去超市买东西。超市里有很多人。我们买了一些水果，有苹果、香蕉和葡萄。还买了牛奶和面包。妈妈买了一斤牛肉，晚上要做牛肉面。我很喜欢吃牛肉面。',questions:[{q:'今天星期几？',o:['星期五','星期六','星期日','星期一'],a:1},{q:'我们买了什么水果？',o:['苹果和西瓜','苹果、香蕉和葡萄','橘子和苹果','葡萄和草莓'],a:1},{q:'晚上妈妈做什么？',o:['米饭','牛肉面','饺子','炒饭'],a:1}]},
+  {level:'HSK 2',title:'我的生日',content:'昨天是我的生日。我今年十三岁了。爸爸给我买了一辆新自行车，妈妈做了一个大蛋糕。朋友们来我家玩，我们唱歌跳舞，非常开心。我收到了很多礼物，我很高兴。',questions:[{q:'昨天是我的什么日子？',o:['上学','考试','生日','比赛'],a:2},{q:'爸爸给我买了什么？',o:['蛋糕','书','自行车','衣服'],a:2},{q:'朋友们来我家做什么？',o:['吃饭','看电视','唱歌跳舞','睡觉'],a:2}]},
+  {level:'HSK 3',title:'旅行计划',content:'暑假的时候，我和朋友一起去北京旅行。我们坐了三个小时的飞机。到了北京，我们先去了故宫，然后去了长城。长城非常长，也很漂亮。我们还吃了北京烤鸭，味道很好。这次旅行让我很难忘。',questions:[{q:'我和谁一起去旅行？',o:['家人','朋友','同学','同事'],a:1},{q:'我们坐了多久的飞机？',o:['两小时','三小时','四小时','五小时'],a:1},{q:'北京烤鸭怎么样？',o:['很贵','很好吃','很难吃','很辣'],a:1}]},
+  {level:'HSK 3',title:'我的学校',content:'我就读的大学在上海，是一所很大的学校。学校有两万多个学生。我的专业是国际贸易。每天上午我上课，下午去图书馆看书。晚上我常常和同学一起去操场跑步。学校的食堂菜很好吃，而且不贵。',questions:[{q:'学校在上海还是北京？',o:['北京','上海','广州','深圳'],a:1},{q:'我的专业是什么？',o:['中文','经济','国际贸易','计算机'],a:2},{q:'晚上我常常做什么？',o:['看书','跑步','做饭','看电视'],a:1}]},
+  {level:'HSK 4',title:'环境保护',content:'现在环境问题越来越严重了。我们城市经常有雾霾，空气污染很厉害。为了保护环境，很多人开始骑自行车上班。我们也应该少用塑料袋，把垃圾分类。节约用水也很重要。如果每个人都注意环保，我们的地球会变得更美好。',questions:[{q:'城市有什么环境问题？',o:['噪音','雾霾','堵车','洪水'],a:1},{q:'为了保护环境，很多人怎样上班？',o:['开车','坐地铁','骑自行车','走路'],a:2},{q:'我们应该怎样做？',o:['多用塑料袋','不分类垃圾','浪费水','少用塑料袋'],a:3}]},
+  {level:'HSK 5',title:'人工智能',content:'人工智能是当今最热门的话题之一。人工智能技术已经广泛应用于我们的日常生活，比如手机语音助手、自动驾驶汽车和智能家居。专家认为，人工智能将会改变很多行业，包括医疗、教育和制造业。但是也有人担心，人工智能可能取代很多人的工作。',questions:[{q:'人工智能是什么？',o:['一种食物','一种技术','一种动物','一种音乐'],a:1},{q:'人工智能已经用在什么地方？',o:['农业','捕鱼','语音助手','建筑'],a:2},{q:'有人担心什么？',o:['AI太贵','AI取代工作','AI不好用','AI不安全'],a:1}]},
+  {level:'HSK 6',title:'全球化',content:'全球化是指世界各国之间的经济、文化和政治联系越来越紧密。随着交通和通信技术的发展，人们可以更容易地去其他国家旅行、学习和工作。全球化促进了国际贸易和文化交流。但是全球化也带来了一些问题，比如文化差异的冲突和贫富差距的扩大。如何平衡全球化的利与弊是每个国家都需要考虑的问题。',questions:[{q:'全球化是指什么？',o:['国家之间的竞争','国家之间的联系','国家之间的战争','国家之间的隔离'],a:1},{q:'什么技术促进了全球化？',o:['农业技术','交通和通信技术','医疗技术','军事技术'],a:1},{q:'全球化带来了什么问题？',o:['经济繁荣','文化冲突','和平发展','科技进步'],a:1}]},
+];
+let storyIdx = 0, storyScore = 0, storyAnswers = [];
+
+function switchLessonsMode(mode) {
+  lessonsMode = mode;
+  const topicsCon = document.getElementById('tpGrid');
+  const flashcardsCon = document.getElementById('flashcardsCon');
+  const radicalsCon = document.getElementById('radicalsCon');
+  const topicsBtn = document.getElementById('modeTopicsBtn');
+  const flashcardsBtn = document.getElementById('modeFlashcardsBtn');
+  const radicalsBtn = document.getElementById('modeRadicalsBtn');
+  const podcastBtn = document.getElementById('modePodcastBtn');
+  const weakBtn = document.getElementById('modeWeakBtn');
+  const storiesBtn = document.getElementById('modeStoriesBtn');
+  
+  if (topicsCon) topicsCon.style.display = (mode === 'topics' || mode === 'podcast') ? 'grid' : 'none';
+  if (flashcardsCon) flashcardsCon.style.display = (mode === 'flashcards' || mode === 'weak') ? 'block' : 'none';
+  if (radicalsCon) radicalsCon.style.display = (mode === 'radicals') ? 'block' : 'none';
+  
+  if (topicsBtn) { if (mode === 'topics') topicsBtn.classList.add('on'); else topicsBtn.classList.remove('on'); }
+  if (flashcardsBtn) { if (mode === 'flashcards') flashcardsBtn.classList.add('on'); else flashcardsBtn.classList.remove('on'); }
+  if (radicalsBtn) { if (mode === 'radicals') radicalsBtn.classList.add('on'); else radicalsBtn.classList.remove('on'); }
+  if (podcastBtn) { if (mode === 'podcast') podcastBtn.classList.add('on'); else podcastBtn.classList.remove('on'); }
+  if (weakBtn) { if (mode === 'weak') weakBtn.classList.add('on'); else weakBtn.classList.remove('on'); }
+  if (storiesBtn) { if (mode === 'stories') storiesBtn.classList.add('on'); else storiesBtn.classList.remove('on'); }
+  
+  if (mode === 'topics') {
+    buildTopics();
+  } else if (mode === 'flashcards') {
+    buildFlashcards();
+  } else if (mode === 'radicals') {
+    buildRadicals();
+  } else if (mode === 'podcast') {
+    buildPodcastTopics();
+  } else if (mode === 'weak') {
+    buildWeakFlashcards();
+  } else if (mode === 'stories') {
+    buildStoriesGrid();
+  }
+}
+
+function buildStoriesGrid() {
+  const g = document.getElementById('tpGrid');
+  if (!g) return;
+  g.innerHTML = '';
+  // Filter stories by current level
+  const lvName = LV[curLv] ? LV[curLv].n : 'HSK 1';
+  const levelNum = parseInt(lvName.replace('HSK ',''));
+  const shown = STORIES.filter(s => {
+    const sNum = parseInt(s.level.replace('HSK ',''));
+    return sNum <= levelNum && sNum >= Math.max(1, levelNum - 2);
+  });
+  if (shown.length === 0) {
+    g.innerHTML = '<div class="text-center py-10" style="color:var(--muted);grid-column:1/-1">' + t('No stories for this level yet') + '</div>';
+    return;
+  }
+  shown.forEach((story, i) => {
+    const d = document.createElement('div');
+    d.className = 'cd p-5 cursor-pointer';
+    d.onclick = () => openStory(STORIES.indexOf(story));
+    d.innerHTML = '<div class="flex items-start gap-3"><div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style="background:var(--card2);color:var(--gold)"><i class="fas fa-book-open"></i></div><div><h3 class="font-bold text-sm mb-1">' + story.title + '</h3><p class="text-xs" style="color:var(--muted)">' + story.level + ' · ' + story.content.slice(0,40) + '...</p></div></div>';
+    g.appendChild(d);
+  });
+}
+
+function openStory(idx) {
+  const story = STORIES[idx];
+  if (!story) return;
+  storyIdx = idx;
+  storyScore = 0;
+  storyAnswers = [];
+  const overlay = document.getElementById('listenQuizOverlay');
+  overlay.style.display = 'flex';
+  showStoryContent();
+}
+
+function showStoryContent() {
+  const story = STORIES[storyIdx];
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="text-align:center;margin-bottom:12px">'
+    + '<div style="font-size:12px;color:var(--muted)">' + story.level + ' · ' + story.title + '</div></div>'
+    + '<div style="font-size:15px;line-height:1.8;padding:16px;border-radius:12px;background:var(--card2);color:var(--fg);margin-bottom:12px;text-align:left" id="storyText">' + story.content + '</div>'
+    + '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px">'
+    + '<button onclick="speak(document.getElementById(\'storyText\').textContent,0.7)" style="padding:8px 18px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:12px;outline:none"><i class="fas fa-volume-high mr-1"></i> ' + t('Listen') + '</button>'
+    + '<button onclick="showStoryQuestions()" class="bp" style="padding:8px 18px;font-size:12px"><i class="fas fa-question-circle mr-1"></i> ' + t('Questions') + '</button>'
+    + '<button onclick="closeListenQuiz()" style="padding:8px 18px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;outline:none"><i class="fas fa-xmark mr-1"></i> ' + t('Close') + '</button>'
+    + '</div>';
+}
+
+function showStoryQuestions() {
+  const story = STORIES[storyIdx];
+  let html = '<div style="font-size:12px;color:var(--muted);margin-bottom:10px;text-align:center">' + t('Comprehension Questions') + '</div>';
+  story.questions.forEach((q, qi) => {
+    html += '<div style="margin-bottom:14px;padding:10px;border-radius:10px;background:var(--card2)">'
+      + '<div style="font-size:13px;font-weight:600;color:var(--fg);margin-bottom:6px">' + (qi+1) + '. ' + q.q + '</div>'
+      + '<div class="grid gap-1.5">';
+    q.o.forEach((opt, oi) => {
+      const answered = storyAnswers[qi] !== undefined;
+      const cls = answered ? (oi === q.a ? 'ok' : (oi === storyAnswers[qi] ? 'no' : '')) : '';
+      const dis = answered ? 'disabled' : '';
+      html += '<button class="bq ' + cls + '" style="font-size:12px;padding:6px 12px" ' + dis + ' onclick="answerStoryQuestion(' + qi + ',' + oi + ',this)">' + opt + '</button>';
+    });
+    html += '</div></div>';
+  });
+  html += '<div style="text-align:center;margin-top:8px">';
+  if (storyAnswers.length === story.questions.length && storyAnswers.every(a => a !== undefined)) {
+    html += '<div style="color:var(--green);font-weight:600;margin-bottom:8px">' + t('Score:') + ' ' + storyScore + '/' + (story.questions.length * 10) + '</div>';
+  }
+  html += '<button onclick="closeListenQuiz()" class="bp" style="padding:8px 24px;font-size:12px">' + t('Done') + '</button></div>';
+  
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = html;
+}
+
+function answerStoryQuestion(qi, oi, btn) {
+  const story = STORIES[storyIdx];
+  storyAnswers[qi] = oi;
+  if (oi === story.questions[qi].a) {
+    btn.classList.add('ok');
+    storyScore += 10;
+  } else {
+    btn.classList.add('no');
+    btn.parentElement.querySelectorAll('button')[story.questions[qi].a].classList.add('ok');
+  }
+  // Update display to show score
+  const parent = btn.closest('#listenQuizContent');
+  if (parent && storyAnswers.length === story.questions.length && storyAnswers.every(a => a !== undefined)) {
+    const scoreDiv = document.createElement('div');
+    scoreDiv.style.cssText = 'text-align:center;color:var(--green);font-weight:600;margin-top:8px';
+    scoreDiv.textContent = t('Score:') + ' ' + storyScore + '/' + (story.questions.length * 10);
+    const doneBtn = parent.querySelector('button:last-child');
+    if (doneBtn) doneBtn.parentElement.insertBefore(scoreDiv, doneBtn);
+    addXP(Math.round(storyScore / 2), 'Story reading');
+    checkBadges();
+  }
+}
+
+// ===== HSK EXAM SIMULATION =====
+let examQuestions = [], examIdx = 0, examScore = 0, examTimer = null, examTimeLeft = 0;
+
+function startHSKExam() {
+  const pool = QZ.length > 0 ? QZ : [{l:1,q:'Nǐ hǎo',c:'你好',o:['Hello','Goodbye','Thanks','Sorry'],a:0}];
+  examQuestions = [...pool].sort(() => Math.random() - 0.5).slice(0, 10);
+  examIdx = 0;
+  examScore = 0;
+  examTimeLeft = 300; // 5 minutes
+  const overlay = document.getElementById('listenQuizOverlay');
+  overlay.style.display = 'flex';
+  showExamQuestion();
+  startExamTimer();
+}
+
+function startExamTimer() {
+  if (examTimer) clearInterval(examTimer);
+  examTimer = setInterval(() => {
+    examTimeLeft--;
+    const el = document.getElementById('examTimer');
+    if (el) {
+      const m = Math.floor(examTimeLeft / 60);
+      const s = examTimeLeft % 60;
+      el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+      if (examTimeLeft <= 60) el.style.color = 'var(--accent)';
+    }
+    if (examTimeLeft <= 0) {
+      clearInterval(examTimer);
+      showExamResult();
+    }
+  }, 1000);
+}
+
+function showExamQuestion() {
+  if (examIdx >= examQuestions.length) { showExamResult(); return; }
+  const q = examQuestions[examIdx];
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    + '<div style="font-size:12px;color:var(--muted)">' + t('HSK Exam') + ' ' + (examIdx+1) + '/' + examQuestions.length + '</div>'
+    + '<div id="examTimer" style="font-size:14px;font-weight:700;color:var(--gold);font-family:monospace">5:00</div>'
+    + '</div>'
+    + '<div style="margin-bottom:6px;height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div style="width:' + ((examIdx)/examQuestions.length*100) + '%;height:100%;background:var(--accent);border-radius:2px;transition:width .3s"></div></div>'
+    + '<div style="font-size:20px;font-weight:bold;color:var(--fg);text-align:center;margin-bottom:4px">' + q.c + '</div>'
+    + '<div style="font-size:13px;color:var(--fg2);text-align:center;margin-bottom:14px">' + q.p + '</div>'
+    + '<div class="grid gap-2" id="examOptions"></div>'
+    + '<div id="examFeedback" class="text-sm mt-3 text-center" style="min-height:24px"></div>';
+  
+  const optsDiv = document.getElementById('examOptions');
+  q.o.forEach((opt, i) => {
+    const b = document.createElement('button');
+    b.className = 'bq';
+    b.textContent = opt;
+    b.onclick = () => {
+      document.querySelectorAll('#examOptions .bq').forEach(x => x.disabled = true);
+      const fb = document.getElementById('examFeedback');
+      if (i === q.a) { b.classList.add('ok'); examScore += 10; fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓</span>'; }
+      else { b.classList.add('no'); document.querySelectorAll('#examOptions .bq')[q.a].classList.add('ok'); fb.innerHTML = '<span style="color:var(--accent);font-weight:600">✗ ' + q.o[q.a] + '</span>'; }
+      setTimeout(() => { examIdx++; showExamQuestion(); }, 1000);
+    };
+    optsDiv.appendChild(b);
+  });
+}
+
+function showExamResult() {
+  if (examTimer) { clearInterval(examTimer); examTimer = null; }
+  const pct = Math.round((examScore / (examQuestions.length * 10)) * 100);
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="font-size:40px;text-align:center;margin-bottom:12px">' + (pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪') + '</div>'
+    + '<h3 style="text-align:center;margin:0 0 6px;font-size:18px;color:var(--fg)">' + t('HSK Exam Complete') + '</h3>'
+    + '<p style="text-align:center;margin:0 0 4px;font-size:14px;color:var(--muted)">' + t('Score:') + ' ' + examScore + '/' + (examQuestions.length * 10) + '</p>'
+    + '<p style="text-align:center;margin:0 0 4px;font-size:13px;color:var(--gold)">' + pct + '% ' + t('accuracy') + '</p>'
+    + '<p style="text-align:center;margin:0 0 20px;font-size:12px;color:var(--muted)">' + t('Time:') + ' ' + Math.floor((300 - examTimeLeft) / 60) + 'm ' + ((300 - examTimeLeft) % 60) + 's</p>'
+    + '<div style="text-align:center"><button onclick="closeListenQuiz()" class="bp px-8 py-2.5 text-xs font-bold">' + t('Done') + '</button></div>';
+  addXP(Math.round(examScore / 2), 'HSK Exam');
+  if (pct >= 80) addXP(20, 'Excellent exam score');
+  checkBadges();
+}
+
+// ===== SENTENCE GENERATOR =====
+async function openSentenceGenerator() {
+  const word = document.getElementById('dictSearch').value.trim();
+  if (!word) { toast(t('Search for a word first'), 'var(--gold)', 2000); return; }
+  const modal = document.getElementById('listenQuizOverlay');
+  modal.style.display = 'flex';
+  const content = document.getElementById('listenQuizContent');
+  content.innerHTML = '<div style="text-align:center;padding:20px"><i class="fas fa-spinner fa-spin" style="font-size:24px;color:var(--accent)"></i><div style="margin-top:10px;font-size:13px;color:var(--muted)">' + t('Generating example sentences...') + '</div></div>';
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ role:'user', parts:[{ text:'Generate 3 example Chinese sentences using the word "' + word + '". For each sentence, provide: Chinese sentence, pinyin, English translation. Format as a numbered list.' }] }], systemInstruction:'You are a Chinese language teacher. Generate simple, natural example sentences suitable for learners.' })
+    });
+    const d = await r.json();
+    const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not generate sentences.';
+    content.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+      + '<h3 style="margin:0;font-size:16px;color:var(--fg)"><i class="fas fa-robot mr-2" style="color:var(--green)"></i>' + t('Example Sentences') + ': "' + word + '"</h3>'
+      + '<button onclick="closeListenQuiz()" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button></div>'
+      + '<div style="font-size:14px;line-height:1.7;padding:12px;border-radius:12px;background:var(--card2);color:var(--fg2)">' + reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>') + '</div>';
+  } catch {
+    content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--accent)">' + t('Failed to generate sentences') + '</div>';
+  }
+}
+
+// ===== CHARACTER ETYMOLOGY =====
+const ETYMOLOGY_DATA = {
+  '你':{radical:'亻（人）',meaning:'person',components:'亻+ 尔',tip:t('The left side 亻means "person", the right side 尔 is phonetic.')},
+  '好':{radical:'女（女）',meaning:'woman',components:'女 + 子',tip:t('A woman (女) and a child (子) together = good.')},
+  '学':{radical:'子（子）',meaning:'child/learning',components:'⺌ + 冖 + 子',tip:t('A child (子) under a roof (冖) studying = to learn.')},
+  '习':{radical:'乙（乙）',meaning:'second/flying',components:'⺄ + 冫',tip:t('Originally depicted a bird learning to fly. Means "to practice".')},
+  '中':{radical:'丨（丨）',meaning:'line',components:'口 + 丨',tip:t('A line through the center of a box = middle/center.')},
+  '国':{radical:'囗（囗）',meaning:'enclosure',components:'囗 + 玉',tip:'Enclosure (囗) around jade (玉) = kingdom/country.'},
+  '大':{radical:'大（大）',meaning:'big',components:'一 + 人',tip:'A person (人) with arms stretched wide = big/great.'},
+  '人':{radical:'人（人）',meaning:'person',components:'人',tip:'A pictograph of a person standing sideways.'},
+  '我':{radical:'戈（戈）',meaning:'spear/weapon',components:'手 + 戈',tip:'Originally depicted a hand (手) holding a weapon (戈) = I/me.'},
+  '是':{radical:'日（日）',meaning:'sun',components:'日 + 正',tip:'Sun (日) + correct (正) = to be / is.'},
+  '说':{radical:'讠（言）',meaning:'speech',components:'讠 + 兑',tip:'Speech radical (讠) + exchange (兑) = to speak.'},
+  '话':{radical:'讠（言）',meaning:'speech',components:'讠 + 舌',tip:'Speech (讠) + tongue (舌) = words/language.'},
+  '不':{radical:'一（一）',meaning:'one',components:'一 + 小 + 丿',tip:'Originally depicted a flower calyx. Used as a negative prefix.'},
+  '了':{radical:'乛（乛）',meaning:'second/curved',components:'乛',tip:'A simple hook shape. Used as a grammatical particle for completed action.'},
+  '会':{radical:'人（人）',meaning:'person',components:'人 + 云',tip:'Person (人) + cloud/say (云) = meeting / can / will.'},
+  '天':{radical:'大（大）',meaning:'big/great',components:'一 + 大',tip:'One (一) above great (大) = sky/heaven/day.'},
+  '水':{radical:'水（水）',meaning:'water',components:'水',tip:'A pictograph of flowing water.'},
+  '火':{radical:'火（火）',meaning:'fire',components:'火',tip:'A pictograph of a flame.'},
+  '山':{radical:'山（山）',meaning:'mountain',components:'山',tip:'A pictograph of three mountain peaks.'},
+  '日':{radical:'日（日）',meaning:'sun',components:'日',tip:'A pictograph of the sun with a central line.'},
+};
+
+function showEtymology(char) {
+  const modal = document.getElementById('etymologyModal');
+  const content = document.getElementById('etymologyContent');
+  const data = ETYMOLOGY_DATA[char];
+  if (data) {
+    content.innerHTML = '<div style="font-size:48px;font-weight:900;color:var(--gold);margin-bottom:8px">' + char + '</div>'
+      + '<div style="margin-bottom:10px"><span style="color:var(--muted);font-size:12px">' + t('Radical:') + '</span> <span style="color:var(--fg);font-weight:600;font-size:14px">' + data.radical + '</span></div>'
+      + '<div style="margin-bottom:10px"><span style="color:var(--muted);font-size:12px">' + t('Components:') + '</span> <span style="color:var(--fg);font-size:14px">' + data.components + '</span></div>'
+      + '<div style="margin-bottom:10px"><span style="color:var(--muted);font-size:12px">' + t('Meaning:') + '</span> <span style="color:var(--fg);font-size:14px">' + data.meaning + '</span></div>'
+      + '<div style="padding:10px;border-radius:10px;background:var(--card2);font-size:13px;color:var(--fg2)">' + data.tip + '</div>';
+  } else {
+    // Try to look up radical info dynamically
+    const radInfo = getRadicalInfo(char);
+    content.innerHTML = '<div style="font-size:48px;font-weight:900;color:var(--gold);margin-bottom:8px">' + char + '</div>'
+      + '<div style="color:var(--muted);font-size:13px">' + t('No detailed etymology data for this character yet.') + '</div>'
+      + (radInfo ? '<div style="margin-top:10px;padding:10px;border-radius:10px;background:var(--card2);font-size:13px;color:var(--fg2)">' + t('Radical:') + ' ' + radInfo + '</div>' : '');
+  }
+  modal.style.display = 'flex';
+}
+
+function getRadicalInfo(char) {
+  if (!char || char.length === 0) return null;
+  const code = char.charCodeAt(0);
+  if (code >= 0x4E00 && code <= 0x9FFF) return t('This character uses the') + ' ' + getRadicalCategory(code) + ' ' + t('radical system.');
+  return null;
+}
+
+function getRadicalCategory(code) {
+  if (code >= 0x4E00 && code < 0x4E3F) return '一 (one)';
+  if (code >= 0x4E3F && code < 0x4E60) return '丨 (line)';
+  if (code >= 0x4E60 && code < 0x4E80) return '丶 (dot)';
+  if (code >= 0x4E80 && code < 0x4EA0) return '丿 (slash)';
+  if (code >= 0x4EA0 && code < 0x4EC0) return '乙 (second)';
+  if (code >= 0x4EC0 && code < 0x4EE0) return '亻 (person)';
+  return '⺀ (misc)';
+}
+
+// ===== PROGRESS CHARTS =====
+function drawProgressChart() {
+  const canvas = document.getElementById('progressChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+  
+  // Get XP history for last 7 days
+  const history = JSON.parse(localStorage.getItem('xp_history') || '{}');
+  const days = [];
+  const labels = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    days.push(history[key] || 0);
+    labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+  }
+  
+  const max = Math.max(...days, 1);
+  const pad = 20, chartW = w - pad * 2, chartH = h - pad * 2;
+  
+  ctx.clearRect(0, 0, w, h);
+  
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad + (chartH / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(pad, y);
+    ctx.lineTo(w - pad, y);
+    ctx.stroke();
+  }
+  
+  // Bars
+  const barW = chartW / days.length * 0.6;
+  const gap = chartW / days.length;
+  days.forEach((val, i) => {
+    const x = pad + gap * i + (gap - barW) / 2;
+    const barH = (val / max) * chartH;
+    const y = pad + chartH - barH;
+    
+    // Gradient
+    const grad = ctx.createLinearGradient(x, y, x, pad + chartH);
+    grad.addColorStop(0, '#C83525');
+    grad.addColorStop(1, '#D4A64F');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.roundRect(x, y, barW, barH, [4,4,0,0]);
+    ctx.fill();
+    
+    // Label
+    ctx.fillStyle = '#7A6B5D';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(labels[i], x + barW / 2, h - 4);
+    
+    // Value on top
+    if (val > 0) {
+      ctx.fillStyle = '#B5A597';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.fillText(val + '', x + barW / 2, y - 4);
+    }
+  });
+}
+
+function updateChartDaily() {
+  const today = new Date().toLocaleDateString('en-CA');
+  const history = JSON.parse(localStorage.getItem('xp_history') || '{}');
+  // Get today's XP (this will be updated as user earns XP)
+  const totalXP = getXP();
+  // We track daily XP separately
+  history[today] = (history[today] || 0);
+  localStorage.setItem('xp_history', JSON.stringify(history));
+  drawProgressChart();
+}
+
+function trackDailyXP(xpAmount) {
+  const today = new Date().toLocaleDateString('en-CA');
+  const history = JSON.parse(localStorage.getItem('xp_history') || '{}');
+  history[today] = (history[today] || 0) + xpAmount;
+  localStorage.setItem('xp_history', JSON.stringify(history));
+  drawProgressChart();
+}
+
+// ===== ANKI EXPORT (CSV) =====
+function exportCSV() {
+  const level = parseInt(document.querySelector('.dict-tab.on')?.dataset?.lv || '1');
+  const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === level) : [];
+  if (words.length === 0) { toast(t('No words to export'), 'var(--gold)', 2000); return; }
+  
+  let csv = 'Chinese,Pinyin,English,Level\n';
+  words.forEach(w => {
+    csv += w.c + ',' + w.p + ',"' + w.e.replace(/"/g,'""') + '",HSK ' + w.l + '\n';
+  });
+  
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // BOM for Excel
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'HSK' + level + '_vocab.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast(t('CSV exported!'), 'var(--green)', 2000);
 }
 
 function escHtml(s) {
