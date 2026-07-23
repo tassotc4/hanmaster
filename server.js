@@ -608,34 +608,30 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });
       const base64 = file.buffer.toString('base64');
-      const visionModels = ['llama-3.2-90b-vision-preview', 'llama-3.2-11b-vision-preview'];
-      let extractedText = '';
-      for (const model of visionModels) {
-        try {
-          const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-            body: JSON.stringify({
-              model,
-              messages: [{
-                role: 'user',
-                content: [
-                  { type: 'text', text: 'Transcribe all Chinese and English text from this image exactly as written. If it is handwritten Chinese, convert it to digital Chinese text. Return only the transcribed text.' },
-                  { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}` } }
-                ]
-              }],
-              temperature: 0.1,
-              max_tokens: 4096
-            })
-          });
-          const visionData = await visionResp.json();
-          if (visionResp.ok) {
-            extractedText = visionData.choices?.[0]?.message?.content || '';
-            break;
-          }
-        } catch (e) { continue; }
+      const model = 'llama-3.2-11b-vision-preview';
+      const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'text', text: 'Transcribe all Chinese and English text from this image exactly as written. If it is handwritten Chinese, convert it to digital Chinese text. Return only the transcribed text.' },
+              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}` } }
+            ]
+          }],
+          temperature: 0.1,
+          max_tokens: 4096
+        })
+      });
+      const visionData = await visionResp.json();
+      if (!visionResp.ok) {
+        console.error('Groq vision error:', JSON.stringify(visionData));
+        return res.status(visionResp.status).json({ error: 'Vision API: ' + (visionData.error?.message || JSON.stringify(visionData)) });
       }
-      if (!extractedText) return res.status(500).json({ error: 'Vision model failed to process image. Try a clearer photo.' });
+      extractedText = visionData.choices?.[0]?.message?.content || '';
+      if (!extractedText) return res.status(500).json({ error: 'Vision model returned empty result. Try a clearer photo with visible text.' });
     } else {
       return res.status(400).json({ error: 'Unsupported file type. Accepted: PDF, DOCX, TXT, JPG, PNG, WEBP, BMP, HEIC' });
     }

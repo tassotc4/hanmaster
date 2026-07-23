@@ -10777,7 +10777,7 @@ function clearDocUpload() {
 }
 
 function processDocument(action) {
-  let file = document.getElementById('docFileInput').files[0];
+  const file = document.getElementById('docFileInput').files[0];
   if (!file) return toast('Please select a file first', 'var(--accent)');
   const isPremium = localStorage.getItem('is_premium') === 'true';
   if (!isPremium) {
@@ -10789,43 +10789,22 @@ function processDocument(action) {
   resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Processing document...</div></div>';
   document.getElementById('docActions').style.display = 'none';
   
-  // Compress images over 1MB for faster upload
-  if (file.type.startsWith('image/') && file.size > 1048576) {
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      let w = img.width, h = img.height;
-      if (w > 1600) { h = h * 1600 / w; w = 1600; }
-      if (h > 1600) { w = w * 1600 / h; h = 1600; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      canvas.toBlob(function(blob) {
-        sendDoc(blob || file, file.name, action, resultArea);
-      }, 'image/jpeg', 0.85);
-    };
-    img.src = URL.createObjectURL(file);
-    return;
-  }
-  sendDoc(file, file.name, action, resultArea);
-}
-
-function sendDoc(file, fileName, action, resultArea) {
   const formData = new FormData();
-  formData.append('document', file, fileName);
+  formData.append('document', file);
   formData.append('action', action);
   fetch('/api/upload-document', { method: 'POST', body: formData })
     .then(r => r.json())
     .then(data => {
       if (data.error) {
         const msg = typeof data.error === 'object' ? (data.error.error || JSON.stringify(data.error)) : data.error;
-        resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2">Error: ' + msg.slice(0, 300) + '</div>';
+        resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Error:</b> ' + escapeHtml(msg.slice(0, 500)) + '</div>';
         return;
       }
       resultArea.innerHTML = '<div class="font-bold mb-1" style="color:var(--gold)">' + actionLabels[action] + '</div>'
         + '<div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(data.response) + '</div>';
     })
     .catch(err => {
-      resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2">Upload failed: ' + err.message + '</div>';
+      resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Upload failed:</b> ' + escapeHtml(err.message) + '</div>';
     });
 }
 
