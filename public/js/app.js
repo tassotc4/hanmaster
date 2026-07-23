@@ -14987,7 +14987,7 @@ function showReferralScreen() {
     + '<div style="display:flex;gap:6px;margin-bottom:16px"><input id="refInput" placeholder="' + t('Enter a friend\'s referral code') + '" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:14px;text-transform:uppercase;outline:none;text-align:center" maxlength="6">'
     + '<button onclick="applyReferralFromScreen()" style="padding:10px 20px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:14px;font-weight:600;outline:none">' + t('Apply') + '</button></div>'
     + '<div style="display:flex;gap:8px"><button onclick="shareReferral()" style="flex:1;padding:10px;border-radius:10px;border:none;background:var(--green);color:#fff;cursor:pointer;font-size:13px;font-weight:600;outline:none"><i class="fas fa-share-nodes mr-1"></i> ' + t('Share Link') + '</button>'
-    + '<button onclick="this.closest(\'div[style*="background"]\').remove()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;outline:none">' + t('Close') + '</button></div></div>';
+    + '<button onclick="this.parentElement.parentElement.remove()" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px;outline:none">' + t('Close') + '</button></div></div>';
   document.body.appendChild(overlay);
 }
 
