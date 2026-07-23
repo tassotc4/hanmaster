@@ -10739,21 +10739,18 @@ function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubm
 function handleDocUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  const area = document.getElementById('docUploadArea');
-  const nameEl = document.getElementById('docFileName');
-  const actions = document.getElementById('docActions');
-  area.style.display = 'flex';
-  nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
-  actions.style.display = 'flex';
+  document.getElementById('docUploadPlaceholder').style.display = 'none';
+  document.getElementById('docUploadFileInfo').style.display = 'flex';
+  document.getElementById('docFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
   document.getElementById('docResultArea').style.display = 'none';
   document.getElementById('docResultArea').innerHTML = '';
 }
 
 function clearDocUpload() {
   document.getElementById('docFileInput').value = '';
-  document.getElementById('docUploadArea').style.display = 'none';
+  document.getElementById('docUploadPlaceholder').style.display = 'block';
+  document.getElementById('docUploadFileInfo').style.display = 'none';
   document.getElementById('docFileName').textContent = '';
-  document.getElementById('docActions').style.display = 'none';
   document.getElementById('docResultArea').style.display = 'none';
   document.getElementById('docResultArea').innerHTML = '';
 }

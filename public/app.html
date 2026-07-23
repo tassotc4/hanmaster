@@ -365,22 +365,35 @@
     </button>
   </div>
   <button class="tut-submit" id="tutSubmitBtn" onclick="tutTypeSubmit()" disabled data-tr="Submit">Submit</button>
-  <button id="docUploadBtn" onclick="document.getElementById('docFileInput').click()" class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--card2);color:var(--gold);cursor:pointer;border:none;outline:none" title="Upload Document (PDF, DOCX, TXT, Image)"><i class="fas fa-upload text-sm"></i></button>
-</div>
-<div id="docUploadArea" style="display:none;margin-top:6px" class="flex flex-col gap-2">
-  <input type="file" id="docFileInput" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload(this)">
-  <div class="flex items-center gap-2 text-xs" style="color:var(--muted)" id="docFileName"></div>
-  <div class="flex flex-wrap gap-1.5" id="docActions" style="display:none">
-    <button onclick="processDocument('summarize')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-align-left mr-1"></i> Summarize</button>
-    <button onclick="processDocument('fix-errors')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-pen-fancy mr-1"></i> Fix Errors</button>
-    <button onclick="processDocument('translate-zh2en')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-language mr-1"></i> Chinese→English</button>
-    <button onclick="processDocument('translate-en2zh')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-language mr-1"></i> English→Chinese</button>
-    <button onclick="processDocument('business-translate')" class="bq text-[10px] py-1.5 px-3"><i class="fas fa-briefcase mr-1"></i> Business Translate</button>
-    <button onclick="clearDocUpload()" class="bq text-[10px] py-1.5 px-3" style="color:var(--accent)"><i class="fas fa-times mr-1"></i> Clear</button>
-  </div>
-  <div id="docResultArea" class="cd p-3 mt-1 text-xs leading-relaxed" style="display:none;background:var(--card2);border-radius:8px;max-height:300px;overflow-y:auto"></div>
 </div>
 </div></div></div>
+</section>
+
+<!-- ===== DOCUMENT UPLOAD SECTION ===== -->
+<section id="docUpload" class="py-12 px-5" style="background:var(--bg2)">
+<div class="max-w-4xl mx-auto">
+<div class="text-center mb-6 fu"><div class="sl"><i class="fas fa-file-upload mr-1"></i> <span data-tr="Document AI">Document AI</span></div><h2 class="fc font-bold text-xl md:text-2xl mb-2" data-tr="Upload & Process Documents with AI">Upload & Process Documents with AI</h2><p class="text-sm" style="color:var(--fg2)" data-tr="Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.">Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.</p></div>
+<div class="cd p-6 md:p-8 text-center" style="border:2px dashed var(--border);border-radius:16px;cursor:pointer" id="docDropZone" onclick="document.getElementById('docFileInput').click()">
+  <input type="file" id="docFileInput" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png" style="display:none" onchange="handleDocUpload(this)">
+  <div id="docUploadPlaceholder">
+    <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(212,166,79,.1)"><i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--gold)"></i></div>
+    <p class="font-bold text-sm mb-1" data-tr="Click to upload or drag & drop">Click to upload or drag & drop</p>
+    <p class="text-xs" style="color:var(--muted)" data-tr="PDF, DOCX, TXT, JPG, PNG — Max 20MB">PDF, DOCX, TXT, JPG, PNG — Max 20MB</p>
+  </div>
+  <div id="docUploadFileInfo" style="display:none" class="flex flex-col items-center gap-3">
+    <div class="flex items-center gap-2 text-sm font-medium" style="color:var(--gold)" id="docFileName"></div>
+    <div class="flex flex-wrap justify-center gap-2" id="docActions">
+      <button onclick="processDocument('summarize')" class="bp text-xs py-2 px-4"><i class="fas fa-align-left mr-1"></i> Summarize</button>
+      <button onclick="processDocument('fix-errors')" class="bp text-xs py-2 px-4"><i class="fas fa-pen-fancy mr-1"></i> Fix Errors</button>
+      <button onclick="processDocument('translate-zh2en')" class="bp text-xs py-2 px-4"><i class="fas fa-language mr-1"></i> Chinese→English</button>
+      <button onclick="processDocument('translate-en2zh')" class="bp text-xs py-2 px-4"><i class="fas fa-language mr-1"></i> English→Chinese</button>
+      <button onclick="processDocument('business-translate')" class="bp text-xs py-2 px-4"><i class="fas fa-briefcase mr-1"></i> Business Translate</button>
+      <button onclick="clearDocUpload()" class="bq text-xs py-2 px-4" style="color:var(--accent)"><i class="fas fa-times mr-1"></i> Clear</button>
+    </div>
+    <div id="docResultArea" class="w-full text-left cd p-4 text-sm leading-relaxed" style="display:none;background:var(--card2);border-radius:12px;max-height:400px;overflow-y:auto"></div>
+  </div>
+</div>
+</div>
 </section>
 
 <!-- ========== LESSONS ========== -->
