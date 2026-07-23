@@ -80,8 +80,8 @@ async function sendEmailViaMailgun(to, subject, html) {
       body: body.toString()
     });
     const data = await resp.json();
-    if (resp.ok) return data;
-    console.error('Mailgun error:', data);
+    if (resp.ok) { console.log('Mailgun success:', data.id); return data; }
+    console.error('Mailgun error:', resp.status, JSON.stringify(data));
     return null;
   } catch (e) {
     console.error('Mailgun exception:', e.message);
@@ -273,7 +273,7 @@ app.post('/api/test-smtp', async (req, res) => {
       '<p>Test email from MandarinCourse via Mailgun API.</p>'
     );
     if (result) return res.json({ ok: true, via: 'mailgun', id: result.id });
-    return res.json({ ok: false, error: 'Mailgun API test failed. Check MAILGUN_API_KEY and MAILGUN_DOMAIN.' });
+    return res.json({ ok: false, error: 'Mailgun API test failed. Visit /api/test-mailgun?key=YOUR_ADMIN_KEY for details.' });
   }
   
   const host = process.env.SMTP_HOST || 'not set';
@@ -325,6 +325,29 @@ app.post('/api/send-reminder', async (req, res) => {
   } catch (err) {
     console.log('REMINDER FAILED:', err.message);
     res.json({ ok: true, note: 'Logged (SMTP error). Use Mailgun API instead - add MAILGUN_API_KEY to Render env vars.' });
+  }
+});
+
+app.get('/api/test-mailgun', async (req, res) => {
+  const { key } = req.query || {};
+  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  if (!mailgunConfigured()) return res.json({ ok: false, error: 'MAILGUN_API_KEY or MAILGUN_DOMAIN not set in env vars' });
+  const domain = process.env.MAILGUN_DOMAIN;
+  const apiKey = process.env.MAILGUN_API_KEY;
+  // Test domain validity
+  try {
+    const resp = await fetch('https://api.mailgun.net/v3/' + domain, {
+      headers: { 'Authorization': 'Basic ' + Buffer.from('api:' + apiKey).toString('base64') }
+    });
+    if (resp.status === 401) return res.json({ ok: false, error: 'Invalid API key. Get it from Mailgun Dashboard → Settings → API Keys' });
+    if (resp.status === 404) return res.json({ ok: false, error: 'Domain not found. Check MAILGUN_DOMAIN in env vars' });
+    if (resp.status === 200) {
+      const data = await resp.json();
+      return res.json({ ok: true, domain: data.name || domain, state: data.state });
+    }
+    return res.json({ ok: false, error: 'Unexpected status: ' + resp.status });
+  } catch (e) {
+    return res.json({ ok: false, error: 'Mailgun API unreachable: ' + e.message });
   }
 });
 
