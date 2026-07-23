@@ -10737,13 +10737,34 @@ function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubm
 
 // ===== DOCUMENT UPLOAD =====
 function handleDocUpload(input) {
-  const file = input.files[0];
+  const file = input.files ? input.files[0] : input;
   if (!file) return;
   document.getElementById('docUploadPlaceholder').style.display = 'none';
   document.getElementById('docUploadFileInfo').style.display = 'flex';
   document.getElementById('docFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
   document.getElementById('docResultArea').style.display = 'none';
   document.getElementById('docResultArea').innerHTML = '';
+  toast('File loaded: ' + file.name, 'var(--gold)', 2000);
+}
+
+function initDocUpload() {
+  const zone = document.getElementById('docDropZone');
+  if (!zone) return;
+  zone.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = 'var(--gold)'; this.style.background = 'rgba(212,166,79,0.05)'; });
+  zone.addEventListener('dragleave', function(e) { e.preventDefault(); this.style.borderColor = 'var(--border)'; this.style.background = 'transparent'; });
+  zone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--border)';
+    this.style.background = 'transparent';
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const input = document.getElementById('docFileInput');
+      const dt = new DataTransfer();
+      dt.items.add(files[0]);
+      input.files = dt.files;
+      handleDocUpload(files[0]);
+    }
+  });
 }
 
 function clearDocUpload() {
@@ -15028,6 +15049,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof initTranslate === 'function') initTranslate();
   buildDictionary(1);
   initGamification();
+  initDocUpload();
   
   if (!localStorage.getItem('onboarding_done')) {
     setTimeout(showOnboarding, 800);
