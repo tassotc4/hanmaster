@@ -233,14 +233,33 @@ app.post('/api/save-reminder', (req, res) => {
   res.json({ ok: true });
 });
 
-app.post('/api/test-smtp', (req, res) => {
+app.post('/api/test-smtp', async (req, res) => {
   const { key } = req.body || {};
   if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  const host = process.env.SMTP_HOST || 'not set';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  
+  // First test TCP connectivity
+  const net = require('net');
+  try {
+    await new Promise((resolve, reject) => {
+      const sock = net.createConnection(port, host, () => { sock.end(); resolve(); });
+      sock.on('error', reject);
+      sock.setTimeout(5000, () => { sock.destroy(); reject(new Error('TCP timeout')); });
+    });
+  } catch (e) {
+    return res.json({ ok: false, error: 'Cannot reach ' + host + ':' + port + ' - ' + e.message + '. Your cloud provider may block outbound SMTP.' });
+  }
+  
+  // TCP works, now test SMTP handshake
   const transporter = getMailTransporter();
-  if (!transporter) return res.json({ ok: false, error: 'SMTP not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS env vars on Render.' });
-  let timedOut = false;
-  const timer = setTimeout(() => { timedOut = true; res.json({ ok: false, error: 'Connection timed out after 15s. Check SMTP_HOST, port, and credentials. Gmail app passwords require 2FA enabled.' }); }, 15000);
-  transporter.verify().then(() => { if (!timedOut) { clearTimeout(timer); res.json({ ok: true }); } }).catch(e => { if (!timedOut) { clearTimeout(timer); res.json({ ok: false, error: e.message }); } });
+  if (!transporter) return res.json({ ok: false, error: 'SMTP not configured.' });
+  try {
+    await transporter.verify();
+    res.json({ ok: true });
+  } catch (e) {
+    res.json({ ok: false, error: 'SMTP handshake failed: ' + e.message });
+  }
 });
 
 app.post('/api/send-reminder', async (req, res) => {
