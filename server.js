@@ -159,6 +159,23 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+app.get('/api/tts', async (req, res) => {
+  const text = req.query.text;
+  const lang = req.query.lang || 'zh-CN';
+  if (!text || text.length > 500) return res.status(400).json({ error: 'Missing or too long text' });
+  try {
+    const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=gtx&q=${encodeURIComponent(text)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) return res.status(502).json({ error: 'TTS upstream failed' });
+    const buf = Buffer.from(await resp.arrayBuffer());
+    res.set('Content-Type', 'audio/mpeg');
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.send(buf);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.post('/api/tts', async (req, res) => {
   const { text, lang } = req.body || {};
   if (!text || !lang) return res.status(400).json({ error: 'Missing text or lang' });

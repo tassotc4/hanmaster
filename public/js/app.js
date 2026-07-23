@@ -10166,72 +10166,63 @@ function getChineseVoice(){
   return _cachedChineseVoice;
 }
 
+// TTS audio cache
+const ttsCache = {};
+
+function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
+  const cacheKey = lang + '|' + text;
+  if (ttsCache[cacheKey]) {
+    const audio = new Audio(ttsCache[cacheKey]);
+    audio.play().catch(() => {});
+    return;
+  }
+  fetch('/api/tts?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang))
+    .then(r => r.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      ttsCache[cacheKey] = url;
+      const audio = new Audio(url);
+      audio.playbackRate = rate;
+      audio.play().catch(() => {});
+      // Auto-cleanup after 30s
+      setTimeout(() => { try { URL.revokeObjectURL(url); } catch {} }, 30000);
+    })
+    .catch(() => {
+      // Absolute fallback: try browser TTS
+      tryFallbackTTS(text, lang, rate);
+    });
+}
+
+function tryFallbackTTS(text, lang, rate) {
+  if (!window.speechSynthesis) return;
+  try {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang;
+    u.rate = rate || 1.0;
+    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(lang.split('-')[0]));
+    if (voices.length > 0) u.voice = voices[voices.length - 1];
+    speechSynthesis.speak(u);
+  } catch(e) {}
+}
+
 function speak(t, rate){
   try {
-    // Abort active recognition if speaking to avoid feedback loops
-    if (recognition) {
-      try {
-        recognition.onend = null;
-        recognition.onerror = null;
-        recognition.abort();
-      } catch(e) {}
-    }
+    if (recognition) { try { recognition.onend = null; recognition.onerror = null; recognition.abort(); } catch(e) {} }
     srOn = false;
-    const btn = document.getElementById('tutMic');
-    const ic = document.getElementById('tutMicIc');
-    if (btn && ic) {
-      btn.classList.remove('on');
-      ic.className = 'fas fa-microphone text-xl';
-      ic.style.color = 'var(--accent)';
+    const btn = document.getElementById('tutMic'); const ic = document.getElementById('tutMicIc');
+    if (btn && ic) { btn.classList.remove('on'); ic.className = 'fas fa-microphone text-xl'; ic.style.color = 'var(--accent)'; }
+    const hasGoodVoice = window.speechSynthesis && getChineseVoice() !== null;
+    if (!hasGoodVoice || localStorage.getItem('tts_mode') === 'api') { speakViaAPI(t, 'zh-CN', rate || parseFloat(localStorage.getItem('speech_rate')) || 1.0); return; }
+    if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || 1.0); return; }
+    const u = new SpeechSynthesisUtterance(t); u.lang = 'zh-CN'; u.rate = rate || parseFloat(localStorage.getItem('speech_rate')) || 1.0;
+    const voice = getChineseVoice(); if (voice) u.voice = voice;
+    if (isMobileDevice) { try { speechSynthesis.speak(u); } catch(err) { speakViaAPI(t, 'zh-CN', rate || 1.0); } }
+    else {
+      let isSpeaking = false; try { isSpeaking = speechSynthesis.speaking; } catch(e) {}
+      if (isSpeaking) { try { if (!isMobileDevice) speechSynthesis.cancel(); } catch(e) {} setTimeout(() => { try { speechSynthesis.speak(u); } catch(err) {} }, 50); }
+      else { try { speechSynthesis.speak(u); } catch(err) {} }
     }
-
-    if (!window.speechSynthesis) {
-      console.warn("SpeechSynthesis API not supported in this browser.");
-      return;
-    }
-
-    const u = new SpeechSynthesisUtterance(t);
-    u.lang = 'zh-CN';
-    u.rate = rate || parseFloat(localStorage.getItem('speech_rate')) || 1.0;
-    const voice = getChineseVoice();
-    if (voice) { u.voice = voice; console.log("TTS voice:", voice.name); }
-
-    // Mobile vs Desktop safety check:
-    // Calling speechSynthesis.cancel() on mobile Chrome/Safari causes the speech engine to lock up permanently.
-    if (isMobileDevice) {
-      try {
-        speechSynthesis.speak(u);
-        console.log("Native TTS queued successfully on mobile.");
-      } catch(err) {
-        console.error("Mobile speak failure:", err);
-      }
-    } else {
-      // On desktop, cancel is safe to interrupt previous speech
-      let isSpeaking = false;
-      try { isSpeaking = speechSynthesis.speaking; } catch(e) {}
-
-      if (isSpeaking) {
-        try { if (!isMobileDevice) { speechSynthesis.cancel(); } } catch(e) {}
-        setTimeout(() => {
-          try {
-            speechSynthesis.speak(u);
-            console.log("Native TTS started after cancellation.");
-          } catch(err) {
-            console.error("Desktop speak post-cancel failure:", err);
-          }
-        }, 50);
-      } else {
-        try {
-          speechSynthesis.speak(u);
-          console.log("Native TTS started directly.");
-        } catch(err) {
-          console.error("Desktop speak direct failure:", err);
-        }
-      }
-    }
-  } catch(e) {
-    console.error("Global speak exception caught:", e);
-  }
+  } catch(e) { console.error("speak error:", e); }
 }
 
 function sim(a,b){

@@ -51,6 +51,17 @@ SMTP_SECURE=false
 <p>For Gmail: enable 2FA → create App Password. For other providers, adjust host/port.</p>
 </div>
 </div>
+<div class="card mb-6" style="border-color:var(--accent)">
+<h3 class="font-bold text-sm mb-2" style="color:var(--accent)"><i class="fas fa-bell mr-1"></i> VAPID Keys (Push Notifications)</h3>
+<div class="text-xs space-y-1.5" style="color:var(--fg2)">
+<p>Push notifications use built-in fallback keys. For production, set these env vars on Render:</p>
+<code style="display:block;background:var(--bg2);padding:8px 12px;border-radius:8px;margin:6px 0;font-size:11px">
+VAPID_PUBLIC_KEY=BEquQ_39qIy57pQoO6_YrWns8yRzImWu5WuUi0CkHnZPdvu3Uc0jY2W53wPPFz9bX0eKMz-8a3bDPeOMJS2ExDc<br>
+VAPID_PRIVATE_KEY=jGWQq6_iQJNAqYecZEv68WrsYvfoo_8ttHmyIkf7d7E
+</code>
+<p>These are auto-generated fallbacks. Generate fresh keys with: <code style="background:var(--bg2);padding:1px 6px;border-radius:4px">npx web-push generate-vapid-keys</code></p>
+</div>
+</div>
 <div class="card mb-6">
 <h3 class="font-bold text-sm mb-3">Send Test Reminder</h3>
 <div class="flex gap-2">
