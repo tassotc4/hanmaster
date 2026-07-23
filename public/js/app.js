@@ -13326,6 +13326,59 @@ async function saveReminderSettings() {
       toast("Browser does not support notifications.", "var(--accent)");
     }
   }
+  // Save to server for email reminders if signed in
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    supabaseClient.auth.getSession().then(function(s) {
+      if (s.data.session && s.data.session.user.email) {
+        fetch('/api/save-reminder', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:s.data.session.user.email, frequency:interval, time:time, timezone:Intl.DateTimeFormat().resolvedOptions().timeZone}) }).catch(function(){});
+      }
+    });
+  }
+}
+
+function editProfile() {
+  var nameInput = document.getElementById('profileNameInput');
+  var saveBtn = document.getElementById('saveProfileBtn');
+  var editBtn = document.getElementById('editProfileBtn');
+  nameInput.style.display = 'block';
+  nameInput.value = localStorage.getItem('user_display_name') || '';
+  nameInput.focus();
+  saveBtn.style.display = 'block';
+  editBtn.style.display = 'none';
+}
+
+async function saveProfile() {
+  var name = document.getElementById('profileNameInput').value.trim();
+  if (!name) return toast('Enter a display name.', 'var(--accent)');
+  localStorage.setItem('user_display_name', name);
+  updateProfileDisplay();
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    var s = await supabaseClient.auth.getSession();
+    if (s.data.session) {
+      await supabaseClient.from('user_profiles').upsert({ user_id:s.data.session.user.id, display_name:name, updated_at:new Date().toISOString() }, { onConflict:'user_id' }).catch(function(){});
+      await supabaseClient.from('user_progress').upsert({ user_id:s.data.session.user.id, display_name:name, updated_at:new Date().toISOString() }, { onConflict:'user_id' }).catch(function(){});
+    }
+  }
+  document.getElementById('profileNameInput').style.display = 'none';
+  document.getElementById('saveProfileBtn').style.display = 'none';
+  document.getElementById('editProfileBtn').style.display = 'block';
+  toast('Profile saved!', 'var(--green)');
+}
+
+function updateProfileDisplay() {
+  var name = localStorage.getItem('user_display_name') || '';
+  var emailEl = document.getElementById('userEmailDisplay');
+  var nameEl = document.getElementById('userDisplayName');
+  var avatarEl = document.getElementById('userAvatar');
+  if (name && nameEl && avatarEl) {
+    nameEl.textContent = name;
+    avatarEl.style.display = 'flex';
+    avatarEl.textContent = name.charAt(0).toUpperCase();
+    avatarEl.style.background = name.charCodeAt(0) % 2 ? 'rgba(212,166,79,.2)' : 'rgba(72,152,213,.2)';
+    avatarEl.style.color = name.charCodeAt(0) % 2 ? 'var(--gold)' : '#4898D5';
+  } else if (emailEl && nameEl) {
+    nameEl.textContent = emailEl.textContent ? emailEl.textContent.split('@')[0] : '';
+  }
 }
 
 // A. Theme & Language Dropdowns

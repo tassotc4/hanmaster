@@ -5,6 +5,20 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 const staticDir = path.join(__dirname, 'public');
 const PAYPAL_API = process.env.PAYPAL_SANDBOX ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+const nodemailer = require('nodemailer');
+
+let mailTransporter = null;
+function getMailTransporter() {
+  if (!mailTransporter && process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
+    mailTransporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_SECURE === 'true',
+      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+    });
+  }
+  return mailTransporter;
+}
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir));
@@ -23,6 +37,24 @@ app.get('/printable/hsk1-vocab', (req, res) => {
 
 app.get('/pinyin-chart', (req, res) => {
   res.sendFile(path.join(staticDir, 'pinyin-chart.html'));
+});
+
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(staticDir, 'admin.html'));
+});
+
+app.post('/api/admin/stats', (req, res) => {
+  const { key } = req.body || {};
+  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  const reminders = Array.isArray(global._reminders) ? global._reminders.length : 0;
+  res.json({
+    reminders,
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    node: process.version,
+    env: process.env.NODE_ENV || 'development',
+    smtp_configured: !!process.env.SMTP_HOST
+  });
 });
 
 app.post('/api/test', (req, res) => {
@@ -132,6 +164,59 @@ app.post('/api/tts', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.post('/api/save-reminder', (req, res) => {
+  const { email, frequency, time, timezone } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  if (!Array.isArray(global._reminders)) global._reminders = [];
+  const existing = global._reminders.findIndex(r => r.email === email);
+  if (existing >= 0) global._reminders[existing] = { email, frequency: frequency || 'daily', time: time || '09:00', timezone: timezone || 'UTC', updated_at: new Date().toISOString() };
+  else global._reminders.push({ email, frequency: frequency || 'daily', time: time || '09:00', timezone: timezone || 'UTC', created_at: new Date().toISOString(), updated_at: new Date().toISOString() });
+  res.json({ ok: true });
+});
+
+app.post('/api/send-reminder', async (req, res) => {
+  const transporter = getMailTransporter();
+  if (!transporter) return res.status(400).json({ error: 'SMTP not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS env vars.' });
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  try {
+    await transporter.sendMail({
+      from: '"MandarinCourse" <' + (process.env.SMTP_FROM || process.env.SMTP_USER) + '>',
+      to: email,
+      subject: 'Your Daily Chinese Study Reminder',
+      html: '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue your learning journey.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a><p style="font-size:12px;color:#7A6B5D;margin-top:24px">You received this because you set up study reminders on MandarinCourse.</p></div>'
+    });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Check reminders every 10 minutes and send due emails
+if (process.env.SMTP_HOST) {
+  setInterval(async () => {
+    if (!Array.isArray(global._reminders)) return;
+    const transporter = getMailTransporter();
+    if (!transporter) return;
+    const now = new Date();
+    const currentHour = now.getUTCHours().toString().padStart(2,'0');
+    const currentMin = now.getUTCMinutes().toString().padStart(2,'0');
+    const currentTime = currentHour + ':' + currentMin;
+    for (const r of global._reminders) {
+      if (r.time && r.time === currentTime) {
+        try {
+          await transporter.sendMail({
+            from: '"MandarinCourse" <' + (process.env.SMTP_FROM || process.env.SMTP_USER) + '>',
+            to: r.email,
+            subject: 'Your Daily Chinese Study Reminder',
+            html: '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue learning.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a></div>'
+          });
+        } catch(e) { console.error('Reminder send failed:', e.message); }
+      }
+    }
+  }, 60000);
+}
 
 app.post('/api/paypal/create-order', async (req, res) => {
   const accessToken = await getPayPalAccessToken();

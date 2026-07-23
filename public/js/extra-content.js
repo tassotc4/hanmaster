@@ -269,17 +269,54 @@ const EXTRA_RADICALS = [
   {r:'竹',n:'Bamboo (竹字头)',m:'Related to bamboo or things made of bamboo',ex:['笔','笑','签','简','管','箭','笛','箱','篮','筷']},
 ];
 
-const EXTRA_WRITING_CHARS = '你好学习中文汉语说听读写朋友老师学生谢对不起再见吃饭喝水大小多少今天明天昨天高兴快乐家'.split('');
-const WRITING_CHAR_DATA = {
+var EXTRA_WRITING_CHARS = '你好学习中文汉语说听读写朋友老师学生谢对不起再见吃饭喝水大小多少今天明天昨天高兴快乐家爱花手山火日月马鱼鸟门车风雨云心国见白红多新老上下左右前后头口耳目足米金木'.split('');
+var WRITING_CHAR_DATA = {
   '你':{py:'nǐ',m:'you'},'好':{py:'hǎo',m:'good'},'学':{py:'xué',m:'to learn'},'习':{py:'xí',m:'to practice'},
   '中':{py:'zhōng',m:'middle, China'},'文':{py:'wén',m:'language, writing'},'汉':{py:'hàn',m:'Chinese'},'语':{py:'yǔ',m:'language'},
   '说':{py:'shuō',m:'to speak'},'听':{py:'tīng',m:'to listen'},'读':{py:'dú',m:'to read'},'写':{py:'xiě',m:'to write'},
   '朋':{py:'péng',m:'friend'},'友':{py:'yǒu',m:'friend'},'老':{py:'lǎo',m:'old'},'师':{py:'shī',m:'teacher'},
-  '学':{py:'xué',m:'to learn'},'生':{py:'shēng',m:'student, life'},'谢':{py:'xiè',m:'to thank'},'对':{py:'duì',m:'correct, toward'},
+  '生':{py:'shēng',m:'student, life'},'谢':{py:'xiè',m:'to thank'},'对':{py:'duì',m:'correct, toward'},
   '不':{py:'bù',m:'not'},'起':{py:'qǐ',m:'to rise'},'再':{py:'zài',m:'again'},'见':{py:'jiàn',m:'to see'},
   '吃':{py:'chī',m:'to eat'},'饭':{py:'fàn',m:'rice, meal'},'喝':{py:'hē',m:'to drink'},'水':{py:'shuǐ',m:'water'},
   '大':{py:'dà',m:'big'},'小':{py:'xiǎo',m:'small'},'多':{py:'duō',m:'many'},'少':{py:'shǎo',m:'few'},
-  '今':{py:'jīn',m:'today, now'},'天':{py:'tiān',m:'sky, day'},'明':{py:'míng',m:'bright'},'天':{py:'tiān',m:'sky, day'},
-  '昨':{py:'zuó',m:'yesterday'},'天':{py:'tiān',m:'sky, day'},'高':{py:'gāo',m:'tall, high'},'兴':{py:'xìng',m:'prosperous, happy'},
-  '快':{py:'kuài',m:'fast, happy'},'乐':{py:'lè',m:'happy'},'家':{py:'jiā',m:'home, family'}
+  '今':{py:'jīn',m:'today, now'},'天':{py:'tiān',m:'sky, day'},'明':{py:'míng',m:'bright'},
+  '昨':{py:'zuó',m:'yesterday'},'高':{py:'gāo',m:'tall, high'},'兴':{py:'xìng',m:'prosperous, happy'},
+  '快':{py:'kuài',m:'fast, happy'},'乐':{py:'lè',m:'happy'},'家':{py:'jiā',m:'home, family'},
+  '爱':{py:'ài',m:'love'},'花':{py:'huā',m:'flower'},'手':{py:'shǒu',m:'hand'},'山':{py:'shān',m:'mountain'},
+  '火':{py:'huǒ',m:'fire'},'日':{py:'rì',m:'sun, day'},'月':{py:'yuè',m:'moon, month'},'马':{py:'mǎ',m:'horse'},
+  '鱼':{py:'yú',m:'fish'},'鸟':{py:'niǎo',m:'bird'},'门':{py:'mén',m:'door'},'车':{py:'chē',m:'vehicle'},
+  '风':{py:'fēng',m:'wind'},'雨':{py:'yǔ',m:'rain'},'云':{py:'yún',m:'cloud'},'心':{py:'xīn',m:'heart'},
+  '国':{py:'guó',m:'country'},'白':{py:'bái',m:'white'},'红':{py:'hóng',m:'red'},'多':{py:'duō',m:'many'},
+  '新':{py:'xīn',m:'new'},'上':{py:'shàng',m:'up, on'},'下':{py:'xià',m:'down, under'},'左':{py:'zuǒ',m:'left'},
+  '右':{py:'yòu',m:'right'},'前':{py:'qián',m:'front'},'后':{py:'hòu',m:'back, behind'},
+  '头':{py:'tóu',m:'head'},'口':{py:'kǒu',m:'mouth'},'目':{py:'mù',m:'eye'},'耳':{py:'ěr',m:'ear'},
+  '足':{py:'zú',m:'foot'},'米':{py:'mǐ',m:'rice'},'金':{py:'jīn',m:'gold'},'木':{py:'mù',m:'wood'},
+  // HSK 4-5
+  '办':{py:'bàn',m:'to do, manage'},'世':{py:'shì',m:'world'},'业':{py:'yè',m:'business, industry'},'主':{py:'zhǔ',m:'main, owner'},
+  '久':{py:'jiǔ',m:'long time'},'义':{py:'yì',m:'justice, meaning'},'乐':{py:'lè',m:'happy, music'},'书':{py:'shū',m:'book'},
+  '争':{py:'zhēng',m:'to compete'},'事':{py:'shì',m:'matter, affair'},'互':{py:'hù',m:'mutual'},'井':{py:'jǐng',m:'well'},
+  '些':{py:'xiē',m:'some, few'},'亡':{py:'wáng',m:'to die'},'交':{py:'jiāo',m:'to hand over'},'京':{py:'jīng',m:'capital'},
+  '亮':{py:'liàng',m:'bright'},'亲':{py:'qīn',m:'dear, parent'},'人':{py:'rén',m:'person'},'他':{py:'tā',m:'he, him'},
+  '以':{py:'yǐ',m:'in order to'},'件':{py:'jiàn',m:'measure word'},'价':{py:'jià',m:'price'},'任':{py:'rèn',m:'to assign'},
+  '份':{py:'fèn',m:'portion'},'价':{py:'jià',m:'price'},'众':{py:'zhòng',m:'crowd'},'传':{py:'chuán',m:'to pass'},
+  '伤':{py:'shāng',m:'to injure'},'但':{py:'dàn',m:'but, however'},'位':{py:'wèi',m:'position'},'低':{py:'dī',m:'low'},
+  '住':{py:'zhù',m:'to live'},'体':{py:'tǐ',m:'body'},'作':{py:'zuò',m:'to do, make'},'使':{py:'shǐ',m:'to cause'},
+  // HSK 6-7
+  '供':{py:'gòng',m:'to supply'},'例':{py:'lì',m:'example'},'依':{py:'yī',m:'according to'},'便':{py:'biàn',m:'convenient'},
+  '保':{py:'bǎo',m:'to protect'},'信':{py:'xìn',m:'to trust'},'修':{py:'xiū',m:'to repair'},'值':{py:'zhí',m:'value'},
+  '假':{py:'jiǎ',m:'false'},'做':{py:'zuò',m:'to do'},'健':{py:'jiàn',m:'healthy'},'备':{py:'bèi',m:'to prepare'},
+  '像':{py:'xiàng',m:'like, resemble'},'充':{py:'chōng',m:'to fill'},'光':{py:'guāng',m:'light'},'全':{py:'quán',m:'complete'},
+  '公':{py:'gōng',m:'public'},'共':{py:'gòng',m:'common'},'关':{py:'guān',m:'to close'},'兴':{py:'xīng',m:'prosper'},
+  '再':{py:'zài',m:'again'},'决':{py:'jué',m:'to decide'},'准':{py:'zhǔn',m:'accurate'},'减':{py:'jiǎn',m:'to reduce'},
+  '卖':{py:'mài',m:'to sell'},'变':{py:'biàn',m:'to change'},'只':{py:'zhǐ',m:'only'},'可':{py:'kě',m:'can, may'},
+  // HSK 8-9
+  '专':{py:'zhuān',m:'specialized'},'严':{py:'yán',m:'strict'},'个':{py:'gè',m:'general measure'},'临':{py:'lín',m:'to face'},
+  '为':{py:'wéi',m:'to do, as'},'丽':{py:'lì',m:'beautiful'},'主':{py:'zhǔ',m:'main'},'久':{py:'jiǔ',m:'long lasting'},
+  '之':{py:'zhī',m:'of (possessive)'},'乘':{py:'chéng',m:'to ride'}, '乱':{py:'luàn',m:'chaotic'},'争':{py:'zhēng',m:'to strive'},
+  '事':{py:'shì',m:'thing'},'些':{py:'xiē',m:'some'}, '亚':{py:'yà',m:'Asia'},'于':{py:'yú',m:'in, at, on'},
+  '互':{py:'hù',m:'mutual'},'亡':{py:'wáng',m:'to die'}, '享':{py:'xiǎng',m:'to enjoy'},'京':{py:'jīng',m:'capital'},
+  '亮':{py:'liàng',m:'bright'},'亲':{py:'qīn',m:'parent'}, '亿':{py:'yì',m:'100 million'},'仇':{py:'chóu',m:'hatred'},
+  '仍':{py:'réng',m:'still, yet'},'他':{py:'tā',m:'he'},'付':{py:'fù',m:'to pay'},'代':{py:'dài',m:'generation'},
+  '令':{py:'lìng',m:'to cause'},'们':{py:'men',m:'plural suffix'},'价':{py:'jià',m:'price'},'任':{py:'rèn',m:'to appoint'},
+  '份':{py:'fèn',m:'portion'},'休':{py:'xiū',m:'to rest'},'众':{py:'zhòng',m:'many'},'传':{py:'chuán',m:'to pass'}
 };

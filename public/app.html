@@ -717,9 +717,12 @@
         <button onclick="openAuthModal()" class="bp w-full text-center py-2 text-xs font-bold" data-tr="Sign In / Register"><i class="fas fa-sign-in-alt mr-1"></i> Sign In / Register</button>
       </div>
       <div id="userInfo" style="display:none;flex-direction:column;gap:8px;">
-        <div class="text-xs" style="color:var(--fg2)" id="userEmailDisplay">user@email.com</div>
-        <button onclick="syncNow()" class="bo w-full text-center py-2 text-xs font-bold" data-tr="Sync Progress"><i class="fas fa-sync mr-1"></i> Sync Progress</button>
-        <button onclick="signOutUser()" class="bq w-full text-center py-2 text-xs" style="text-align:center" data-tr="Sign Out"><i class="fas fa-sign-out-alt mr-1"></i> Sign Out</button>
+        <div class="flex items-center gap-2 mb-1"><div id="userAvatar" class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold" style="background:rgba(212,166,79,.2);color:var(--gold);display:none">?</div><div><div id="userDisplayName" class="text-xs font-bold"></div><div class="text-[10px]" style="color:var(--fg2)" id="userEmailDisplay">user@email.com</div></div></div>
+        <input id="profileNameInput" type="text" placeholder="Display name" class="tut-input w-full text-xs" style="background:var(--card2);display:none">
+        <button onclick="saveProfile()" id="saveProfileBtn" class="bo w-full text-center py-1.5 text-xs font-bold" style="display:none" data-tr="Save Profile"><i class="fas fa-save mr-1"></i> Save Profile</button>
+        <button onclick="editProfile()" id="editProfileBtn" class="bo w-full text-center py-1.5 text-xs font-bold" data-tr="Edit Profile"><i class="fas fa-user-edit mr-1"></i> Edit Profile</button>
+        <button onclick="syncNow()" class="bo w-full text-center py-1.5 text-xs font-bold" data-tr="Sync Progress"><i class="fas fa-sync mr-1"></i> Sync Progress</button>
+        <button onclick="signOutUser()" class="bq w-full text-center py-1.5 text-xs" style="text-align:center" data-tr="Sign Out"><i class="fas fa-sign-out-alt mr-1"></i> Sign Out</button>
       </div>
     </div>
     <div class="mb-4">

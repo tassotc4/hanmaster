@@ -29,6 +29,10 @@ async function checkSession() {
     updatePremiumUI();
     buildLvTabs();
     syncProgressFromCloud(session.user.id);
+    supabaseClient.from('user_profiles').select('display_name').eq('user_id', session.user.id).single().then(function(r) {
+      if (r.data && r.data.display_name) { localStorage.setItem('user_display_name', r.data.display_name); if (typeof updateProfileDisplay === 'function') updateProfileDisplay(); }
+    }).catch(function(){});
+    if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
   }
 }
 
@@ -56,6 +60,10 @@ async function signInWithEmail(email, password) {
     updatePremiumUI();
     buildLvTabs();
     syncProgressFromCloud(session.user.id);
+    supabaseClient.from('user_profiles').select('display_name').eq('user_id', session.user.id).single().then(function(r) {
+      if (r.data && r.data.display_name) { localStorage.setItem('user_display_name', r.data.display_name); if (typeof updateProfileDisplay === 'function') updateProfileDisplay(); }
+    }).catch(function(){});
+    if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
   }
   closeAuthModal();
   toast('Signed in! Progress will sync to cloud.', 'var(--green)');

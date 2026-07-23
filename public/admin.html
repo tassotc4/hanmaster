@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — MandarinCourse</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{--bg:#0D0A08;--bg2:#141110;--card:#1E1915;--card2:#28221C;--border:#362E25;--fg:#F5EDE6;--fg2:#B5A597;--muted:#7A6B5D;--accent:#C83525;--accent2:#E04535;--gold:#D4A64F;--green:#38A96A}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+</style>
+</head>
+<body>
+<div class="max-w-4xl mx-auto">
+<div class="flex items-center justify-between mb-8">
+<div><h1 class="text-xl font-bold">Admin Dashboard</h1><p class="text-xs" style="color:var(--fg2)">MandarinCourse</p></div>
+<a href="/app" class="text-xs font-bold" style="color:var(--gold);text-decoration:none">&larr; Back to App</a>
+</div>
+<div id="loginForm" class="card max-w-sm mx-auto text-center">
+<div class="text-4xl mb-4"><i class="fas fa-lock" style="color:var(--accent)"></i></div>
+<h2 class="text-sm font-bold mb-3">Admin Access</h2>
+<input id="adminKey" type="password" placeholder="Enter admin key or email" class="w-full p-2.5 rounded-lg border text-xs mb-3" style="background:var(--bg2);border-color:var(--border);color:var(--fg);outline:none">
+<button onclick="login()" class="w-full py-2.5 rounded-lg font-bold text-xs" style="background:var(--accent);color:#fff;border:none;cursor:pointer">Authenticate</button>
+</div>
+<div id="dashboard" style="display:none">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+<div class="card text-center"><div class="text-2xl font-extrabold" style="color:var(--gold)" id="statReminders">0</div><div class="text-xs mt-1" style="color:var(--fg2)">Reminders Set</div></div>
+<div class="card text-center"><div class="text-2xl font-extrabold" style="color:var(--green)" id="statUptime">0</div><div class="text-xs mt-1" style="color:var(--fg2)">Uptime (hours)</div></div>
+<div class="card text-center"><div class="text-2xl font-extrabold" style="color:#4898D5" id="statMemory">0</div><div class="text-xs mt-1" style="color:var(--fg2)">Memory (MB)</div></div>
+<div class="card text-center"><div class="text-2xl font-extrabold" style="color:var(--accent)" id="statNode">0</div><div class="text-xs mt-1" style="color:var(--fg2)">Node.js</div></div>
+</div>
+<div class="card mb-6">
+<h3 class="font-bold text-sm mb-3">Server Info</h3>
+<div class="text-xs space-y-2" style="color:var(--fg2)" id="serverInfo"></div>
+</div>
+<div class="card">
+<h3 class="font-bold text-sm mb-3">Send Test Reminder</h3>
+<div class="flex gap-2">
+<input id="testEmail" type="email" placeholder="user@example.com" class="flex-1 p-2.5 rounded-lg border text-xs" style="background:var(--bg2);border-color:var(--border);color:var(--fg);outline:none">
+<button onclick="sendTestReminder()" class="px-4 py-2.5 rounded-lg font-bold text-xs" style="background:var(--accent);color:#fff;border:none;cursor:pointer">Send</button>
+</div>
+<div id="testResult" class="text-xs mt-2" style="color:var(--green)"></div>
+</div>
+</div>
+</div>
+<script>
+function login() {
+  var key = document.getElementById('adminKey').value;
+  if (!key) return;
+  fetch('/api/admin/stats', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key:key}) })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.error) { alert(d.error); return; }
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('statReminders').textContent = d.reminders;
+    document.getElementById('statUptime').textContent = (d.uptime / 3600).toFixed(1);
+    document.getElementById('statMemory').textContent = (d.memory && d.memory.rss ? (d.memory.rss / 1024 / 1024).toFixed(0) : '?');
+    document.getElementById('statNode').textContent = d.node;
+    var info = document.getElementById('serverInfo');
+    info.innerHTML = '<div>Environment: ' + d.env + '</div><div>SMTP Configured: ' + (d.smtp_configured ? '<span style="color:var(--green)">Yes</span>' : '<span style="color:var(--accent)">No</span>') + '</div><div>Uptime: ' + Math.floor(d.uptime) + 's</div>';
+  })
+  .catch(function(e) { alert('Error: ' + e.message); });
+}
+function sendTestReminder() {
+  var email = document.getElementById('testEmail').value;
+  if (!email) return;
+  fetch('/api/send-reminder', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:email}) })
+  .then(function(r) { return r.json(); })
+  .then(function(d) { document.getElementById('testResult').textContent = d.ok ? 'Sent!' : 'Error: ' + d.error; })
+  .catch(function(e) { document.getElementById('testResult').textContent = 'Error: ' + e.message; });
+}
+</script>
+</body>
+</html>
