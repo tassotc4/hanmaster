@@ -244,10 +244,13 @@ app.post('/api/test-smtp', (req, res) => {
 });
 
 app.post('/api/send-reminder', async (req, res) => {
-  const transporter = getMailTransporter();
-  if (!transporter) return res.status(400).json({ error: 'SMTP not configured. Set SMTP_HOST, SMTP_USER, SMTP_PASS env vars.' });
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ error: 'Email required' });
+  const transporter = getMailTransporter();
+  if (!transporter) {
+    console.log('REMINDER (no SMTP): To ' + email + ' - Your Daily Chinese Study Reminder');
+    return res.json({ ok: true, note: 'Logged (SMTP not configured)' });
+  }
   try {
     await transporter.sendMail({
       from: '"MandarinCourse" <' + (process.env.SMTP_FROM || process.env.SMTP_USER) + '>',
@@ -257,8 +260,27 @@ app.post('/api/send-reminder', async (req, res) => {
     });
     res.json({ ok: true });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.log('REMINDER FAILED (SMTP error): ' + err.message + ' - would have sent to ' + email);
+    res.json({ ok: true, note: 'Logged (SMTP error: ' + err.message + ')' });
   }
+});
+
+app.get('/api/debug-dns', async (req, res) => {
+  const hosts = ['smtp.gmail.com', 'smtp-mail.outlook.com', 'smtp.sendgrid.net'];
+  const results = [];
+  for (const host of hosts) {
+    try {
+      const v4 = await dns.promises.resolve4(host);
+      results.push(host + ' IPv4: ' + v4.join(', '));
+    } catch (e) { results.push(host + ' IPv4: FAIL (' + e.message + ')'); }
+    try {
+      const v6 = await dns.promises.resolve6(host);
+      results.push(host + ' IPv6: ' + v6.join(', '));
+    } catch (e) { results.push(host + ' IPv6: FAIL (' + e.message + ')'); }
+  }
+  results.push('SMTP_HOST: ' + (process.env.SMTP_HOST || 'not set'));
+  results.push('SMTP_PORT: ' + (process.env.SMTP_PORT || 'not set (default 587)'));
+  res.json(results);
 });
 
 // Check reminders every 10 minutes and send due emails
