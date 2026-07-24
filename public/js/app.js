@@ -14201,7 +14201,7 @@ function buildDictionary(level) {
   const list = document.getElementById('dictList');
   if (!list) return;
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv) : [];
-  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div><div style="font-size:10px;margin-top:4px"><span onclick="event.stopPropagation();showEtymology(\''+w.c+'\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">\uD83D\uDD0D '+t('Breakdown')+'</span></div></div>').join('');
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div><div style="font-size:10px;margin-top:4px"><span onclick="event.stopPropagation();showEtymology(\''+w.c+'\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">\uD83E\uDDE9 '+t('Breakdown')+'</span></div></div>').join('');
 }
 function filterDictionary() {
   const q = document.getElementById('dictSearch').value.trim().toLowerCase();
