@@ -41,12 +41,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 .fu{opacity:0;transform:translateY(24px);transition:all .6s cubic-bezier(.4,0,.2,1)}.fu.v{opacity:1;transform:translateY(0)}
 .tst{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--border);padding:12px 24px;border-radius:14px;font-size:14px;z-index:9999;transition:transform .35s ease;box-shadow:0 12px 40px rgba(0,0,0,.5);white-space:nowrap;max-width:90vw}
 .tst.show{transform:translateX(-50%) translateY(0)}
-.srb{width:68px;height:68px;border-radius:50%;border:3px solid var(--accent);background:rgba(var(--st),.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.srb{width:80px;height:80px;border-radius:50%;border:3px solid var(--accent);background:rgba(var(--st),.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
 .srb:hover{background:rgba(var(--st),.15);transform:scale(1.05)}
 .srb.on{border-color:var(--green);background:rgba(56,169,106,.12);animation:pu 1.2s infinite}
-@keyframes pu{0%,100%{box-shadow:0 0 0 0 rgba(56,169,106,.3)}50%{box-shadow:0 0 0 16px rgba(56,169,106,0)}}
-.srs{width:48px;height:48px;border-radius:50%;border:2px solid var(--blue);background:rgba(72,152,213,.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.srs{width:60px;height:60px;border-radius:50%;border:2px solid var(--blue);background:rgba(72,152,213,.08);cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
 .srs:hover{background:rgba(72,152,213,.15);transform:scale(1.08)}
+.tut-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.3px;margin-top:4px;text-align:center}
+.srs:disabled,.srb:disabled{opacity:.35;cursor:default;transform:none!important}
 .ldd{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0}
 .mn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(13,10,8,.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);z-index:90;padding:6px 0 max(env(safe-area-inset-bottom),6px);transition:bottom .3s}
 @media(max-width:768px){.mn{display:flex}.dn{display:none!important}body{padding-bottom:68px}}

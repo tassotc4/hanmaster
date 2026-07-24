@@ -10209,8 +10209,7 @@ function speak(t, rate){
   try {
     if (recognition) { try { recognition.onend = null; recognition.onerror = null; recognition.abort(); } catch(e) {} }
     srOn = false;
-    const btn = document.getElementById('tutMic'); const ic = document.getElementById('tutMicIc');
-    if (btn && ic) { btn.classList.remove('on'); ic.className = 'fas fa-microphone text-xl'; ic.style.color = 'var(--accent)'; }
+    updateMicUI('idle');
     const hasGoodVoice = window.speechSynthesis && getChineseVoice() !== null;
     if (!hasGoodVoice || localStorage.getItem('tts_mode') === 'api') { speakViaAPI(t, 'zh-CN', rate || parseFloat(localStorage.getItem('speech_rate')) || 1.0); return; }
     if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || 1.0); return; }
@@ -10366,17 +10365,13 @@ function startAudioRecording(btn, ic) {
       mediaRecorder.stop();
     }
     srOn = false;
-    btn.classList.remove('on');
-    ic.className = 'fas fa-microphone text-xl';
-    ic.style.color = 'var(--accent)';
+    updateMicUI('idle');
     return;
   }
   console.log("Starting audio recording...");
   _recAudioMode = true;
   srOn = true;
-  btn.classList.add('on');
-  ic.className = 'fas fa-stop text-xl';
-  ic.style.color = 'var(--green)';
+  updateMicUI('recording');
   // Stop any TTS playback immediately to prevent feedback loop
   if (!isMobileDevice) { try { speechSynthesis.cancel(); } catch(e) {} }
   document.getElementById('tutHint').textContent = t('Recording... tap mic to stop');
@@ -10563,9 +10558,7 @@ function tutSpeak(){
       } catch(e) {}
     }
     srOn=false;
-    btn.classList.remove('on');
-    ic.className='fas fa-microphone text-xl';
-    ic.style.color='var(--accent)';
+    updateMicUI('idle');
     return;
   }
   
@@ -10589,9 +10582,7 @@ function tutSpeak(){
     
     recognition.onstart=()=>{
       srOn=true;
-      btn.classList.add('on');
-      ic.className='fas fa-stop text-xl';
-      ic.style.color='var(--green)';
+      updateMicUI('recording');
       document.getElementById('tutHint').textContent=t('Listening...');
       const wave = document.getElementById('tutVoiceWave');
       if (wave) wave.style.display = 'inline-flex';
@@ -10627,18 +10618,14 @@ function tutSpeak(){
       const percentageScore = Math.round(bs * 100);
       processScore(best, percentageScore, target, currentTurnId);
       srOn=false;
-      btn.classList.remove('on');
-      ic.className='fas fa-microphone text-xl';
-      ic.style.color='var(--accent)';
+      updateMicUI('idle');
     };
     
     recognition.onerror=(e)=>{
       console.error("Speak Mic Error:", e.error);
       stopMediaRecorder();
       srOn=false;
-      btn.classList.remove('on');
-      ic.className='fas fa-microphone text-xl';
-      ic.style.color='var(--accent)';
+      updateMicUI('idle');
       if (e.error === 'no-speech') {
         console.warn("no-speech detected: switching to audio recording fallback");
         window._useAudioFallback = true;
@@ -10658,9 +10645,7 @@ function tutSpeak(){
       if (_recAudioMode) return;
       stopMediaRecorder();
       srOn=false;
-      btn.classList.remove('on');
-      ic.className='fas fa-microphone text-xl';
-      ic.style.color='var(--accent)';
+      updateMicUI('idle');
     };
     
     recognition.start();
@@ -10734,6 +10719,19 @@ function finishTutor(){
 function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
 function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);document.getElementById('tutChat').scrollTop=9999}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
+function updateMicUI(state){
+  const ic=document.getElementById('tutMicIc'),lb=document.getElementById('tutMicLabel'),btn=document.getElementById('tutMic');
+  if(!ic||!lb||!btn)return;
+  if(state==='recording'||state==='stop'){
+    ic.className='fas fa-stop'; ic.style.color='var(--green)'; ic.style.fontSize='24px';
+    btn.classList.add('on');
+    lb.textContent='Stop';
+  } else {
+    ic.className='fas fa-microphone'; ic.style.color='var(--accent)'; ic.style.fontSize='24px';
+    btn.classList.remove('on');
+    lb.textContent='Speak';
+  }
+}
 
 // ===== DOCUMENT UPLOAD =====
 function handleDocUpload(input) {

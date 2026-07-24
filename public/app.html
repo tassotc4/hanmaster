@@ -345,10 +345,19 @@
 <div class="hidden md:block text-sm text-center" style="color:var(--muted)" id="tutHint">Waiting...</div>
 </div></div>
 <div class="flex-shrink-0 px-5 pt-3" style="border-top:1px solid var(--border)">
-<div class="flex items-center justify-center gap-4 mb-3">
-<button class="srs" onclick="tutListen()" title="Listen" id="tutPlayBtn" disabled><i class="fas fa-play text-sm" style="color:var(--blue)"></i></button>
-<button class="srb" id="tutMic" onclick="tutSpeak()" title="Mic (needs localhost)" disabled><i class="fas fa-microphone text-xl" style="color:var(--accent)" id="tutMicIc"></i></button>
-<button class="srs" onclick="tutSkip()" title="Skip" id="tutSkipBtn" disabled><i class="fas fa-forward text-sm" style="color:var(--fg2)"></i></button>
+<div class="flex items-center justify-center gap-6 mb-3">
+<div class="flex flex-col items-center">
+<button class="srs" onclick="tutListen()" id="tutPlayBtn" disabled><i class="fas fa-play" style="color:var(--blue);font-size:18px"></i></button>
+<span class="tut-label" id="tutPlayLabel">Listen</span>
+</div>
+<div class="flex flex-col items-center">
+<button class="srb" id="tutMic" onclick="tutSpeak()" disabled><i class="fas fa-microphone" style="color:var(--accent);font-size:24px" id="tutMicIc"></i></button>
+<span class="tut-label" id="tutMicLabel">Speak</span>
+</div>
+<div class="flex flex-col items-center">
+<button class="srs" onclick="tutSkip()" id="tutSkipBtn" disabled><i class="fas fa-forward" style="color:var(--fg2);font-size:18px"></i></button>
+<span class="tut-label" id="tutSkipLabel">Skip</span>
+</div>
 </div>
 <!-- HINT BUTTON -->
 <div id="tutHintWrapper" class="mb-3 w-full" style="display:none">
@@ -361,8 +370,8 @@
 <div class="flex gap-2 w-full">
   <div class="relative flex-1">
     <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here — e.g. 你好" data-tr-placeholder="Type or speak Chinese here — e.g. 你好" disabled>
-    <button id="tutInputMic" onclick="toggleInputSpeech()" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted hover:text-accent focus:outline-none" style="background:none;border:none;cursor:pointer" title="Speak to type" disabled>
-      <i id="tutInputMicIc" class="fas fa-microphone"></i>
+    <button id="tutInputMic" onclick="toggleInputSpeech()" class="absolute right-2 top-1/2 -translate-y-1/2 focus:outline-none" style="background:none;border:none;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%" title="Speak to type" disabled>
+      <i id="tutInputMicIc" class="fas fa-microphone text-lg" style="color:var(--muted)"></i>
     </button>
   </div>
   <button class="tut-submit" id="tutSubmitBtn" onclick="tutTypeSubmit()" disabled data-tr="Submit">Submit</button>
