@@ -753,6 +753,10 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
-  console.log(`MandarinCourse running at http://localhost:${PORT}`);
+process.on('uncaughtException', err => { console.error('Uncaught:', err); });
+process.on('unhandledRejection', (reason, p) => { console.error('Unhandled Rejection:', reason); });
+
+const server = app.listen(PORT, '0.0.0.0', () => {
+  console.log(`MandarinCourse running at http://0.0.0.0:${PORT}`);
 });
+server.on('error', err => { console.error('Server error:', err); });
