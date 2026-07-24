@@ -13435,7 +13435,7 @@ function getVoiceForLang(lang) {
 }
 
 function podSpeakViaApi(text, lang, cb) {
-  fetch('/api/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:text, lang:lang}) })
+  fetch('/api/tts', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:text, lang:lang, speed:podSpeedRate}) })
   .then(function(r) { if (!r.ok) throw new Error('TTS API error'); return r.blob(); })
   .then(function(blob) {
     var url = URL.createObjectURL(blob);
@@ -13449,19 +13449,20 @@ function podSpeakViaApi(text, lang, cb) {
 
 function podSpeak(text, lang, cb) {
   if (!window.speechSynthesis) { if (cb) cb(); return; }
-  var langPrefix = (lang || '').split('-')[0];
-  if (langPrefix === 'vi' || langPrefix === 'th' || langPrefix === 'id' || langPrefix === 'ms' || langPrefix === 'tl') {
-    podSpeakViaApi(text, lang, cb);
-    return;
-  }
+  // Try browser TTS for all languages first
   var u = new SpeechSynthesisUtterance(text);
   u.lang = lang || 'zh-CN';
   u.rate = podSpeedRate;
   var voice = getVoiceForLang(lang);
-  if (voice) u.voice = voice;
-  u.onend = function() { if (cb) cb(); };
-  u.onerror = function() { if (cb) cb(); };
-  try { speechSynthesis.speak(u); } catch(e) { if (cb) cb(); }
+  if (voice) {
+    u.voice = voice;
+    u.onend = function() { if (cb) cb(); };
+    u.onerror = function() { if (cb) cb(); };
+    try { speechSynthesis.speak(u); } catch(e) { if (cb) cb(); }
+    return;
+  }
+  // Fallback to API TTS if no browser voice found
+  podSpeakViaApi(text, lang, cb);
 }
 
 function podLangCode() {
