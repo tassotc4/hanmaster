@@ -14022,7 +14022,6 @@ async function saveProfile() {
     var s = await supabaseClient.auth.getSession();
     if (s.data.session) {
       await supabaseClient.from('user_profiles').upsert({ user_id:s.data.session.user.id, display_name:name, updated_at:new Date().toISOString() }, { onConflict:'user_id' }).catch(function(){});
-      await supabaseClient.from('user_progress').upsert({ user_id:s.data.session.user.id, display_name:name, updated_at:new Date().toISOString() }, { onConflict:'user_id' }).catch(function(){});
     }
   }
   document.getElementById('profileNameInput').style.display = 'none';
