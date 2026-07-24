@@ -97,6 +97,19 @@ app.use(express.static(staticDir));
 
 app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
+app.get('/debug-app', (req, res) => {
+  const filePath = path.join(staticDir, 'app.html');
+  try {
+    const html = fs.readFileSync(filePath, 'utf8');
+    const hasDoc = html.includes('docDropZone');
+    const fileSize = html.length;
+    const lessonsIdx = html.indexOf('<section id="lessons"');
+    res.json({ fileSize, hasDoc, lessonsIdx, appJsLineCount: html.split('\n').length });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
+
 app.get('/app', (req, res) => {
   const filePath = path.join(staticDir, 'app.html');
   const html = fs.readFileSync(filePath, 'utf8');
