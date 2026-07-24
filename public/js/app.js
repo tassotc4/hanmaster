@@ -10740,7 +10740,9 @@ function handleDocUpload(input) {
   const file = input.files ? input.files[0] : input;
   if (!file) return;
   document.getElementById('docUploadPlaceholder').style.display = 'none';
-  document.getElementById('docUploadFileInfo').style.display = 'flex';
+  const info = document.getElementById('docUploadFileInfo');
+  info.style.display = 'flex';
+  info.onclick = function(e) { e.stopPropagation(); };
   document.getElementById('docFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
   document.getElementById('docResultArea').style.display = 'none';
   document.getElementById('docResultArea').innerHTML = '';
