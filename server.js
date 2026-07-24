@@ -654,7 +654,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
           else { w = Math.round(w * maxDim / h); h = maxDim; }
           img.resize({ w, h });
         }
-        file.buffer = await img.quality(30).getBuffer('image/jpeg');
+        file.buffer = await img.getBuffer('image/jpeg', { quality: 30 });
         console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB)');
       } catch (jimpErr) {
         console.log('Jimp compression skipped:', jimpErr.message);
