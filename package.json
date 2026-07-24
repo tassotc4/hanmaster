@@ -4,7 +4,7 @@
   "description": "MandarinCourse — AI-Powered Chinese Learning App",
   "main": "server.js",
   "scripts": {
-    "start": "node scripts/build.mjs && NODE_ENV=production node server.js",
+    "start": "NODE_ENV=production node server.js",
     "dev": "node server.js",
     "build": "node scripts/build.mjs",
     "dev:https": "NODE_EXTRA_CA_CERTS= node -e \"process.env.HTTPS='true'; require('./server.js')\""
