@@ -646,11 +646,11 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       console.log('Server received image: ' + file.originalname + ' ' + file.size + ' bytes');
       // qwen tokenizer costs ~3.2 tokens per base64 char. 8000 TPM limit means max ~2200 base64 chars.
       // Client compresses to ~80px/20% quality (~400-700 bytes). If larger, reject early.
-      if (file.size > 2000) {
+      if (file.size > 1000) {
         return res.status(400).json({ error: 'Image too large (' + file.size + ' bytes). Please use a smaller image or crop before uploading.' });
       }
       const base64 = file.buffer.toString('base64');
-      if (base64.length > 2200) {
+      if (base64.length > 1400) {
         return res.status(400).json({ error: 'Image data too large after encoding. Please reduce image size or quality.' });
       }
       console.log('Image OK: ' + file.size + ' bytes, ' + base64.length + ' base64 chars');
