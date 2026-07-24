@@ -10840,14 +10840,58 @@ function processDocument(action) {
 }
 
 function sendDoc(file, action, resultArea) {
+  // Images: run OCR client-side, then process text via AI
+  if (file.type.startsWith('image/') || ['.jpg','.jpeg','.png','.webp','.bmp'].some(e => file.name.toLowerCase().endsWith(e))) {
+    resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Running OCR...</div></div>';
+    const reader = new FileReader();
+    reader.onload = async function() {
+      try {
+        if (typeof Tesseract === 'undefined') {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+            s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+        const img = new Image();
+        img.onload = async function() {
+          try {
+            const r = await Tesseract.recognize(img, 'chi_sim+eng');
+            const text = r.data.text.trim();
+            if (!text) { resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>No text detected</b>. Try a clearer photo.</div>'; return; }
+            resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Analyzing with AI...</div></div>';
+            const resp = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text }] }],
+                systemInstruction: 'summarize|fix-errors|translate-zh2en|translate-en2zh|business-translate'.split('|').includes(action)
+                  ? ({'summarize':'You are a Chinese tutor. Summarize the document in Chinese and English.','fix-errors':'You are a Chinese tutor. Fix all errors and explain each correction.','translate-zh2en':'Translate Chinese to English preserving meaning and tone.','translate-en2zh':'Translate English to Chinese (Simplified) preserving meaning and tone.','business-translate':'You are a professional business translator. Translate and provide business context analysis.'})[action]
+                  : 'You are a Chinese tutor. Summarize the document in Chinese and English.'
+              })
+            });
+            const d = await resp.json();
+            const t = d.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
+            resultArea.innerHTML = '<div class="font-bold mb-1" style="color:var(--gold)">' + actionLabels[action] + '</div><div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(t) + '</div>';
+          } catch (e) {
+            resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Analysis failed:</b> ' + escapeHtml(e.message) + '</div>';
+          }
+        };
+        img.src = reader.result;
+      } catch (e) {
+        resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>OCR load failed:</b> ' + escapeHtml(e.message) + '</div>';
+      }
+    };
+    reader.readAsDataURL(file);
+    return;
+  }
+  // Non-image files: use server endpoint
   const formData = new FormData();
   formData.append('document', file);
   formData.append('action', action);
   fetch('/api/upload-document', { method: 'POST', body: formData })
-    .then(r => {
-      if (r.status !== 200) console.log('Upload response status:', r.status);
-      return r.text().then(t => { console.log('Upload response body:', t.slice(0,500)); return JSON.parse(t); });
-    })
+    .then(r => r.json())
     .then(data => {
       if (data.error) {
         const msg = typeof data.error === 'object' ? (data.error.error || JSON.stringify(data.error)) : data.error;
@@ -10858,7 +10902,6 @@ function sendDoc(file, action, resultArea) {
         + '<div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(data.response) + '</div>';
     })
     .catch(err => {
-      console.log('Upload error:', err.message);
       resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Upload failed:</b> ' + escapeHtml(err.message) + '</div>';
     });
 }
