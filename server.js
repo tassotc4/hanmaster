@@ -643,32 +643,17 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
 
     // Extract text based on file type
     if (file.mimetype.startsWith('image/')) {
-      console.log('Server received image: ' + file.originalname + ' ' + file.size + ' bytes, mime=' + file.mimetype);
-      // Aggressive compression to fit Groq free tier (8000 TPM)
-      try {
-        const { Jimp } = require('jimp');
-        let img = await Jimp.read(file.buffer);
-        let w = img.bitmap.width, h = img.bitmap.height;
-        let quality = 12;
-        const maxDim = 60;
-        if (w > maxDim || h > maxDim) {
-          if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
-          else { w = Math.round(w * maxDim / h); h = maxDim; }
-        }
-        img.resize({ w, h });
-        file.buffer = await img.getBuffer('image/jpeg', { quality });
-        // Keep reducing quality until small enough
-        while (file.buffer.length > 3000 && quality > 3) {
-          quality -= 2;
-          img = await Jimp.read(file.buffer);
-          file.buffer = await img.getBuffer('image/jpeg', { quality });
-        }
-        console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB, q=' + quality + ')');
-      } catch (jimpErr) {
-        console.log('Jimp compression skipped:', jimpErr.message);
+      console.log('Server received image: ' + file.originalname + ' ' + file.size + ' bytes');
+      // qwen tokenizer costs ~3.2 tokens per base64 char. 8000 TPM limit means max ~2200 base64 chars.
+      // Client compresses to ~80px/20% quality (~400-700 bytes). If larger, reject early.
+      if (file.size > 2000) {
+        return res.status(400).json({ error: 'Image too large (' + file.size + ' bytes). Please use a smaller image or crop before uploading.' });
       }
       const base64 = file.buffer.toString('base64');
-      console.log('Base64 length being sent to Groq:', base64.length);
+      if (base64.length > 2200) {
+        return res.status(400).json({ error: 'Image data too large after encoding. Please reduce image size or quality.' });
+      }
+      console.log('Image OK: ' + file.size + ' bytes, ' + base64.length + ' base64 chars');
       // Handwriting/image — use Groq vision model
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });

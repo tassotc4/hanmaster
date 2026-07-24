@@ -10820,17 +10820,17 @@ function processDocument(action) {
     img.onload = function() {
       const canvas = document.createElement('canvas');
       let w = img.width, h = img.height;
-      const maxDim = 80;
+      const maxDim = 50;
       if (w > h && w > maxDim) { h = h * maxDim / w; w = maxDim; }
       else if (h > maxDim) { w = w * maxDim / h; h = maxDim; }
-      else if (w > 80 || h > 80) { w = Math.min(w, 80); h = Math.min(h, 80); }
+      else if (w > 50 || h > 50) { w = Math.min(w, 50); h = Math.min(h, 50); }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       canvas.toBlob(function(blob) {
         if (!blob) { console.log('Compression failed, sending original'); sendDoc(file, action, resultArea); return; }
         console.log('Compressed', file.name, 'to', (blob.size/1024).toFixed(1)+'KB', w+'x'+h);
         sendDoc(new File([blob], file.name, { type: 'image/jpeg' }), action, resultArea);
-      }, 'image/jpeg', 0.2);
+      }, 'image/jpeg', 0.1);
     };
     img.onerror = function() { sendDoc(file, action, resultArea); };
     img.src = URL.createObjectURL(file);
