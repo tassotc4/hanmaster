@@ -10748,7 +10748,29 @@ function handleDocUpload(input) {
 }
 
 function initDocUpload() {
-  const zone = document.getElementById('docDropZone');
+  let zone = document.getElementById('docDropZone');
+  // Inject the upload section if missing (Railway may serve stale app.html)
+  if (!zone) {
+    const lessons = document.getElementById('lessons');
+    if (lessons) {
+      const sec = document.createElement('section');
+      sec.id = 'docUpload'; sec.className = 'py-12 px-5'; sec.style.background = 'var(--bg2)';
+      sec.innerHTML = '<div class="max-w-4xl mx-auto"><div class="text-center mb-6 fu"><div class="sl"><i class="fas fa-file-upload mr-1"></i> <span data-tr="Document AI">Document AI</span></div><h2 class="fc font-bold text-xl md:text-2xl mb-2" data-tr="Upload & Process Documents with AI">Upload & Process Documents with AI</h2><p class="text-sm" style="color:var(--fg2)" data-tr="Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.">Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.</p><div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mt-2" style="background:rgba(212,166,79,.12);color:var(--gold)" data-tr="Premium Feature">Premium Feature</div></div><div class="cd p-6 md:p-8 text-center" style="border:2px dashed var(--border);border-radius:16px;cursor:pointer" id="docDropZone" onclick="document.getElementById(\'docFileInput\').click()"><input type="file" id="docFileInput" accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp,.bmp,.heic,.heif" style="display:none" onchange="handleDocUpload(this)"><div id="docUploadPlaceholder"><div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(212,166,79,.1)"><i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--gold)"></i></div><p class="font-bold text-sm mb-1" data-tr="Click to upload or drag & drop">Click to upload or drag & drop</p><p class="text-xs" style="color:var(--muted)" data-tr="PDF, DOCX, TXT, JPG, PNG — Max 20MB">PDF, DOCX, TXT, JPG, PNG — Max 20MB</p></div><div id="docUploadFileInfo" style="display:none" class="flex flex-col items-center gap-3"><div class="flex items-center gap-2 text-sm font-medium" style="color:var(--gold)" id="docFileName"></div><div class="flex flex-wrap justify-center gap-2" id="docActions"><button onclick="processDocument(\'summarize\')" class="bp text-xs py-2 px-4"><i class="fas fa-align-left mr-1"></i> Summarize</button><button onclick="processDocument(\'fix-errors\')" class="bp text-xs py-2 px-4"><i class="fas fa-pen-fancy mr-1"></i> Fix Errors</button><button onclick="processDocument(\'translate-zh2en\')" class="bp text-xs py-2 px-4"><i class="fas fa-language mr-1"></i> Chinese\u2192English</button><button onclick="processDocument(\'translate-en2zh\')" class="bp text-xs py-2 px-4"><i class="fas fa-language mr-1"></i> English\u2192Chinese</button><button onclick="processDocument(\'business-translate\')" class="bp text-xs py-2 px-4"><i class="fas fa-briefcase mr-1"></i> Business Translate</button><button onclick="clearDocUpload()" class="bq text-xs py-2 px-4" style="color:var(--accent)"><i class="fas fa-times mr-1"></i> Clear</button></div><div id="docResultArea" class="w-full text-left cd p-4 text-sm leading-relaxed" style="display:none;background:var(--card2);border-radius:12px;max-height:400px;overflow-y:auto"></div></div></div></div>';
+      lessons.parentNode.insertBefore(sec, lessons);
+      zone = document.getElementById('docDropZone');
+      // Also add Doc nav button if not present
+      if (!document.querySelector('.mnb[onclick*="docUpload"]')) {
+        const progressBtn = document.querySelector('.mnb[onclick*="progress"]');
+        if (progressBtn) {
+          const docBtn = document.createElement('button');
+          docBtn.className = 'mnb'; docBtn.setAttribute('data-tr', 'Doc');
+          docBtn.innerHTML = '<i class="fas fa-file-upload"></i>Doc';
+          docBtn.onclick = function() { navTo('#docUpload', this); };
+          progressBtn.parentNode.insertBefore(docBtn, progressBtn);
+        }
+      }
+    }
+  }
   if (!zone) return;
   zone.addEventListener('dragover', function(e) { e.preventDefault(); this.style.borderColor = 'var(--gold)'; this.style.background = 'rgba(212,166,79,0.05)'; });
   zone.addEventListener('dragleave', function(e) { e.preventDefault(); this.style.borderColor = 'var(--border)'; this.style.background = 'transparent'; });
