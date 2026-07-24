@@ -648,14 +648,14 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
         const { Jimp } = require('jimp');
         const img = await Jimp.read(file.buffer);
         let w = img.bitmap.width, h = img.bitmap.height;
-        const maxDim = 200;
+        const maxDim = 150;
         if (w > maxDim || h > maxDim) {
           if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
           else { w = Math.round(w * maxDim / h); h = maxDim; }
-          const resized = img.resize({ w, h });
-          file.buffer = await resized.getBuffer('image/jpeg');
-          console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB)');
+          img.resize({ w, h });
         }
+        file.buffer = await img.quality(30).getBuffer('image/jpeg');
+        console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB)');
       } catch (jimpErr) {
         console.log('Jimp compression skipped:', jimpErr.message);
       }
@@ -673,7 +673,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
             role: 'user',
             content: [
               { type: 'text', text: 'Transcribe all Chinese and English text from this image exactly as written. If it is handwritten Chinese, convert it to digital Chinese text. Return only the transcribed text.' },
-              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}` } }
+              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}`, detail: 'low' } }
             ]
           }],
           temperature: 0.1,
