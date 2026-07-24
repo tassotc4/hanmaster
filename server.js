@@ -667,7 +667,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
             role: 'user',
             content: [
               { type: 'text', text: 'Transcribe all Chinese and English text from this image exactly as written. If it is handwritten Chinese, convert it to digital Chinese text. Return only the transcribed text.' },
-              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}` } }
+              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}`, detail: 'low' } }
             ]
           }],
           temperature: 0.1,
