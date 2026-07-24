@@ -10798,6 +10798,11 @@ function clearDocUpload() {
   document.getElementById('docResultArea').innerHTML = '';
 }
 
+function showDocActions() {
+  const el = document.getElementById('docActions');
+  if (el) el.style.display = 'flex';
+}
+
 function processDocument(action) {
   const fileInput = document.getElementById('docFileInput');
   let file = fileInput.files[0];
@@ -10858,7 +10863,7 @@ function sendDoc(file, action, resultArea) {
           try {
             const r = await Tesseract.recognize(img, 'chi_sim+eng');
             const text = r.data.text.trim();
-            if (!text) { resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>No text detected</b>. Try a clearer photo.</div>'; return; }
+            if (!text) { resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>No text detected</b>. Try a clearer photo.</div>'; showDocActions(); return; }
             resultArea.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-lg" style="color:var(--gold)"></i><div class="mt-1" style="color:var(--muted)">Analyzing with AI...</div></div>';
             const resp = await fetch('/api/chat', {
               method: 'POST',
@@ -10873,13 +10878,16 @@ function sendDoc(file, action, resultArea) {
             const d = await resp.json();
             const t = d.candidates?.[0]?.content?.parts?.[0]?.text || 'No response';
             resultArea.innerHTML = '<div class="font-bold mb-1" style="color:var(--gold)">' + actionLabels[action] + '</div><div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(t) + '</div>';
+            showDocActions();
           } catch (e) {
             resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Analysis failed:</b> ' + escapeHtml(e.message) + '</div>';
+            showDocActions();
           }
         };
         img.src = reader.result;
       } catch (e) {
         resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>OCR load failed:</b> ' + escapeHtml(e.message) + '</div>';
+        showDocActions();
       }
     };
     reader.readAsDataURL(file);
@@ -10895,13 +10903,16 @@ function sendDoc(file, action, resultArea) {
       if (data.error) {
         const msg = typeof data.error === 'object' ? (data.error.error || JSON.stringify(data.error)) : data.error;
         resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Error:</b> ' + escapeHtml(msg.slice(0, 500)) + '</div>';
+        showDocActions();
         return;
       }
       resultArea.innerHTML = '<div class="font-bold mb-1" style="color:var(--gold)">' + actionLabels[action] + '</div>'
         + '<div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(data.response) + '</div>';
+      showDocActions();
     })
     .catch(err => {
       resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Upload failed:</b> ' + escapeHtml(err.message) + '</div>';
+      showDocActions();
     });
 }
 
