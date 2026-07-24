@@ -643,26 +643,35 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
 
     // Extract text based on file type
     if (file.mimetype.startsWith('image/')) {
-      // Server-side compression: resize to fit Groq free tier (8000 TPM)
+      console.log('Server received image: ' + file.originalname + ' ' + file.size + ' bytes, mime=' + file.mimetype);
+      // Aggressive compression to fit Groq free tier (8000 TPM)
       try {
         const { Jimp } = require('jimp');
-        const img = await Jimp.read(file.buffer);
+        let img = await Jimp.read(file.buffer);
         let w = img.bitmap.width, h = img.bitmap.height;
-        const maxDim = 80;
+        let quality = 12;
+        const maxDim = 60;
         if (w > maxDim || h > maxDim) {
           if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
           else { w = Math.round(w * maxDim / h); h = maxDim; }
-          img.resize({ w, h });
         }
-        file.buffer = await img.getBuffer('image/jpeg', { quality: 20 });
-        console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB)');
+        img.resize({ w, h });
+        file.buffer = await img.getBuffer('image/jpeg', { quality });
+        // Keep reducing quality until small enough
+        while (file.buffer.length > 3000 && quality > 3) {
+          quality -= 2;
+          img = await Jimp.read(file.buffer);
+          file.buffer = await img.getBuffer('image/jpeg', { quality });
+        }
+        console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB, q=' + quality + ')');
       } catch (jimpErr) {
         console.log('Jimp compression skipped:', jimpErr.message);
       }
+      const base64 = file.buffer.toString('base64');
+      console.log('Base64 length being sent to Groq:', base64.length);
       // Handwriting/image — use Groq vision model
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });
-      const base64 = file.buffer.toString('base64');
       const model = 'qwen/qwen3.6-27b';
       const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
@@ -673,7 +682,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
             role: 'user',
             content: [
               { type: 'text', text: 'Transcribe all Chinese and English text from this image exactly as written. If it is handwritten Chinese, convert it to digital Chinese text. Return only the transcribed text.' },
-              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}`, detail: 'low' } }
+              { type: 'image_url', image_url: { url: `data:${file.mimetype};base64,${base64}` } }
             ]
           }],
           temperature: 0.1,
