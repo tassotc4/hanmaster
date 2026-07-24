@@ -10858,7 +10858,7 @@ function sendDoc(file, action, resultArea) {
     });
 }
 
-var actionLabels = {
+window.actionLabels = window.actionLabels || {
   'summarize': 'Summary',
   'fix-errors': 'Error Corrections',
   'translate-zh2en': 'Chinese → English Translation',
