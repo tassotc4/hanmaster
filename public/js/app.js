@@ -10844,7 +10844,10 @@ function sendDoc(file, action, resultArea) {
   formData.append('document', file);
   formData.append('action', action);
   fetch('/api/upload-document', { method: 'POST', body: formData })
-    .then(r => r.json())
+    .then(r => {
+      if (r.status !== 200) console.log('Upload response status:', r.status);
+      return r.text().then(t => { console.log('Upload response body:', t.slice(0,500)); return JSON.parse(t); });
+    })
     .then(data => {
       if (data.error) {
         const msg = typeof data.error === 'object' ? (data.error.error || JSON.stringify(data.error)) : data.error;
@@ -10855,6 +10858,7 @@ function sendDoc(file, action, resultArea) {
         + '<div style="color:var(--fg);white-space:pre-wrap">' + escapeHtml(data.response) + '</div>';
     })
     .catch(err => {
+      console.log('Upload error:', err.message);
       resultArea.innerHTML = '<div style="color:var(--accent)" class="py-2"><b>Upload failed:</b> ' + escapeHtml(err.message) + '</div>';
     });
 }
