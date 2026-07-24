@@ -643,18 +643,18 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
 
     // Extract text based on file type
     if (file.mimetype.startsWith('image/')) {
-      // Server-side compression: resize to max 200px to fit Groq free tier (8000 TPM)
+      // Server-side compression: resize to fit Groq free tier (8000 TPM)
       try {
         const { Jimp } = require('jimp');
         const img = await Jimp.read(file.buffer);
         let w = img.bitmap.width, h = img.bitmap.height;
-        const maxDim = 150;
+        const maxDim = 80;
         if (w > maxDim || h > maxDim) {
           if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
           else { w = Math.round(w * maxDim / h); h = maxDim; }
           img.resize({ w, h });
         }
-        file.buffer = await img.getBuffer('image/jpeg', { quality: 30 });
+        file.buffer = await img.getBuffer('image/jpeg', { quality: 20 });
         console.log('Server-compressed image to ' + w + 'x' + h + ' (' + (file.buffer.length / 1024).toFixed(1) + 'KB)');
       } catch (jimpErr) {
         console.log('Jimp compression skipped:', jimpErr.message);
@@ -663,7 +663,7 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       const apiKey = process.env.GROQ_API_KEY;
       if (!apiKey) return res.status(500).json({ error: 'Server key not configured' });
       const base64 = file.buffer.toString('base64');
-      const model = 'qwen/qwen3.6-27b';
+      const model = 'llama-3.2-11b-vision-preview';
       const visionResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
