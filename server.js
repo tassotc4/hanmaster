@@ -10,8 +10,6 @@ const PAYPAL_API = process.env.PAYPAL_SANDBOX ? 'https://api-m.sandbox.paypal.co
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
 const multer = require('multer');
-const pdfParse = require('pdf-parse');
-const mammoth = require('mammoth');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
 // VAPID keys for push notifications
@@ -95,6 +93,8 @@ async function sendEmailViaMailgun(to, subject, html) {
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir));
+
+app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
 app.get('/app', (req, res) => {
   res.sendFile(path.join(staticDir, 'app.html'));
@@ -663,10 +663,14 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       extractedText = visionData.choices?.[0]?.message?.content || '';
       if (!extractedText) return res.status(500).json({ error: 'Vision model returned empty result. Try a clearer photo with visible text.' });
     } else if (file.mimetype === 'application/pdf') {
-      const pdfData = await pdfParse(file.buffer);
+      let pdf;
+      try { pdf = require('pdf-parse'); } catch (e) { return res.status(500).json({ error: 'PDF parsing not available on this server' }); }
+      const pdfData = await pdf(file.buffer);
       extractedText = pdfData.text;
     } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-      const result = await mammoth.extractRawText({ buffer: file.buffer });
+      let mm;
+      try { mm = require('mammoth'); } catch (e) { return res.status(500).json({ error: 'DOCX parsing not available on this server' }); }
+      const result = await mm.extractRawText({ buffer: file.buffer });
       extractedText = result.value;
     } else if (file.mimetype === 'text/plain') {
       extractedText = file.buffer.toString('utf-8');
