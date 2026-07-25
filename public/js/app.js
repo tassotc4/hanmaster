@@ -14201,7 +14201,11 @@ function buildDictionary(level) {
   const list = document.getElementById('dictList');
   if (!list) return;
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv) : [];
-  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div><div style="font-size:10px;margin-top:4px"><span onclick="event.stopPropagation();showEtymology(\''+w.c+'\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">\uD83E\uDDE9 '+t('Breakdown')+'</span></div></div>').join('');
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\');selectDictWord(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div><div style="font-size:10px;margin-top:4px"><span onclick="event.stopPropagation();showEtymology(\''+w.c+'\')" style="color:var(--gold);cursor:pointer;text-decoration:underline">\uD83E\uDDE9 '+t('Breakdown')+'</span></div></div>').join('');
+}
+function selectDictWord(word) {
+  document.getElementById('dictSearch').value = word;
+  openSentenceGenerator();
 }
 function filterDictionary() {
   const q = document.getElementById('dictSearch').value.trim().toLowerCase();
@@ -14210,7 +14214,7 @@ function filterDictionary() {
   const list = document.getElementById('dictList');
   if (!list) return;
   const words = typeof HSK_WORDS !== 'undefined' ? HSK_WORDS.filter(w => w.l === lv && (!q || w.c.includes(q) || w.p.includes(q) || w.e.toLowerCase().includes(q))) : [];
-  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
+  list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\');selectDictWord(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
 }
 // ===== ONBOARDING WALKTHROUGH =====
 const ONBOARDING_STEPS = [
