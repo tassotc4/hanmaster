@@ -13,7 +13,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" as="style">
 <link rel="preload" href="/css/tailwind.css" as="style">
 <link rel="preload" href="/css/app.css" as="style">
 <link rel="preload" href="/js/app.js" as="script">
@@ -103,7 +102,7 @@
       "name": "Can I use MandarinCourse offline without internet?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side."
+        "text": "Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side. Features that require an internet connection: Live AI Tutor Mode, Document AI upload, Google TTS API, and grammar check via Groq."
       }
     },
     {
@@ -346,7 +345,7 @@
 <div class="px-5 py-3 flex items-center gap-3 flex-shrink-0" style="border-bottom:1px solid var(--border)">
 <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,var(--blue),var(--purple))"><i class="fas fa-graduation-cap text-white text-sm"></i></div>
 <div class="flex-1 min-w-0"><div class="font-semibold text-sm" data-tr="AI Speaking Tutor">AI Speaking Tutor</div><div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full" style="background:var(--green)"></span><span class="text-xs" style="color:var(--muted)" id="tutStatus" data-tr="Select a lesson to begin">Select a lesson to begin</span><div id="tutVoiceWave" class="voice-wave-container" style="display:none;"><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div></div></div></div>
-<div class="flex items-center gap-3 flex-shrink-0"><div class="text-right"><div class="text-xs" style="color:var(--muted)" data-tr="Avg">Avg</div><div class="text-lg font-extrabold" style="color:var(--gold)" id="tutTotal" class="ph-loading">--</div></div>
+<div class="flex items-center gap-3 flex-shrink-0"><div class="text-right"><div class="text-xs" style="color:var(--muted)" data-tr="Avg">Avg</div><div class="text-lg font-extrabold ph-loading" style="color:var(--gold)" id="tutTotal">--</div></div>
 <button id="tutRoleplayBtn" class="w-16 h-8 rounded-lg flex items-center justify-center mr-1 text-[11px] font-bold" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none;outline:none;" onclick="toggleRoleplayMode()" title="Toggle Dialogue Roleplay Mode" data-tr="Study"><i class="fas fa-user-friends mr-1"></i>Study</button>
 <button id="tutVoiceModeBtn" class="w-16 h-8 rounded-lg flex items-center justify-center mr-1 text-[11px] font-bold" style="background:var(--card2);color:var(--muted);cursor:pointer;border:none;outline:none;" onclick="toggleVoiceMode()" title="Toggle auto-listen voice conversation loop"><i class="fas fa-headset mr-1"></i><span id="tutVoiceModeLabel" data-tr="Voice">Voice</span></button>
 <button id="tutSpeedBtn" class="w-12 h-8 rounded-lg flex items-center justify-center mr-1 text-[11px] font-bold" style="background:var(--card2);color:var(--blue);cursor:pointer;border:none" onclick="cycleSpeechRate()" title="Change AI Speaking Speed">1.0x</button>
@@ -994,7 +993,7 @@
         </div>
         <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
           <h3 class="font-bold text-base text-white mb-2" data-tr="Can I use MandarinCourse offline without internet?">Can I use MandarinCourse offline without internet?</h3>
-          <p class="text-xs text-muted leading-relaxed" data-tr="Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side.">Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side.</p>
+          <p class="text-xs text-muted leading-relaxed" data-tr="Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side. Features that require internet: Live AI Tutor Mode, Document AI upload, and Grammar Check.">Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side. Features that require internet: Live AI Tutor Mode, Document AI upload, and Grammar Check.</p>
         </div>
         <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
           <h3 class="font-bold text-base text-white mb-2" data-tr="How does the Tone Pitch Visualizer help with Chinese tones?">How does the Tone Pitch Visualizer help with Chinese tones?</h3>
