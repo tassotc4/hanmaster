@@ -14512,7 +14512,12 @@ function startGrammarPractice(title, cn, en) {
   currentGrEn = en;
   currentGrAnswer = [];
   
-  currentGrScrambled = cn.split('');
+  // Split into blocks keeping punctuation attached to the preceding character
+  const blocks = cn.match(/.+?([，。！？、；：""''（）《》…—\.\!\?\,\;\:\s]|$)/g) || [cn];
+  currentGrScrambled = blocks.map(b => b.trim()).filter(b => b);
+  if (currentGrScrambled.length < 2) {
+    currentGrScrambled = cn.split('').filter(c => c.trim());
+  }
   currentGrScrambled.sort(() => Math.random() - 0.5);
   
   document.getElementById('grPracticeTitle').textContent = t("Practice:") + " " + title;
@@ -14524,6 +14529,12 @@ function startGrammarPractice(title, cn, en) {
 function closeGrammarPractice() {
   document.getElementById('grammarPracticeModal').style.display = 'none';
 }
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeGrammarPractice();
+});
+document.getElementById('grammarPracticeModal')?.addEventListener('click', function(e) {
+  if (e.target === this) closeGrammarPractice();
+});
 function renderGrPracticeGrid() {
   const scrambledCon = document.getElementById('grScrambledCon');
   const answerCon = document.getElementById('grAnswerCon');
@@ -14564,12 +14575,16 @@ function resetGrammarPractice() {
 }
 function checkGrammarPractice() {
   const answerStr = currentGrAnswer.join('');
+  const resultArea = document.getElementById('grScrambledCon');
   if (answerStr === currentGrTarget) {
+    resultArea.innerHTML = '<div class="text-center py-4"><div style="font-size:32px;margin-bottom:8px">✅</div><div class="text-sm font-bold" style="color:var(--green)">' + t('Correct!') + '</div><div class="text-xs mt-1" style="color:var(--muted)">' + currentGrTarget + '</div></div>';
+    document.getElementById('grAnswerCon').innerHTML = '';
     toast(t("Correct! Well done!"), "var(--green)");
     speak(currentGrTarget, 0.7);
-    setTimeout(() => closeGrammarPractice(), 1200);
+    setTimeout(() => closeGrammarPractice(), 1500);
   } else {
-    toast(t("Incorrect. Try again!"), "var(--accent)");
+    toast(t("Not quite — try again!"), "var(--accent)");
+    resetGrammarPractice();
   }
 }
 
