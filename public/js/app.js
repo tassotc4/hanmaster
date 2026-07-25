@@ -10831,13 +10831,49 @@ function navTo(selector, btn) {
   unlockIOSAudio();
   scrollTo(selector);
   document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
+  document.querySelectorAll('.mnb-sm').forEach(b => b.classList.remove('act'));
   if (btn) btn.classList.add('act');
-  
+  const toolsDD = document.getElementById('toolsDropdown');
+  if (toolsDD) toolsDD.style.display = 'none';
   // Force reveal all elements in the navigated section to prevent viewport scroll observer locks
   const target = document.querySelector(selector);
   if (target) {
     target.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
     if (target.classList.contains('fu')) target.classList.add('v');
+  }
+}
+
+function toggleMobileMore() {
+  const menu = document.getElementById('mnMoreMenu');
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleFaq() {
+  const grid = document.getElementById('faqGrid');
+  const btn = document.getElementById('faqToggleBtn');
+  const fade = document.getElementById('faqFade');
+  if (!grid) return;
+  const expanded = grid.style.maxHeight !== '280px';
+  grid.style.maxHeight = expanded ? '280px' : grid.scrollHeight + 'px';
+  if (fade) fade.style.display = expanded ? 'block' : 'none';
+  if (btn) btn.textContent = expanded ? t('Show all FAQ') : t('Show less');
+}
+
+function toggleChart() {
+  const collapse = document.getElementById('chartCollapse');
+  const chevron = document.getElementById('chartChevron');
+  if (!collapse) return;
+  const open = collapse.style.maxHeight !== '0px' && collapse.style.maxHeight !== '';
+  if (open) {
+    collapse.style.maxHeight = '0px';
+    if (chevron) chevron.style.transform = 'rotate(0deg)';
+  } else {
+    collapse.style.maxHeight = collapse.scrollHeight + 'px';
+    if (chevron) chevron.style.transform = 'rotate(180deg)';
+    // Render chart if not already
+    setTimeout(function() {
+      if (typeof drawProgressChart === 'function') drawProgressChart();
+    }, 100);
   }
 }
 function observeFu(){const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('v')}),{threshold:.06});document.querySelectorAll('.fu').forEach(e=>o.observe(e))}
@@ -14782,6 +14818,18 @@ function toggleLangDropdown(e) {
   if (dropdown) dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
   const themeDropdown = document.getElementById('themeDropdown');
   if (themeDropdown) themeDropdown.style.display = 'none';
+  const toolsDD = document.getElementById('toolsDropdown');
+  if (toolsDD) toolsDD.style.display = 'none';
+}
+
+function toggleToolsDropdown(e) {
+  if (e) e.stopPropagation();
+  const dd = document.getElementById('toolsDropdown');
+  if (dd) dd.style.display = dd.style.display === 'none' ? 'block' : 'none';
+  const langDD = document.getElementById('langDropdown');
+  if (langDD) langDD.style.display = 'none';
+  const themeDD = document.getElementById('themeDropdown');
+  if (themeDD) themeDD.style.display = 'none';
 }
 
 function changeTheme(themeName) {
@@ -14801,8 +14849,11 @@ document.addEventListener('click', (e) => {
   const themeDropdown = document.getElementById('themeDropdown');
   const langBtn = document.getElementById('langBtn');
   const themeBtn = document.getElementById('themeBtn');
+  const toolsDD = document.getElementById('toolsDropdown');
+  const toolsBtn = document.getElementById('toolsBtn');
   if (langDropdown && !langDropdown.contains(target) && target !== langBtn && !(langBtn && langBtn.contains(target))) langDropdown.style.display = 'none';
   if (themeDropdown && !themeDropdown.contains(target) && target !== themeBtn && !(themeBtn && themeBtn.contains(target))) themeDropdown.style.display = 'none';
+  if (toolsDD && !toolsDD.contains(target) && target !== toolsBtn && !(toolsBtn && toolsBtn.contains(target))) toolsDD.style.display = 'none';
 });
 
 // B. Radical Explorer data & grid rendering
@@ -14916,54 +14967,24 @@ function filterDictionary() {
   list.innerHTML = words.map(w => '<div class="dict-item" onclick="speak(\''+w.c+'\');selectDictWord(\''+w.c+'\')"><div class="fc text-xl font-bold dict-cn">'+w.c+'</div><div style="color:var(--fg2);font-size:13px">'+w.p+'</div><div style="color:var(--muted);font-size:12px">'+t(w.e)+'</div></div>').join('');
 }
 // ===== ONBOARDING WALKTHROUGH =====
-const ONBOARDING_STEPS = [
-  { title:'Welcome!', desc:'Master Chinese with AI-powered tutor, HSK lessons, flashcards, and more.', icon:'🎉' },
-  { title:'Choose Your Level', desc:'Select HSK 1-9 in Lessons. HSK 1 is free — upgrade for full access.', icon:'📚' },
-  { title:'Practice with AI Tutor', desc:'Tap the mic to speak. AI grades your pronunciation in real time.', icon:'🎤' },
-  { title:'Test Yourself', desc:'Take quizzes to earn XP, track streaks, and unlock achievements.', icon:'🏆' },
-];
-let onboardStep = 0;
-
 function showOnboarding() {
   const o = document.getElementById('onboardingOverlay');
   if (o) o.style.display = 'flex';
-  onboardStep = 0;
-  renderOnboardStep();
 }
 
-function renderOnboardStep() {
-  const s = ONBOARDING_STEPS[onboardStep];
-  document.getElementById('onboardTitle').textContent = s.title;
-  document.getElementById('onboardDesc').textContent = s.desc;
-  document.querySelectorAll('.onboard-dot').forEach((d,i) => {
-    d.style.background = i === onboardStep ? 'var(--accent)' : 'var(--border)';
-  });
-  const btn = document.getElementById('onboardNextBtn');
-  if (onboardStep === ONBOARDING_STEPS.length - 1) {
-    btn.textContent = 'Get Started';
-    btn.onclick = finishOnboarding;
-  } else {
-    btn.textContent = 'Next';
-    btn.onclick = nextOnboarding;
-  }
-}
-
-function nextOnboarding() {
-  if (onboardStep < ONBOARDING_STEPS.length - 1) {
-    onboardStep++;
-    renderOnboardStep();
-  }
+function onboardPick(section) {
+  const o = document.getElementById('onboardingOverlay');
+  if (o) o.style.display = 'none';
+  localStorage.setItem('onboarding_done', 'true');
+  if (section === 'lessons') navTo('#lessons');
+  else if (section === 'tutor') navTo('#tutor');
+  else if (section === 'test') navTo('#test');
 }
 
 function skipOnboarding() {
   const o = document.getElementById('onboardingOverlay');
   if (o) o.style.display = 'none';
   localStorage.setItem('onboarding_done', 'true');
-}
-
-function finishOnboarding() {
-  skipOnboarding();
-  navTo('#lessons');
 }
 
 // ===== PUSH NOTIFICATIONS =====

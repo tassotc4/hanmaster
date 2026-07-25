@@ -189,7 +189,7 @@
 <div id="toast" class="tst"></div>
 <nav class="nb"><div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
 <a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight" data-tr="MandarinCourse">MandarinCourse</span></a>
-<div class="dn flex items-center gap-6"><a href="#tutor" class="nl" data-tr="AI Tutor">AI Tutor</a><a href="#lessons" class="nl" data-tr="Lessons">Lessons</a><a href="#grammar" class="nl" data-tr="Grammar">Grammar</a><a href="#dictionary" class="nl" data-tr="Dictionary">Dictionary</a><a href="#test" class="nl" data-tr="Level Test">Level Test</a><a href="#progress" class="nl" data-tr="Progress">Progress</a><a href="/pinyin-chart" class="nl" data-tr="Tones">Tones</a></div>
+<div class="dn flex items-center gap-5"><a href="#tutor" class="nl" data-tr="AI Tutor">AI Tutor</a><a href="#lessons" class="nl" data-tr="Lessons">Lessons</a><a href="#dictionary" class="nl" data-tr="Dictionary">Dictionary</a><a href="#test" class="nl" data-tr="Level Test">Level Test</a><div class="relative inline-block text-left"><button id="toolsBtn" onclick="toggleToolsDropdown(event)" class="nl flex items-center gap-1 cursor-pointer" style="background:none;border:none;outline:none;padding:0" data-tr="Tools">Tools <i class="fas fa-chevron-down text-[9px]"></i></button><div id="toolsDropdown" class="absolute left-0 mt-2 w-44 rounded-lg shadow-lg border border-[var(--border)] py-1 z-[3000]" style="background:var(--card);display:none;"><button onclick="event.stopPropagation(); navTo('#grammar', document.querySelector('.mnb[onclick*=\"grammar\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-book w-4"></i><span data-tr="Grammar">Grammar</span></button><button onclick="event.stopPropagation(); navTo('#progress', document.querySelector('.mnb[onclick*=\"progress\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-chart-line w-4"></i><span data-tr="Progress">Progress</span></button><button onclick="event.stopPropagation(); navTo('#translate', document.querySelector('.mnb[onclick*=\"translate\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-language w-4"></i><span data-tr="Translate">Translate</span></button><button onclick="event.stopPropagation(); navTo('#grammarCheck', document.querySelector('.mnb[onclick*=\"grammarCheck\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-check-double w-4"></i><span data-tr="Grammar Check">Grammar Check</span></button><button onclick="event.stopPropagation(); navTo('#docUpload', document.querySelector('.mnb[onclick*=\"docUpload\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-file-upload w-4"></i><span data-tr="Document AI">Document AI</span></button><button onclick="event.stopPropagation(); window.location.href='/pinyin-chart'" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-music w-4"></i><span data-tr="Pinyin Chart">Pinyin Chart</span></button><button onclick="event.stopPropagation(); showLeaderboard()" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-trophy w-4"></i><span data-tr="Rank">Rank</span></button><button onclick="event.stopPropagation(); navTo('#podcast', document.querySelector('.mnb[onclick*=\"podcast\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-headphones w-4"></i><span data-tr="Podcast">Podcast</span></button></div></div></div>
 
   <!-- Language & Theme selectors Group (always visible) -->
   <div class="flex items-center gap-2.5">
@@ -663,14 +663,17 @@
   
   <!-- PROGRESS CHARTS -->
   <div class="cd p-5 fu mt-6">
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-2 cursor-pointer" onclick="toggleChart()">
       <h3 class="font-bold text-sm" style="color:var(--fg)"><i class="fas fa-chart-simple mr-1" style="color:var(--accent)"></i> <span data-tr="Progress Charts">Progress Charts</span></h3>
+      <i class="fas fa-chevron-down text-xs" style="color:var(--muted);transition:transform .3s" id="chartChevron"></i>
     </div>
-    <div style="position:relative;width:100%;height:140px;border-radius:12px;overflow:hidden;background:var(--card2)" id="chartContainer">
-      <canvas id="progressChart" width="800" height="280" style="width:100%;height:140px"></canvas>
-    </div>
-    <div class="flex justify-between text-[10px] mt-2 px-1" style="color:var(--muted)">
-      <span id="chartStartLabel">-7d</span><span id="chartEndLabel" data-tr="Today">Today</span>
+    <div id="chartCollapse" style="max-height:0;overflow:hidden;transition:max-height .4s ease">
+      <div style="position:relative;width:100%;height:140px;border-radius:12px;overflow:hidden;background:var(--card2);margin-top:12px" id="chartContainer">
+        <canvas id="progressChart" width="800" height="280" style="width:100%;height:140px"></canvas>
+      </div>
+      <div class="flex justify-between text-[10px] mt-2 px-1" style="color:var(--muted)">
+        <span id="chartStartLabel">-7d</span><span id="chartEndLabel" data-tr="Today">Today</span>
+      </div>
     </div>
   </div>
   
@@ -954,24 +957,28 @@
       <p style="color:var(--fg2)" class="text-sm" data-tr="Direct answers about our features, offline compatibility, and pronunciation grading.">Direct answers about our features, offline compatibility, and pronunciation grading.</p>
     </div>
     
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-        <h3 class="font-bold text-base text-white mb-2" data-tr="How does the AI Speaking Tutor grade my pronunciation?">How does the AI Speaking Tutor grade my pronunciation?</h3>
-        <p class="text-xs text-muted leading-relaxed" data-tr="MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.">MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.</p>
+    <div id="faqGrid" style="max-height:280px;overflow:hidden;position:relative;transition:max-height .4s ease">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <h3 class="font-bold text-base text-white mb-2" data-tr="How does the AI Speaking Tutor grade my pronunciation?">How does the AI Speaking Tutor grade my pronunciation?</h3>
+          <p class="text-xs text-muted leading-relaxed" data-tr="MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.">MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.</p>
+        </div>
+        <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <h3 class="font-bold text-base text-white mb-2" data-tr="Can I use MandarinCourse offline without internet?">Can I use MandarinCourse offline without internet?</h3>
+          <p class="text-xs text-muted leading-relaxed" data-tr="Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side.">Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side.</p>
+        </div>
+        <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <h3 class="font-bold text-base text-white mb-2" data-tr="How does the Tone Pitch Visualizer help with Chinese tones?">How does the Tone Pitch Visualizer help with Chinese tones?</h3>
+          <p class="text-xs text-muted leading-relaxed" data-tr="The tone visualizer captures your voice's pitch curve using Web Audio autocorrelation. It graphs your spoken pitch curve on a canvas alongside reference guides for the four tones (Flat, Rising, Dipping, Falling), giving you instant visual feedback.">The tone visualizer captures your voice's pitch curve using Web Audio autocorrelation. It graphs your spoken pitch curve on a canvas alongside reference guides for the four tones (Flat, Rising, Dipping, Falling), giving you instant visual feedback.</p>
+        </div>
+        <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <h3 class="font-bold text-base text-white mb-2" data-tr="What is the Spaced Repetition System (SRS) used for?">What is the Spaced Repetition System (SRS) used for?</h3>
+          <p class="text-xs text-muted leading-relaxed" data-tr="The flashcard review deck uses a Spaced Repetition engine. By grading cards as Again, Hard, Good, or Easy, the algorithm schedules reviews. You can toggle the 'Due Reviews Only' box to study efficiently.">The flashcard review deck uses a Spaced Repetition engine. By grading cards as Again, Hard, Good, or Easy, the algorithm schedules reviews. You can toggle the 'Due Reviews Only' box to study efficiently.</p>
+        </div>
       </div>
-      <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-        <h3 class="font-bold text-base text-white mb-2" data-tr="Can I use MandarinCourse offline without internet?">Can I use MandarinCourse offline without internet?</h3>
-        <p class="text-xs text-muted leading-relaxed" data-tr="Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side.">Yes! MandarinCourse is a Progressive Web App (PWA) that caches all scripts, assets, writing animations, and logic locally. The tone visualizer, character writing quizzes, and SRS flashcards run 100% offline client-side.</p>
-      </div>
-      <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-        <h3 class="font-bold text-base text-white mb-2" data-tr="How does the Tone Pitch Visualizer help with Chinese tones?">How does the Tone Pitch Visualizer help with Chinese tones?</h3>
-        <p class="text-xs text-muted leading-relaxed" data-tr="The tone visualizer captures your voice's pitch curve using Web Audio autocorrelation. It graphs your spoken pitch curve on a canvas alongside reference guides for the four tones (Flat, Rising, Dipping, Falling), giving you instant visual feedback.">The tone visualizer captures your voice's pitch curve using Web Audio autocorrelation. It graphs your spoken pitch curve on a canvas alongside reference guides for the four tones (Flat, Rising, Dipping, Falling), giving you instant visual feedback.</p>
-      </div>
-      <div class="cd p-6 rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-        <h3 class="font-bold text-base text-white mb-2" data-tr="What is the Spaced Repetition System (SRS) used for?">What is the Spaced Repetition System (SRS) used for?</h3>
-        <p class="text-xs text-muted leading-relaxed" data-tr="The flashcard review deck uses a Spaced Repetition engine. By grading cards as Again, Hard, Good, or Easy, the algorithm schedules reviews. You can toggle the 'Due Reviews Only' box to study efficiently.">The flashcard review deck uses a Spaced Repetition engine. By grading cards as Again, Hard, Good, or Easy, the algorithm schedules reviews. You can toggle the 'Due Reviews Only' box to study efficiently.</p>
-      </div>
+      <div id="faqFade" style="position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,var(--bg));pointer-events:none"></div>
     </div>
+    <div class="text-center mt-6"><button onclick="toggleFaq()" id="faqToggleBtn" class="bo text-xs px-6 py-2" data-tr="Show all FAQ">Show all FAQ</button></div>
   </div>
 </section>
 
@@ -1002,15 +1009,19 @@
 <div class="mn">
 <button class="mnb act" data-tr="Tutor" onclick="navTo('#tutor', this)"><i class="fas fa-microphone"></i>Tutor</button>
 <button class="mnb" data-tr="Lessons" onclick="navTo('#lessons', this)"><i class="fas fa-book-open"></i>Lessons</button>
-<button class="mnb" data-tr="Grammar" onclick="navTo('#grammar', this)"><i class="fas fa-book"></i>Grammar</button>
 <button class="mnb" data-tr="Dict" onclick="navTo('#dictionary', this)"><i class="fas fa-book-open"></i>Dict</button>
-<button class="mnb" data-tr="Trans" onclick="navTo('#translate', this)"><i class="fas fa-language"></i>Trans</button>
-<button class="mnb" data-tr="Grammar Chk" onclick="navTo('#grammarCheck', this)"><i class="fas fa-check-double"></i>Check</button>
 <button class="mnb" data-tr="Test" onclick="navTo('#test', this)"><i class="fas fa-brain"></i>Test</button>
-<button class="mnb" data-tr="Doc" onclick="navTo('#docUpload', this)"><i class="fas fa-file-upload"></i>Doc</button>
-<button class="mnb" data-tr="Progress" onclick="navTo('#progress', this)"><i class="fas fa-chart-line"></i>Progress</button>
-<button class="mnb" data-tr="Tones" onclick="window.location.href='/pinyin-chart'"><i class="fas fa-music"></i>Tones</button>
-<button class="mnb" data-tr="Rank" onclick="showLeaderboard()"><i class="fas fa-trophy"></i>Rank</button>
+<button id="mnMoreBtn" class="mnb" onclick="toggleMobileMore()"><i class="fas fa-ellipsis-h"></i><span data-tr="More">More</span></button>
+<div id="mnMoreMenu" style="display:none;position:fixed;bottom:64px;left:0;right:0;z-index:9999;background:var(--card);border-top:1px solid var(--border);padding:8px 12px;border-radius:16px 16px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,.3)">
+<div class="flex flex-wrap gap-1.5 justify-center">
+<button class="mnb-sm" data-tr="Grammar" onclick="navTo('#grammar', this);toggleMobileMore()"><i class="fas fa-book"></i>Grammar</button>
+<button class="mnb-sm" data-tr="Trans" onclick="navTo('#translate', this);toggleMobileMore()"><i class="fas fa-language"></i>Trans</button>
+<button class="mnb-sm" data-tr="Check" onclick="navTo('#grammarCheck', this);toggleMobileMore()"><i class="fas fa-check-double"></i>Check</button>
+<button class="mnb-sm" data-tr="Doc" onclick="navTo('#docUpload', this);toggleMobileMore()"><i class="fas fa-file-upload"></i>Doc</button>
+<button class="mnb-sm" data-tr="Progress" onclick="navTo('#progress', this);toggleMobileMore()"><i class="fas fa-chart-line"></i>Progress</button>
+<button class="mnb-sm" data-tr="Tones" onclick="window.location.href='/pinyin-chart';toggleMobileMore()"><i class="fas fa-music"></i>Tones</button>
+<button class="mnb-sm" data-tr="Rank" onclick="showLeaderboard();toggleMobileMore()"><i class="fas fa-trophy"></i>Rank</button>
+</div></div>
 </div>
 
 <!-- ===== REVIEW MISTAKES MODAL ===== -->
@@ -1078,19 +1089,19 @@
 <script>document.querySelectorAll('.fu').forEach(function(e){e.classList.add('v')})</script>
 
 <!-- ===== ONBOARDING OVERLAY ===== -->
-<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px">
+<div id="onboardingOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--card);border-radius:16px;padding:32px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
-    <div style="font-size:48px;margin-bottom:12px">🎉</div>
-    <h2 style="margin:0 0 8px;font-size:20px;color:var(--fg)" id="onboardTitle" data-tr="Welcome to MandarinCourse!">Welcome to MandarinCourse!</h2>
-    <p style="margin:0 0 24px;font-size:14px;color:var(--muted);line-height:1.6" id="onboardDesc" data-tr="Let's get you started on your Chinese learning journey.">Let's get you started on your Chinese learning journey.</p>
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:24px">
-      <span class="onboard-dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent)"></span>
-      <span class="onboard-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></span>
-      <span class="onboard-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></span>
+    <div style="font-size:40px;margin-bottom:8px">🎉</div>
+    <h2 style="margin:0 0 4px;font-size:20px;color:var(--fg)" data-tr="Welcome to MandarinCourse!">Welcome to MandarinCourse!</h2>
+    <p style="margin:0 0 20px;font-size:13px;color:var(--muted);line-height:1.5" data-tr="What do you want to learn today?">What do you want to learn today?</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <button onclick="onboardPick('lessons')" class="bo text-sm py-3 px-4 flex items-center gap-3 w-full" style="justify-content:flex-start;border-radius:12px;text-align:left"><span style="font-size:20px">📚</span><span><span class="font-bold block" data-tr="Learn Vocabulary">Learn Vocabulary</span><span class="text-xs font-normal" style="color:var(--muted)" data-tr="HSK 1-9 flashcards with SRS">HSK 1-9 flashcards with SRS</span></span></button>
+      <button onclick="onboardPick('tutor')" class="bo text-sm py-3 px-4 flex items-center gap-3 w-full" style="justify-content:flex-start;border-radius:12px;text-align:left"><span style="font-size:20px">🎤</span><span><span class="font-bold block" data-tr="Practice Speaking">Practice Speaking</span><span class="text-xs font-normal" style="color:var(--muted)" data-tr="AI-graded pronunciation practice">AI-graded pronunciation practice</span></span></button>
+      <button onclick="onboardPick('test')" class="bo text-sm py-3 px-4 flex items-center gap-3 w-full" style="justify-content:flex-start;border-radius:12px;text-align:left"><span style="font-size:20px">🧠</span><span><span class="font-bold block" data-tr="Take a Quiz">Take a Quiz</span><span class="text-xs font-normal" style="color:var(--muted)" data-tr="Test your HSK level">Test your HSK level</span></span></button>
+      <button onclick="onboardPick('explore')" class="bq text-sm py-3 px-4 flex items-center gap-3 w-full" style="justify-content:flex-start;border-radius:12px;text-align:left;border-color:var(--border)"><span style="font-size:20px">🔍</span><span><span class="font-bold block" data-tr="Just Explore">Just Explore</span><span class="text-xs font-normal" style="color:var(--muted)" data-tr="Browse all features">Browse all features</span></span></button>
     </div>
-    <div style="display:flex;gap:10px;justify-content:center">
-      <button onclick="skipOnboarding()" data-tr="Skip" style="padding:10px 20px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:14px;outline:none">Skip</button>
-      <button onclick="nextOnboarding()" id="onboardNextBtn" data-tr="Next" style="padding:10px 24px;border-radius:10px;border:none;background:var(--accent);color:#fff;cursor:pointer;font-size:14px;font-weight:600;outline:none">Next</button>
+    <div style="text-align:center">
+      <button onclick="skipOnboarding()" data-tr="Skip" style="padding:6px 16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:12px;outline:none">Skip</button>
     </div>
   </div>
 </div>
