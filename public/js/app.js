@@ -14308,6 +14308,15 @@ function toggleDebugConsole() {
   }
 }
 
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+    e.preventDefault();
+    const btn = document.getElementById('debugBtn');
+    if (btn) btn.style.display = 'flex';
+    toggleDebugConsole();
+  }
+});
+
 // ===== USER VOICE RECORDING & PLAYBACK =====
 
 // ===== USER VOICE RECORDING & PLAYBACK =====
@@ -15921,4 +15930,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   setTimeout(updateActivityFeed, 500);
+  
+  // Remove loading skeleton class from populated elements
+  setTimeout(function() {
+    document.querySelectorAll('.ph-loading').forEach(function(el) {
+      if (el.textContent !== '--') el.classList.remove('ph-loading');
+    });
+  }, 3000);
 });
