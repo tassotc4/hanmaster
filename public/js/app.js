@@ -10871,13 +10871,8 @@ function routeApp(path, btn) {
   }
   if (!APP_ROUTES[path]) path = '/app/tutor';
   var sectionId = APP_ROUTES[path];
-  var sections = getRouteSections();
-  for (var i = 0; i < sections.length; i++) sections[i].style.display = 'none';
   var target = document.getElementById(sectionId);
-  if (target) { target.style.display = 'block'; target.style.visibility = 'visible'; }
-  document.querySelectorAll('.fu').forEach(function(el) {
-    if (target && target.contains(el)) { el.classList.add('v'); }
-  });
+  if (target) { scrollToSection('#' + sectionId); }
   var meta = ROUTE_META[path];
   if (meta) {
     document.title = meta.title;
