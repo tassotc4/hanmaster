@@ -10827,21 +10827,83 @@ function scrollTo(s) {
   }
 }
 
+// ===== CLIENT-SIDE ROUTER =====
+var APP_ROUTES = {
+  '/app': 'tutor',
+  '/app/tutor': 'tutor',
+  '/app/lessons': 'lessons',
+  '/app/dictionary': 'dictionary',
+  '/app/test': 'test',
+  '/app/grammar': 'grammar',
+  '/app/progress': 'progress',
+  '/app/translate': 'translate',
+  '/app/grammar-check': 'grammarCheck',
+  '/app/document-ai': 'docUpload'
+};
+var ROUTE_META = {
+  '/app/tutor': { title: 'AI Speaking Tutor - MandarinCourse', desc: 'Practice Chinese speaking with an AI-powered tutor. Real-time voice grading, tones, and HSK conversation practice.' },
+  '/app/lessons': { title: 'Bite-Sized Chinese Lessons - MandarinCourse', desc: 'HSK 1-9 lessons with flashcards, radicals, podcasts, and stories. 10-15 minute bite-sized Chinese lessons.' },
+  '/app/dictionary': { title: 'HSK Vocabulary Dictionary - MandarinCourse', desc: 'Browse HSK 1-9 vocabulary with pinyin, audio, example sentences, and English translations. 10,000+ words.' },
+  '/app/test': { title: 'HSK Level Test - MandarinCourse', desc: 'Test your HSK Chinese level in 5 minutes. Listening quiz, vocabulary assessment, and level recommendation.' },
+  '/app/grammar': { title: 'Chinese Grammar Guide - MandarinCourse', desc: 'Learn Chinese grammar with 100+ patterns. Filter by HSK level, practice with exercises, and check your sentences.' },
+  '/app/progress': { title: 'HSK Progress - MandarinCourse', desc: 'Track your Chinese learning progress. Words learned, characters practiced, XP, streaks, and achievements.' },
+  '/app/translate': { title: 'Chinese Translator - MandarinCourse', desc: 'Translate between Chinese and 10 languages. AI-powered translation with pinyin and example sentences.' },
+  '/app/grammar-check': { title: 'AI Grammar Check - MandarinCourse', desc: 'Check your Chinese grammar with AI. Get corrections, explanations, and improved versions of your sentences.' },
+  '/app/document-ai': { title: 'Document AI - MandarinCourse', desc: 'Upload and process Chinese documents with AI. Summarize, fix errors, or translate PDFs, images, and text files.' }
+};
+var routeSectionMap = {};
+for (var k in APP_ROUTES) routeSectionMap[APP_ROUTES[k]] = k;
+var sectionRouteEls = null;
+function getRouteSections() {
+  if (!sectionRouteEls) sectionRouteEls = document.querySelectorAll('section[data-route]');
+  return sectionRouteEls;
+}
+function routeApp(path, btn) {
+  if (!path || !APP_ROUTES[path]) path = '/app/tutor';
+  var sectionId = APP_ROUTES[path];
+  var sections = getRouteSections();
+  for (var i = 0; i < sections.length; i++) sections[i].style.display = 'none';
+  var target = document.getElementById(sectionId);
+  if (target) { target.style.display = 'block'; target.style.visibility = 'visible'; }
+  document.querySelectorAll('.fu').forEach(function(el) {
+    if (target && target.contains(el)) { el.classList.add('v'); }
+  });
+  var meta = ROUTE_META[path];
+  if (meta) {
+    document.title = meta.title;
+    var md = document.querySelector('meta[name="description"]');
+    if (md) md.content = meta.desc;
+  }
+  var ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.content = document.title;
+  window.scrollTo(0, 0);
+  document.querySelectorAll('.mnb').forEach(function(b) { b.classList.remove('act'); });
+  document.querySelectorAll('.mnb-sm').forEach(function(b) { b.classList.remove('act'); });
+  if (btn) btn.classList.add('act');
+  var toolsDD = document.getElementById('toolsDropdown');
+  if (toolsDD) toolsDD.style.display = 'none';
+}
 function navTo(selector, btn) {
   unlockIOSAudio();
-  scrollTo(selector);
-  document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
-  document.querySelectorAll('.mnb-sm').forEach(b => b.classList.remove('act'));
-  if (btn) btn.classList.add('act');
-  const toolsDD = document.getElementById('toolsDropdown');
-  if (toolsDD) toolsDD.style.display = 'none';
-  // Force reveal all elements in the navigated section to prevent viewport scroll observer locks
-  const target = document.querySelector(selector);
-  if (target) {
-    target.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
-    if (target.classList.contains('fu')) target.classList.add('v');
+  if (typeof selector === 'string' && selector.charAt(0) === '/') {
+    history.pushState(null, '', selector);
+    routeApp(selector, btn);
+    return false;
   }
+  var path = routeSectionMap[selector.replace('#', '')];
+  if (path) {
+    history.pushState(null, '', path);
+    routeApp(path, btn);
+    return false;
+  }
+  scrollTo(selector);
+  document.querySelectorAll('.mnb').forEach(function(b) { b.classList.remove('act'); });
+  document.querySelectorAll('.mnb-sm').forEach(function(b) { b.classList.remove('act'); });
+  if (btn) btn.classList.add('act');
+  var toolsDD = document.getElementById('toolsDropdown');
+  if (toolsDD) toolsDD.style.display = 'none';
 }
+window.addEventListener('popstate', function() { routeApp(location.pathname); });
 
 function toggleMobileMore() {
   const menu = document.getElementById('mnMoreMenu');
@@ -15979,4 +16041,9 @@ document.addEventListener('DOMContentLoaded', function() {
       deferredPrompt = null;
     });
   };
+  
+  // Initial route
+  var initPath = location.pathname;
+  if (initPath === '/app' || initPath === '/app/') initPath = '/app/tutor';
+  routeApp(initPath);
 });

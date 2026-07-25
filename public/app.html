@@ -217,7 +217,7 @@
 <div id="toast" class="tst"></div>
 <nav class="nb"><div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
 <a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight" data-tr="MandarinCourse">MandarinCourse</span></a>
-<div class="dn flex items-center gap-5"><a href="#tutor" class="nl" data-tr="AI Tutor">AI Tutor</a><a href="#lessons" class="nl" data-tr="Lessons">Lessons</a><a href="#dictionary" class="nl" data-tr="Dictionary">Dictionary</a><a href="#test" class="nl" data-tr="Level Test">Level Test</a><div class="relative inline-block text-left"><button id="toolsBtn" onclick="toggleToolsDropdown(event)" class="nl flex items-center gap-1 cursor-pointer" style="background:none;border:none;outline:none;padding:0"><span data-tr="Tools">Tools</span> <i class="fas fa-chevron-down text-[10px]"></i></button><div id="toolsDropdown" class="absolute left-0 mt-2 w-44 rounded-lg shadow-lg border border-[var(--border)] py-1 z-[3000]" style="background:var(--card);display:none;"><button onclick="event.stopPropagation(); navTo('#grammar', document.querySelector('.mnb[onclick*=\"grammar\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-book w-4"></i><span data-tr="Grammar">Grammar</span></button><button onclick="event.stopPropagation(); navTo('#progress', document.querySelector('.mnb[onclick*=\"progress\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-chart-line w-4"></i><span data-tr="Progress">Progress</span></button><button onclick="event.stopPropagation(); navTo('#translate', document.querySelector('.mnb[onclick*=\"translate\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-language w-4"></i><span data-tr="Translate">Translate</span></button><button onclick="event.stopPropagation(); navTo('#grammarCheck', document.querySelector('.mnb[onclick*=\"grammarCheck\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-check-double w-4"></i><span data-tr="Grammar Check">Grammar Check</span></button><button onclick="event.stopPropagation(); navTo('#docUpload', document.querySelector('.mnb[onclick*=\"docUpload\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-file-upload w-4"></i><span data-tr="Document AI">Document AI</span></button><button onclick="event.stopPropagation(); window.location.href='/pinyin-chart'" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-music w-4"></i><span data-tr="Pinyin Chart">Pinyin Chart</span></button><button onclick="event.stopPropagation(); showLeaderboard()" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-trophy w-4"></i><span data-tr="Rank">Rank</span></button><button onclick="event.stopPropagation(); navTo('#podcast', document.querySelector('.mnb[onclick*=\"podcast\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-headphones w-4"></i><span data-tr="Podcast">Podcast</span></button></div></div></div>
+<div class="dn flex items-center gap-5"><a href="/app/tutor" class="nl" data-tr="AI Tutor" onclick="return navTo('/app/tutor', this)">AI Tutor</a><a href="/app/lessons" class="nl" data-tr="Lessons" onclick="return navTo('/app/lessons', this)">Lessons</a><a href="/app/dictionary" class="nl" data-tr="Dictionary" onclick="return navTo('/app/dictionary', this)">Dictionary</a><a href="/app/test" class="nl" data-tr="Level Test" onclick="return navTo('/app/test', this)">Level Test</a><div class="relative inline-block text-left"><button id="toolsBtn" onclick="toggleToolsDropdown(event)" class="nl flex items-center gap-1 cursor-pointer" style="background:none;border:none;outline:none;padding:0"><span data-tr="Tools">Tools</span> <i class="fas fa-chevron-down text-[10px]"></i></button><div id="toolsDropdown" class="absolute left-0 mt-2 w-44 rounded-lg shadow-lg border border-[var(--border)] py-1 z-[3000]" style="background:var(--card);display:none;"><button onclick="event.stopPropagation(); navTo('/app/grammar', document.querySelector('.mnb[onclick*=\"grammar\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-book w-4"></i><span data-tr="Grammar">Grammar</span></button><button onclick="event.stopPropagation(); navTo('/app/progress', document.querySelector('.mnb[onclick*=\"progress\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-chart-line w-4"></i><span data-tr="Progress">Progress</span></button><button onclick="event.stopPropagation(); navTo('/app/translate', document.querySelector('.mnb[onclick*=\"translate\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-language w-4"></i><span data-tr="Translate">Translate</span></button><button onclick="event.stopPropagation(); navTo('/app/grammar-check', document.querySelector('.mnb[onclick*=\"grammarCheck\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-check-double w-4"></i><span data-tr="Grammar Check">Grammar Check</span></button><button onclick="event.stopPropagation(); navTo('/app/document-ai', document.querySelector('.mnb[onclick*=\"docUpload\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-file-upload w-4"></i><span data-tr="Document AI">Document AI</span></button><button onclick="event.stopPropagation(); window.location.href='/pinyin-chart'" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-music w-4"></i><span data-tr="Pinyin Chart">Pinyin Chart</span></button><button onclick="event.stopPropagation(); showLeaderboard()" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-trophy w-4"></i><span data-tr="Rank">Rank</span></button><button onclick="event.stopPropagation(); navTo('#podcast', document.querySelector('.mnb[onclick*=\"podcast\"]'))" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-headphones w-4"></i><span data-tr="Podcast">Podcast</span></button></div></div></div>
 
   <!-- Language & Theme selectors Group (always visible) -->
   <div class="flex items-center gap-2.5">
@@ -278,8 +278,8 @@
 <h1 class="fc font-black leading-tight mb-5" style="font-size:clamp(2.4rem,6vw,4.2rem)" data-tr="Learn Mandarin with AI">Learn Mandarin with AI <br><span style="background:linear-gradient(135deg,var(--accent),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent" data-tr="HSK 1 Free · HSK 2–9 $9/mo">HSK 1 Free · HSK 2–9 $9/mo</span></h1>
 <p class="text-base md:text-lg mb-9 max-w-2xl mx-auto leading-relaxed" style="color:var(--fg2)" data-tr="Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.">Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.</p>
 <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-14">
-<button class="bp text-base px-9 py-3.5" data-tr="Start Speaking Lesson" onclick="scrollTo('#tutor')"><i class="fas fa-microphone mr-2"></i>Start Speaking Lesson</button>
-<button class="bo" data-tr="Take Level Test" onclick="scrollTo('#test')"><i class="fas fa-brain mr-2"></i>Take Level Test</button></div>
+<button class="bp text-base px-9 py-3.5" data-tr="Start Speaking Lesson" onclick="navTo('/app/tutor')"><i class="fas fa-microphone mr-2"></i>Start Speaking Lesson</button>
+<button class="bo" data-tr="Take Level Test" onclick="navTo('/app/test')"><i class="fas fa-brain mr-2"></i>Take Level Test</button></div>
 <div class="text-xs mb-12 text-center" style="color:var(--muted)" data-tr="HSK 1 is 100% free. HSK 2–9 unlocks for $9/month. No commitment, cancel anytime.">HSK 1 is 100% free. HSK 2–9 unlocks for $9/month. No commitment, cancel anytime.</div>
 <div class="grid grid-cols-3 gap-6 max-w-md mx-auto">
 <div><div class="text-xl md:text-2xl font-extrabold" style="color:var(--gold)">280+</div><div class="text-xs mt-0.5" style="color:var(--muted)" data-tr="Lessons">Lessons</div></div>
@@ -288,7 +288,7 @@
 </header>
 
 <!-- ========== AI TUTOR ========== -->
-<section id="tutor" class="py-16 px-1.5 md:px-4" style="background:var(--bg2)">
+<section id="tutor" data-route="/app/tutor" class="py-16 px-1.5 md:px-4" style="background:var(--bg2)">
 <div class="max-w-[98%] mx-auto">
 <div class="text-center mb-8 fu"><div class="sl" data-tr="AI Speaking Tutor">AI Speaking Tutor</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Your Personal Chinese Speaking Teacher">Your Personal Chinese Speaking Teacher</h2><p style="color:var(--fg2)" class="max-w-lg mx-auto text-sm" data-tr="Listen to the AI speak Chinese, then respond by typing Chinese in the text box below.">Listen to the AI speak Chinese, then respond by <b>typing Chinese</b> in the text box below.</p></div>
 <div class="flex flex-nowrap overflow-x-auto whitespace-nowrap gap-2 mb-2 fu scrollbar-none" style="-webkit-overflow-scrolling:touch;" id="tutLvTabs"></div>
@@ -408,7 +408,7 @@
 </section>
 
 <!-- ===== DOCUMENT UPLOAD SECTION ===== -->
-<section id="docUpload" class="py-12 px-5" style="background:var(--bg2)">
+<section id="docUpload" data-route="/app/document-ai" class="py-12 px-5" style="background:var(--bg2)">
 <div class="max-w-4xl mx-auto">
 <div class="text-center mb-6 fu"><div class="sl"><i class="fas fa-file-upload mr-1"></i> <span data-tr="Document AI">Document AI</span></div><h2 class="fc font-bold text-xl md:text-2xl mb-2" data-tr="Upload & Process Documents with AI">Upload & Process Documents with AI</h2><p class="text-sm" style="color:var(--fg2)" data-tr="Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.">Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.</p><div class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold mt-2" style="background:rgba(212,166,79,.12);color:var(--gold)" data-tr="Premium Feature">Premium Feature</div></div>
 <div class="cd p-6 md:p-8 text-center" style="border:2px dashed var(--border);border-radius:16px;cursor:pointer" id="docDropZone" onclick="document.getElementById('docFileInput').click()">
@@ -435,7 +435,7 @@
 </section>
 
 <!-- ========== LESSONS ========== -->
-<section id="lessons" class="py-20 px-5">
+<section id="lessons" data-route="/app/lessons" class="py-20 px-5">
 <div class="max-w-6xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="Bite-Sized Lessons">Bite-Sized Lessons</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="10-15 Minute Lessons">10-15 Minute Lessons</h2></div>
 <div class="flex flex-nowrap overflow-x-auto whitespace-nowrap gap-2 mb-8 fu scrollbar-none" style="-webkit-overflow-scrolling:touch;" id="lvTabs"></div>
 <!-- STUDY MODE SELECTOR -->
@@ -536,7 +536,7 @@
     </div></div></section>
 
 <!-- ========== TRANSLATE ========== -->
-<section id="translate" class="py-20 px-5" style="background:var(--bg)">
+<section id="translate" data-route="/app/translate" class="py-20 px-5" style="background:var(--bg)">
 <div class="max-w-3xl mx-auto">
 <div class="text-center mb-10 fu"><div class="sl" data-tr="Instant Translation">Instant Translation</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Translate Any Phrase">Translate Any Phrase</h2><p style="color:var(--fg2);font-size:13px" data-tr="Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.">Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.</p></div>
 <div class="cd p-6 fu">
@@ -572,7 +572,7 @@
 </section>
 
 <!-- ========== DICTIONARY ========== -->
-<section id="dictionary" class="py-20 px-5" style="background:var(--bg2)">
+<section id="dictionary" data-route="/app/dictionary" class="py-20 px-5" style="background:var(--bg2)">
 <div class="max-w-6xl mx-auto">
 <div class="text-center mb-10 fu"><div class="sl" data-tr="HSK Dictionary">HSK Dictionary</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Browse HSK Vocabulary">Browse HSK Vocabulary</h2><p style="color:var(--fg2);font-size:13px" data-tr="Browse all HSK vocabulary with pinyin and English translations.">Browse all HSK vocabulary with pinyin and English translations.</p></div>
 <div class="flex flex-wrap gap-2 justify-center mb-6 fu" id="dictTabs">
@@ -598,7 +598,7 @@
 </section>
 
 <!-- ========== GRAMMAR CHECK ========== -->
-<section id="grammarCheck" class="py-20 px-5" style="background:var(--bg)">
+<section id="grammarCheck" data-route="/app/grammar-check" class="py-20 px-5" style="background:var(--bg)">
 <div class="max-w-4xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="AI Grammar Check">AI Grammar Check</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Check Your Chinese Grammar">Check Your Chinese Grammar</h2><p style="color:var(--fg2)" class="text-sm" data-tr="Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.">Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.</p></div>
 <div class="cd p-4 md:p-6 fu max-w-2xl mx-auto">
 <textarea id="grammarInput" class="tut-input w-full mb-3" rows="4" placeholder="Paste Chinese text here — e.g. 我昨天去商店买书。" data-tr-placeholder="Paste Chinese text here — e.g. 我昨天去商店买书。" style="resize:vertical"></textarea>
@@ -615,13 +615,13 @@
 </div></div></section>
 
 <!-- ========== GRAMMAR ========== -->
-<section id="grammar" class="py-20 px-5" style="background:var(--bg2)">
+<section id="grammar" data-route="/app/grammar" class="py-20 px-5" style="background:var(--bg2)">
 <div class="max-w-6xl mx-auto"><div class="text-center mb-8 fu"><div class="sl" data-tr="Grammar Deep Dive">Grammar Deep Dive</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Understand Grammar">Understand Grammar</h2></div>
 <div id="grLvTabs" class="flex flex-wrap justify-center gap-2 mb-8 fu"></div>
 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 fu" id="grGrid"></div></div></section>
 
 <!-- ========== LEVEL TEST ========== -->
-<section id="test" class="py-20 px-5">
+<section id="test" data-route="/app/test" class="py-20 px-5">
 <div class="max-w-3xl mx-auto">
 <div class="text-center mb-8 fu"><div class="sl" data-tr="Level Assessment">Level Assessment</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Know Your Level in 5 Minutes">Know Your Level in 5 Minutes</h2></div>
 <div id="qzLvTabs" class="flex flex-wrap justify-center gap-2 mb-6 fu"></div>
@@ -646,7 +646,7 @@
 </section>
 
 <!-- ========== PROGRESS ========== -->
-<section id="progress" class="py-20 px-5" style="background:var(--bg2)">
+<section id="progress" data-route="/app/progress" class="py-20 px-5" style="background:var(--bg2)">
 <div class="max-w-4xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="HSK Progress">HSK Progress</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="9 Levels to Fluency">9 Levels to Fluency</h2></div>
 <div class="space-y-3 fu" id="hskL"></div>
 <div class="cd p-6 mt-8 fu"><div class="flex items-center justify-between mb-5"><h3 class="font-bold text-base" data-tr="Today's Progress">Today's Progress</h3><span class="text-xs font-semibold" style="color:var(--gold)" id="tDay"></span></div>
