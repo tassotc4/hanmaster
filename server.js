@@ -125,9 +125,7 @@ function serveApp(req, res) {
 app.get('/app', serveApp);
 app.get('/app/*', serveApp);
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(staticDir, 'index.html'));
-});
+app.get('/', serveApp);
 
 app.get('/printable/hsk1-vocab', (req, res) => {
   res.sendFile(path.join(staticDir, 'printable', 'hsk1-vocab.html'));
