@@ -10859,7 +10859,17 @@ function getRouteSections() {
   return sectionRouteEls;
 }
 function routeApp(path, btn) {
-  if (!path || !APP_ROUTES[path]) path = '/app/tutor';
+  if (!path || path === '/') {
+    var s = getRouteSections();
+    for (var i = 0; i < s.length; i++) s[i].style.display = '';
+    document.title = 'MandarinCourse — Learn Chinese Online with AI Tutor & HSK Lessons';
+    var md = document.querySelector('meta[name="description"]');
+    if (md) md.content = 'Master Chinese with MandarinCourse: AI tutor, HSK 1-9 lessons, grammar, character writing quizzes, SRS flashcards, document AI, translation. 10,000+ words, real-time speaking practice.';
+    var ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.content = document.title;
+    return;
+  }
+  if (!APP_ROUTES[path]) path = '/app/tutor';
   var sectionId = APP_ROUTES[path];
   var sections = getRouteSections();
   for (var i = 0; i < sections.length; i++) sections[i].style.display = 'none';
