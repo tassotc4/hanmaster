@@ -93,7 +93,7 @@ async function sendEmailViaMailgun(to, subject, html) {
 }
 
 app.use(express.json({ limit: '10mb' }));
-app.use(express.static(staticDir));
+app.use(express.static(staticDir, { index: false }));
 
 app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
