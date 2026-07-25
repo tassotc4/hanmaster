@@ -14539,7 +14539,26 @@ function closeGrammarPractice() {
   document.getElementById('grammarPracticeModal').style.display = 'none';
 }
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeGrammarPractice();
+  if (e.key === 'Escape') {
+    const modals = [
+      { id: 'grammarPracticeModal', close: closeGrammarPractice },
+      { id: 'premiumModal', close: function(){ document.getElementById('premiumModal').style.display='none' } },
+      { id: 'geminiModal', close: function(){ document.getElementById('geminiModal').style.display='none' } },
+      { id: 'authModal', close: closeAuthModal },
+      { id: 'feedbackModal', close: function(){ document.getElementById('feedbackModal').style.display='none' } },
+      { id: 'reviewModal', close: function(){ document.getElementById('reviewModal').style.display='none' } },
+      { id: 'listenQuizOverlay', close: closeListenQuiz },
+      { id: 'etymologyModal', close: function(){ document.getElementById('etymologyModal').style.display='none' } },
+      { id: 'globalError', close: function(){ document.getElementById('globalError').style.display='none' } }
+    ];
+    for (const m of modals) {
+      const el = document.getElementById(m.id);
+      if (el && el.style.display !== 'none' && el.style.display !== '') {
+        m.close();
+        break;
+      }
+    }
+  }
 });
 document.getElementById('grammarPracticeModal')?.addEventListener('click', function(e) {
   if (e.target === this) closeGrammarPractice();
@@ -14738,7 +14757,7 @@ async function saveReminderSettings() {
           navigator.serviceWorker.ready.then(registration => {
             registration.showNotification("Study Reminders Active", {
               body: `We will remind you ${interval} at ${time}!`,
-              icon: "https://cdn-icons-png.flaticon.com/512/3898/3898083.png"
+              icon: "/icon-192.png"
             });
           });
         }
@@ -15565,12 +15584,18 @@ async function submitLBScore() {
 // ===== GLOBAL ERROR HANDLER =====
 window.addEventListener('error', function(e) {
   console.error('Global error:', e.message, e.filename, e.lineno);
-  // Don't show for minor/resource errors
   if (e.message && (e.message.includes('Script error') || e.message.includes('favicon') || e.message.includes('manifest'))) return;
   const el = document.getElementById('globalError');
   if (!el) return;
   el.style.display = 'flex';
   el.querySelector('.ge-text').textContent = e.message || 'An unexpected error occurred';
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('Unhandled rejection:', e.reason);
+  const el = document.getElementById('globalError');
+  if (!el) return;
+  el.style.display = 'flex';
+  el.querySelector('.ge-text').textContent = e.reason?.message || 'A promise error occurred';
 });
 
 // Add loading state helper
@@ -15937,4 +15962,21 @@ document.addEventListener('DOMContentLoaded', function() {
       if (el.textContent !== '--') el.classList.remove('ph-loading');
     });
   }, 3000);
+  
+  // PWA install prompt
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+  window._installPwa = function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(choiceResult) {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('PWA installed');
+      }
+      deferredPrompt = null;
+    });
+  };
 });

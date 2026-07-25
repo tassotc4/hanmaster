@@ -80,7 +80,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--fg);overf
 .theme-jade { --accent: #2e8b57 !important; --accent2: #3cb371 !important; }
 .theme-sapphire { --accent: #1e90ff !important; --accent2: #00bfff !important; }
 .theme-amber { --accent: #ff8c00 !important; --accent2: #ffa500 !important; }
-.theme-light { --bg: #F5F3F0 !important; --bg2: #EDEAE5 !important; --card: #FFFFFF !important; --card2: #E6E2DB !important; --border: #C8C2B8 !important; --fg: #1A1714 !important; --fg2: #5C5449 !important; --muted: #7A7269 !important; --accent: #0d7377 !important; --accent2: #14919b !important; --st: 13,115,119 !important; }
+.theme-light { --bg: #F5F3F0 !important; --bg2: #EDEAE5 !important; --card: #FFFFFF !important; --card2: #E6E2DB !important; --border: #C8C2B8 !important; --fg: #1A1714 !important; --fg2: #5C5449 !important; --muted: #6B6359 !important; --accent: #0d7377 !important; --accent2: #14919b !important; --st: 13,115,119 !important; }
 .theme-light #langDropdown button,
 .theme-light #themeDropdown button { color: var(--fg) !important; }
 .theme-light #langDropdown button:hover,
