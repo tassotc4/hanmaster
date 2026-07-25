@@ -10814,7 +10814,7 @@ function checkMic(){
 }
 
 function buildHero(){const bg=document.getElementById('heroBg');const ch='你好学中文说话听说读写拼音汉字';for(let i=0;i<16;i++){const d=document.createElement('div');d.className='hc';d.style.left=Math.random()*100+'%';d.style.fontSize=(30+Math.random()*50)+'px';d.style.animationDelay=Math.random()*25+'s';d.textContent=ch[i%ch.length];bg.appendChild(d)}}
-function scrollTo(s) {
+function scrollToSection(s) {
   const el = document.querySelector(s);
   if (el) {
     try {
@@ -10896,7 +10896,7 @@ function navTo(selector, btn) {
     routeApp(path, btn);
     return false;
   }
-  scrollTo(selector);
+  scrollToSection(selector);
   document.querySelectorAll('.mnb').forEach(function(b) { b.classList.remove('act'); });
   document.querySelectorAll('.mnb-sm').forEach(function(b) { b.classList.remove('act'); });
   if (btn) btn.classList.add('act');
@@ -13611,7 +13611,7 @@ function openTopicLesson(topicName, lvIdx) {
     
     sendToGemini(activePrompt);
     setBtns(true);
-    scrollTo('#tutor');
+    scrollToSection('#tutor');
     
     // Update bottom nav highlights
     document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
@@ -13635,7 +13635,7 @@ function openTopicLesson(topicName, lvIdx) {
     
     if (tlIdx >= 0) {
       startTutor(tlIdx);
-      scrollTo('#tutor');
+      scrollToSection('#tutor');
       
       document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
       const tutNavBtn = document.querySelector('.mnb[onclick*="tutor"]');
@@ -13645,7 +13645,7 @@ function openTopicLesson(topicName, lvIdx) {
     } else {
       const fallback = TL.findIndex(l => l.level === 'HSK 1');
       startTutor(fallback >= 0 ? fallback : 0);
-      scrollTo('#tutor');
+      scrollToSection('#tutor');
       toast(t("Loaded a free lesson!"), "var(--gold)");
     }
   }
@@ -13875,7 +13875,7 @@ function applyRecommendedLevel() {
   switchLessonsMode('topics');
   
   // Scroll to lessons section
-  scrollTo('#lessons');
+  scrollToSection('#lessons');
   
   // Highlight bottom navigation lessons tab
   document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
