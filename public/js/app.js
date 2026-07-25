@@ -14861,10 +14861,22 @@ async function openSentenceGenerator() {
     });
     const d = await r.json();
     const reply = d.candidates?.[0]?.content?.parts?.[0]?.text || 'Could not generate sentences.';
+    // Parse each line and add speaker buttons for Chinese text
+    function escQ(s) { return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+    const formatted = reply.split('\n').map(function(line) {
+      if (!line.trim()) return '';
+      var disp = line.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
+      var cnMatch = line.match(/([\u4e00-\u9fff\u3000-\u303f\uff00-\uffef][\u4e00-\u9fff\u3000-\u303f\uff00-\uffef。！？，、；：""''（）\u3001\u3002]*(?:\s*[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef。！？，、；：""''（）\u3001\u3002]+)*)/);
+      if (cnMatch) {
+        var cnText = cnMatch[1].trim();
+        disp = disp.replace(cnText, '<span style="cursor:pointer;color:var(--fg);font-weight:600" onclick="event.stopPropagation();speak(\''+escQ(cnText)+'\',0.7)">'+cnText+' <i class="fas fa-volume-up" style="color:var(--blue);font-size:11px"></i></span>');
+      }
+      return '<div style="margin-bottom:6px">' + disp + '</div>';
+    }).join('');
     content.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
       + '<h3 style="margin:0;font-size:16px;color:var(--fg)"><i class="fas fa-robot mr-2" style="color:var(--green)"></i>' + t('Example Sentences') + ': "' + word + '"</h3>'
       + '<button onclick="closeListenQuiz()" style="width:32px;height:32px;border-radius:50%;border:none;background:var(--card2);color:var(--muted);cursor:pointer;outline:none"><i class="fas fa-xmark"></i></button></div>'
-      + '<div style="font-size:14px;line-height:1.7;padding:12px;border-radius:12px;background:var(--card2);color:var(--fg2)">' + reply.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>') + '</div>';
+      + '<div style="font-size:14px;line-height:1.7;padding:12px;border-radius:12px;background:var(--card2);color:var(--fg2)">' + formatted + '</div>';
   } catch {
     content.innerHTML = '<div style="text-align:center;padding:20px;color:var(--accent)">' + t('Failed to generate sentences') + '</div>';
   }
