@@ -10029,7 +10029,7 @@ document.addEventListener('DOMContentLoaded',()=>{
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
               console.log("New service worker installed. Force reloading...");
-              toast("New update installed! Reloading page...", "var(--green)");
+              toast(t("New update installed! Reloading page..."), "var(--green)");
               setTimeout(() => {
                 window.location.reload();
               }, 1200);
@@ -10090,7 +10090,7 @@ function initPayPalSDK() {
 }
 
 function syncNow() {
-  if (!supabaseClient) { toast('Not signed in.', 'var(--accent)'); return; }
+  if (!supabaseClient) { toast(t('Not signed in.'), 'var(--accent)'); return; }
   supabaseClient.auth.getSession().then(({ data: { session } }) => {
     if (session) { saveProgressToCloud(session.user.id); syncProgressFromCloud(session.user.id); }
   });
@@ -10744,7 +10744,7 @@ function handleDocUpload(input) {
   document.getElementById('docFileName').textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
   document.getElementById('docResultArea').style.display = 'none';
   document.getElementById('docResultArea').innerHTML = '';
-  toast('File loaded: ' + file.name, 'var(--gold)', 2000);
+  toast(t('File loaded: ') + file.name, 'var(--gold)', 2000);
 }
 
 function initDocUpload() {
@@ -10806,7 +10806,7 @@ function showDocActions() {
 function processDocument(action) {
   const fileInput = document.getElementById('docFileInput');
   let file = fileInput.files[0];
-  if (!file) return toast('Please select a file first', 'var(--accent)');
+  if (!file) return toast(t('Please select a file first'), 'var(--accent)');
   const isPremium = localStorage.getItem('is_premium') === 'true';
   if (!isPremium) {
     showPremiumPaywall('Document Upload');
@@ -11760,7 +11760,7 @@ function toggleToneCapture() {
 }
 function startToneCapture() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    toast("Microphone access not supported in this browser.", "var(--accent)");
+    toast(t("Microphone access not supported in this browser."), "var(--accent)");
     return;
   }
   
@@ -11788,7 +11788,7 @@ function startToneCapture() {
     })
     .catch(err => {
       console.error("Failed to access microphone for tone practice:", err);
-      toast("Microphone access denied.", "var(--accent)");
+      toast(t("Microphone access denied."), "var(--accent)");
     });
 }
 function stopToneCapture() {
@@ -12067,7 +12067,7 @@ function toggleInputSpeech() {
         input.placeholder = t('Auto-switching to recording...');
         setTimeout(() => inputAudioFallback(ic, input), 300);
       } else {
-        toast("Speech Error: " + e.error, "var(--accent)");
+        toast(t("Speech Error: ") + e.error, "var(--accent)");
       }
     };
     
@@ -13131,7 +13131,7 @@ function initCapacitorPurchases() {
 
 function subscribePremium() {
   // Web / PWA: use PayPal server API
-  toast("Contacting PayPal...", "var(--gold)");
+  toast(t("Contacting PayPal..."), "var(--gold)");
   fetch('/api/paypal/create-order', { method:'POST' })
   .then(function(r) { return r.json(); })
   .then(function(data) {
@@ -13150,13 +13150,13 @@ function subscribePremium() {
       if (lessonsMode === 'topics') buildTopics();
       else if (lessonsMode === 'podcast') buildPodcastTopics();
       else buildFlashcards();
-      toast("Welcome to MandarinCourse Premium! HSK 1-9 Unlocked.", "var(--green)");
+      toast(t("Welcome to MandarinCourse Premium! HSK 1-9 Unlocked."), "var(--green)");
     } else {
-      toast("Payment not completed. Please try again.", "var(--accent)");
+      toast(t("Payment not completed. Please try again."), "var(--accent)");
     }
   })
   .catch(function(err) {
-    toast("Payment error: " + (err.message || "Please try again."), "var(--accent)");
+    toast(t("Payment error: ") + (err.message || t("Please try again.")), "var(--accent)");
   });
 }
 
@@ -13708,7 +13708,7 @@ function toggleComparisonRecord() {
 }
 function startComparisonRecord() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    toast("Recording not supported.", "var(--accent)");
+    toast(t("Recording not supported."), "var(--accent)");
     return;
   }
   navigator.mediaDevices.getUserMedia({ audio: true })
@@ -13721,7 +13721,7 @@ function startComparisonRecord() {
         compUserVoiceUrl = URL.createObjectURL(blob);
         document.getElementById('compPlayUserBtn').disabled = false;
         document.getElementById('compPlayUserBtn').style.color = 'var(--green)';
-        toast("Accent voice recorded successfully!", "var(--green)");
+        toast(t("Accent voice recorded successfully!"), "var(--green)");
       };
       
       compRecorder.start();
@@ -13734,11 +13734,11 @@ function startComparisonRecord() {
         btn.style.color = 'var(--accent)';
         ic.className = 'fas fa-stop text-[8px]';
       }
-      toast("Recording voice accent...", "var(--gold)");
+      toast(t("Recording voice accent..."), "var(--gold)");
     })
     .catch(err => {
       console.error("Accent recording failed:", err);
-      toast("Recording access denied.", "var(--accent)");
+      toast(t("Recording access denied."), "var(--accent)");
     });
 }
 function stopComparisonRecord() {
@@ -13872,6 +13872,8 @@ function translateUI() {
     const tr = t(key);
     if (el.hasAttribute('placeholder')) {
       el.setAttribute('placeholder', tr);
+    } else if (el.hasAttribute('data-tr-placeholder')) {
+      el.setAttribute('placeholder', t(el.getAttribute('data-tr-placeholder')));
     } else if (el.hasAttribute('title')) {
       el.setAttribute('title', tr);
     } else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
@@ -13919,7 +13921,7 @@ function changeAppLanguage(lang) {
   const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
   openTopicLesson(activeTopic);
   
-  toast("Language changed to: " + lang.toUpperCase(), "var(--green)");
+  toast(t("Language changed to: ") + lang.toUpperCase(), "var(--green)");
 }
 
 async function saveReminderSettings() {
@@ -13935,7 +13937,7 @@ async function saveReminderSettings() {
         if (LocalNotifications) await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
       } catch(e) { console.error(e); }
     }
-    toast("Study Reminders turned off.", "var(--gold)");
+    toast(t("Study Reminders turned off."), "var(--gold)");
     return;
   }
   
@@ -13962,14 +13964,14 @@ async function saveReminderSettings() {
               }
             ]
           });
-          toast("Native reminders scheduled successfully!", "var(--green)");
+          toast(t("Native reminders scheduled successfully!"), "var(--green)");
         } else {
-          toast("Notification permission denied.", "var(--accent)");
+          toast(t("Notification permission denied."), "var(--accent)");
         }
       }
     } catch(err) {
       console.error(err);
-      toast("Failed scheduling native notifications.", "var(--accent)");
+      toast(t("Failed scheduling native notifications."), "var(--accent)");
     }
   } else {
     if ('Notification' in window) {
@@ -13983,12 +13985,12 @@ async function saveReminderSettings() {
             });
           });
         }
-        toast(`Web reminders scheduled: ${interval} at ${time}`, "var(--green)");
+        toast(t("Web reminders scheduled: ") + interval + t(" at ") + time, "var(--green)");
       } else {
-        toast("Notification permissions denied.", "var(--accent)");
+        toast(t("Notification permissions denied."), "var(--accent)");
       }
     } else {
-      toast("Browser does not support notifications.", "var(--accent)");
+      toast(t("Browser does not support notifications."), "var(--accent)");
     }
   }
   // Save to server for email reminders if signed in
@@ -14014,7 +14016,7 @@ function editProfile() {
 
 async function saveProfile() {
   var name = document.getElementById('profileNameInput').value.trim();
-  if (!name) return toast('Enter a display name.', 'var(--accent)');
+  if (!name) return toast(t('Enter a display name.'), 'var(--accent)');
   localStorage.setItem('user_display_name', name);
   updateProfileDisplay();
   if (typeof supabaseClient !== 'undefined' && supabaseClient) {
@@ -14026,7 +14028,7 @@ async function saveProfile() {
   document.getElementById('profileNameInput').style.display = 'none';
   document.getElementById('saveProfileBtn').style.display = 'none';
   document.getElementById('editProfileBtn').style.display = 'block';
-  toast('Profile saved!', 'var(--green)');
+  toast(t('Profile saved!'), 'var(--green)');
 }
 
 function updateProfileDisplay() {
@@ -14093,7 +14095,7 @@ function changeTheme(themeName) {
   localStorage.setItem('hsk_theme', themeName);
   const dropdown = document.getElementById('themeDropdown');
   if (dropdown) dropdown.style.display = 'none';
-  toast("Theme updated: " + themeName, "var(--green)");
+  toast(t("Theme updated: ") + themeName, "var(--green)");
 }
 
 document.addEventListener('click', (e) => {
