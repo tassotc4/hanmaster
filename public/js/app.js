@@ -16043,11 +16043,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }, 3000);
   
-  // PWA install prompt
+  // PWA install prompt — show after user engagement
   let deferredPrompt;
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
+    setTimeout(function() {
+      if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+    }, 30000);
   });
   window._installPwa = function() {
     if (!deferredPrompt) return;

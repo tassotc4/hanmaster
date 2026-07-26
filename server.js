@@ -107,6 +107,7 @@ function apiLimiter(req, res, next) {
   next();
 }
 
+app.get('/favicon.ico', (req, res) => res.redirect('/favicon.svg'));
 app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
 app.get('/debug-app', (req, res) => {
