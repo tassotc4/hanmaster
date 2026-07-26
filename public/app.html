@@ -981,8 +981,8 @@
   <!-- DAILY CHALLENGE CARD -->
   <div class="cd p-5 fu mt-6" style="cursor:pointer" onclick="startDailyChallenge()">
     <div class="flex items-center justify-between">
-      <div><h3 class="font-bold text-sm" style="color:var(--fg)">?? <span data-tr="Daily Challenge">Daily Challenge</span></h3><p class="text-xs mt-1" style="color:var(--muted)"><span data-tr="Answer one question daily for bonus XP">Answer one question daily for bonus XP</span></p></div>
-      <div id="dailyChallengeStatus" style="text-align:right;font-size:12px;font-weight:600"><span style="color:var(--accent)">? <span data-tr="Ready!">Ready!</span></span></div>
+      <div><h3 class="font-bold text-sm" style="color:var(--fg)">🎯 <span data-tr="Daily Challenge">Daily Challenge</span></h3><p class="text-xs mt-1" style="color:var(--muted)"><span data-tr="Answer one question daily for bonus XP">Answer one question daily for bonus XP</span></p></div>
+      <div id="dailyChallengeStatus" style="text-align:right;font-size:12px;font-weight:600"><span style="color:var(--accent)">⚡ <span data-tr="Ready!">Ready!</span></span></div>
     </div>
   </div>
   
@@ -1015,7 +1015,7 @@
     <div class="flex flex-col md:flex-row gap-6 items-center">
       <div class="flex-shrink-0 text-center w-full md:w-36">
         <div class="text-xs font-semibold mb-2 uppercase tracking-wider" style="color:var(--muted)" data-tr="Reference">Reference</div>
-        <div class="w-36 h-36 rounded-2xl flex items-center justify-center fc text-6xl font-black mx-auto" style="background:var(--card2);border:2px solid var(--border);color:var(--gold)" id="rfCh">?</div>
+        <div class="w-36 h-36 rounded-2xl flex items-center justify-center fc text-6xl font-black mx-auto" style="background:var(--card2);border:2px solid var(--border);color:var(--gold)" id="rfCh">学</div>
         <div class="mt-2 text-base fc font-bold flex items-center justify-center gap-1.5" style="color:var(--fg2)">
           <span id="rfPy">ni</span>
           <button onclick="speakCurrentWritingChar()" class="w-5 h-5 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:rgba(212,166,79, 0.08); color:var(--gold); outline:none;" title="Play Pronunciation" aria-label="Play Pronunciation" data-tr="Play Pronunciation">
@@ -1501,6 +1501,12 @@ var chars=[
   if (el) el.textContent=d.sp;
   el=document.getElementById('dailySentenceEn');
   if (el) el.textContent=d.se;
+  el=document.getElementById('rfCh');
+  if (el) el.textContent=d.c;
+  el=document.getElementById('rfPy');
+  if (el) el.textContent=d.p;
+  el=document.getElementById('rfMn');
+  if (el) el.textContent=d.m;
 })();
 </script>
 </body>
