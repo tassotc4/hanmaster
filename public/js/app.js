@@ -10894,8 +10894,9 @@ function toggleFaq() {
   const btn = document.getElementById('faqToggleBtn');
   const fade = document.getElementById('faqFade');
   if (!grid) return;
-  const expanded = grid.style.maxHeight !== '280px';
-  grid.style.maxHeight = expanded ? '280px' : grid.scrollHeight + 'px';
+  const expanded = grid.style.maxHeight !== '400px';
+  grid.style.maxHeight = expanded ? '400px' : grid.scrollHeight + 'px';
+  grid.style.overflow = expanded ? 'hidden' : '';
   if (fade) fade.style.display = expanded ? 'block' : 'none';
   if (btn) btn.textContent = expanded ? t('Show all FAQ') : t('Show less');
 }
