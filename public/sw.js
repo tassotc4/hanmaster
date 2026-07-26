@@ -1,4 +1,4 @@
-const CACHE = 'mandarincourse-v13';
+const CACHE = 'mandarincourse-v14';
 const urlsToCache = ['/', '/app', '/manifest.json', '/pinyin-chart', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/tutor-data-more.js', '/js/app.js', '/css/tailwind.css', '/css/app.css', '/audio/podcast-ep1.mp3', '/audio/podcast-ep2.mp3', '/audio/podcast-ep3.mp3', '/audio/podcast-ep4.mp3', '/audio/podcast-ep5.mp3', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -45,10 +45,13 @@ self.addEventListener('fetch', e => {
   // Network-first with cache fallback for all other requests
   e.respondWith(
     fetch(e.request).then(response => {
-      return caches.open(CACHE).then(cache => {
-        if (e.request.method === 'GET') cache.put(e.request, response.clone());
-        return response;
-      });
-    }).catch(() => caches.match(e.request).then(res => res || fetch(e.request)))
+      if (e.request.method === 'GET' && response.status === 200) {
+        var clone = response.clone();
+        caches.open(CACHE).then(function(cache) { cache.put(e.request, clone); }).catch(function(){});
+      }
+      return response;
+    }).catch(function() {
+      return caches.match(e.request).then(function(res) { return res || fetch(e.request); });
+    })
   );
 });

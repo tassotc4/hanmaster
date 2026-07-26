@@ -16069,14 +16069,18 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }, 3000);
   
-  // PWA install prompt — show after user engagement
-  let deferredPrompt;
+  // PWA install prompt — defer to user gesture
+  var deferredPrompt;
   window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     deferredPrompt = e;
-    setTimeout(function() {
-      if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
-    }, 30000);
+    var btn = document.getElementById('installPwaBtn');
+    if (btn) btn.style.display = '';
+  });
+  window.addEventListener('appinstalled', function() {
+    deferredPrompt = null;
+    var btn = document.getElementById('installPwaBtn');
+    if (btn) btn.style.display = 'none';
   });
   window._installPwa = function() {
     if (!deferredPrompt) return;
