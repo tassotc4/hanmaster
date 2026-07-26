@@ -45,16 +45,20 @@ async function checkSession() {
 const DISPOSABLE_DOMAINS = ['mailinator.com','guerrillamail.com','jobraux.com','guerrillamail.org','guerrillamail.net','10minutemail.com','temp-mail.org','tempmail.com','throwaway.email','yopmail.com','trashmail.com','sharklasers.com','maildrop.cc','getnada.com','burnermail.io','hmamail.com','inboxbear.com','mailmetrash.com','mailexpire.com','spambox.us','tempail.com','dispostable.com','mailcatch.com','mintemail.com','spamgourmet.com','sneakemail.com','spamfree24.org','jetable.org','emailondeck.com','mail.tm','temp-email.com','throwmail.io','fyii.de','mytemp.email','spamspot.org','discard.email','wegwerfmail.de','kurzepost.de','anonymail.net','mailforspam.com','spam.la','tempemail.net','zippymail.info','filzmail.com','spam4.me','e4ward.com','maileater.com','spambob.org','spambob.net','spambob.com','mytrashmail.com','trash2009.com','mt2009.com','trashymail.com','mailexpire.com','dontreg.com','no-spam.ws','0-mail.com','30minutemail.com','banit.club','binkmail.com','bobmail.info','chogmail.com','cool.fr.nf','correo.blogos.net','courriel.fr.nf','crapmail.org','email-fake.com','emailias.com','emailinfive.com','emailspam.it','eyepaste.com','fakeinbox.com','fastacura.com','frapmail.com','gipsymail.info','great-host.in','gustr.com','h8s.org','inboxalias.com','inkey.info','jellyfigs.net','jet-renovation.fr','junkmail.com','junkmail.org','kulturbetrieb.info','leeching.net','letterboxes.org','mail.by','mail.mezimages.net','mail-plastic.com','mailexpire.com','mailfreeonline.com','mailin8r.com','mailmetrash.com','mailmoat.com','mailnator.com','mailnull.com','mailsac.com','mailline.net','mailsuck.net','maillv.org','malahov.de','meinspamschutz.de','msgos.com','nepwk.com','net.ivyday.com','netzidiot.de','neverbox.com','nowmymail.com','nwldx.com','oneoffmail.com','pa9e.com','pookmail.com','privacy.net','proxymail.eu','punkass.com','PutThisInYourSpamAccount.com','quickinbox.com','receiveee.com','rejectmail.com','rtrtr.com','s0ny.net','safe-mail.net','schafmail.de','shortmail.net','slaskpost.se','smaik.de','smap.4nmv.ru','smellfear.com','sneakmail.de','sofimail.com','sofort-mail.de','sogetthis.com','spam.com','spamavert.com','spambox.info','spamday.com','spamdecoy.net','spamfaq.net','spamhole.com','spamgoes.in','spamherelots.com','spamhereplease.com','spamjosef.de','spamkill.info','spaml.com','spamoff.xyz','spamserver.de','spamserver.info','spamsphere.com','spamthe.net','spamthis.co.uk','spamtrail.com','spamtroll.net','stopdropandroll.com','storj99.com','suremail.info','temporaryemail.us','tempomail.fr','thankyou2010.com','thankyou2011.com','thembegmail.com','trash-2009.com','trash-2010.com','trash-2011.com','trashdevil.de','trashmail.at','trashmail.ws','trashmailer.com','trashymail.net','trillianpro.com','turual.com','tyldd.com','uggsrock.com','veryrealemail.com','voidbay.com','weg-werf-mail.de','wegwerfmail.de','wh4f.org','wh4t.com','whyspam.me','willselfdestruct.com','winemantech.com','wronghead.com','wuzup.net','xagloo.com','xemaps.com','xents.com','xmaily.com','xoxy.net','yep.it','yogamaven.com','yopmail.fr','yopmail.net','ypmail.webarnak.fr.eu.org','yuurok.com','zehnminutenmail.de','zippymail.info','zombo.com'];
 
 function isDisposableEmail(email) {
-  const domain = email.split('@')[1].toLowerCase();
-  if (DISPOSABLE_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))) return true;
-  return /^(mail|temp|trash|spam|throw|fake|junk|10minut|guerrilla|disposable?|yop|sharklashers?|mailinator|getnada|burner|tempm)\./.test(domain) || /\.(xyz|tk|ml|ga|cf|gq)$/.test(domain);
+  var domain = email.split('@')[1].toLowerCase();
+  return DISPOSABLE_DOMAINS.indexOf(domain) !== -1 || DISPOSABLE_DOMAINS.some(function(d) { return domain.endsWith('.' + d); });
 }
 
 async function signUpWithEmail(email, password) {
   if (!supabaseClient) return toast('Supabase not initialized', 'var(--accent)');
   if (isDisposableEmail(email)) return toast('Please use another email address (temporary emails are not allowed)', 'var(--accent)');
   const { error, data } = await supabaseClient.auth.signUp({ email, password });
-  if (error) return toast(error.message, 'var(--accent)');
+  if (error) {
+    if (error.status === 429 || (error.message && error.message.toLowerCase().includes('rate'))) {
+      return toast('Too many signup attempts. Please wait a few minutes and try again.', 'var(--accent)');
+    }
+    return toast(error.message, 'var(--accent)');
+  }
   if (data?.user) {
     localStorage.setItem('trial_start', Date.now().toString());
   }
