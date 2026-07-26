@@ -8751,15 +8751,92 @@ const OFFLINE_DICTIONARY = {
     "7-Day Trial":"Dùng thử 7 Ngày",
     "Full HSK 1-9 access for 7 days":"Toàn bộ HSK 1-9 trong 7 ngày",
     "$9/month after trial":"$9/tháng sau khi dùng thử",
-    "HSK 1 through HSK 9 full access":"Truy cập đầy đủ HSK 1 đến HSK 9",
+    "HSK 1 through HSK 9 full access":"Toàn quyền truy cập HSK 1 đến HSK 9",
     "Cloud sync & study reminders":"Đồng bộ đám mây & nhắc nhở học tập",
     "Start 7-Day Free Trial":"Bắt đầu Dùng thử 7 Ngày Miễn phí",
     "Cancel anytime · Secure via PayPal":"Hủy bất cứ lúc nào · An toàn qua PayPal",
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Đăng ký bằng email để dùng thử 7 ngày miễn phí tất cả tính năng HSK 1-9. Sau khi dùng thử, Premium là $9/tháng cho truy cập không giới hạn. Hủy bất cứ lúc nào.",
     "Is MandarinCourse free?":"MandarinCourse có miễn phí không?",
     "No thanks, continue with HSK 1 free":"Không, cảm ơn, tiếp tục với HSK 1 miễn phí",
-    "Sign Up Free":"Đăng ký Miễn phí"
-
+    "Sign Up Free":"Đăng ký Miễn phí",
+    "Features":"Tính năng",
+    "Everything You Need to Speak Chinese Fluently":"Mọi thứ bạn cần để nói tiếng Trung lưu loát",
+    "AI-powered Mandarin learning with voice grading, HSK vocabulary, stroke order practice, and podcast immersion.":"Học tiếng Trung với AI, chấm điểm giọng nói, từ vựng HSK, luyện viết chữ và nghe podcast.",
+    "AI Chinese Speaking Tutor":"Gia sư Nói tiếng Trung AI",
+    "Chat with Li Laoshi. Get real-time grammar corrections, pinyin tips, and natural Chinese conversation practice. Supports voice input and text chat.":"Trò chuyện với Li Laoshi. Nhận sửa lỗi ngữ pháp theo thời gian thực, mẹo pinyin và luyện hội thoại tiếng Trung tự nhiên. Hỗ trợ nhập giọng nói và chat văn bản.",
+    "Mandarin Roleplay Scenarios":"Kịch bản Nhập vai Tiếng Trung",
+    "Practice restaurants, airports, job interviews, hotel check-ins, and business negotiations. 10+ real-world dialogue scenarios with AI feedback.":"Luyện tập nhà hàng, sân bay, phỏng vấn xin việc, nhận phòng khách sạn và đàm phán kinh doanh. Hơn 10 kịch bản hội thoại thực tế với phản hồi AI.",
+    "HSK Quiz with Voice Audio":"Bài kiểm tra HSK với Âm thanh Giọng nói",
+    "Test yourself on HSK 1-9. Each question speaks the word aloud so you learn tones naturally. Track your score and level progress.":"Kiểm tra bản thân từ HSK 1-9. Mỗi câu hỏi đọc to từ đó để bạn học thanh điệu một cách tự nhiên. Theo dõi điểm số và tiến độ cấp độ.",
+    "Multi-Language Translation":"Dịch Đa Ngôn ngữ",
+    "Translate any phrase to or from Mandarin. Supports 10 languages including Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Dịch bất kỳ cụm từ nào sang hoặc từ tiếng Trung. Hỗ trợ 10 ngôn ngữ bao gồm Tây Ban Nha, Pháp, Nhật, Hàn, Đức, Bồ Đào Nha, Ý, Nga và Việt.",
+    "Chinese Character Stroke Order":"Thứ tự Nét Chữ Trung Quốc",
+    "Animated Hanzi Writer shows correct stroke order. Trace on the interactive canvas to build muscle memory. Practice characters across all HSK levels.":"Hanzi Writer hoạt hình hiển thị thứ tự nét đúng. Tập viết trên canvas tương tác để xây dựng trí nhớ cơ bắp. Luyện tập chữ viết qua tất cả các cấp độ HSK.",
+    "Cloud Progress Sync":"Đồng bộ Tiến độ Đám mây",
+    "Create an account to save flashcard decks, quiz scores, and lesson progress across all your devices. Study reminders keep you on track.":"Tạo tài khoản để lưu bộ thẻ ghi nhớ, điểm bài kiểm tra và tiến độ bài học trên tất cả các thiết bị. Nhắc nhở học tập giúp bạn đi đúng hướng.",
+    "Podcast Learning Mode":"Chế độ Học Podcast",
+    "Listen to lesson dialogues as podcasts. Adjustable speed, Chinese + translation read aloud. Great for passive learning during commutes.":"Nghe hội thoại bài học dưới dạng podcast. Tốc độ có thể điều chỉnh, tiếng Trung + bản dịch đọc to. Tuyệt vời cho việc học thụ động khi di chuyển.",
+    "Visual Tone Analyzer":"Trực quan hóa Thanh điệu",
+    "See your tone pitch in real time. Practice the four Mandarin tones with a visual pitch graph. Perfect your pronunciation with instant feedback.":"Xem cao độ thanh điệu của bạn trong thời gian thực. Luyện tập bốn thanh điệu tiếng Trung với đồ thị cao độ trực quan. Hoàn thiện phát âm của bạn với phản hồi tức thì.",
+    "100+ grammar patterns with explanations, examples, and practice. Filter by HSK level. Includes grammar check for your own sentences.":"Hơn 100 mẫu ngữ pháp kèm giải thích, ví dụ và bài tập. Lọc theo cấp độ HSK. Bao gồm kiểm tra ngữ pháp cho câu của riêng bạn.",
+    "Pricing":"Bảng giá",
+    "Sign up with email. Full HSK 1-9 included. No credit card required.":"Đăng ký bằng email. Bao gồm toàn bộ HSK 1-9. Không yêu cầu thẻ tín dụng.",
+    "AI Tutor unlimited conversations":"Trò chuyện không giới hạn với gia sư AI",
+    "10,000+ vocabulary words":"Hơn 10.000 từ vựng",
+    "Writing practice all characters":"Luyện viết tất cả chữ",
+    "Tone visualizer & pinyin chart":"Trực quan thanh điệu & bảng pinyin",
+    "Dictionary & translator":"Từ điển & dịch thuật",
+    "Popular":"Phổ biến",
+    "after trial":"sau khi dùng thử",
+    "Unlimited AI Tutor conversations":"Trò chuyện gia sư AI không giới hạn",
+    "All writing characters HSK 1-9":"Tất cả chữ viết HSK 1-9",
+    "Podcast mode & grammar deep dive":"Chế độ podcast & nghiên cứu ngữ pháp chuyên sâu",
+    "Testimonials":"Đánh giá",
+    "What Our Users Say":"Người dùng nói gì",
+    "Join thousands learning Chinese with MandarinCourse.":"Tham gia cùng hàng ngàn người học tiếng Trung với MandarinCourse.",
+    "Curriculum":"Chương trình học",
+    "Full HSK 1 to 9 Vocabulary & Lessons":"Từ vựng & Bài học HSK 1 đến 9",
+    "HSK 3.0 extends to Level 9 — the highest Mandarin certification. 10,000+ words covered across all levels.":"HSK 3.0 mở rộng đến Cấp 9 — chứng chỉ tiếng Trung cao nhất. Hơn 10.000 từ được bao phủ qua tất cả các cấp độ.",
+    "Free":"Miễn phí",
+    "HSK":"HSK",
+    "Adv.":"Cao",
+    "Exp.":"Chuyên sâu",
+    "Mas.":"Thông thạo",
+    "Daily Chinese":"Tiếng Trung Hàng ngày",
+    "Character of the Day":"Chữ của Ngày",
+    "Learn one Chinese character every day. Master Mandarin step by step with pinyin, meaning, and an example sentence.":"Học một chữ Trung Quốc mỗi ngày. Làm chủ tiếng Trung từng bước với pinyin, ý nghĩa và câu ví dụ.",
+    "EXAMPLE SENTENCE":"CÂU VÍ DỤ",
+    "A new character every day — refresh to see today's pick":"Một chữ mới mỗi ngày — làm mới để xem chữ hôm nay",
+    "How It Works":"Cách Hoạt động",
+    "Start Speaking Chinese in Minutes":"Bắt đầu Nói tiếng Trung trong vài Phút",
+    "No downloads, no setup. Open the app and begin your first AI conversation in Mandarin immediately.":"Không cần tải xuống, không cài đặt. Mở ứng dụng và bắt đầu cuộc trò chuyện AI đầu tiên bằng tiếng Trung ngay lập tức.",
+    "Open the App":"Mở Ứng dụng",
+    "Visit mandarincourse.app on any device. Works offline as a PWA — install it like a native app.":"Truy cập mandarincourse.app trên mọi thiết bị. Hoạt động ngoại tuyến dưới dạng PWA — cài đặt như ứng dụng gốc.",
+    "Pick Your HSK Level":"Chọn Cấp độ HSK",
+    "Choose any HSK level from 1 to 9. Each has curated vocabulary, grammar, and conversation topics tailored to that level.":"Chọn bất kỳ cấp độ HSK nào từ 1 đến 9. Mỗi cấp độ có từ vựng, ngữ pháp và chủ đề hội thoại phù hợp.",
+    "Chat with AI Tutor":"Trò chuyện với Gia sư AI",
+    "Talk to Li Laoshi in Chinese or English. Get instant corrections, translations, and grammar tips in real time.":"Nói chuyện với Li Laoshi bằng tiếng Trung hoặc tiếng Anh. Nhận sửa lỗi, bản dịch và mẹo ngữ pháp tức thì theo thời gian thực.",
+    "Quiz & Track Progress":"Kiểm tra & Theo dõi Tiến độ",
+    "Voice-enabled HSK quiz, spaced-repetition flashcards, and a live progress dashboard. Sync across all devices.":"Bài kiểm tra HSK bằng giọng nói, thẻ ghi nhớ lặp lại ngắt quãng và bảng tiến độ trực tiếp. Đồng bộ trên tất cả các thiết bị.",
+    "Ready to Learn Mandarin Online for Free?":"Sẵn sàng Học tiếng Trung Trực tuyến Miễn phí?",
+    "Join thousands of learners. Start speaking Chinese today — no credit card needed.":"Tham gia cùng hàng ngàn học viên. Bắt đầu nói tiếng Trung hôm nay — không cần thẻ tín dụng.",
+    "Start Learning Free":"Bắt đầu Học Miễn phí",
+    "Free Resources":"Tài nguyên Miễn phí",
+    "Printable Study Materials":"Tài liệu Học tập In được",
+    "Download free PDF-ready vocabulary lists. Print and study offline.":"Tải xuống danh sách từ vựng PDF miễn phí. In và học ngoại tuyến.",
+    "HSK 1 Vocabulary List":"Danh sách Từ vựng HSK 1",
+    "150 essential Chinese words with pinyin and English. Print-friendly format.":"150 từ tiếng Trung thiết yếu kèm pinyin và tiếng Anh. Định dạng thân thiện với in ấn.",
+    "Download Free \u2192":"Tải Xuống Miễn phí \u2192",
+    "Interactive Pinyin Chart":"Bảng Pinyin Tương tác",
+    "Click any syllable to hear pronunciation with tones. Master initials and finals.":"Nhấp vào bất kỳ âm tiết nào để nghe phát âm với thanh điệu. Làm chủ thanh mẫu và vận mẫu.",
+    "Try Now \u2192":"Dùng Thử Ngay \u2192",
+    "AI Tutor Conversation":"Hội thoại Gia sư AI",
+    "Practice speaking Chinese with Li Laoshi. Get instant corrections and feedback.":"Luyện nói tiếng Trung với Li Laoshi. Nhận sửa lỗi và phản hồi tức thì.",
+    "Try Free \u2192":"Dùng Thử Miễn phí \u2192",
+    "Avg":"TB",
+    "Current Phrase":"Cụm từ Hiện tại",
+    "Type your response in the box below":"Nhập câu trả lời của bạn vào ô bên dưới",
+    "Most common greeting":"Lời chào phổ biến nhất"
   },
   "ja": {
     "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
@@ -14893,10 +14970,20 @@ function translateUI() {
         }
       }
       if (lastText) {
-        lastText.textContent = ' ' + tr;
-        for (let i = childNodes.length - 1; i >= 0; i--) {
-          if (childNodes[i].nodeType === 3 && childNodes[i] !== lastText && childNodes[i].textContent.trim()) {
-            childNodes[i].textContent = '';
+        let hasNonIconChildren = false;
+        for (let i = 0; i < childNodes.length; i++) {
+          if (childNodes[i].nodeType === 1 && childNodes[i].tagName !== 'I') {
+            hasNonIconChildren = true; break;
+          }
+        }
+        if (hasNonIconChildren) {
+          el.textContent = tr;
+        } else {
+          lastText.textContent = ' ' + tr;
+          for (let i = childNodes.length - 1; i >= 0; i--) {
+            if (childNodes[i].nodeType === 3 && childNodes[i] !== lastText && childNodes[i].textContent.trim()) {
+              childNodes[i].textContent = '';
+            }
           }
         }
       } else el.textContent = tr;
