@@ -474,11 +474,11 @@ const OFFLINE_DICTIONARY = {
     "Mic Error":"Error de Micrófono","Try text box":"Usa el cuadro de texto",
     "Type your response in the box below":"Escribe tu respuesta en el cuadro abajo",
     "Unlock HSK 2 - 9": "Desbloquear HSK 2 - 9",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Accede a HSK 2 a HSK 9, conversaciones avanzadas con tutor de AI y aprendizaje sin anuncios — solo $9/mes.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Accede a HSK 2 a HSK 9, conversaciones avanzadas con tutor de AI y aprendizaje sin anuncios — solo $9/mes.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Plan de estudios completo de HSK 2 a HSK 9 (10,000+ palabras)",
     "Unlimited AI Speaking Tutor conversations": "Conversaciones ilimitadas con tutor de habla de AI",
     "Ad-free study & offline sync": "Estudio sin anuncios y sincronización sin conexión",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "$9.00/mes • Cancelar en cualquier momento • Seguro a través de PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "$9.00/mes • Cancelar en cualquier momento • Seguro a través de PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "¿Cómo califica el tutor de habla de AI mi pronunciación?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse utiliza el reconocimiento de voz nativo del navegador para escuchar tu enunciado y lo compara con la oración objetivo utilizando un algoritmo de puntuación de similitud de texto. En el modo en vivo, se conecta a Gemini para evaluar el flujo de conversación natural.",
     "Can I use MandarinCourse offline without internet?": "¿Puedo usar MandarinCourse sin internet?",
@@ -3693,7 +3693,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Guardar Horario","Close":"Cerrar",
     "AI-Powered Speaking Tutor":"Tutor de Conversación con IA",
     "Learn Mandarin with AI":"Aprende Mandarín con IA",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Gratis · HSK 2–9 $9/mes",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Gratis · HSK 2–9 $9/mes",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Domina el chino hablado, los tonos y la escritura con calificación de voz interactiva en tiempo real, trazo de orden de caracteres y repasos personalizados.",
     "Start Speaking Lesson":"Empezar Lección","Take Level Test":"Hacer Prueba de Nivel",
     "Levels":"Niveles","Topics":"Temas","Tools":"Herramientas","More":"Más","Learners":"Estudiantes",
@@ -3749,7 +3749,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Enregistrer le Planning","Close":"Fermer",
     "AI-Powered Speaking Tutor":"Tuteur de Conversation IA",
     "Learn Mandarin with AI":"Apprenez le Mandarin avec l'IA",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Gratuit · HSK 2–9 $9/mois",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Gratuit · HSK 2–9 $9/mois",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Maîtrisez le chinois parlé, les tons et l'écriture avec une évaluation vocale interactive en temps réel, le tracé des caractères et des révisions personnalisées.",
     "Start Speaking Lesson":"Commencer la Leçon","Take Level Test":"Passer le Test de Niveau",
     "Levels":"Niveaux","Topics":"Sujets","Tools":"Outils","More":"Plus","Learners":"Apprenants",
@@ -4523,7 +4523,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Zeitplan speichern","Close":"Schließen",
     "AI-Powered Speaking Tutor":"KI-gestützter Konversationstutor",
     "Learn Mandarin with AI":"Lerne Mandarin mit KI",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Kostenlos · HSK 2–9 $9/Monat",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Kostenlos · HSK 2–9 $9/Monat",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Meistere Chinesisch sprechen, Töne und Schriftzeichen mit interaktiver Echtzeit-Sprachbewertung, Strichfolgen-Nachzeichnung und personalisierten Wiederholungskarten.",
     "Start Speaking Lesson":"Sprechstunde beginnen","Take Level Test":"Einstufungstest machen",
     "Levels":"Stufen","Topics":"Themen","Tools":"Werkzeuge","More":"Mehr","Learners":"Lernende",
@@ -5243,11 +5243,11 @@ const OFFLINE_DICTIONARY = {
     "yuan (currency)":"Yuan",
     "zoo":"Zoo",
     "Unlock HSK 2 - 9": "HSK 2 - 9 freischalten",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Erhalten Sie vollen Zugriff auf HSK 2 bis HSK 9, erweiterte AI-Tutoren-Gespräche und werbefreies Lernen — nur 9 $/Monat.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Erhalten Sie vollen Zugriff auf HSK 2 bis HSK 9, erweiterte AI-Tutoren-Gespräche und werbefreies Lernen — nur 9 $/Monat.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Vollständiges Curriculum von HSK 2 bis HSK 9 (10.000+ Wörter)",
     "Unlimited AI Speaking Tutor conversations": "Unbegrenzte AI-Sprech-Tutoren-Gespräche",
     "Ad-free study & offline sync": "Werbefreies Studium und Offline-Synchronisierung",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "9,00 $/Monat • Jederzeit stornieren • Sichere Zahlung über PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "9,00 $/Monat • Jederzeit stornieren • Sichere Zahlung über PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "Wie bewertet der AI-Sprech-Tutoren meine Aussprache?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse verwendet die browserinterne Spracherkennung, um Ihre Äußerung zu hören und sie mit dem Ziel-Satz unter Verwendung eines Text-Ähnlichkeit-Bewertungsalgorithmus vergleicht. Im Live-Modus verbindet es sich mit Gemini, um den natürlichen Konversationsfluss zu bewerten.",
     "Can I use MandarinCourse offline without internet?": "Kann ich MandarinCourse offline ohne Internet verwenden?",
@@ -5320,11 +5320,11 @@ const OFFLINE_DICTIONARY = {
     "Easy": "Leicht"
 ,
     "Unlock HSK 2 - 9": "Débloquer HSK 2 - 9",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Accédez à HSK 2 à HSK 9, conversations de tuteur AI avancées et apprentissage sans publicité — juste 9 $/mois.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Accédez à HSK 2 à HSK 9, conversations de tuteur AI avancées et apprentissage sans publicité — juste 9 $/mois.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Curriculum complet de HSK 2 à HSK 9 (10 000+ mots)",
     "Unlimited AI Speaking Tutor conversations": "Conversations de tuteur de parole AI illimitées",
     "Ad-free study & offline sync": "Étude sans publicité et synchronisation hors ligne",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "9,00 $/mois • Annuler à tout moment • Sécurisé via PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "9,00 $/mois • Annuler à tout moment • Sécurisé via PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "Comment le tuteur de parole AI évalue-t-il ma prononciation ?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse utilise la reconnaissance vocale native du navigateur pour écouter votre énoncé et le compare à la phrase cible en utilisant un algorithme de notation de similarité de texte. En mode Live, il se connecte à Gemini pour évaluer le flux de conversation naturel.",
     "Can I use MandarinCourse offline without internet?": "Puis-je utiliser MandarinCourse sans internet?",
@@ -5413,7 +5413,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Salvar Agenda","Close":"Fechar",
     "AI-Powered Speaking Tutor":"Tutor de Conversação com IA",
     "Learn Mandarin with AI":"Aprenda Mandarim com IA",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Grátis · HSK 2–9 $9/mês",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Grátis · HSK 2–9 $9/mês",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Domine o chinês falado, tons e escrita de caracteres com avaliação de voz interativa em tempo real, traçado de ordem dos traços e revisões personalizadas.",
     "Start Speaking Lesson":"Começar Lição","Take Level Test":"Fazer Teste de Nível",
     "Levels":"Níveis","Topics":"Tópicos","Tools":"Ferramentas","More":"Mais","Learners":"Alunos",
@@ -6132,11 +6132,11 @@ const OFFLINE_DICTIONARY = {
     "yuan (currency)":"yuan (moeda)",
     "zoo":"zoológico",
     "Unlock HSK 2 - 9": "Desbloquear HSK 2 - 9",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Acesse HSK 2 a HSK 9, conversas avançadas com tutor de AI e aprendizado sem anúncios — apenas $9/mês.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Acesse HSK 2 a HSK 9, conversas avançadas com tutor de AI e aprendizado sem anúncios — apenas $9/mês.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Currículo completo de HSK 2 a HSK 9 (10.000+ palavras)",
     "Unlimited AI Speaking Tutor conversations": "Conversas ilimitadas com tutor de fala de AI",
     "Ad-free study & offline sync": "Estudo sem anúncios e sincronização offline",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "$9,00/mês • Cancelar a qualquer momento • Seguro via PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "$9,00/mês • Cancelar a qualquer momento • Seguro via PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "Como o tutor de fala de AI avalia minha pronúncia?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse usa o reconhecimento de fala nativo do navegador para ouvir sua fala e compara com a frase alvo usando um algoritmo de pontuação de similaridade de texto. No modo ao vivo, ele se conecta ao Gemini para avaliar o fluxo de conversação natural.",
     "Can I use MandarinCourse offline without internet?": "Posso usar MandarinCourse offline sem internet?",
@@ -6225,7 +6225,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Salva Programma","Close":"Chiudi",
     "AI-Powered Speaking Tutor":"Tutor di Conversazione con IA",
     "Learn Mandarin with AI":"Impara il Mandarino con l'IA",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Gratuito · HSK 2–9 $9/mese",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Gratuito · HSK 2–9 $9/mese",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Padroneggia il cinese parlato, i toni e la scrittura dei caratteri con valutazione vocale interattiva in tempo reale, tracciamento dell'ordine dei tratti e revisioni personalizzate.",
     "Start Speaking Lesson":"Inizia Lezione","Take Level Test":"Fai il Test di Livello",
     "Levels":"Livelli","Topics":"Argomenti","Tools":"Strumenti","More":"Altro","Learners":"Studenti",
@@ -6943,11 +6943,11 @@ const OFFLINE_DICTIONARY = {
     "yuan (currency)":"yuan (valuta)",
     "zoo":"zoo",
     "Unlock HSK 2 - 9": "Sblocca HSK 2 - 9",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Ottieni l\'accesso completo a HSK 2 a HSK 9, conversazioni avanzate con tutor AI e apprendimento senza pubblicità — solo 9 $/mese.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Ottieni l\'accesso completo a HSK 2 a HSK 9, conversazioni avanzate con tutor AI e apprendimento senza pubblicità — solo 9 $/mese.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Curriculum completo di HSK 2 a HSK 9 (10.000+ parole)",
     "Unlimited AI Speaking Tutor conversations": "Conversazioni illimitate con tutor di parlato AI",
     "Ad-free study & offline sync": "Studio senza pubblicità e sincronizzazione offline",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "9,00 $/mese • Annulla in qualsiasi momento • Sicuro tramite PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "9,00 $/mese • Annulla in qualsiasi momento • Sicuro tramite PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "Come il tutor di parlato AI valuta la mia pronuncia?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse utilizza il riconoscimento vocale nativo del browser per ascoltare la tua enunciazione e la confronta con la frase obiettivo utilizzando un algoritmo di valutazione della similarità del testo. In modalità Live, si collega a Gemini per valutare il flusso di conversazione naturale.",
     "Can I use MandarinCourse offline without internet?": "Posso usare MandarinCourse offline senza internet?",
@@ -7036,7 +7036,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Сохранить Расписание","Close":"Закрыть",
     "AI-Powered Speaking Tutor":"Разговорный Репетитор на ИИ",
     "Learn Mandarin with AI":"Учите Китайский с ИИ",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Бесплатно · HSK 2–9 $9/мес",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Бесплатно · HSK 2–9 $9/мес",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Освойте разговорный китайский, тоны и письменность с интерактивной оценкой произношения в реальном времени, отслеживанием порядка черт и персонализированными карточками для повторения.",
     "Start Speaking Lesson":"Начать Урок","Take Level Test":"Пройти Тест Уровня",
     "Levels":"Уровни","Topics":"Темы","Tools":"Инструменты","More":"Ещё","Learners":"Ученики",
@@ -7754,11 +7754,11 @@ const OFFLINE_DICTIONARY = {
     "yuan (currency)":"юань (валюта)",
     "zoo":"зоопарк",
     "Unlock HSK 2 - 9": "Разблокировать HSK 2 - 9",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Получите полный доступ к HSK 2 — HSK 9, расширенные разговоры с тьютором AI и обучение без рекламы — всего $9/месяц.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Получите полный доступ к HSK 2 — HSK 9, расширенные разговоры с тьютором AI и обучение без рекламы — всего $9/месяц.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Полный учебный план HSK 2 — HSK 9 (10 000+ слов)",
     "Unlimited AI Speaking Tutor conversations": "Неограниченные разговоры с тьютором речи AI",
     "Ad-free study & offline sync": "Обучение без рекламы и синхронизация в автономном режиме",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "9,00 $/месяц • Отменить в любой момент • Безопасно через PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "9,00 $/месяц • Отменить в любой момент • Безопасно через PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "Как тьютор речи AI оценивает мою произношение?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse использует встроенное в браузер распознавание речи, чтобы прослушать ваше высказывание и сравнить его с целевым предложением, используя алгоритм оценки сходства текста. В режиме реального времени он подключается к Gemini, чтобы оценить естественный поток разговора.",
     "Can I use MandarinCourse offline without internet?": "Могу ли я использовать MandarinCourse без интернета?",
@@ -7847,7 +7847,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"Lưu Lịch trình","Close":"Đóng",
     "AI-Powered Speaking Tutor":"Gia sư Hội thoại AI",
     "Learn Mandarin with AI":"Học Tiếng Trung với AI",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 Miễn phí · HSK 2–9 $9/tháng",
+    "7 Days Free · Full HSK 1-9":"HSK 1 Miễn phí · HSK 2–9 $9/tháng",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"Làm chủ kỹ năng nói tiếng Trung, thanh điệu và viết chữ với đánh giá giọng nói tương tác thời gian thực, theo dõi thứ tự nét và thẻ ôn tập cá nhân hóa.",
     "Start Speaking Lesson":"Bắt đầu Bài học Nói","Take Level Test":"Làm Bài Kiểm tra Trình độ",
     "Levels":"Cấp độ","Topics":"Chủ đề","Tools":"Công cụ","More":"Thêm","Learners":"Học viên",
@@ -8588,11 +8588,11 @@ const OFFLINE_DICTIONARY = {
     "wisdom":"trí tuệ",
     "yuan (currency)":"nhân dân tệ",
     "Unlock HSK 2 - 9": "Mở khóa HSK 2 - 9",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "Truy cập đầy đủ vào HSK 2 đến HSK 9, cuộc trò chuyện với giáo viên AI nâng cao và học tập không có quảng cáo — chỉ $9/tháng.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "Truy cập đầy đủ vào HSK 2 đến HSK 9, cuộc trò chuyện với giáo viên AI nâng cao và học tập không có quảng cáo — chỉ $9/tháng.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "Chương trình học hoàn chỉnh từ HSK 2 đến HSK 9 (10.000+ từ)",
     "Unlimited AI Speaking Tutor conversations": "Cuộc trò chuyện không giới hạn với giáo viên nói AI",
     "Ad-free study & offline sync": "Học tập không có quảng cáo và đồng bộ hóa ngoại tuyến",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "9,00 $/tháng • Hủy bất cứ lúc nào • An toàn qua PayPal",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "9,00 $/tháng • Hủy bất cứ lúc nào • An toàn qua PayPal",
     "How does the AI Speaking Tutor grade my pronunciation?": "Làm thế nào để giáo viên nói AI đánh giá phát âm của tôi?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse sử dụng nhận dạng giọng nói bản địa của trình duyệt để nghe phát âm của bạn và so sánh nó với câu mục tiêu bằng cách sử dụng thuật toán chấm điểm tương tự về văn bản. Trong Chế độ trực tiếp, nó kết nối với Gemini để đánh giá luồng hội thoại tự nhiên.",
     "Can I use MandarinCourse offline without internet?": "Tôi có thể sử dụng MandarinCourse ngoại tuyến mà không cần internet?",
@@ -8681,7 +8681,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"スケジュールを保存","Close":"閉じる",
     "AI-Powered Speaking Tutor":"AI搭載スピーキングチューター",
     "Learn Mandarin with AI":"AIで中国語を学ぶ",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 無料 · HSK 2–9 $9/月",
+    "7 Days Free · Full HSK 1-9":"HSK 1 無料 · HSK 2–9 $9/月",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"リアルタイムの音声評価、筆順トレース、パーソナライズされた復習デッキで中国語の会話、声調、文字書きをマスターしましょう。",
     "Start Speaking Lesson":"レッスンを開始","Take Level Test":"レベルテストを受ける",
     "Levels":"レベル","Topics":"トピック","Tools":"ツール","More":"もっと","Learners":"学習者",
@@ -9436,11 +9436,11 @@ const OFFLINE_DICTIONARY = {
     "yuan (currency)":"元",
     "zoo":"動物園",
     "Unlock HSK 2 - 9": "HSK 2 - 9 を解除",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "HSK 2 ～ HSK 9 へのフルアクセス、AI チューター会話の高度な機能、広告なしの学習 — 1 か月あたり $9 だけ。",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "HSK 2 ～ HSK 9 へのフルアクセス、AI チューター会話の高度な機能、広告なしの学習 — 1 か月あたり $9 だけ。",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "HSK 2 ～ HSK 9 完全カリキュラム (10,000 語以上)",
     "Unlimited AI Speaking Tutor conversations": "AI スピーキング チューター会話無制限",
     "Ad-free study & offline sync": "広告なしの学習 & オフライン同期",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "1 か月あたり $9.00 • いつでもキャンセル • PayPal 経由で安全",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "1 か月あたり $9.00 • いつでもキャンセル • PayPal 経由で安全",
     "How does the AI Speaking Tutor grade my pronunciation?": "AI スピーキング チューターは私の発音をどのように評価しますか?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourseは、ブラウザのネイティブな音声認識機能を使用して、あなたの発言を聞き、テキストの類似度スコアリングアルゴリズムを使用して目標文と比較します。ライブモードでは、Geminiに接続して自然な会話の流れを評価します。",
     "Can I use MandarinCourse offline without internet?": "MandarinCourseをインターネットに接続せずに使用できますか?",
@@ -9529,7 +9529,7 @@ const OFFLINE_DICTIONARY = {
     "Save Reminder Schedule":"일정 저장","Close":"닫기",
     "AI-Powered Speaking Tutor":"AI 기반 회화 튜터",
     "Learn Mandarin with AI":"AI로 중국어 배우기",
-    "HSK 1 Free · HSK 2–9 $9/mo":"HSK 1 무료 · HSK 2–9 $9/월",
+    "7 Days Free · Full HSK 1-9":"HSK 1 무료 · HSK 2–9 $9/월",
     "Master Chinese speaking, tones, and character writing with real-time interactive voice grading, stroke order tracing, and personalized review decks.":"실시간 음성 평가, 필순 추적, 맞춤형 복습 카드로 중국어 회화, 성조, 한자 쓰기를 마스터하세요.",
     "Start Speaking Lesson":"회화 레슨 시작","Take Level Test":"레벨 테스트 보기",
     "Levels":"레벨","Topics":"주제","Tools":"도구","More":"더보기","Learners":"학습자",
@@ -10281,11 +10281,11 @@ const OFFLINE_DICTIONARY = {
     "yuan (currency)":"위안",
     "zoo":"동물원",
     "Unlock HSK 2 - 9": "HSK 2 - 9解锁",
-    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.": "HSK 2 - HSK 9에 대한 전체 액세스, 고급 AI 튜터 대화 및 광고 없는 학습 — 월 $9에만.",
+    "Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.": "HSK 2 - HSK 9에 대한 전체 액세스, 고급 AI 튜터 대화 및 광고 없는 학습 — 월 $9에만.",
     "HSK 2 to HSK 9 complete curriculum (10,000+ words)": "HSK 2 - HSK 9 완전한 커리큘럼 (10,000 단어 이상)",
     "Unlimited AI Speaking Tutor conversations": "무제한 AI 대화 튜터 대화",
     "Ad-free study & offline sync": "광고 없는 공부 및 오프라인 동기화",
-    "$9.00/month • Cancel anytime • Secure via PayPal": "월 $9.00 • 언제든지 취소 • PayPal을 통해 안전",
+    "$9/month after trial — Cancel anytime — Secure via PayPal": "월 $9.00 • 언제든지 취소 • PayPal을 통해 안전",
     "How does the AI Speaking Tutor grade my pronunciation?": "AI 대화 튜터는 내 발음을 어떻게 평가합니까?",
     "MandarinCourse uses browser-native Speech Recognition to listen to your utterance and compares it to the target sentence using a text-similarity scoring algorithm. In Live Mode, it connects to Gemini to evaluate natural conversation flow.": "MandarinCourse는 브라우저의 네이티브 음성 인식 기능을 사용하여 사용자의 발화를 듣고 텍스트 유사도 점수 알고리즘을 사용하여 목표 문장과 비교합니다. 라이브 모드에서는 Gemini에 연결하여 자연스러운 대화 흐름을 평가합니다.",
     "Can I use MandarinCourse offline without internet?": "인터넷 없이 MandarinCourse를 사용할 수 있나요?",
@@ -11029,7 +11029,7 @@ function sim(a,b){
 
 // ===== TUTOR =====
 function startTutor(idx){
-  const isPremium = (localStorage.getItem('is_premium') === 'true');
+  const isPremium = hasPremiumAccess();
   const lesson = TL[idx];
   if (lesson && lesson.level && lesson.level.startsWith('HSK') && !isPremium) {
     const levelNum = parseInt(lesson.level.replace('HSK ', ''));
@@ -11577,7 +11577,7 @@ function processDocument(action) {
   const fileInput = document.getElementById('docFileInput');
   let file = fileInput.files[0];
   if (!file) return toast(t('Please select a file first'), 'var(--accent)');
-  const isPremium = localStorage.getItem('is_premium') === 'true';
+  const isPremium = hasPremiumAccess();
   if (!isPremium) {
     showPremiumPaywall('Document Upload');
     return;
@@ -11736,7 +11736,7 @@ function buildLvTabs(){const c=document.getElementById('lvTabs');if(!c)return;c.
       curLv=i;
       c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
       b.classList.add('on');
-      const isPremium = (localStorage.getItem('is_premium') === 'true');
+      const isPremium = hasPremiumAccess();
       if (i >= 1 && !isPremium) {
         showPremiumPaywall('HSK ' + (i + 1));
         return;
@@ -12315,7 +12315,7 @@ function buildHSK(){
   c.innerHTML = '';
   
   LV.forEach((l, i) => {
-    const isPremium = (localStorage.getItem('is_premium') === 'true');
+    const isPremium = hasPremiumAccess();
     let cls = 'background:var(--card2);color:var(--muted)';
     if (isPremium) {
       cls = (i === curLv) ? 'background:var(--accent);color:#fff;box-shadow:0 4px 14px rgba(var(--st),.3)' : 'background:var(--green);color:#fff';
@@ -12378,7 +12378,7 @@ function buildHSK(){
     `;
     
     d.onclick = () => {
-      const isPremium = (localStorage.getItem('is_premium') === 'true');
+      const isPremium = hasPremiumAccess();
       if (i >= 1 && !isPremium) {
         showPremiumPaywall(levelName);
         return;
@@ -13623,7 +13623,7 @@ function initGamification() {
 // ===== MAPPING HSK CARDS TO TUTOR LESSONS =====
 function openTopicLesson(topicName, lvIdx) {
   if (lvIdx === undefined || lvIdx === true) lvIdx = curLv;
-  const isPremium = (localStorage.getItem('is_premium') === 'true');
+  const isPremium = hasPremiumAccess();
   if (lvIdx >= 1 && !isPremium) {
     showPremiumPaywall(LV[lvIdx].n);
     return;
@@ -14087,7 +14087,7 @@ function getLessonsForLevel(levelIdx) {
 }
 
 function updatePremiumUI() {
-  const isPremium = (localStorage.getItem('is_premium') === 'true');
+  const isPremium = hasPremiumAccess();
   
   // Add premium badge to the logo if active
   const logo = document.querySelector('h1.font-black');
@@ -15980,10 +15980,22 @@ function applyReferral(code) {
   return true;
 }
 
+function hasPremiumAccess() {
+  if (localStorage.getItem('is_premium') === 'true') return true;
+  const trialStart = parseInt(localStorage.getItem('trial_start') || '0');
+  if (trialStart && Date.now() - trialStart < 7 * 24 * 60 * 60 * 1000) return true;
+  return false;
+}
+
 function checkPremiumExpiry() {
   const expiry = parseInt(localStorage.getItem('premium_expiry') || '0');
   if (expiry > 0 && Date.now() > expiry) {
     localStorage.removeItem('is_premium');
+    updatePremiumUI();
+  }
+  const trialStart = parseInt(localStorage.getItem('trial_start') || '0');
+  if (trialStart > 0 && Date.now() - trialStart >= 7 * 24 * 60 * 60 * 1000) {
+    localStorage.removeItem('trial_start');
     updatePremiumUI();
   }
 }
