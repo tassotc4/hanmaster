@@ -168,12 +168,12 @@ function toneMark(syl, tone) {
 }
 
 function speakPinyin(syl, tone) {
-  const text = syl + (tone === 5 ? '' : tone);
+  const text = toneMark(syl, tone);
   if (currentAudio) {window.speechSynthesis.cancel(); currentAudio = null;}
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'zh-CN';
   u.rate = 0.85;
-  const voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('zh'));
+  var voices = window.speechSynthesis.getVoices().filter(v => v.lang.startsWith('zh'));
   if (voices.length) u.voice = voices[0];
   currentAudio = u;
   u.onend = () => {currentAudio = null;};
