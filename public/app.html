@@ -23,14 +23,14 @@
 <meta name="keywords" content="mandarin course, learn mandarin online free, free chinese course, AI chinese tutor, learn chinese online free, mandarin speaking practice, HSK 1-9, chinese language learning, mandarin for beginners, AI language tutor">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mandarincourse.app/app">
-<meta property="og:title" content="MandarinCourse — � AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
+<meta property="og:title" content="MandarinCourse — — AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
 <meta property="og:description" content="Learn Mandarin online with AI. HSK 1 free, HSK 2-9 from $9/month. Real-time tone visualizer, SRS flashcards, stroke order writing, and voice grading.">
 <meta property="og:url" content="https://mandarincourse.app/app">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://mandarincourse.app/og-image.png">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MandarinCourse — � AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
+<meta name="twitter:title" content="MandarinCourse — — AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
 <meta name="twitter:description" content="Learn to speak Chinese naturally with AI. Real-time tone visualizer, HSK 1-9, SRS flashcards, stroke order, and voice grading.">
 <meta name="twitter:image" content="https://mandarincourse.app/og-image.png">
 <link rel="alternate" hreflang="en" href="https://mandarincourse.app/app">
@@ -187,7 +187,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="MandarinCourse">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<!-- Google tag (gtag.js) � load first to track early events -->
+<!-- Google tag (gtag.js) — load first to track early events -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YNTPFZB50P"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -195,11 +195,11 @@
   gtag('js', new Date());
   gtag('config', 'G-YNTPFZB50P');
 </script>
-<!-- Critical CSS � blocks rendering but minimal -->
+<!-- Critical CSS — blocks rendering but minimal -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/css/app.css">
-<!-- Deferred scripts � load after initial render, preserve execution order -->
+<!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
 <script defer src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -216,7 +216,7 @@
 <body>
 <div id="toast" class="tst"></div>
 <nav class="nb"><div class="max-w-6xl mx-auto px-5 h-14 flex items-center justify-between">
-<a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">?</div><span class="font-bold text-base tracking-tight" data-tr="MandarinCourse">MandarinCourse</span></a>
+<a href="#" class="flex items-center gap-2.5"><div class="w-8 h-8 rounded-lg flex items-center justify-center fc font-black text-base" style="background:var(--accent);color:#fff">汉</div><span class="font-bold text-base tracking-tight" data-tr="MandarinCourse">MandarinCourse</span></a>
 <div class="dn flex items-center gap-5"><a href="/app/tutor" class="nl" data-tr="AI Tutor" onclick="return navTo('/app/tutor', this)">AI Tutor</a><a href="/app/lessons" class="nl" data-tr="Lessons" onclick="return navTo('/app/lessons', this)">Lessons</a><a href="/app/dictionary" class="nl" data-tr="Dictionary" onclick="return navTo('/app/dictionary', this)">Dictionary</a><a href="/app/test" class="nl" data-tr="Level Test" onclick="return navTo('/app/test', this)">Level Test</a><div class="relative inline-block text-left"><button id="toolsBtn" onclick="toggleToolsDropdown(event)" class="nl flex items-center gap-1 cursor-pointer" style="background:none;border:none;outline:none;padding:0"><span data-tr="Tools">Tools</span> <i class="fas fa-chevron-down text-[10px]"></i></button><div id="toolsDropdown" class="absolute left-0 mt-2 w-44 rounded-lg shadow-lg border border-[var(--border)] py-1 z-[3000]" style="background:var(--card);display:none;"><button onclick="event.stopPropagation(); navTo('/app/grammar', null)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-book w-4"></i><span data-tr="Grammar">Grammar</span></button><button onclick="event.stopPropagation(); navTo('/app/progress', null)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-chart-line w-4"></i><span data-tr="Progress">Progress</span></button><button onclick="event.stopPropagation(); navTo('/app/translate', null)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-language w-4"></i><span data-tr="Translate">Translate</span></button><button onclick="event.stopPropagation(); navTo('/app/grammar-check', null)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-check-double w-4"></i><span data-tr="Grammar Check">Grammar Check</span></button><button onclick="event.stopPropagation(); navTo('/app/document-ai', null)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-file-upload w-4"></i><span data-tr="Document AI">Document AI</span></button><button onclick="event.stopPropagation(); navTo('/pinyin-chart', null)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-music w-4"></i><span data-tr="Pinyin Chart">Pinyin Chart</span></button><button onclick="event.stopPropagation(); showLeaderboard()" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-trophy w-4"></i><span data-tr="Rank">Rank</span></button><button onclick="event.stopPropagation(); navTo('/app/lessons', null);setTimeout(function(){var b=document.getElementById('modePodcastBtn');if(b)b.click();},300)" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><i class="fas fa-headphones w-4"></i><span data-tr="Podcast">Podcast</span></button></div></div></div>
 
   <!-- Language & Theme selectors Group (always visible) -->
@@ -240,12 +240,12 @@
       </button>
       <div id="langDropdown" class="absolute right-0 mt-2 w-44 rounded-lg shadow-lg border border-[var(--border)] py-1 z-[3000]" style="background:var(--card); display:none;">
         <button onclick="event.stopPropagation(); changeAppLanguage('en')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">English</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('es')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Espa�ol</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('fr')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Fran�ais</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('es')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Español</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('fr')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Français</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('ja')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">???</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('ko')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">???</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('de')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Deutsch</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('pt')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Portugu�s</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('pt')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Português</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('it')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Italiano</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('ru')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">???????</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('vi')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Ti?ng Vi?t</button>
@@ -418,7 +418,7 @@
 <div class="max-w-4xl mx-auto text-center">
 <div class="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest mb-3" style="color:var(--gold)"><span style="width:24px;height:2px;background:var(--gold);border-radius:1px"></span>Curriculum</div>
 <h2 class="fc font-bold text-2xl md:text-3xl mb-3">Full HSK 1 to 9 Vocabulary &amp; Lessons</h2>
-<p class="text-sm mb-10" style="color:var(--fg2)">HSK 3.0 extends to Level 9 � the highest Mandarin certification. 10,000+ words covered across all levels.</p>
+<p class="text-sm mb-10" style="color:var(--fg2)">HSK 3.0 extends to Level 9 — the highest Mandarin certification. 10,000+ words covered across all levels.</p>
 <div class="grid grid-cols-3 md:grid-cols-9 gap-3">
 <div class="p-4 rounded-xl" style="background:var(--card);border:1px solid var(--border)">
 <div class="text-xl font-extrabold mb-1" style="color:var(--green)">1</div>
@@ -477,12 +477,12 @@
 <p class="text-sm mb-10" style="color:var(--fg2)">Learn one Chinese character every day. Master Mandarin step by step with <strong>pinyin</strong>, <strong>meaning</strong>, and an <strong>example sentence</strong>.</p>
 <div class="max-w-md mx-auto p-8 rounded-2xl" style="background:var(--card);border:1px solid var(--border)">
 <div class="fc text-6xl font-black mb-4" style="color:var(--accent)" id="dailyChar">?</div>
-<div class="text-lg font-bold mb-1" style="color:var(--gold)" id="dailyPinyin">xu�</div>
+<div class="text-lg font-bold mb-1" style="color:var(--gold)" id="dailyPinyin">xu—</div>
 <div class="text-sm mb-4" style="color:var(--fg2)" id="dailyMeaning">to study, learn</div>
 <div class="p-4 rounded-xl text-left" style="background:var(--bg2);border:1px solid var(--border)">
 <p class="text-xs font-semibold mb-2" style="color:var(--muted)">EXAMPLE SENTENCE</p>
 <p class="fc text-base" id="dailySentence">??????</p>
-<p class="text-xs mt-1" style="color:var(--fg2)" id="dailySentencePinyin">Wo xu�x� zhongw�n.</p>
+<p class="text-xs mt-1" style="color:var(--fg2)" id="dailySentencePinyin">Wo xu—x— zhongw—n.</p>
 <p class="text-xs mt-1" style="color:var(--fg2)" id="dailySentenceEn">I study Chinese.</p>
 </div>
 </div>
@@ -501,7 +501,7 @@
 <div class="text-center p-6 rounded-2xl fu" style="background:var(--card);border:1px solid var(--border)">
 <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4" style="background:rgba(200,53,37,.1)"><span class="font-black text-lg" style="color:var(--accent)">1</span></div>
 <h3 class="font-bold text-sm mb-2">Open the App</h3>
-<p class="text-xs" style="color:var(--fg2)">Visit mandarincourse.app on any device. Works offline as a PWA � install it like a native app.</p>
+<p class="text-xs" style="color:var(--fg2)">Visit mandarincourse.app on any device. Works offline as a PWA — install it like a native app.</p>
 </div>
 <div class="text-center p-6 rounded-2xl fu" style="background:var(--card);border:1px solid var(--border)">
 <div class="w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4" style="background:rgba(212,166,79,.1)"><span class="font-black text-lg" style="color:var(--gold)">2</span></div>
@@ -526,7 +526,7 @@
 <div class="max-w-2xl mx-auto">
 <div class="fc text-5xl mb-6">?? &bull; ?? &bull; ??</div>
 <h2 class="fc font-bold text-2xl md:text-3xl mb-4">Ready to Learn Mandarin Online for Free?</h2>
-<p class="text-sm mb-8" style="color:var(--fg2)">Join thousands of learners. Start speaking Chinese today � no credit card needed.</p>
+<p class="text-sm mb-8" style="color:var(--fg2)">Join thousands of learners. Start speaking Chinese today — no credit card needed.</p>
 <a href="/app" class="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-base" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-decoration:none"><i class="fas fa-rocket"></i> Start Learning Free</a>
 </div>
 </section>
@@ -670,7 +670,7 @@
 <!-- TEXT INPUT - ALWAYS VISIBLE -->
 <div class="flex gap-2 w-full">
   <div class="relative flex-1">
-    <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here � e.g. ??" data-tr-placeholder="Type or speak Chinese here � e.g. ??" disabled>
+    <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here — e.g. ??" data-tr-placeholder="Type or speak Chinese here — e.g. ??" disabled>
     <button id="tutInputMic" onclick="toggleInputSpeech()" class="absolute right-2 top-1/2 -translate-y-1/2 focus:outline-none" style="background:none;border:none;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%" title="Speak to type" aria-label="Speak to type" data-tr="Speak to type" disabled>
       <i id="tutInputMicIc" class="fas fa-microphone text-lg" style="color:var(--muted)"></i>
     </button>
@@ -689,7 +689,7 @@
   <div id="docUploadPlaceholder">
     <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(212,166,79,.1)"><i class="fas fa-cloud-upload-alt text-2xl" style="color:var(--gold)"></i></div>
     <p class="font-bold text-sm mb-1" data-tr="Click to upload or drag & drop">Click to upload or drag & drop</p>
-    <p class="text-xs" style="color:var(--muted)" data-tr="PDF, DOCX, TXT, JPG, PNG � Max 20MB">PDF, DOCX, TXT, JPG, PNG � Max 20MB</p>
+    <p class="text-xs" style="color:var(--muted)" data-tr="PDF, DOCX, TXT, JPG, PNG — Max 20MB">PDF, DOCX, TXT, JPG, PNG — Max 20MB</p>
   </div>
   <div id="docUploadFileInfo" style="display:none" class="flex flex-col items-center gap-3">
     <div class="flex items-center gap-2 text-sm font-medium" style="color:var(--gold)" id="docFileName"></div>
@@ -874,7 +874,7 @@
 <section id="grammarCheck" data-route="/app/grammar-check" class="py-20 px-5" style="background:var(--bg)">
 <div class="max-w-4xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="AI Grammar Check">AI Grammar Check</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Check Your Chinese Grammar">Check Your Chinese Grammar</h2><p style="color:var(--fg2)" class="text-sm" data-tr="Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.">Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.</p></div>
 <div class="cd p-4 md:p-6 fu max-w-2xl mx-auto">
-<textarea id="grammarInput" class="tut-input w-full mb-3" rows="4" placeholder="Paste Chinese text here � e.g. ?????????" data-tr-placeholder="Paste Chinese text here � e.g. ?????????" style="resize:vertical"></textarea>
+<textarea id="grammarInput" class="tut-input w-full mb-3" rows="4" placeholder="Paste Chinese text here — e.g. ?????????" data-tr-placeholder="Paste Chinese text here — e.g. ?????????" style="resize:vertical"></textarea>
 <button onclick="grammarCheck()" class="bp w-full mb-4" id="grammarCheckBtn"><i class="fas fa-check-double mr-1"></i> <span data-tr="Check Grammar">Check Grammar</span></button>
 <div class="flex gap-2 mb-4">
   <button onclick="startGrammarExercise()" class="bo flex-1 text-center py-2.5 text-xs font-bold" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-puzzle-piece mr-1"></i> <span data-tr="Grammar Exercises">Grammar Exercises</span></button>
@@ -1103,7 +1103,7 @@
         <i class="fas fa-gem text-3xl" style="color:var(--gold)"></i>
       </div>
       <h4 class="font-black text-xl text-white mb-2" id="premTitle" data-tr="Unlock HSK 2 - 9">Unlock HSK 2 - 9</h4>
-      <p class="text-sm text-muted mb-6" data-tr="Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning � just $9/month.">Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning � just $9/month.</p>
+      <p class="text-sm text-muted mb-6" data-tr="Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.">Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning — just $9/month.</p>
       
       <div class="space-y-3 text-left mb-6">
         <div class="flex items-center gap-3">
@@ -1121,7 +1121,7 @@
       </div>
       
       <div id="paypalButtonContainer" class="mb-3"></div>
-      <div class="text-[11px] text-muted" data-tr="$9.00/month � Cancel anytime � Secure via PayPal">$9.00/month � Cancel anytime � Secure via PayPal</div>
+      <div class="text-[11px] text-muted" data-tr="$9.00/month — Cancel anytime — Secure via PayPal">$9.00/month — Cancel anytime — Secure via PayPal</div>
     </div>
   </div>
 </div>
@@ -1186,12 +1186,12 @@
       <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="App Language (Translations)">App Language (Translations)</label>
       <select id="appLanguageSelect" class="tut-input w-full" style="background-image:none; background: var(--card2);" onchange="changeAppLanguage(this.value)">
         <option value="en">English</option>
-        <option value="es">Espa�ol (Spanish)</option>
-        <option value="fr">Fran�ais (French)</option>
+        <option value="es">Español (Spanish)</option>
+        <option value="fr">Français (French)</option>
         <option value="ja">??? (Japanese)</option>
         <option value="ko">??? (Korean)</option>
         <option value="de">Deutsch (German)</option>
-        <option value="pt">Portugu�s (Portuguese)</option>
+        <option value="pt">Português (Portuguese)</option>
         <option value="it">Italiano (Italian)</option>
         <option value="ru">??????? (Russian)</option>
         <option value="vi">Ti?ng Vi?t (Vietnamese)</option>
@@ -1314,7 +1314,7 @@
 
 <footer class="py-12 px-5" style="border-top:1px solid var(--border)">
 <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-<div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg flex items-center justify-center fc font-black" style="background:var(--accent);color:#fff;font-size:12px">?</div><span class="font-bold text-sm">MandarinCourse</span><span class="text-xs" style="color:var(--muted)">&copy; 2026</span></div>
+<div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg flex items-center justify-center fc font-black" style="background:var(--accent);color:#fff;font-size:12px">汉</div><span class="font-bold text-sm">MandarinCourse</span><span class="text-xs" style="color:var(--muted)">&copy; 2026</span></div>
 </div></footer>
 
 <!-- ===== PODCAST PLAYER ===== -->
@@ -1322,8 +1322,8 @@
   <div class="max-w-4xl mx-auto flex items-center gap-3">
     <div class="flex-1 min-w-0">
       <div class="h-1 rounded-full mb-2" style="background:var(--card2)"><div class="h-full rounded-full transition-all" id="podProgress" style="width:0%;background:var(--accent)"></div></div>
-      <div class="text-xs font-semibold truncate" id="podTitle" style="color:var(--fg)">�</div>
-      <div class="text-[11px] truncate" id="podSub" style="color:var(--muted)">�</div>
+      <div class="text-xs font-semibold truncate" id="podTitle" style="color:var(--fg)">—</div>
+      <div class="text-[11px] truncate" id="podSub" style="color:var(--muted)">—</div>
     </div>
     <div class="flex items-center gap-2">
       <button onclick="podPrev()" class="w-7 h-7 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--muted);outline:none" id="podPrevBtn" aria-label="Previous track"><i class="fas fa-backward-step text-xs"></i></button>
