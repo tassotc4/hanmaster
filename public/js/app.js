@@ -3709,6 +3709,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduce cualquier idioma al chino con IA. Soporta inglés, español, francés, japonés, coreano, alemán, portugués, italiano, ruso y vietnamita.",
     "Translate":"Traducir","Enter text to translate...":"Ingresa texto para traducir...",
     "Speak":"Hablar","Copy to Tutor":"Copiar al Tutor",
+    "Skip":"Saltar",
+    "Type or speak Chinese here — e.g. 你好":"Escribe o habla chino aquí — ej. 你好",
     "HSK Dictionary":"Diccionario HSK","Browse HSK Vocabulary":"Explorar Vocabulario HSK",
     "Browse all HSK vocabulary with pinyin and English translations.":"Explora todo el vocabulario HSK con pinyin y traducciones al inglés.",
     "Search characters or pinyin...":"Buscar caracteres o pinyin...",
@@ -3745,7 +3747,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Regístrate con email para 7 días de acceso gratis a todas las funciones HSK 1-9. Después de la prueba, Premium cuesta $9/mes por acceso ilimitado. Cancela cuando quieras.",
     "Is MandarinCourse free?":"¿Es gratis MandarinCourse?",
     "No thanks, continue with HSK 1 free":"No gracias, continuar con HSK 1 gratis",
-    "Sign Up Free":"Regístrate Gratis"
+    "Sign Up Free":"Regístrate Gratis",
+    "Document AI":"AI de Documentos",
+    "Premium Feature":"Función Premium",
+    "Click to upload or drag & drop":"Haz clic para subir o arrastra y suelta"
   },
   "fr": {
     "Tutor":"Tuteur","Lessons":"Leçons","Grammar":"Grammaire","Dict":"Dictionnaire","Trans":"Traduire","Test":"Examen","Progress":"Progrès",
@@ -3779,6 +3784,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduisez n'importe quelle langue en chinois avec l'IA. Prend en charge l'anglais, l'espagnol, le français, le japonais, le coréen, l'allemand, le portugais, l'italien, le russe et le vietnamien.",
     "Translate":"Traduire","Enter text to translate...":"Entrez le texte à traduire...",
     "Speak":"Parler","Copy to Tutor":"Copier vers le Tuteur",
+    "Skip":"Passer",
+    "Type or speak Chinese here — e.g. 你好":"Tapez ou parlez chinois ici — ex. 你好",
     "HSK Dictionary":"Dictionnaire HSK","Browse HSK Vocabulary":"Parcourir le Vocabulaire HSK",
     "Browse all HSK vocabulary with pinyin and English translations.":"Parcourez tout le vocabulaire HSK avec pinyin et traductions anglaises.",
     "Search characters or pinyin...":"Rechercher des caractères ou du pinyin...",
@@ -4534,7 +4541,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Inscrivez-vous avec email pour 7 jours d'accès gratuit à toutes les fonctionnalités HSK 1-9. Après l'essai, Premium est à 9$/mois pour un accès illimité. Annulez à tout moment.",
     "Is MandarinCourse free?":"Est-ce que MandarinCourse est gratuit ?",
     "No thanks, continue with HSK 1 free":"Non merci, continuer avec HSK 1 gratuit",
-    "Sign Up Free":"Inscription Gratuite"
+    "Sign Up Free":"Inscription Gratuite",
+    "Document AI":"IA Documentaire",
+    "Premium Feature":"Fonction Premium",
+    "Click to upload or drag & drop":"Cliquez pour télécharger ou glisser-déposer"
 },
   "de": {
     "Tutor":"Tutor","Lessons":"Lektionen","Grammar":"Grammatik","Dict":"Wörterbuch","Trans":"Übersetzen","Test":"Test","Progress":"Fortschritt",
@@ -4568,6 +4578,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Übersetze jede Sprache mit KI ins Chinesische. Unterstützt Englisch, Spanisch, Französisch, Japanisch, Koreanisch, Deutsch, Portugiesisch, Italienisch, Russisch und Vietnamesisch.",
     "Translate":"Übersetzen","Enter text to translate...":"Text zum Übersetzen eingeben...",
     "Speak":"Sprechen","Copy to Tutor":"In Tutor kopieren",
+    "Skip":"Überspringen",
+    "Type or speak Chinese here — e.g. 你好":"Geben Sie Chinesisch ein oder sprechen Sie es — z.B. 你好",
     "HSK Dictionary":"HSK Wörterbuch","Browse HSK Vocabulary":"HSK Wortschatz durchsuchen",
     "Browse all HSK vocabulary with pinyin and English translations.":"Durchsuche den gesamten HSK-Wortschatz mit Pinyin und englischen Übersetzungen.",
     "Search characters or pinyin...":"Zeichen oder Pinyin suchen...",
@@ -5437,8 +5449,11 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Melden Sie sich mit E-Mail für 7 Tage kostenlosen Zugriff auf alle HSK 1-9 Funktionen an. Nach dem Test kostet Premium 9$/Monat für unbegrenzten Zugriff. Jederzeit kündbar.",
     "Is MandarinCourse free?":"Ist MandarinCourse kostenlos?",
     "No thanks, continue with HSK 1 free":"Nein danke, mit HSK 1 kostenlos fortfahren",
-    "Sign Up Free":"Kostenlos Anmelden"
-  },
+    "Sign Up Free":"Kostenlos Anmelden",
+    "Document AI":"Dokumenten-KI",
+    "Premium Feature":"Premium-Funktion",
+    "Click to upload or drag & drop":"Zum Hochladen klicken oder ziehen"
+},
   "pt": {
     "Tutor":"Tutor","Lessons":"Lições","Grammar":"Gramática","Dict":"Dicionário","Trans":"Traduzir","Test":"Teste","Progress":"Progresso",
     "AI Tutor":"Tutor IA","Dictionary":"Dicionário","Level Test":"Teste de Nível",
@@ -5471,6 +5486,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduza qualquer idioma para chinês com IA. Suporta inglês, espanhol, francês, japonês, coreano, alemão, português, italiano, russo e vietnamita.",
     "Translate":"Traduzir","Enter text to translate...":"Digite o texto para traduzir...",
     "Speak":"Falar","Copy to Tutor":"Copiar para o Tutor",
+    "Skip":"Pular",
+    "Type or speak Chinese here — e.g. 你好":"Digite ou fale chinês aqui — ex. 你好",
     "HSK Dictionary":"Dicionário HSK","Browse HSK Vocabulary":"Explorar Vocabulário HSK",
     "Browse all HSK vocabulary with pinyin and English translations.":"Explore todo o vocabulário HSK com pinyin e traduções em inglês.",
     "Search characters or pinyin...":"Buscar caracteres ou pinyin...",
@@ -6262,7 +6279,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Inscreva-se com email para 7 dias de acesso grátis a todos os recursos HSK 1-9. Após o teste, Premium é $9/mês para acesso ilimitado. Cancele quando quiser.",
     "Is MandarinCourse free?":"O MandarinCourse é grátis?",
     "No thanks, continue with HSK 1 free":"Não, obrigado, continuar com HSK 1 grátis",
-    "Sign Up Free":"Inscreva-se Grátis"
+    "Sign Up Free":"Inscreva-se Grátis",
+    "Document AI":"AI de Documentos",
+    "Premium Feature":"Função Premium",
+    "Click to upload or drag & drop":"Clique para enviar ou arrastar e soltar"
   },
   "it": {
     "Tutor":"Tutor","Lessons":"Lezioni","Grammar":"Grammatica","Dict":"Dizionario","Trans":"Tradurre","Test":"Test","Progress":"Progressi",
@@ -6296,6 +6316,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Traduci qualsiasi lingua in cinese con l'IA. Supporta inglese, spagnolo, francese, giapponese, coreano, tedesco, portoghese, italiano, russo e vietnamita.",
     "Translate":"Traduci","Enter text to translate...":"Inserisci il testo da tradurre...",
     "Speak":"Parla","Copy to Tutor":"Copia al Tutor",
+    "Skip":"Salta",
+    "Type or speak Chinese here — e.g. 你好":"Digita o parla cinese qui — es. 你好",
     "HSK Dictionary":"Dizionario HSK","Browse HSK Vocabulary":"Sfoglia il Vocabolario HSK",
     "Browse all HSK vocabulary with pinyin and English translations.":"Sfoglia tutto il vocabolario HSK con pinyin e traduzioni in inglese.",
     "Search characters or pinyin...":"Cerca caratteri o pinyin...",
@@ -7086,7 +7108,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Iscriviti con email per 7 giorni di accesso gratuito a tutte le funzionalità HSK 1-9. Dopo la prova, Premium è 9$/mese per accesso illimitato. Annulla quando vuoi.",
     "Is MandarinCourse free?":"MandarinCourse è gratuito?",
     "No thanks, continue with HSK 1 free":"No grazie, continua con HSK 1 gratuito",
-    "Sign Up Free":"Iscriviti Gratis"
+    "Sign Up Free":"Iscriviti Gratis",
+    "Document AI":"AI Documenti",
+    "Premium Feature":"Funzione Premium",
+    "Click to upload or drag & drop":"Clicca per caricare o trascina"
   },
   "ru": {
     "Tutor":"Репетитор","Lessons":"Уроки","Grammar":"Грамматика","Dict":"Словарь","Trans":"Перевод","Test":"Тест","Progress":"Прогресс",
@@ -7120,6 +7145,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Переведите любой язык на китайский с помощью ИИ. Поддерживает английский, испанский, французский, японский, корейский, немецкий, португальский, итальянский, русский и вьетнамский.",
     "Translate":"Перевести","Enter text to translate...":"Введите текст для перевода...",
     "Speak":"Говорить","Copy to Tutor":"Скопировать Репетитору",
+    "Skip":"Пропустить",
+    "Type or speak Chinese here — e.g. 你好":"Введите или говорите по-китайски здесь — напр. 你好",
     "HSK Dictionary":"HSK Словарь","Browse HSK Vocabulary":"Просмотр Лексики HSK",
     "Browse all HSK vocabulary with pinyin and English translations.":"Просмотрите всю лексику HSK с пиньинем и переводом на английский.",
     "Search characters or pinyin...":"Поиск иероглифов или пиньиня...",
@@ -7910,7 +7937,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Зарегистрируйтесь по email для 7-дневного бесплатного доступа ко всем функциям HSK 1-9. После пробного периода Premium стоит $9/месяц за неограниченный доступ. Отмените в любое время.",
     "Is MandarinCourse free?":"MandarinCourse бесплатен?",
     "No thanks, continue with HSK 1 free":"Нет, спасибо, продолжить с бесплатным HSK 1",
-    "Sign Up Free":"Зарегистрироваться Бесплатно"
+    "Sign Up Free":"Зарегистрироваться Бесплатно",
+    "Document AI":"AI Документов",
+    "Premium Feature":"Премиум-функция",
+    "Click to upload or drag & drop":"Нажмите, чтобы загрузить или перетащите"
   },
   "vi": {
     "Tutor":"Gia sư","Lessons":"Bài học","Grammar":"Ngữ pháp","Dict":"Từ điển","Trans":"Dịch","Test":"Kiểm tra","Progress":"Tiến bộ",
@@ -7944,6 +7974,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"Dịch bất kỳ ngôn ngữ nào sang tiếng Trung với AI. Hỗ trợ tiếng Anh, Tây Ban Nha, Pháp, Nhật, Hàn, Đức, Bồ Đào Nha, Ý, Nga và Việt.",
     "Translate":"Dịch","Enter text to translate...":"Nhập văn bản cần dịch...",
     "Speak":"Nói","Copy to Tutor":"Sao chép cho Gia sư",
+    "Skip":"Bỏ qua",
+    "Type or speak Chinese here — e.g. 你好":"Nhập hoặc nói tiếng Trung tại đây — v.d. 你好",
     "HSK Dictionary":"Từ điển HSK","Browse HSK Vocabulary":"Duyệt Từ vựng HSK",
     "Browse all HSK vocabulary with pinyin and English translations.":"Duyệt tất cả từ vựng HSK kèm pinyin và bản dịch tiếng Anh.",
     "Search characters or pinyin...":"Tìm kiếm chữ hoặc pinyin...",
@@ -7999,7 +8031,7 @@ const OFFLINE_DICTIONARY = {
     "Literary":"Văn chương","Creative Writing":"Viết Sáng tạo","Scholarship":"Học bổng",
     "Submit":"Gửi",
     "初次见面 - First Meeting":"初次见面 - Gặp gỡ Đầu tiên",
-    "Type or speak Chinese here — e.g. 你好":"Gõ hoặc nói tiếng Trung tại đây — vd: 你好",
+    "Type or speak Chinese here — e.g. 你好":"Nhập hoặc nói tiếng Trung tại đây — v.d. 你好",
     "Add 吗 to make any statement a yes/no question.":"Thêm 吗 để biến câu khẳng định thành câu hỏi Có/Không.",
     "Basic Greetings":"Lời chào Cơ bản",
     "At the Restaurant":"Tại Nhà hàng",
@@ -8836,7 +8868,33 @@ const OFFLINE_DICTIONARY = {
     "Avg":"TB",
     "Current Phrase":"Cụm từ Hiện tại",
     "Type your response in the box below":"Nhập câu trả lời của bạn vào ô bên dưới",
-    "Most common greeting":"Lời chào phổ biến nhất"
+    "Most common greeting":"Lời chào phổ biến nhất",
+    "Document AI":"AI Tài liệu",
+    "Upload & Process Documents with AI":"Tải lên & Xử lý Tài liệu với AI",
+    "Upload PDF, Word, text files, or handwritten images. The AI tutor will summarize, fix errors, or translate them.":"Tải lên PDF, Word, file văn bản hoặc hình ảnh viết tay. Gia sư AI sẽ tóm tắt, sửa lỗi hoặc dịch chúng.",
+    "Premium Feature":"Tính năng Cao cấp",
+    "Click to upload or drag & drop":"Nhấp để tải lên hoặc kéo & thả",
+    "PDF, DOCX, TXT, JPG, PNG — Max 20MB":"PDF, DOCX, TXT, JPG, PNG — Tối đa 20MB",
+    "Example Sentences":"Câu ví dụ",
+    "Export CSV":"Xuất CSV",
+    "Grammar Exercises":"Bài tập Ngữ pháp",
+    "Pronunciation":"Phát âm",
+    "Progress Charts":"Biểu đồ Tiến độ",
+    "Daily Challenge":"Thử thách Hàng ngày",
+    "Share Progress":"Chia sẻ Tiến độ",
+    "Friends":"Bạn bè",
+    "Weak Words":"Từ yếu",
+    "Stories":"Câu chuyện",
+    "Activity Feed":"Bảng tin Hoạt động",
+    "Refer a Friend":"Giới thiệu Bạn bè",
+    "Character Writing":"Luyện viết Chữ",
+    "Reference":"Tham khảo",
+    "Outline":"Đường viền",
+    "Animation":"Hoạt hình",
+    "Quiz":"Bài kiểm tra",
+    "Hint":"Gợi ý",
+    "Next":"Tiếp theo",
+    "Lessons":"Bài học"
   },
   "ja": {
     "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
@@ -8870,6 +8928,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"AIを使ってあらゆる言語を中国語に翻訳。英語、スペイン語、フランス語、日本語、韓国語、ドイツ語、ポルトガル語、イタリア語、ロシア語、ベトナム語に対応。",
     "Translate":"翻訳","Enter text to translate...":"翻訳するテキストを入力...",
     "Speak":"話す","Copy to Tutor":"チューターにコピー",
+    "Skip":"スキップ",
+    "Type or speak Chinese here — e.g. 你好":"ここに中国語を入力または話してください — 例：你好",
     "HSK Dictionary":"HSK辞書","Browse HSK Vocabulary":"HSK語彙を閲覧",
     "Browse all HSK vocabulary with pinyin and English translations.":"ピンインと英語訳付きの全HSK語彙を閲覧できます。",
     "Search characters or pinyin...":"漢字またはピンインを検索...",
@@ -9697,7 +9757,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"メール登録でHSK 1-9の全機能に7日間無料アクセス。トライアル後は月額$9で無制限アクセス。いつでもキャンセル可能。",
     "Is MandarinCourse free?":"MandarinCourseは無料ですか？",
     "No thanks, continue with HSK 1 free":"いいえ、HSK 1無料版を続ける",
-    "Sign Up Free":"無料登録"
+    "Sign Up Free":"無料登録",
+    "Document AI":"ドキュメントAI",
+    "Premium Feature":"プレミアム機能",
+    "Click to upload or drag & drop":"クリックしてアップロードするか、ドラッグ＆ドロップ"
   },
   "ko": {
     "Tutor":"튜터","Lessons":"레슨","Grammar":"문법","Dict":"사전","Trans":"번역","Test":"테스트","Progress":"진행도",
@@ -9731,6 +9794,8 @@ const OFFLINE_DICTIONARY = {
     "Translate any language to Chinese with AI. Supports English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, and Vietnamese.":"AI로 모든 언어를 중국어로 번역하세요. 영어, 스페인어, 프랑스어, 일본어, 한국어, 독일어, 포르투갈어, 이탈리아어, 러시아어, 베트남어를 지원합니다.",
     "Translate":"번역","Enter text to translate...":"번역할 텍스트 입력...",
     "Speak":"말하기","Copy to Tutor":"튜터에게 복사",
+    "Skip":"건너뛰기",
+    "Type or speak Chinese here — e.g. 你好":"여기에 중국어를 입력하거나 말하세요 — 예: 你好",
     "HSK Dictionary":"HSK 사전","Browse HSK Vocabulary":"HSK 어휘 찾아보기",
     "Browse all HSK vocabulary with pinyin and English translations.":"병음과 영어 번역이 포함된 모든 HSK 어휘를 찾아보세요.",
     "Search characters or pinyin...":"한자 또는 병음 검색...",
@@ -10555,7 +10620,10 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"이메일로 가입하면 HSK 1-9 모든 기능에 7일 무료 액세스. 체험 후 프리미엄은 월 $9로 무제한 액세스. 언제든지 취소 가능.",
     "Is MandarinCourse free?":"MandarinCourse는 무료인가요?",
     "No thanks, continue with HSK 1 free":"아니요, HSK 1 무료로 계속",
-    "Sign Up Free":"무료 가입"
+    "Sign Up Free":"무료 가입",
+    "Document AI":"문서 AI",
+    "Premium Feature":"프리미엄 기능",
+    "Click to upload or drag & drop":"클릭하여 업로드하거나 드래그 앤 드롭"
   }
 };
 
@@ -12079,7 +12147,7 @@ function buildGr(){
           
           <div class="flex items-center justify-between gap-2 mb-1">
             <div class="fc text-lg font-bold text-white">${gr.cn}</div>
-            <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer" title="'+t('Listen')+'">
+            <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer" title="${t('Listen')}">
               <i class="fas fa-volume-high text-[10px]"></i>
             </button>
           </div>
@@ -12089,7 +12157,7 @@ function buildGr(){
           <p class="text-xs font-bold uppercase tracking-wider text-muted mt-2">${t(gr.f)}</p>
           <!-- Practice Button -->
           <button onclick="event.stopPropagation(); startGrammarPractice('${(gr.t||'').replace(/'/g, "\\'")}', '${(gr.cn||'').replace(/'/g, "\\'")}', '${(gr.en||'').replace(/'/g, "\\'")}')" class="absolute bottom-4 right-4 px-2 py-1 rounded text-[9px] font-bold border border-[var(--border)] cursor-pointer" style="background:var(--card2); color:var(--gold); outline:none;">
-            <i class="fas fa-gamepad mr-1"></i>'+t('Practice')+'
+            <i class="fas fa-gamepad mr-1"></i>${t('Practice')}
           </button>
         </div>
         
@@ -12100,7 +12168,7 @@ function buildGr(){
             <i class="fas fa-rotate text-xs" style="color:var(--muted)"></i>
           </div>
           <h3 class="font-bold text-sm mb-3">${t(gr.t)}</h3>
-          <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer mx-auto mb-3" title="Listen">
+          <button onclick="event.stopPropagation(); speak('${gr.cn.replace(/'/g, "\\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer mx-auto mb-3" title="${t('Listen')}">
             <i class="fas fa-volume-high text-[10px]"></i>
           </button>
           <div class="text-[12.5px] leading-relaxed" style="color:var(--fg2)">${addSpeakToSentences(t(gr.b))}</div>
