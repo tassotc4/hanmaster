@@ -48,7 +48,7 @@ function isDisposableEmail(email) {
 
 async function signUpWithEmail(email, password) {
   if (!supabaseClient) return toast('Supabase not initialized', 'var(--accent)');
-  if (isDisposableEmail(email)) return toast('Please use a permanent email address (temporary emails are not allowed)', 'var(--accent)');
+  if (isDisposableEmail(email)) return toast('Please use another email address (temporary emails are not allowed)', 'var(--accent)');
   const { error, data } = await supabaseClient.auth.signUp({ email, password });
   if (error) return toast(error.message, 'var(--accent)');
   if (data?.user) {
