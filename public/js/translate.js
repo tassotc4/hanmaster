@@ -97,6 +97,7 @@ let _trRecActive = false;
 
 function translateVoiceInput() {
   const ic = document.getElementById('trMicIc');
+  const lb = document.getElementById('trMicLabel');
   const input = document.getElementById('trInput');
   if (!ic || !input) return;
 
@@ -110,6 +111,7 @@ function translateVoiceInput() {
     }
     _trRecActive = false;
     ic.className = 'fas fa-microphone';
+    if (lb) lb.textContent = 'Voice';
     const chunks = window._trChunks || [];
     window._trChunks = [];
     if (chunks.length === 0) { input.placeholder = 'Enter text to translate...'; return; }
@@ -140,17 +142,18 @@ function translateVoiceInput() {
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Mic not available', 'var(--accent)'); return; }
   _trRecActive = true;
   ic.className = 'fas fa-stop';
+  if (lb) lb.textContent = 'Stop';
   input.placeholder = 'Recording... tap mic to stop';
   navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: 16000, sampleSize: 16 } }).then(stream => {
     window._trStream = stream;
     window._trChunks = [];
     let mime = 'audio/mp4';
     if (typeof MediaRecorder.isTypeSupported === 'function') { if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/ogg;codecs=opus'; if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/webm'; if (!MediaRecorder.isTypeSupported(mime)) mime = ''; }
-    if (!mime) { _trRecActive = false; ic.className = 'fas fa-microphone'; input.placeholder = 'Not supported'; return; }
+    if (!mime) { _trRecActive = false; ic.className = 'fas fa-microphone'; if (lb) lb.textContent = 'Voice'; input.placeholder = 'Not supported'; return; }
     window._trRecorder = new MediaRecorder(stream, { mimeType: mime, audioBitsPerSecond: 192000 });
     window._trRecorder.ondataavailable = e => { if (e.data.size > 0) window._trChunks.push(e.data); };
     window._trRecorder.start(250);
-  }).catch(() => { _trRecActive = false; ic.className = 'fas fa-microphone'; input.placeholder = 'Mic denied.'; });
+  }).catch(() => { _trRecActive = false; ic.className = 'fas fa-microphone'; if (lb) lb.textContent = 'Voice'; input.placeholder = 'Mic denied.'; });
 }
 
 document.addEventListener('DOMContentLoaded', initTranslate);
