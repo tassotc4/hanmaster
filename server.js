@@ -163,7 +163,7 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Missing or invalid contents array' });
   }
 
-  const { contents, systemInstruction } = req.body;
+  const { contents, systemInstruction, sourceLang } = req.body;
   const hasInlineData = contents.some(c => c.parts && c.parts.some(p => p.inlineData));
 
   if (hasInlineData) {
@@ -188,6 +188,8 @@ app.post('/api/chat', async (req, res) => {
       form.append('file', blob, `audio.${ext}`);
       form.append('model', 'whisper-large-v3-turbo');
       form.append('response_format', 'json');
+      form.append('prompt', 'Please transcribe the spoken language accurately. Common phrases: hello, how are you, thank you, good morning, good night, please, sorry.');
+      if (sourceLang && sourceLang !== 'zh') form.append('language', sourceLang);
 
       const wr = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
         method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: form

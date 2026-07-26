@@ -125,7 +125,7 @@ function translateVoiceInput() {
       fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ inlineData: { mimeType: mime, data: reader.result.split(',')[1] } }] }], systemInstruction: `Transcribe ${langName} speech from this audio and output ONLY the Chinese translation.` })
+        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ inlineData: { mimeType: mime, data: reader.result.split(',')[1] } }] }], systemInstruction: `Translate the following ${langName} text to Chinese. Output ONLY the Chinese translation with no extra words, punctuation, or formatting.`, sourceLang: srcLang })
       }).then(r => r.json()).then(d => {
         const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
         input.value = text;
@@ -141,7 +141,7 @@ function translateVoiceInput() {
   _trRecActive = true;
   ic.className = 'fas fa-stop';
   input.placeholder = 'Recording... tap mic to stop';
-  navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(stream => {
+  navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: 16000, sampleSize: 16 } }).then(stream => {
     window._trStream = stream;
     window._trChunks = [];
     let mime = 'audio/mp4';
