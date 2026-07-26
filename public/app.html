@@ -1097,7 +1097,7 @@
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card); border-radius:16px;">
     <div class="flex items-center justify-between mb-4">
       <h3 class="font-bold text-lg text-white" data-tr="MandarinCourse Premium"><i class="fas fa-crown mr-2 text-[var(--gold)]"></i> MandarinCourse Premium</h3>
-      <button onclick="togglePremiumModal()" aria-label="Close premium" class="text-muted hover:text-white transition" style="background:none;border:none;font-size:18px;cursor:pointer"><i class="fas fa-times"></i></button>
+      <button onclick="togglePremiumModal()" aria-label="Close premium" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--fg);padding:4px 8px;border-radius:8px" class="hover:bg-[var(--card2)] transition"><i class="fas fa-times"></i></button>
     </div>
     <div class="text-center py-4">
       <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(212,166,79,.1)">
@@ -1122,7 +1122,8 @@
       </div>
       
       <div id="paypalButtonContainer" class="mb-3"></div>
-      <div class="text-[11px] text-muted" data-tr="$9.00/month — Cancel anytime — Secure via PayPal">$9.00/month — Cancel anytime — Secure via PayPal</div>
+      <div class="text-[11px] text-muted mb-4" data-tr="$9.00/month — Cancel anytime — Secure via PayPal">$9.00/month — Cancel anytime — Secure via PayPal</div>
+      <button onclick="togglePremiumModal()" class="text-xs font-medium py-2 px-4 rounded-lg w-full" style="background:var(--card2);color:var(--fg);border:1px solid var(--border);cursor:pointer" data-tr="No thanks, continue with free HSK 1">No thanks, continue with free HSK 1</button>
     </div>
   </div>
 </div>

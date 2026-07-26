@@ -10,7 +10,10 @@ function renderPayPalButtons() {
     createOrder: function() {
       return fetch('/api/paypal/create-order', { method: 'POST' })
         .then(r => r.json())
-        .then(data => { if (data.id) return data.id; throw new Error(data.error || 'Failed to create order'); });
+        .then(data => {
+          if (data.id) return data.id;
+          throw new Error(data.error || 'Failed to create order. Please try again later.');
+        });
     },
     onApprove: function(data) {
       return fetch('/api/paypal/capture-order', {
@@ -31,10 +34,29 @@ function renderPayPalButtons() {
           }
         });
     },
+    onCancel: function() {
+      toast('PayPal checkout cancelled.', 'var(--muted)');
+    },
     onError: function(err) {
-      toast('PayPal error. Please try again.', 'var(--accent)');
+      toast('PayPal checkout error. Tap "Retry" below to try again.', 'var(--accent)');
+      retryPayPalButtons();
     }
   }).render('#paypalButtonContainer');
 
   paypalButtonsRendered = true;
+}
+
+function retryPayPalButtons() {
+  paypalButtonsRendered = false;
+  const container = document.getElementById('paypalButtonContainer');
+  if (!container) return;
+  const retryBtn = document.createElement('button');
+  retryBtn.textContent = 'Retry PayPal';
+  retryBtn.className = 'w-full py-3 rounded-xl font-bold text-sm cursor-pointer';
+  retryBtn.style.cssText = 'background:var(--accent);color:#fff;border:none;font-family:inherit';
+  retryBtn.onclick = function() {
+    container.innerHTML = '';
+    renderPayPalButtons();
+  };
+  container.appendChild(retryBtn);
 }
