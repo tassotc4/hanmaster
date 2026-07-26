@@ -10786,7 +10786,7 @@ function checkMic(){
   micAvailable = true;
 }
 
-function buildHero(){const bg=document.getElementById('heroBg');const ch='你好学中文说话听说读写拼音汉字';for(let i=0;i<16;i++){const d=document.createElement('div');d.className='hc';d.style.left=Math.random()*100+'%';d.style.fontSize=(30+Math.random()*50)+'px';d.style.animationDelay=Math.random()*25+'s';d.textContent=ch[i%ch.length];bg.appendChild(d)}}
+function buildHero(){const bg=document.getElementById('heroBg');if(!bg)return;const ch='你好学中文说话听说读写拼音汉字';for(let i=0;i<16;i++){const d=document.createElement('div');d.className='hc';d.style.left=Math.random()*100+'%';d.style.fontSize=(30+Math.random()*50)+'px';d.style.animationDelay=Math.random()*25+'s';d.textContent=ch[i%ch.length];bg.appendChild(d)}}
 function scrollToSection(s) {
   const el = document.querySelector(s);
   if (el) {
