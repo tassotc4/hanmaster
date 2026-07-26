@@ -11847,6 +11847,8 @@ function playPy(el,py){document.querySelectorAll('.pyc.pl').forEach(e=>e.classLi
 
 // ===== GRAMMAR =====
 let grammarLevel = 1;
+let grPage = 0;
+var perPage = 3;
 
 function buildGrLvTabs() {
   const c = document.getElementById('grLvTabs');
@@ -11859,7 +11861,7 @@ function buildGrLvTabs() {
     b.textContent = l;
     b.className = 'px-4 py-2 rounded-full text-xs font-bold border-none cursor-pointer transition' + (idx === grammarLevel ? ' on' : '');
     b.style.cssText = (idx === grammarLevel) ? 'background:var(--accent);color:#fff' : 'background:var(--card2);color:var(--fg)';
-    b.onclick = () => { grammarLevel = idx; buildGrLvTabs(); buildGr(); };
+    b.onclick = () => { grammarLevel = idx; grPage = 0; buildGrLvTabs(); buildGr(); };
     c.appendChild(b);
   });
 }
@@ -11881,7 +11883,12 @@ function buildGr(){
     return lvNum === grammarLevel;
   });
   
-  filtered.forEach(gr => {
+  var totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  if (grPage >= totalPages) grPage = 0;
+  var start = grPage * perPage;
+  var pageItems = filtered.slice(start, start + perPage);
+  
+  pageItems.forEach(gr => {
     const d = document.createElement('div');
     d.className = 'flip';
     d.style.height = '260px';
@@ -11929,6 +11936,23 @@ function buildGr(){
     `;
     g.appendChild(d);
   });
+  
+  // Page counter and arrows
+  var navDiv = document.createElement('div');
+  navDiv.className = 'flex items-center justify-center gap-4 mt-6';
+  navDiv.innerHTML = '<button onclick="grNav(-1)" class="w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--fg);outline:none"><i class="fas fa-chevron-left text-sm"></i></button>'
+    + '<span class="text-xs font-semibold" style="color:var(--muted)">' + (grPage + 1) + ' / ' + totalPages + '</span>'
+    + '<button onclick="grNav(1)" class="w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--fg);outline:none"><i class="fas fa-chevron-right text-sm"></i></button>';
+  g.appendChild(navDiv);
+}
+
+function grNav(dir) {
+  var filtered = GR.filter(function(gr) {
+    return parseInt(gr.lv.replace('HSK ','')) === grammarLevel;
+  });
+  var totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  grPage = (grPage + dir + totalPages) % totalPages;
+  buildGr();
 }
 
 // ===== QUIZ =====
