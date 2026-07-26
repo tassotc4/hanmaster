@@ -46,7 +46,8 @@ const DISPOSABLE_DOMAINS = ['mailinator.com','guerrillamail.com','jobraux.com','
 
 function isDisposableEmail(email) {
   const domain = email.split('@')[1].toLowerCase();
-  return DISPOSABLE_DOMAINS.some(d => domain === d || domain.endsWith('.' + d));
+  if (DISPOSABLE_DOMAINS.some(d => domain === d || domain.endsWith('.' + d))) return true;
+  return /^(mail|temp|trash|spam|throw|fake|junk|10minut|guerrilla|disposable?|yop|sharklashers?|mailinator|getnada|burner|tempm)\./.test(domain) || /\.(xyz|tk|ml|ga|cf|gq)$/.test(domain);
 }
 
 async function signUpWithEmail(email, password) {
