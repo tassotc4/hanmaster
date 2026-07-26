@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const rateLimit = require('express-rate-limit');
+const path = require('path');
 const path = require('path');
 const fs = require('fs');
 const dns = require('dns');
@@ -96,7 +96,17 @@ async function sendEmailViaMailgun(to, subject, html) {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir, { index: false }));
 
-const apiLimiter = rateLimit({ windowMs: 60000, max: 20, message: { error: 'Too many requests, slow down.' } });
+// In-memory rate limiter: 20 requests per minute per IP
+const rateLimitStore = {};
+function apiLimiter(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  if (!rateLimitStore[ip]) rateLimitStore[ip] = [];
+  rateLimitStore[ip] = rateLimitStore[ip].filter(t => now - t < 60000);
+  if (rateLimitStore[ip].length >= 20) return res.status(429).json({ error: 'Too many requests, slow down.' });
+  rateLimitStore[ip].push(now);
+  next();
+}
 
 app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
