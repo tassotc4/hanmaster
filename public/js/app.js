@@ -12417,8 +12417,18 @@ function buildHSK(){
 
 // ===== CANVAS / HANZI WRITER INTEGRATION =====
 function initCv(){
-  const charEl = document.getElementById('rfCh');
-  const char = charEl ? charEl.textContent : '你';
+  var charEl = document.getElementById('rfCh');
+  var char = charEl ? charEl.textContent : '你';
+  // support HSK9 sentence mode
+  if (typeof HSK9_WRITING_MODE !== 'undefined' && HSK9_WRITING_MODE && typeof window._hsk9Chars !== 'undefined') {
+    var hc = window._hsk9Chars;
+    var idx = typeof window._hsk9Idx !== 'undefined' ? window._hsk9Idx : 0;
+    if (idx < hc.length) char = hc[idx];
+    if (charEl) charEl.textContent = char;
+    updateSentenceHighlight();
+    var si = document.getElementById('sentenceInfo');
+    if (si) si.textContent = 'Character ' + (idx+1) + ' of ' + hc.length;
+  }
   initHanziWriter(char);
 }
 function initHanziWriter(char) {
@@ -12453,26 +12463,42 @@ function quizCh() {
 }
 
 function speakCurrentWritingChar() {
-  const charEl = document.getElementById('rfCh');
-  const char = charEl ? charEl.textContent : '';
+  var charEl = document.getElementById('rfCh');
+  var char = charEl ? charEl.textContent : '';
   if (char && char !== '--') {
     speak(char, 0.7);
   }
 }
 
 function clrCv() {
-  const charEl = document.getElementById('rfCh');
-  const char = charEl ? charEl.textContent : '你';
-  const lookup = typeof WRITING_CHAR_DATA !== 'undefined' ? WRITING_CHAR_DATA : {};
-  const data = lookup[char] || {};
-  const rfPy = document.getElementById('rfPy');
+  var charEl = document.getElementById('rfCh');
+  var char = charEl ? charEl.textContent : '你';
+  var lookup = typeof WRITING_CHAR_DATA !== 'undefined' ? WRITING_CHAR_DATA : {};
+  var data = lookup[char] || {};
+  var rfPy = document.getElementById('rfPy');
   if (rfPy) rfPy.textContent = data.py || '--';
-  const rfMn = document.getElementById('rfMn');
+  var rfMn = document.getElementById('rfMn');
   if (rfMn) rfMn.textContent = data.m || '--';
   initHanziWriter(char);
 }
 function nxtCh(){
-  trackDaily('chars'); curWI = (curWI + 1) % WCH.length;
+  trackDaily('chars');
+  // HSK9 sentence mode
+  if (typeof HSK9_WRITING_MODE !== 'undefined' && HSK9_WRITING_MODE && typeof window._hsk9Chars !== 'undefined') {
+    var hc = window._hsk9Chars;
+    window._hsk9Idx = (typeof window._hsk9Idx !== 'undefined' ? window._hsk9Idx : 0) + 1;
+    if (window._hsk9Idx >= hc.length) window._hsk9Idx = 0;
+    var ch = hc[window._hsk9Idx];
+    var rfCh = document.getElementById('rfCh');
+    if (rfCh && ch) rfCh.textContent = ch;
+    updateSentenceHighlight();
+    var si = document.getElementById('sentenceInfo');
+    if (si) si.textContent = 'Character ' + (window._hsk9Idx+1) + ' of ' + hc.length;
+    clrCv();
+    if (ch) speak(ch, 0.7);
+    return;
+  }
+  curWI = (curWI + 1) % WCH.length;
   const ch = WCH[curWI];
   const rfCh = document.getElementById('rfCh');
   if (rfCh && ch) rfCh.textContent = ch;
