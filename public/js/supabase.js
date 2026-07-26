@@ -33,9 +33,12 @@ async function checkSession() {
       if (r.data && r.data.display_name) { localStorage.setItem('user_display_name', r.data.display_name); if (typeof updateProfileDisplay === 'function') updateProfileDisplay(); }
       if (r.data && r.data.trial_start && !localStorage.getItem('trial_start')) {
         localStorage.setItem('trial_start', new Date(r.data.trial_start).getTime().toString());
+      } else if (!localStorage.getItem('trial_start')) {
+        localStorage.setItem('trial_start', Date.now().toString());
       }
-    }).catch(function(){});
-    if (typeof updateProfileDisplay === 'function') updateProfileDisplay();
+    }).catch(function(){
+      if (!localStorage.getItem('trial_start')) localStorage.setItem('trial_start', Date.now().toString());
+    });
   }
 }
 
@@ -52,10 +55,6 @@ async function signUpWithEmail(email, password) {
   const { error, data } = await supabaseClient.auth.signUp({ email, password });
   if (error) return toast(error.message, 'var(--accent)');
   if (data?.user) {
-    supabaseClient.from('user_profiles').upsert({
-      user_id: data.user.id,
-      trial_start: new Date().toISOString()
-    }).catch(function(){});
     localStorage.setItem('trial_start', Date.now().toString());
   }
   toast('Check your email to confirm sign up!', 'var(--green)');
@@ -79,8 +78,12 @@ async function signInWithEmail(email, password) {
       if (r.data && r.data.trial_start) {
         localStorage.setItem('trial_start', new Date(r.data.trial_start).getTime().toString());
       } else {
-        supabaseClient.from('user_profiles').upsert({ user_id: session.user.id, trial_start: new Date().toISOString() }).catch(function(){});
-        if (!localStorage.getItem('trial_start')) localStorage.setItem('trial_start', Date.now().toString());
+        if (!localStorage.getItem('trial_start')) {
+          localStorage.setItem('trial_start', Date.now().toString());
+          (async function() {
+            try { await supabaseClient.from('user_profiles').upsert({ user_id: session.user.id, trial_start: new Date().toISOString() }); } catch(e) {}
+          })();
+        }
       }
     }).catch(function(){
       if (!localStorage.getItem('trial_start')) localStorage.setItem('trial_start', Date.now().toString());
