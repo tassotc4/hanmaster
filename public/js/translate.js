@@ -2,6 +2,8 @@ let translateInput, translateOutput, translateLang, translateBtn, translateSpeak
 let lastTranslateResult = '', lastTrSpokenText = '', lastTrSpokenLang = 'zh-CN';
 const LANG_NAMES = { en:'English', es:'Spanish', fr:'French', ja:'Japanese', ko:'Korean', de:'German', pt:'Portuguese', it:'Italian', ru:'Russian', vi:'Vietnamese' };
 const _trCache = {};
+const _trCacheKeys = [];
+const _trCacheMax = 100;
 
 function initTranslate() {
   translateInput = document.getElementById('trInput');
@@ -54,6 +56,11 @@ async function doTranslate() {
     let reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Translation failed.';
     reply = reply.replace(/^["']|["']$/g, '').trim();
     _trCache[cacheKey] = reply;
+    _trCacheKeys.push(cacheKey);
+    if (_trCacheKeys.length > _trCacheMax) {
+      const old = _trCacheKeys.shift();
+      delete _trCache[old];
+    }
     lastTranslateResult = reply;
     translateOutput.innerHTML = formatTranslateResult(reply);
     const spoke = extractSpokenText(reply, dir);

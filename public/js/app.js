@@ -13,9 +13,6 @@ try {
 
 const OFFLINE_DICTIONARY = {
   "es": {
-    "'+text+'": "'+texto+'",
-    "+ suggestedAnswer +": "+ respuesta sugerida +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", e);\n  }\n}\n\nfunción sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,",
     "1st Tone — High flat": "1er tono: bemol alto",
     "2nd Tone — Rising": "2do tono: ascendente",
     "3rd Tone — Dipping": "3.er tono: inmersión",
@@ -555,9 +552,6 @@ const OFFLINE_DICTIONARY = {
 
   },
   "fr": {
-    "'+text+'": "'+texte+'",
-    "+ suggestedAnswer +": "+Réponse suggérée +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", e);\n  }\n}\n\nfonction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,",
     "1st Tone — High flat": "1er ton — Aigu bémol",
     "2nd Tone — Rising": "2e ton – Montant",
     "3rd Tone — Dipping": "3ème ton – Trempage",
@@ -949,9 +943,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=en retard, 到=arriver."
   },
   "ja": {
-    "'+text+'": "'+テキスト+'",
-    "+ suggestedAnswer +": "+ 提案された回答 +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": "、e);\n  }\n}\n\n関数 sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()?。，！、\\s]/g,",
     "1st Tone — High flat": "1stトーン — ハイフラット",
     "2nd Tone — Rising": "2 番目のトーン — 立ち上がり",
     "3rd Tone — Dipping": "3 番目のトーン — ディッピング",
@@ -1343,9 +1334,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=遅れ、到=到着。"
   },
   "ko": {
-    "'+text+'": "'+텍스트+'",
-    "+ suggestedAnswer +": "+ 제안답변 +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", e);\n  }\n}\n\n함수 시뮬레이션(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()?。，！、\\s]/g,",
     "1st Tone — High flat": "첫 번째 톤 — 하이 플랫",
     "2nd Tone — Rising": "두 번째 성조 - 상승",
     "3rd Tone — Dipping": "세 번째 성조 — 담그기",
@@ -1737,9 +1725,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=늦다, 到=도착."
   },
   "de": {
-    "'+text+'": "'+text+'",
-    "+ suggestedAnswer +": "+ vorgeschlagenAntwort +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", e);\n  }\n}\n\nFunktion sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,",
     "1st Tone — High flat": "1. Ton – Hoch, flach",
     "2nd Tone — Rising": "2. Ton – Steigend",
     "3rd Tone — Dipping": "3. Ton – Eintauchen",
@@ -2131,9 +2116,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=spät, 到=ankommen."
   },
   "pt": {
-    "'+text+'": "'+texto+'",
-    "+ suggestedAnswer +": "+ sugeridoResposta +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", e);\n  }\n}\n\nfunção sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,",
     "1st Tone — High flat": "1º Tom - bemol agudo",
     "2nd Tone — Rising": "2º Tom – Subindo",
     "3rd Tone — Dipping": "3º tom – imersão",
@@ -2525,9 +2507,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=tarde, 到=chegar."
   },
   "it": {
-    "'+text+'": "'+testo+'",
-    "+ suggestedAnswer +": "+risposta suggerita+",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", e);\n  }\n}\n\nfunzione sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。,!、\\s]/g,",
     "1st Tone — High flat": "1° tono: acuto e bemolle",
     "2nd Tone — Rising": "2° tono: Alzarsi",
     "3rd Tone — Dipping": "3° tono: abbassamento",
@@ -2919,9 +2898,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=tardi, 到=arrivare."
   },
   "ru": {
-    "'+text+'": "'+текст+'",
-    "+ suggestedAnswer +": "+ предложенныйОтвет +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", е);\n  }\n}\n\nфункция сим(а,б){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,",
     "1st Tone — High flat": "1-й тон — Высокая бемоль.",
     "2nd Tone — Rising": "2-й тон — восходящий",
     "3rd Tone — Dipping": "3-й тон — погружение",
@@ -3313,9 +3289,6 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=опаздывать, 到=приходить."
   },
   "vi": {
-    "'+text+'": "'+văn bản+'",
-    "+ suggestedAnswer +": "+ Câu trả lời gợi ý +",
-    ", e);\n  }\n}\n\nfunction sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，！、\\s]/g,": ", đ);\n  }\n}\n\nhàm sim(a,b){\n  const cleanA = a.replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()？。，!、\\s]/g,",
     "1st Tone — High flat": "Giai điệu thứ nhất - Âm cao",
     "2nd Tone — Rising": "Giai điệu thứ 2 - Tăng",
     "3rd Tone — Dipping": "Giai điệu thứ 3 - Ngâm",

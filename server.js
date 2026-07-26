@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 const path = require('path');
 const fs = require('fs');
 const dns = require('dns');
@@ -95,6 +96,8 @@ async function sendEmailViaMailgun(to, subject, html) {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir, { index: false }));
 
+const apiLimiter = rateLimit({ windowMs: 60000, max: 20, message: { error: 'Too many requests, slow down.' } });
+
 app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
 app.get('/debug-app', (req, res) => {
@@ -158,7 +161,7 @@ app.post('/api/test', (req, res) => {
   res.json({ ok: true, body: req.body });
 });
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', apiLimiter, async (req, res) => {
   if (!req.body || !Array.isArray(req.body.contents)) {
     return res.status(400).json({ error: 'Missing or invalid contents array' });
   }
@@ -249,7 +252,7 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-app.get('/api/tts', async (req, res) => {
+app.get('/api/tts', apiLimiter, async (req, res) => {
   const text = req.query.text;
   const lang = req.query.lang || 'zh-CN';
   if (!text || text.length > 500) return res.status(400).json({ error: 'Missing or too long text' });
@@ -266,7 +269,7 @@ app.get('/api/tts', async (req, res) => {
   }
 });
 
-app.post('/api/tts', async (req, res) => {
+app.post('/api/tts', apiLimiter, async (req, res) => {
   const { text, lang, speed } = req.body || {};
   if (!text || !lang) return res.status(400).json({ error: 'Missing text or lang' });
   try {
@@ -410,9 +413,21 @@ const reminderHtml = '<div style="font-family:sans-serif;max-width:480px;margin:
 setInterval(async () => {
   if (!Array.isArray(global._reminders)) return;
   const now = new Date();
-  const currentHour = now.getUTCHours().toString().padStart(2,'0');
-  const currentMin = now.getUTCMinutes().toString().padStart(2,'0');
-  const currentTime = currentHour + ':' + currentMin;
+  for (const r of global._reminders) {
+    let currentTime;
+    try {
+      if (r.timezone) {
+        currentTime = now.toLocaleString('en-US', { timeZone: r.timezone, hour: '2-digit', minute: '2-digit', hour12: false });
+      } else {
+        const hh = now.getUTCHours().toString().padStart(2,'0');
+        const mm = now.getUTCMinutes().toString().padStart(2,'0');
+        currentTime = hh + ':' + mm;
+      }
+    } catch(e) {
+      const hh = now.getUTCHours().toString().padStart(2,'0');
+      const mm = now.getUTCMinutes().toString().padStart(2,'0');
+      currentTime = hh + ':' + mm;
+    }
   for (const r of global._reminders) {
     if (r.time && r.time === currentTime) {
       if (mailgunConfigured()) {

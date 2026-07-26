@@ -23,14 +23,14 @@
 <meta name="keywords" content="mandarin course, learn mandarin online free, free chinese course, AI chinese tutor, learn chinese online free, mandarin speaking practice, HSK 1-9, chinese language learning, mandarin for beginners, AI language tutor">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://mandarincourse.app/app">
-<meta property="og:title" content="MandarinCourse — — AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
+<meta property="og:title" content="MandarinCourse — AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
 <meta property="og:description" content="Learn Mandarin online with AI. HSK 1 free, HSK 2-9 from $9/month. Real-time tone visualizer, SRS flashcards, stroke order writing, and voice grading.">
 <meta property="og:url" content="https://mandarincourse.app/app">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://mandarincourse.app/og-image.png">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="MandarinCourse — — AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
+<meta name="twitter:title" content="MandarinCourse — AI Chinese Tutor | Learn Mandarin Online | HSK 1 Free">
 <meta name="twitter:description" content="Learn to speak Chinese naturally with AI. Real-time tone visualizer, HSK 1-9, SRS flashcards, stroke order, and voice grading.">
 <meta name="twitter:image" content="https://mandarincourse.app/og-image.png">
 <link rel="alternate" hreflang="en" href="https://mandarincourse.app/app">
@@ -242,13 +242,13 @@
         <button onclick="event.stopPropagation(); changeAppLanguage('en')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">English</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('es')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Español</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('fr')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Français</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('ja')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">???</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('ko')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">???</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ja')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">日本語</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ko')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">한국어</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('de')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Deutsch</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('pt')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Português</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('it')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Italiano</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('ru')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">???????</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('vi')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Ti?ng Vi?t</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ru')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">русский</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('vi')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Tiếng Việt</button>
       </div>
     </div>
 
@@ -670,7 +670,7 @@
 <!-- TEXT INPUT - ALWAYS VISIBLE -->
 <div class="flex gap-2 w-full">
   <div class="relative flex-1">
-    <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here — e.g. ??" data-tr-placeholder="Type or speak Chinese here — e.g. ??" disabled>
+    <input type="text" id="tutTypeInput" class="tut-input pr-10 w-full" placeholder="Type or speak Chinese here — e.g. 你好" data-tr-placeholder="Type or speak Chinese here — e.g. 你好" disabled>
     <button id="tutInputMic" onclick="toggleInputSpeech()" class="absolute right-2 top-1/2 -translate-y-1/2 focus:outline-none" style="background:none;border:none;cursor:pointer;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:50%" title="Speak to type" aria-label="Speak to type" data-tr="Speak to type" disabled>
       <i id="tutInputMicIc" class="fas fa-microphone text-lg" style="color:var(--muted)"></i>
     </button>
@@ -875,7 +875,7 @@
 <section id="grammarCheck" data-route="/app/grammar-check" class="py-20 px-5" style="background:var(--bg)">
 <div class="max-w-4xl mx-auto"><div class="text-center mb-10 fu"><div class="sl" data-tr="AI Grammar Check">AI Grammar Check</div><h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Check Your Chinese Grammar">Check Your Chinese Grammar</h2><p style="color:var(--fg2)" class="text-sm" data-tr="Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.">Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.</p></div>
 <div class="cd p-4 md:p-6 fu max-w-2xl mx-auto">
-<textarea id="grammarInput" class="tut-input w-full mb-3" rows="4" placeholder="Paste Chinese text here — e.g. ?????????" data-tr-placeholder="Paste Chinese text here — e.g. ?????????" style="resize:vertical"></textarea>
+<textarea id="grammarInput" class="tut-input w-full mb-3" rows="4" placeholder="Paste Chinese text here — e.g. 你好吗？我正在学习中文。" data-tr-placeholder="Paste Chinese text here — e.g. 你好吗？我正在学习中文。" style="resize:vertical"></textarea>
 <button onclick="grammarCheck()" class="bp w-full mb-4" id="grammarCheckBtn"><i class="fas fa-check-double mr-1"></i> <span data-tr="Check Grammar">Check Grammar</span></button>
 <div class="flex gap-2 mb-4">
   <button onclick="startGrammarExercise()" class="bo flex-1 text-center py-2.5 text-xs font-bold" style="border-color:var(--gold);color:var(--gold)"><i class="fas fa-puzzle-piece mr-1"></i> <span data-tr="Grammar Exercises">Grammar Exercises</span></button>
@@ -1190,13 +1190,13 @@
         <option value="en">English</option>
         <option value="es">Español (Spanish)</option>
         <option value="fr">Français (French)</option>
-        <option value="ja">??? (Japanese)</option>
-        <option value="ko">??? (Korean)</option>
+        <option value="ja">日本語 (Japanese)</option>
+        <option value="ko">한국어 (Korean)</option>
         <option value="de">Deutsch (German)</option>
         <option value="pt">Português (Portuguese)</option>
         <option value="it">Italiano (Italian)</option>
-        <option value="ru">??????? (Russian)</option>
-        <option value="vi">Ti?ng Vi?t (Vietnamese)</option>
+        <option value="ru">русский (Russian)</option>
+        <option value="vi">Tiếng Việt (Vietnamese)</option>
       </select>
     </div>
     <div class="mb-5">
