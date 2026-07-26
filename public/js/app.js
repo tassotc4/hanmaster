@@ -12499,11 +12499,11 @@ function nxtCh(){
     return;
   }
   curWI = (curWI + 1) % WCH.length;
-  const ch = WCH[curWI];
-  const rfCh = document.getElementById('rfCh');
-  if (rfCh && ch) rfCh.textContent = ch;
+  var nextCh = WCH[curWI];
+  var rfCh = document.getElementById('rfCh');
+  if (rfCh && nextCh) rfCh.textContent = nextCh;
   clrCv();
-  if (ch) speak(ch, 0.7);
+  if (nextCh) speak(nextCh, 0.7);
 }
 function toggleWriteOutline() {
   const toggle = document.getElementById('writeOutlineToggle');
