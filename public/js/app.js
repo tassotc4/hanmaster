@@ -10872,7 +10872,7 @@ function routeApp(path, btn) {
   if (!APP_ROUTES[path]) path = '/app/tutor';
   var sectionId = APP_ROUTES[path];
   var target = document.getElementById(sectionId);
-  if (target) { scrollToSection('#' + sectionId); }
+  if (target) { scrollToSection('#' + sectionId); } else { window.scrollTo(0, 0); }
   var meta = ROUTE_META[path];
   if (meta) {
     document.title = meta.title;
@@ -10881,7 +10881,6 @@ function routeApp(path, btn) {
   }
   var ogTitle = document.querySelector('meta[property="og:title"]');
   if (ogTitle) ogTitle.content = document.title;
-  window.scrollTo(0, 0);
   document.querySelectorAll('.mnb').forEach(function(b) { b.classList.remove('act'); });
   document.querySelectorAll('.mnb-sm').forEach(function(b) { b.classList.remove('act'); });
   if (btn) btn.classList.add('act');
@@ -11394,15 +11393,14 @@ function tutSpeak(){
       let best = e.results[0][0].transcript;
       let bs = 0;
       if (isLive) {
-        const matchesHint = suggestedUserTarget && sim(best, suggestedUserTarget) > 0.45;
-        if (matchesHint) {
+        if (suggestedUserTarget) {
           bs = sim(best, suggestedUserTarget);
           for(let i=1;i<e.results[0].length;i++){
             const s = sim(e.results[0][i].transcript, suggestedUserTarget);
             if(s>bs){bs=s; best=e.results[0][i].transcript;}
           }
         } else {
-          bs = 0.95;
+          bs = Math.min(0.85, best.length / 20);
         }
       } else {
         bs = sim(best, target);
@@ -12925,6 +12923,14 @@ function loadGeminiSettings() {
 
 function sendToGemini(userText) {
   const statusText = document.getElementById('tutStatus');
+  
+  if (!navigator.onLine) {
+    addTutMsg('warn', '⚠️ <b>'+t('Internet connection lost')+'</b> — '+t('Live AI Mode requires an internet connection. Please reconnect and try again.'));
+    if (statusText) statusText.textContent = t('Disconnected');
+    document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent2);font-weight:700"><i class="fas fa-wifi-slash"></i> '+t('No internet — Live AI unavailable')+'</span>';
+    return;
+  }
+  
   if(statusText) statusText.textContent = t("Thinking...");
   
   if (!userText.startsWith("你好！")) {
@@ -13030,8 +13036,14 @@ function sendToGemini(userText) {
     console.error("Gemini Error:", err);
     const loader = document.getElementById(loaderId);
     if (loader) loader.remove();
-    addTutMsg('warn', '⚠️ <b>Tutor Connection Failed:</b> Error generating reply. Please try again.');
-    if (statusText) statusText.textContent = t("Error");
+    if (!navigator.onLine) {
+      addTutMsg('warn', '⚠️ <b>'+t('Internet connection lost')+'</b> — '+t('Live AI Mode requires an internet connection. Please reconnect and try again.'));
+      if (statusText) statusText.textContent = t('Disconnected');
+      document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent2);font-weight:700"><i class="fas fa-wifi-slash"></i> '+t('No internet — Live AI unavailable')+'</span>';
+    } else {
+      addTutMsg('warn', '⚠️ <b>'+t('Tutor Connection Failed')+'</b> — '+t('Error generating reply. Please try again later.'));
+      if (statusText) statusText.textContent = t("Error");
+    }
   });
 }
 
