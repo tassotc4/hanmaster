@@ -455,7 +455,7 @@ const OFFLINE_DICTIONARY = {
     "Unlock ":"Desbloquear ","Loaded HSK ":"HSK cargado "," lessons for you!":" lecciones para ti!",
     "Dialogue Roleplay Mode Active! Speak your role lines.":"¡Modo de Juego de Roles Activo! Habla tus líneas de personaje.",
     "Returned to Dialogue Study Mode.":"Volviste al Modo de Estudio de Diálogo.",
-    "Study":"Estudiar","Roleplay":"Juego de Roles",
+    "Study":"Estudiar","Voice":"Voz","Roleplay":"Juego de Roles",
     "Correct! Well done!":"¡Correcto! ¡Bien hecho!","Incorrect. Try again!":"¡Incorrecto! ¡Intenta de nuevo!",
     "lessons":"lecciones","Your turn — press mic":"Tu turno — presiona micrófono",
     "Your Turn — speak":"Tu Turno — habla","Roleplay — Your Turn":"Juego de Roles — Tu Turno",
@@ -3849,7 +3849,7 @@ const OFFLINE_DICTIONARY = {
     "Hint selected! Speak now or click Submit.":"Indice sélectionné! Parlez maintenant ou cliquez sur Envoyer.",
     "Unlock ":"Déverrouiller ","Loaded HSK ":"HSK chargé "," lessons for you!":" leçons pour vous!",
     "Dialogue Roleplay Mode Active! Speak your role lines.":"Mode Jeu de Rôle Actif! Parlez vos lignes.",
-    "Returned to Dialogue Study Mode.":"Retour au Mode d'Étude de Dialogue.","Study":"Étudier","Roleplay":"Jeu de Rôle",
+    "Returned to Dialogue Study Mode.":"Retour au Mode d'Étude de Dialogue.","Study":"Étudier","Voice":"Voix","Roleplay":"Jeu de Rôle",
     "Correct! Well done!":"Correct! Bien joué!","Incorrect. Try again!":"Incorrect. Réessayez!",
     "lessons":"leçons","Your turn — press mic":"À votre tour — appuyez sur micro",
     "Your Turn — speak":"Votre Tour — parlez","Roleplay — Your Turn":"Jeu de Rôle — Votre Tour",
@@ -4596,7 +4596,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"Übe weiter","Getting there":"Fast da","Current":"Aktuell",
     "Listen":"Hören","Practice":"Üben","Next":"Weiter","See Results":"Ergebnisse sehen",
     "Initials":"Initialen","Finals":"Finale","Four Tones":"Vier Töne",
-    "Use":"Verwenden","Cancel":"Abbrechen","Roleplay":"Rollenspiel","Study":"Studieren",
+    "Use":"Verwenden","Cancel":"Abbrechen","Roleplay":"Rollenspiel","Study":"Studieren","Voice":"Sprache",
     "lessons":"Lektionen","pts":"Pkt","Your Level:":"Dein Niveau:","/10":"/10",
     "Lesson Complete!":"Lektion abgeschlossen!","Lesson complete!":"Lektion abgeschlossen!",
     "Your turn":"Du bist dran","type below":"unten eingeben","replay":"wiederholen",
@@ -5499,7 +5499,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"Continue praticando","Getting there":"Quase lá","Current":"Atual",
     "Listen":"Ouvir","Practice":"Praticar","Next":"Próximo","See Results":"Ver Resultados",
     "Initials":"Iniciais","Finals":"Finais","Four Tones":"Quatro Tons",
-    "Use":"Usar","Cancel":"Cancelar","Roleplay":"Interpretar","Study":"Estudar",
+    "Use":"Usar","Cancel":"Cancelar","Roleplay":"Interpretar","Study":"Estudar","Voice":"Voz",
     "lessons":"lições","pts":"pts","Your Level:":"Seu Nível:","/10":"/10",
     "Lesson Complete!":"Lição Concluída!","Your turn":"Sua vez","type below":"digite abaixo",
     "replay":"repetir","speaking":"falando","speak":"fale","lines":"linhas","Your Turn":"Sua Vez",
@@ -6324,7 +6324,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"Continua a praticare","Getting there":"Quasi","Current":"Corrente",
     "Listen":"Ascolta","Practice":"Praticare","See Results":"Vedi Risultati",
     "Initials":"Iniziali","Finals":"Finali","Four Tones":"Quattro Toni",
-    "Use":"Usa","Cancel":"Annulla","Roleplay":"Gioco di Ruolo","Study":"Studia",
+    "Use":"Usa","Cancel":"Annulla","Roleplay":"Gioco di Ruolo","Study":"Studia","Voice":"Voce",
     "lessons":"lezioni","Your Level:":"Il Tuo Livello:",
     "Lesson Complete!":"Lezione Completata!","Your turn":"Il tuo turno","replay":"ripeti",
     "Recording... tap mic to stop":"Registrazione... tocca mic per fermare",
@@ -7148,7 +7148,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"Продолжайте практиковаться","Getting there":"Почти","Current":"Текущий",
     "Listen":"Слушать","Practice":"Практиковать","See Results":"Смотреть результаты",
     "Initials":"Инициали","Finals":"Финали","Four Tones":"Четыре Тона",
-    "Use":"Использовать","Cancel":"Отмена","Roleplay":"Ролевая игра","Study":"Учить",
+    "Use":"Использовать","Cancel":"Отмена","Roleplay":"Ролевая игра","Study":"Учить","Voice":"Голос",
     "lessons":"уроки","Your Level:":"Ваш Уровень:",
     "Lesson Complete!":"Урок Завершён!","Your turn":"Ваша очередь","replay":"повтор",
     "Recording... tap mic to stop":"Запись... нажмите микрофон для остановки",
@@ -7972,7 +7972,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"Hãy tiếp tục luyện tập","Getting there":"Sắp tới rồi","Current":"Hiện tại",
     "Listen":"Nghe","Practice":"Luyện tập","See Results":"Xem Kết quả",
     "Initials":"Phụ âm đầu","Finals":"Vần","Four Tones":"Bốn Thanh",
-    "Use":"Dùng","Cancel":"Hủy","Roleplay":"Nhập vai","Study":"Học",
+    "Use":"Dùng","Cancel":"Hủy","Roleplay":"Nhập vai","Study":"Học","Voice":"Giọng nói",
     "lessons":"bài học","Your Level:":"Trình độ của bạn:",
     "Lesson Complete!":"Bài học Hoàn thành!","Your turn":"Lượt của bạn","replay":"phát lại",
     "Recording... tap mic to stop":"Đang ghi... chạm mic để dừng",
@@ -8821,7 +8821,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"練習を続けてください","Getting there":"もう少し","Current":"現在",
     "Listen":"聞く","Practice":"練習","See Results":"結果を見る",
     "Initials":"声母","Finals":"韻母","Four Tones":"四声",
-    "Use":"使用","Cancel":"キャンセル","Roleplay":"ロールプレイ","Study":"学習",
+    "Use":"使用","Cancel":"キャンセル","Roleplay":"ロールプレイ","Study":"学習","Voice":"音声",
     "lessons":"レッスン","Your Level:":"あなたのレベル：",
     "Lesson Complete!":"レッスン完了！","Your turn":"あなたの番です","replay":"再生",
     "Recording... tap mic to stop":"録音中...マイクをタップして停止",
@@ -9682,7 +9682,7 @@ const OFFLINE_DICTIONARY = {
     "Keep practicing":"계속 연습하세요","Getting there":"거의 다 됐어요","Current":"현재",
     "Listen":"듣기","Practice":"연습","See Results":"결과 보기",
     "Initials":"성모","Finals":"운모","Four Tones":"사성",
-    "Use":"사용","Cancel":"취소","Roleplay":"역할극","Study":"학습",
+    "Use":"사용","Cancel":"취소","Roleplay":"역할극","Study":"학습","Voice":"음성",
     "lessons":"레슨","Your Level:":"당신의 레벨:",
     "Lesson Complete!":"레슨 완료!","Your turn":"당신 차례입니다","replay":"다시 듣기",
     "Recording... tap mic to stop":"녹음 중... 마이크를 눌러 중지",
@@ -11163,7 +11163,7 @@ function startTutor(idx){
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   document.getElementById('tutTotal').textContent='--';
   document.getElementById('tutChat').innerHTML='';
-  addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+tutLesson.title+'</b> — '+tutLesson.level);
+    addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+t(tutLesson.title)+'</b> — '+tutLesson.level);
   if (isRoleplayActive) {
     let botRole = t("Speaker A"), userRole = t("Speaker B");
     const title = tutLesson.title.toLowerCase();
@@ -11188,9 +11188,9 @@ function advanceTutor(){
   const w=tutLesson.words.find(w=>line.cn.includes(w.cn));
   document.getElementById('tutWd').textContent=line.cn;
   document.getElementById('tutWp').textContent=w?w.py:'';
-  document.getElementById('tutWm').textContent=line.en;
+  document.getElementById('tutWm').textContent=t(line.en);
   document.getElementById('tutTip').style.display=w?'block':'none';
-  if(w)document.getElementById('tutTip').textContent=w.tip;
+  if(w)document.getElementById('tutTip').textContent=t(w.tip);
   document.getElementById('scoreWrap').style.display='none';
   let botRole = t("Tutor"), userRole = t("Student");
   if (isRoleplayActive) {
@@ -14892,8 +14892,14 @@ function translateUI() {
           break;
         }
       }
-      if (lastText) lastText.textContent = ' ' + tr;
-      else el.textContent = tr;
+      if (lastText) {
+        lastText.textContent = ' ' + tr;
+        for (let i = childNodes.length - 1; i >= 0; i--) {
+          if (childNodes[i].nodeType === 3 && childNodes[i] !== lastText && childNodes[i].textContent.trim()) {
+            childNodes[i].textContent = '';
+          }
+        }
+      } else el.textContent = tr;
     }
   });
 }
