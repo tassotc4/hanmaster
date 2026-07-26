@@ -10838,7 +10838,8 @@ var APP_ROUTES = {
   '/app/progress': 'progress',
   '/app/translate': 'translate',
   '/app/grammar-check': 'grammarCheck',
-  '/app/document-ai': 'docUpload'
+  '/app/document-ai': 'docUpload',
+  '/pinyin-chart': 'pinyinChart'
 };
 var ROUTE_META = {
   '/app/tutor': { title: 'AI Speaking Tutor - MandarinCourse', desc: 'Practice Chinese speaking with an AI-powered tutor. Real-time voice grading, tones, and HSK conversation practice.' },
@@ -10849,7 +10850,8 @@ var ROUTE_META = {
   '/app/progress': { title: 'HSK Progress - MandarinCourse', desc: 'Track your Chinese learning progress. Words learned, characters practiced, XP, streaks, and achievements.' },
   '/app/translate': { title: 'Chinese Translator - MandarinCourse', desc: 'Translate between Chinese and 10 languages. AI-powered translation with pinyin and example sentences.' },
   '/app/grammar-check': { title: 'AI Grammar Check - MandarinCourse', desc: 'Check your Chinese grammar with AI. Get corrections, explanations, and improved versions of your sentences.' },
-  '/app/document-ai': { title: 'Document AI - MandarinCourse', desc: 'Upload and process Chinese documents with AI. Summarize, fix errors, or translate PDFs, images, and text files.' }
+  '/app/document-ai': { title: 'Document AI - MandarinCourse', desc: 'Upload and process Chinese documents with AI. Summarize, fix errors, or translate PDFs, images, and text files.' },
+  '/pinyin-chart': { title: 'Interactive Pinyin Chart - MandarinCourse', desc: 'Free interactive Pinyin chart with audio. Click any syllable to hear it pronounced in all four tones.' }
 };
 var routeSectionMap = {};
 for (var k in APP_ROUTES) routeSectionMap[APP_ROUTES[k]] = k;
