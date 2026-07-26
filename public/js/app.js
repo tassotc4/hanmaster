@@ -11987,7 +11987,7 @@ function showQ(){const q=filteredQZ[qIdx];document.getElementById('qN').textCont
 function ansQ(i,btn){document.querySelectorAll('.bq').forEach(b=>b.disabled=true);if(i===filteredQZ[qIdx].a){btn.classList.add('ok');qScore+=10}else{btn.classList.add('no');document.querySelectorAll('.bq')[filteredQZ[qIdx].a].classList.add('ok');wrongAnswers.push({q:filteredQZ[qIdx],selected:i})}document.getElementById('qNW').style.display='block';document.getElementById('qNB').innerHTML=qIdx<filteredQZ.length-1?t('Next')+' <i class="fas fa-arrow-right ml-1.5"></i>':t('See Results')+' <i class="fas fa-trophy ml-1.5"></i>'}
 function nxtQ(){if(qIdx<filteredQZ.length-1){qIdx++;showQ()}else showRes()}
 function showRes(){
-  const t=Math.round((Date.now()-qStartT)/60000);
+  const mins=Math.round((Date.now()-qStartT)/60000);
   let lv='HSK 1',de=t('Perfect starting point!'),ic='<i class="fas fa-seedling text-3xl" style="color:var(--green)"></i>',vo='150';
   recommendedLvIdx = 0;
   
@@ -11998,7 +11998,7 @@ function showRes(){
     lv='HSK 2';de=t('Ready for HSK 2!');ic='<i class="fas fa-book text-3xl" style="color:var(--blue)"></i>';vo='300';
     recommendedLvIdx = 1;
   }
-document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=t+'m';
+document.getElementById('qAc').style.display='none';document.getElementById('qRe').style.display='block';document.getElementById('rIc').innerHTML=ic;document.getElementById('rTi').innerHTML=t('Your Level:')+' '+lv;document.getElementById('rDe').textContent=de;document.getElementById('rLv').textContent=lv;document.getElementById('rCo').textContent=qScore/10+t('/10');document.getElementById('rVo').textContent=vo;document.getElementById('rTm').textContent=mins+'m';
   document.getElementById('rRevBtn').style.display = wrongAnswers.length > 0 ? 'inline-flex' : 'none';
   // Save weak words
   if (wrongAnswers.length > 0) {
