@@ -1,5 +1,5 @@
 let translateInput, translateOutput, translateLang, translateBtn, translateSpeak, translateCopy;
-let lastTranslateResult = '';
+let lastTranslateResult = '', lastTrSpokenText = '', lastTrSpokenLang = 'zh-CN';
 const LANG_NAMES = { en:'English', es:'Spanish', fr:'French', ja:'Japanese', ko:'Korean', de:'German', pt:'Portuguese', it:'Italian', ru:'Russian', vi:'Vietnamese' };
 const _trCache = {};
 
@@ -28,6 +28,9 @@ async function doTranslate() {
     const cached = _trCache[cacheKey];
     lastTranslateResult = cached;
     translateOutput.innerHTML = formatTranslateResult(cached);
+    const spoke = extractSpokenText(cached, dir);
+    lastTrSpokenText = spoke.text;
+    lastTrSpokenLang = spoke.lang;
     translateSpeak.disabled = false;
     translateCopy.disabled = false;
     translateBtn.disabled = false;
@@ -53,12 +56,30 @@ async function doTranslate() {
     _trCache[cacheKey] = reply;
     lastTranslateResult = reply;
     translateOutput.innerHTML = formatTranslateResult(reply);
+    const spoke = extractSpokenText(reply, dir);
+    lastTrSpokenText = spoke.text;
+    lastTrSpokenLang = spoke.lang;
     translateSpeak.disabled = false;
     translateCopy.disabled = false;
   } catch (e) {
     translateOutput.innerHTML = '<span style="color:var(--accent)">Error: ' + e.message + '</span>';
   }
   translateBtn.disabled = false;
+}
+
+function extractSpokenText(text, dir) {
+  const toCn = dir !== 'to-en';
+  const parts = text.split('|').map(s => s.trim());
+  if (toCn && parts.length >= 3) {
+    const cnChars = parts[0].match(/[\u4e00-\u9fff]+/g);
+    return { text: cnChars ? cnChars.join('') : parts[0], lang: 'zh-CN' };
+  }
+  if (!toCn && parts.length >= 3) {
+    return { text: parts[0], lang: 'en-US' };
+  }
+  const cnFallback = text.match(/[\u4e00-\u9fff]+/g);
+  if (cnFallback) return { text: cnFallback.join(''), lang: 'zh-CN' };
+  return { text, lang: toCn ? 'zh-CN' : 'en-US' };
 }
 
 function formatTranslateResult(text) {
@@ -74,15 +95,21 @@ function formatTranslateResult(text) {
   return text;
 }
 
+function speakWithLang(text, lang) {
+  try {
+    if (window.speechSynthesis) {
+      if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang;
+      u.rate = parseFloat(localStorage.getItem('speech_rate')) || 1.0;
+      window.speechSynthesis.speak(u);
+    }
+  } catch(e) { console.error("speak error:", e); }
+}
+
 function speakTranslate() {
   if (!lastTranslateResult) return;
-  const cnText = lastTranslateResult.split('|')[0] || lastTranslateResult;
-  const cnChars = cnText.match(/[\u4e00-\u9fff]+/g);
-  if (cnChars && cnChars.join('').length > 0) {
-    speak(cnChars.join(''));
-  } else {
-    speak(translateInput.value);
-  }
+  speakWithLang(lastTrSpokenText || translateInput.value, lastTrSpokenLang);
 }
 
 function copyTranslateToChat() {
