@@ -1,7 +1,6 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
-const path = require('path');
 const fs = require('fs');
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
@@ -438,7 +437,6 @@ setInterval(async () => {
       const mm = now.getUTCMinutes().toString().padStart(2,'0');
       currentTime = hh + ':' + mm;
     }
-  for (const r of global._reminders) {
     if (r.time && r.time === currentTime) {
       if (mailgunConfigured()) {
         await sendEmailViaMailgun(r.email, 'Your Daily Chinese Study Reminder', reminderHtml);
