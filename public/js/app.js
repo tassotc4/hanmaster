@@ -13216,8 +13216,8 @@ function startPronRecording() {
     return;
   }
   pronChunks = [];
-  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-    pronMediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4' });
+  navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(stream => {
+    pronMediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4', audioBitsPerSecond: 128000 });
     pronMediaRecorder.ondataavailable = e => { if (e.data.size > 0) pronChunks.push(e.data); };
     pronMediaRecorder.onstop = () => {
       stream.getTracks().forEach(t => t.stop());
@@ -13245,7 +13245,8 @@ async function evaluatePronWord(audioBlob) {
       const mimeType = audioBlob.type;
       const payload = {
         contents: [{ role: 'user', parts: [{ inlineData: { data: base64, mimeType: mimeType } }] }],
-        systemInstruction: 'You are a Chinese pronunciation checker. Transcribe the Chinese speech in the audio accurately using Whisper. If the speech matches "' + w.cn + '" (pinyin: ' + w.py + '), respond with: CORRECT|transcribed_text. If it does not match, respond with: WRONG|transcribed_text|expected_word. Only respond in this format.'
+        systemInstruction: 'You are a Chinese pronunciation checker. The text below was transcribed from audio. Compare it to the expected word "' + w.cn + '" (pinyin: ' + w.py + '). If it matches or is very close, respond: CORRECT|transcribed_text. If it is significantly different, respond: WRONG|transcribed_text|expected_word. Ignore minor differences in punctuation or spaces. Only respond in this format.',
+        sourceLang: 'zh'
       };
       const r = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const d = await r.json();

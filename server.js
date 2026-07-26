@@ -211,7 +211,7 @@ app.post('/api/chat', async (req, res) => {
 
       const cr = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.3 })
+        body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.1 })
       });
       const cd = await cr.json();
       if (!cr.ok) return res.status(cr.status).json({ error: cd });
