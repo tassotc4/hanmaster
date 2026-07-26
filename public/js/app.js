@@ -13659,7 +13659,7 @@ function initVoiceMode() {
     const btn = document.getElementById('tutVoiceModeBtn');
     const label = document.getElementById('tutVoiceModeLabel');
     if (btn) { btn.style.background = 'var(--green)'; btn.style.color = '#fff'; }
-    if (label) label.textContent = 'On';
+    if (label) label.textContent = t('On');
   }
 }
 
