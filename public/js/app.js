@@ -8894,7 +8894,14 @@ const OFFLINE_DICTIONARY = {
     "Quiz":"Bài kiểm tra",
     "Hint":"Gợi ý",
     "Next":"Tiếp theo",
-    "Lessons":"Bài học"
+    "Lessons":"Bài học",
+    "Hello! I'm called Xiaoming, what are you called?":"Xin chào! Tôi tên là Tiểu Minh, bạn tên gì?",
+    "Hello! I'm called David. Nice to meet you.":"Xin chào! Tôi tên là David. Rất vui được gặp bạn.",
+    "Nice to meet you too! Are you Chinese?":"Tôi cũng rất vui được gặp bạn! Bạn là người Trung Quốc phải không?",
+    "No, I'm American. Are you also a student?":"Không, tôi là người Mỹ. Bạn cũng là sinh viên à?",
+    "Yes, I am a student. I study Chinese.":"Vâng, tôi là sinh viên. Tôi học tiếng Trung.",
+    "Great! I need to go home, goodbye!":"Tuyệt! Tôi phải về nhà, tạm biệt!",
+    "Goodbye!":"Tạm biệt!"
   },
   "ja": {
     "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
