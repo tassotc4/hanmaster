@@ -11368,6 +11368,8 @@ function startTutor(idx){
       return;
     }
   }
+  window._tutBusy=false;
+  if (window._tutTO) clearTimeout(window._tutTO);
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   document.getElementById('tutTotal').textContent='--';
   document.getElementById('tutChat').innerHTML='';
@@ -11385,12 +11387,13 @@ function startTutor(idx){
     tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
   vh+='</div>';
   addTutMsg('sys',vh);
-  setTimeout(()=>advanceTutor(),600);
+  window._tutTO = setTimeout(()=>advanceTutor(),600);
   document.getElementById('tutStatus').textContent=t('Teaching...');
   setBtns(true);
 }
 
 function advanceTutor(){
+  if(window._tutBusy)return;window._tutBusy=true;setTimeout(()=>window._tutBusy=false,800);
   if(!tutLesson||tutStep>=tutLesson.dialogue.length){finishTutor();return}
   const line=tutLesson.dialogue[tutStep];
   const w=tutLesson.words.find(w=>line.cn.includes(w.cn));
