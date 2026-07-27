@@ -554,7 +554,7 @@ const OFFLINE_DICTIONARY = {
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Pega oraciones en chino para obtener correcciones gramaticales, explicaciones y versiones mejoradas de la IA.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Pega texto chino aquí — ej. 你好吗？我正在学习中文。",
     "Check Grammar":"Revisar Gramática",
-    "Recent Checks":"Verificaciones Recientes"
+    "Recent Checks":"Verificaciones Recientes",
 
     "\"'s / of\" — indicates possession or modification.":"\"'s / of\" — indica posesión o modificación.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
@@ -4917,7 +4917,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"Non, je suis américain. Es-tu aussi étudiant ?",
     "Yes, I am a student. I study Chinese.":"Oui, je suis étudiant. J'étudie le chinois.",
     "Great! I need to go home, goodbye!":"Super ! Je dois rentrer chez moi, au revoir !",
-    "Goodbye!":"Au revoir !"
+    "Goodbye!":"Au revoir !",
     "\"'s / of\" — indicates possession or modification.":"\"'s / of\" — indique la possession ou la modification.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
     "\"A little bit\" — small amount or slight degree.":"« Un peu » : une petite quantité ou un léger degré.",
@@ -6129,7 +6129,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"Nein, ich bin Amerikaner. Bist du auch Student?",
     "Yes, I am a student. I study Chinese.":"Ja, ich bin Student. Ich lerne Chinesisch.",
     "Great! I need to go home, goodbye!":"Super! Ich muss nach Hause, tschüss!",
-    "Goodbye!":"Tschüss!"
+    "Goodbye!":"Tschüss!",
     "\"'s / of\" — indicates possession or modification.":"„'s / of“ – weist auf Besitz oder Veränderung hin.",
     "\"?\" — turns a statement into a yes/no question.":"„?“ ",
     "\"A little bit\" — small amount or slight degree.":"„A little bit“ – kleine Menge oder leichtes Maß.",
@@ -7263,7 +7263,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"Não, sou americano. Também és estudante?",
     "Yes, I am a student. I study Chinese.":"Sim, sou estudante. Estudo chinês.",
     "Great! I need to go home, goodbye!":"Ótimo! Tenho que ir para casa, adeus!",
-    "Goodbye!":"Adeus!"
+    "Goodbye!":"Adeus!",
     "\"'s / of\" — indicates possession or modification.":"\"'s / of\" — indica posse ou modificação.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
     "\"A little bit\" — small amount or slight degree.":"“Um pouco” – pequena quantidade ou leve grau.",
@@ -8396,7 +8396,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"No, sono americano. Anche tu sei studente?",
     "Yes, I am a student. I study Chinese.":"Sì, sono studente. Studio cinese.",
     "Great! I need to go home, goodbye!":"Ottimo! Devo andare a casa, arrivederci!",
-    "Goodbye!":"Arrivederci!"
+    "Goodbye!":"Arrivederci!",
     "\"'s / of\" — indicates possession or modification.":"\"'s / of\" - indica possesso o modifica.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
     "\"A little bit\" — small amount or slight degree.":"\"Un po'\" - piccola quantità o lieve entità.",
@@ -9529,7 +9529,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"Нет, я американец. Ты тоже студент?",
     "Yes, I am a student. I study Chinese.":"Да, я студент. Я учу китайский.",
     "Great! I need to go home, goodbye!":"Отлично! Мне нужно идти домой, до свидания!",
-    "Goodbye!":"До свидания!"
+    "Goodbye!":"До свидания!",
     "\"'s / of\" — indicates possession or modification.":"«s/of» — указывает на владение или модификацию.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
     "\"A little bit\" — small amount or slight degree.":"«Немного» — небольшое количество или незначительная степень.",
@@ -10787,7 +10787,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"Không, tôi là người Mỹ. Bạn cũng là sinh viên à?",
     "Yes, I am a student. I study Chinese.":"Vâng, tôi là sinh viên. Tôi học tiếng Trung.",
     "Great! I need to go home, goodbye!":"Tuyệt! Tôi phải về nhà, tạm biệt!",
-    "Goodbye!":"Tạm biệt!"
+    "Goodbye!":"Tạm biệt!",
     "\"'s / of\" — indicates possession or modification.":"“s / of” — biểu thị sự sở hữu hoặc sửa đổi.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
     "\"A little bit\" — small amount or slight degree.":"“Một chút” — số lượng nhỏ hoặc mức độ nhẹ.",
@@ -11957,7 +11957,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"いいえ、アメリカ人です。あなたも学生ですか？",
     "Yes, I am a student. I study Chinese.":"はい、学生です。中国語を勉強しています。",
     "Great! I need to go home, goodbye!":"素晴らしい！家に帰らなければなりません。さようなら！",
-    "Goodbye!":"さようなら！"
+    "Goodbye!":"さようなら！",
     "\"'s / of\" — indicates possession or modification.":"「's / of」 — 所有または変更を示します。",
     "\"?\" — turns a statement into a yes/no question.":"「？」 ",
     "\"A little bit\" — small amount or slight degree.":"「少し」 — 少量またはわずかな程度。",
@@ -13124,7 +13124,7 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"아니요, 미국 사람이에요. 당신도 학생인가요?",
     "Yes, I am a student. I study Chinese.":"네, 학생입니다. 중국어를 공부합니다.",
     "Great! I need to go home, goodbye!":"좋아요! 집에 가야 해요, 안녕!",
-    "Goodbye!":"안녕!"
+    "Goodbye!":"안녕!",
     "\"'s / of\" — indicates possession or modification.":"\"'s / of\" — 소유 또는 수정을 나타냅니다.",
     "\"?\" — turns a statement into a yes/no question.":"\"?\" ",
     "\"A little bit\" — small amount or slight degree.":"\"A little bit\" — 적은 양 또는 약간의 정도.",
