@@ -553,7 +553,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Revisa tu Gramática China",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Pega oraciones en chino para obtener correcciones gramaticales, explicaciones y versiones mejoradas de la IA.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Pega texto chino aquí — ej. 你好吗？我正在学习中文。",
-    "Check Grammar":"Revisar Gramática"
+    "Check Grammar":"Revisar Gramática",
+    "Recent Checks":"Verificaciones Recientes"
 
   },
   "fr": {
@@ -950,7 +951,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Vérifie ta Grammaire Chinoise",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Collez des phrases chinoises pour obtenir des corrections grammaticales, des explications et des versions améliorées par l'IA.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Collez du texte chinois ici — ex. 你好吗？我正在学习中文。",
-    "Check Grammar":"Vérifier la Grammaire"
+    "Check Grammar":"Vérifier la Grammaire",
+    "Recent Checks":"Vérifications Récentes"
 
   },
   "ja": {
@@ -1347,7 +1349,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"中国語の文法をチェック",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"中国語の文章を貼り付けて、AIによる文法修正、説明、改善版を取得してください。",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"ここに中国語のテキストを貼り付けてください — 例：你好吗？我正在学习中文。",
-    "Check Grammar":"文法をチェック"
+    "Check Grammar":"文法をチェック",
+    "Recent Checks":"最近のチェック"
 
   },
   "ko": {
@@ -1744,7 +1747,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"중국어 문법 확인하기",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"중국어 문장을 붙여넣어 AI로부터 문법 교정, 설명 및 개선된 버전을 받아보세요.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"여기에 중국어 텍스트를 붙여넣으세요 — 예: 你好吗？我正在学习中文。",
-    "Check Grammar":"문법 검사"
+    "Check Grammar":"문법 검사",
+    "Recent Checks":"최근 확인"
 
   },
   "de": {
@@ -2141,7 +2145,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Überprüfe deine chinesische Grammatik",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Füge chinesische Sätze ein, um Grammatikkorrekturen, Erklärungen und verbesserte Versionen von der KI zu erhalten.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Füge hier chinesischen Text ein — z.B. 你好吗？我正在学习中文。",
-    "Check Grammar":"Grammatik prüfen"
+    "Check Grammar":"Grammatik prüfen",
+    "Recent Checks":"Letzte Prüfungen"
 
   },
   "pt": {
@@ -2538,7 +2543,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Verifique sua Gramática Chinesa",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Cole frases em chinês para obter correções gramaticais, explicações e versões melhoradas da IA.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Cole texto chinês aqui — ex. 你好吗？我正在学习中文。",
-    "Check Grammar":"Verificar Gramática"
+    "Check Grammar":"Verificar Gramática",
+    "Recent Checks":"Verificações Recentes"
 
   },
   "it": {
@@ -2935,7 +2941,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Controlla la tua Grammatica Cinese",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Incolla frasi in cinese per ottenere correzioni grammaticali, spiegazioni e versioni migliorate dall'IA.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Incolla qui il testo cinese — es. 你好吗？我正在学习中文。",
-    "Check Grammar":"Controlla Grammatica"
+    "Check Grammar":"Controlla Grammatica",
+    "Recent Checks":"Controlli Recenti"
 
   },
   "ru": {
@@ -3332,7 +3339,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Проверьте свою китайскую грамматику",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Вставьте китайские предложения, чтобы получить грамматические исправления, объяснения и улучшенные версии от ИИ.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Вставьте китайский текст сюда — напр. 你好吗？我正在学习中文。",
-    "Check Grammar":"Проверить грамматику"
+    "Check Grammar":"Проверить грамматику",
+    "Recent Checks":"Последние Проверки"
 
   },
   "vi": {
@@ -3809,7 +3817,8 @@ const OFFLINE_DICTIONARY = {
     "Check Your Chinese Grammar":"Kiểm Tra Ngữ Pháp Tiếng Trung của Bạn",
     "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Dán các câu tiếng Trung để nhận chỉnh sửa ngữ pháp, giải thích và phiên bản cải thiện từ AI.",
     "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Dán văn bản tiếng Trung vào đây — vd. 你好吗？我正在学习中文。",
-    "Check Grammar":"Kiểm Tra Ngữ Pháp"
+    "Check Grammar":"Kiểm Tra Ngữ Pháp",
+    "Recent Checks":"Kiểm tra Gần đây"
 
   },
   "fr": {
