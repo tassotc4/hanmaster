@@ -1,6 +1,6 @@
 ﻿
 // H. Multi-Language Translations & Study Reminders Setup
-let currentAppLang = 'en';
+const APP_VER = '2024-07-27-2'; let currentAppLang = 'en';
 try {
   currentAppLang = localStorage.getItem('app_lang');
   if (!currentAppLang) {
@@ -4614,6 +4614,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"IA Documentaire",
     "Premium Feature":"Fonction Premium",
     "Click to upload or drag & drop":"Cliquez pour télécharger ou glisser-déposer",
+    "AI Grammar Check":"Vérification Grammaticale IA",
+    "Check Your Chinese Grammar":"Vérifie ta Grammaire Chinoise",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Collez des phrases chinoises pour obtenir des corrections grammaticales, des explications et des versions améliorées par l'IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Collez du texte chinois ici — ex. 你好吗？我正在学习中文。",
+    "Check Grammar":"Vérifier la Grammaire",
+    "Recent Checks":"Vérifications Récentes",
     "Hello! I'm called Xiaoming, what are you called?":"Bonjour ! Je m'appelle Xiaoming, comment t'appelles-tu ?",
     "Hello! I'm called David. Nice to meet you.":"Bonjour ! Je m'appelle David. Enchanté.",
     "Nice to meet you too! Are you Chinese?":"Enchanté moi aussi ! Es-tu chinois ?",
@@ -5529,6 +5535,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"Dokumenten-KI",
     "Premium Feature":"Premium-Funktion",
     "Click to upload or drag & drop":"Zum Hochladen klicken oder ziehen",
+    "AI Grammar Check":"KI-Grammatikprüfung",
+    "Check Your Chinese Grammar":"Überprüfe deine chinesische Grammatik",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Füge chinesische Sätze ein, um Grammatikkorrekturen, Erklärungen und verbesserte Versionen von der KI zu erhalten.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Füge hier chinesischen Text ein — z.B. 你好吗？我正在学习中文。",
+    "Check Grammar":"Grammatik prüfen",
+    "Recent Checks":"Letzte Prüfungen",
     "Hello! I'm called Xiaoming, what are you called?":"Hallo! Ich heiße Xiaoming, wie heißt du?",
     "Hello! I'm called David. Nice to meet you.":"Hallo! Ich heiße David. Freut mich.",
     "Nice to meet you too! Are you Chinese?":"Freut mich auch! Bist du Chinese?",
@@ -6366,6 +6378,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"AI de Documentos",
     "Premium Feature":"Função Premium",
     "Click to upload or drag & drop":"Clique para enviar ou arrastar e soltar",
+    "AI Grammar Check":"Verificação Gramatical com IA",
+    "Check Your Chinese Grammar":"Verifique sua Gramática Chinesa",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Cole frases em chinês para obter correções gramaticais, explicações e versões melhoradas da IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Cole texto chinês aqui — ex. 你好吗？我正在学习中文。",
+    "Check Grammar":"Verificar Gramática",
+    "Recent Checks":"Verificações Recentes",
     "Hello! I'm called Xiaoming, what are you called?":"Olá! Chamo-me Xiaoming, como te chamas?",
     "Hello! I'm called David. Nice to meet you.":"Olá! Chamo-me David. Prazer em conhecer-te.",
     "Nice to meet you too! Are you Chinese?":"Prazer em conhecer-te também! És chinês?",
@@ -7202,6 +7220,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"AI Documenti",
     "Premium Feature":"Funzione Premium",
     "Click to upload or drag & drop":"Clicca per caricare o trascina",
+    "AI Grammar Check":"Controllo Grammaticale con IA",
+    "Check Your Chinese Grammar":"Controlla la tua Grammatica Cinese",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Incolla frasi in cinese per ottenere correzioni grammaticali, spiegazioni e versioni migliorate dall'IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Incolla qui il testo cinese — es. 你好吗？我正在学习中文。",
+    "Check Grammar":"Controlla Grammatica",
+    "Recent Checks":"Controlli Recenti",
     "Hello! I'm called Xiaoming, what are you called?":"Ciao! Mi chiamo Xiaoming, come ti chiami?",
     "Hello! I'm called David. Nice to meet you.":"Ciao! Mi chiamo David. Piacere.",
     "Nice to meet you too! Are you Chinese?":"Piacere mio! Sei cinese?",
@@ -8038,6 +8062,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"AI Документов",
     "Premium Feature":"Премиум-функция",
     "Click to upload or drag & drop":"Нажмите, чтобы загрузить или перетащите",
+    "AI Grammar Check":"Проверка грамматики с ИИ",
+    "Check Your Chinese Grammar":"Проверьте свою китайскую грамматику",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Вставьте китайские предложения, чтобы получить грамматические исправления, объяснения и улучшенные версии от ИИ.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Вставьте китайский текст сюда — напр. 你好吗？我正在学习中文。",
+    "Check Grammar":"Проверить грамматику",
+    "Recent Checks":"Последние Проверки",
     "Hello! I'm called Xiaoming, what are you called?":"Здравствуйте! Меня зовут Сяомин, а тебя?",
     "Hello! I'm called David. Nice to meet you.":"Здравствуйте! Меня зовут Дэвид. Приятно познакомиться.",
     "Nice to meet you too! Are you Chinese?":"Мне тоже приятно! Ты китаец?",
@@ -8999,6 +9029,12 @@ const OFFLINE_DICTIONARY = {
     "Hint":"Gợi ý",
     "Next":"Tiếp theo",
     "Lessons":"Bài học",
+    "AI Grammar Check":"Kiểm Tra Ngữ Pháp bằng AI",
+    "Check Your Chinese Grammar":"Kiểm Tra Ngữ Pháp Tiếng Trung của Bạn",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Dán các câu tiếng Trung để nhận chỉnh sửa ngữ pháp, giải thích và phiên bản cải thiện từ AI.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Dán văn bản tiếng Trung vào đây — vd. 你好吗？我正在学习中文。",
+    "Check Grammar":"Kiểm Tra Ngữ Pháp",
+    "Recent Checks":"Kiểm tra Gần đây",
     "Hello! I'm called Xiaoming, what are you called?":"Xin chào! Tôi tên là Tiểu Minh, bạn tên gì?",
     "Hello! I'm called David. Nice to meet you.":"Xin chào! Tôi tên là David. Rất vui được gặp bạn.",
     "Nice to meet you too! Are you Chinese?":"Tôi cũng rất vui được gặp bạn! Bạn là người Trung Quốc phải không?",
@@ -9872,6 +9908,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"ドキュメントAI",
     "Premium Feature":"プレミアム機能",
     "Click to upload or drag & drop":"クリックしてアップロードするか、ドラッグ＆ドロップ",
+    "AI Grammar Check":"AI文法チェック",
+    "Check Your Chinese Grammar":"中国語の文法をチェック",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"中国語の文章を貼り付けて、AIによる文法修正、説明、改善版を取得してください。",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"ここに中国語のテキストを貼り付けてください — 例：你好吗？我正在学习中文。",
+    "Check Grammar":"文法をチェック",
+    "Recent Checks":"最近のチェック",
     "Hello! I'm called Xiaoming, what are you called?":"こんにちは！私はシャオミンです。あなたの名前は？",
     "Hello! I'm called David. Nice to meet you.":"こんにちは！私はデビッドです。はじめまして。",
     "Nice to meet you too! Are you Chinese?":"こちらこそよろしく！中国人ですか？",
@@ -10742,6 +10784,12 @@ const OFFLINE_DICTIONARY = {
     "Document AI":"문서 AI",
     "Premium Feature":"프리미엄 기능",
     "Click to upload or drag & drop":"클릭하여 업로드하거나 드래그 앤 드롭",
+    "AI Grammar Check":"AI 문법 검사",
+    "Check Your Chinese Grammar":"중국어 문법 확인하기",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"중국어 문장을 붙여넣어 AI로부터 문법 교정, 설명 및 개선된 버전을 받아보세요.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"여기에 중국어 텍스트를 붙여넣으세요 — 예: 你好吗？我正在学习中文。",
+    "Check Grammar":"문법 검사",
+    "Recent Checks":"최근 확인",
     "Hello! I'm called Xiaoming, what are you called?":"안녕하세요! 저는 샤오밍이라고 합니다. 이름이 뭐예요?",
     "Hello! I'm called David. Nice to meet you.":"안녕하세요! 저는 데이비드입니다. 만나서 반갑습니다.",
     "Nice to meet you too! Are you Chinese?":"저도 반갑습니다! 중국 사람이에요?",
@@ -10762,9 +10810,15 @@ function t(englishString) {
     return dict[englishString];
   }
   if (dict) {
-    const cleanStr = englishString.replace(/[."']/g, "").trim();
+    const cleanStr = englishString.replace(/[."']/g, "").trim().toLowerCase();
     for (let key in dict) {
-      if (key.replace(/[."']/g, "").trim().toLowerCase() === cleanStr.toLowerCase()) {
+      if (key.replace(/[."']/g, "").trim().toLowerCase() === cleanStr) {
+        return dict[key];
+      }
+    }
+    // Fallback: search all values for approximate match (handles whitespace / unicode variance)
+    for (let key in dict) {
+      if (key.normalize().toLowerCase() === englishString.trim().normalize().toLowerCase()) {
         return dict[key];
       }
     }
@@ -11117,6 +11171,40 @@ document.addEventListener('DOMContentLoaded',()=>{
     openTopicLesson(topic, levelIdx);
   };
   buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildQzLvTabs();resetQuiz();buildHSK();initCv();updateDailyStats();translateUI();
+  console.log('DIAG: t("AI Grammar Check") =', t("AI Grammar Check"));
+  console.log('DIAG: currentAppLang =', currentAppLang);
+  console.log('DIAG: dict["AI Grammar Check"] =', OFFLINE_DICTIONARY['vi'] ? OFFLINE_DICTIONARY['vi']["AI Grammar Check"] : 'dict missing');
+  // Force grammar check translation (direct DOM fix)
+  (function() {
+    var gc = document.getElementById('grammarCheck');
+    if (!gc) { console.log('DIAG: grammarCheck section not found'); return; }
+    var viDict = OFFLINE_DICTIONARY['vi'];
+    if (!viDict) { console.log('DIAG: vi dict missing'); return; }
+    gc.querySelectorAll('[data-tr]').forEach(function(el) {
+      var key = el.getAttribute('data-tr');
+      var tr = viDict[key];
+      console.log('DIAG: elem data-tr="' + key + '" found=' + (tr ? 'yes' : 'no') + ' tr="' + (tr || '') + '"');
+      if (tr) {
+        if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+          el.value = tr;
+        } else if (el.hasAttribute('placeholder')) {
+          el.setAttribute('placeholder', tr);
+        } else {
+          var textNodes = [];
+          for (var i = 0; i < el.childNodes.length; i++) {
+            if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
+              textNodes.push(el.childNodes[i]);
+            }
+          }
+          if (textNodes.length) {
+            textNodes[textNodes.length - 1].textContent = ' ' + tr;
+          } else {
+            el.textContent = tr;
+          }
+        }
+      }
+    });
+  })();
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});

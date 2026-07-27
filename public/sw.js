@@ -1,4 +1,4 @@
-const CACHE = 'mandarincourse-v16';
+const CACHE = 'mandarincourse-v18';
 const urlsToCache = ['/', '/app', '/manifest.json', '/pinyin-chart', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/tutor-data-more.js', '/js/app.js', '/css/tailwind.css', '/css/app.css', '/audio/podcast-ep1.mp3', '/audio/podcast-ep2.mp3', '/audio/podcast-ep3.mp3', '/audio/podcast-ep4.mp3', '/audio/podcast-ep5.mp3', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -32,17 +32,7 @@ self.addEventListener('notificationclick', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // SPA sub-route navigation: serve the cached /app shell
-  // This ensures /app/tutor, /app/lessons, etc. work offline
-  // without needing each sub-path individually cached.
-  if (e.request.mode === 'navigate' && /^\/app\//.test(url.pathname)) {
-    e.respondWith(
-      caches.match('/app').then(cached => cached || fetch(e.request)).catch(() => caches.match('/'))
-    );
-    return;
-  }
-
-  // Network-first with cache fallback for all other requests
+  // Network-first with cache fallback for all requests
   e.respondWith(
     fetch(e.request).then(response => {
       if (e.request.method === 'GET' && response.status === 200) {
