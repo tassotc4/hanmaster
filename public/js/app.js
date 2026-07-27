@@ -3750,7 +3750,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"Regístrate Gratis",
     "Document AI":"AI de Documentos",
     "Premium Feature":"Función Premium",
-    "Click to upload or drag & drop":"Haz clic para subir o arrastra y suelta"
+    "Click to upload or drag & drop":"Haz clic para subir o arrastra y suelta",
+    "Hello! I'm called Xiaoming, what are you called?":"¡Hola! Me llamo Xiaoming, ¿cómo te llamas?",
+    "Hello! I'm called David. Nice to meet you.":"¡Hola! Me llamo David. Mucho gusto.",
+    "Nice to meet you too! Are you Chinese?":"¡Mucho gusto también! ¿Eres chino?",
+    "No, I'm American. Are you also a student?":"No, soy americano. ¿Tú también eres estudiante?",
+    "Yes, I am a student. I study Chinese.":"Sí, soy estudiante. Estudio chino.",
+    "Great! I need to go home, goodbye!":"¡Genial! tengo que irme a casa, ¡adiós!",
+    "Goodbye!":"¡Adiós!"
   },
   "fr": {
     "Tutor":"Tuteur","Lessons":"Leçons","Grammar":"Grammaire","Dict":"Dictionnaire","Trans":"Traduire","Test":"Examen","Progress":"Progrès",
@@ -4544,7 +4551,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"Inscription Gratuite",
     "Document AI":"IA Documentaire",
     "Premium Feature":"Fonction Premium",
-    "Click to upload or drag & drop":"Cliquez pour télécharger ou glisser-déposer"
+    "Click to upload or drag & drop":"Cliquez pour télécharger ou glisser-déposer",
+    "Hello! I'm called Xiaoming, what are you called?":"Bonjour ! Je m'appelle Xiaoming, comment t'appelles-tu ?",
+    "Hello! I'm called David. Nice to meet you.":"Bonjour ! Je m'appelle David. Enchanté.",
+    "Nice to meet you too! Are you Chinese?":"Enchanté moi aussi ! Es-tu chinois ?",
+    "No, I'm American. Are you also a student?":"Non, je suis américain. Es-tu aussi étudiant ?",
+    "Yes, I am a student. I study Chinese.":"Oui, je suis étudiant. J'étudie le chinois.",
+    "Great! I need to go home, goodbye!":"Super ! Je dois rentrer chez moi, au revoir !",
+    "Goodbye!":"Au revoir !"
 },
   "de": {
     "Tutor":"Tutor","Lessons":"Lektionen","Grammar":"Grammatik","Dict":"Wörterbuch","Trans":"Übersetzen","Test":"Test","Progress":"Fortschritt",
@@ -5452,7 +5466,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"Kostenlos Anmelden",
     "Document AI":"Dokumenten-KI",
     "Premium Feature":"Premium-Funktion",
-    "Click to upload or drag & drop":"Zum Hochladen klicken oder ziehen"
+    "Click to upload or drag & drop":"Zum Hochladen klicken oder ziehen",
+    "Hello! I'm called Xiaoming, what are you called?":"Hallo! Ich heiße Xiaoming, wie heißt du?",
+    "Hello! I'm called David. Nice to meet you.":"Hallo! Ich heiße David. Freut mich.",
+    "Nice to meet you too! Are you Chinese?":"Freut mich auch! Bist du Chinese?",
+    "No, I'm American. Are you also a student?":"Nein, ich bin Amerikaner. Bist du auch Student?",
+    "Yes, I am a student. I study Chinese.":"Ja, ich bin Student. Ich lerne Chinesisch.",
+    "Great! I need to go home, goodbye!":"Super! Ich muss nach Hause, tschüss!",
+    "Goodbye!":"Tschüss!"
 },
   "pt": {
     "Tutor":"Tutor","Lessons":"Lições","Grammar":"Gramática","Dict":"Dicionário","Trans":"Traduzir","Test":"Teste","Progress":"Progresso",
@@ -6282,7 +6303,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"Inscreva-se Grátis",
     "Document AI":"AI de Documentos",
     "Premium Feature":"Função Premium",
-    "Click to upload or drag & drop":"Clique para enviar ou arrastar e soltar"
+    "Click to upload or drag & drop":"Clique para enviar ou arrastar e soltar",
+    "Hello! I'm called Xiaoming, what are you called?":"Olá! Chamo-me Xiaoming, como te chamas?",
+    "Hello! I'm called David. Nice to meet you.":"Olá! Chamo-me David. Prazer em conhecer-te.",
+    "Nice to meet you too! Are you Chinese?":"Prazer em conhecer-te também! És chinês?",
+    "No, I'm American. Are you also a student?":"Não, sou americano. Também és estudante?",
+    "Yes, I am a student. I study Chinese.":"Sim, sou estudante. Estudo chinês.",
+    "Great! I need to go home, goodbye!":"Ótimo! Tenho que ir para casa, adeus!",
+    "Goodbye!":"Adeus!"
   },
   "it": {
     "Tutor":"Tutor","Lessons":"Lezioni","Grammar":"Grammatica","Dict":"Dizionario","Trans":"Tradurre","Test":"Test","Progress":"Progressi",
@@ -7111,7 +7139,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"Iscriviti Gratis",
     "Document AI":"AI Documenti",
     "Premium Feature":"Funzione Premium",
-    "Click to upload or drag & drop":"Clicca per caricare o trascina"
+    "Click to upload or drag & drop":"Clicca per caricare o trascina",
+    "Hello! I'm called Xiaoming, what are you called?":"Ciao! Mi chiamo Xiaoming, come ti chiami?",
+    "Hello! I'm called David. Nice to meet you.":"Ciao! Mi chiamo David. Piacere.",
+    "Nice to meet you too! Are you Chinese?":"Piacere mio! Sei cinese?",
+    "No, I'm American. Are you also a student?":"No, sono americano. Anche tu sei studente?",
+    "Yes, I am a student. I study Chinese.":"Sì, sono studente. Studio cinese.",
+    "Great! I need to go home, goodbye!":"Ottimo! Devo andare a casa, arrivederci!",
+    "Goodbye!":"Arrivederci!"
   },
   "ru": {
     "Tutor":"Репетитор","Lessons":"Уроки","Grammar":"Грамматика","Dict":"Словарь","Trans":"Перевод","Test":"Тест","Progress":"Прогресс",
@@ -7940,7 +7975,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"Зарегистрироваться Бесплатно",
     "Document AI":"AI Документов",
     "Premium Feature":"Премиум-функция",
-    "Click to upload or drag & drop":"Нажмите, чтобы загрузить или перетащите"
+    "Click to upload or drag & drop":"Нажмите, чтобы загрузить или перетащите",
+    "Hello! I'm called Xiaoming, what are you called?":"Здравствуйте! Меня зовут Сяомин, а тебя?",
+    "Hello! I'm called David. Nice to meet you.":"Здравствуйте! Меня зовут Дэвид. Приятно познакомиться.",
+    "Nice to meet you too! Are you Chinese?":"Мне тоже приятно! Ты китаец?",
+    "No, I'm American. Are you also a student?":"Нет, я американец. Ты тоже студент?",
+    "Yes, I am a student. I study Chinese.":"Да, я студент. Я учу китайский.",
+    "Great! I need to go home, goodbye!":"Отлично! Мне нужно идти домой, до свидания!",
+    "Goodbye!":"До свидания!"
   },
   "vi": {
     "Tutor":"Gia sư","Lessons":"Bài học","Grammar":"Ngữ pháp","Dict":"Từ điển","Trans":"Dịch","Test":"Kiểm tra","Progress":"Tiến bộ",
@@ -9767,7 +9809,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"無料登録",
     "Document AI":"ドキュメントAI",
     "Premium Feature":"プレミアム機能",
-    "Click to upload or drag & drop":"クリックしてアップロードするか、ドラッグ＆ドロップ"
+    "Click to upload or drag & drop":"クリックしてアップロードするか、ドラッグ＆ドロップ",
+    "Hello! I'm called Xiaoming, what are you called?":"こんにちは！私はシャオミンです。あなたの名前は？",
+    "Hello! I'm called David. Nice to meet you.":"こんにちは！私はデビッドです。はじめまして。",
+    "Nice to meet you too! Are you Chinese?":"こちらこそよろしく！中国人ですか？",
+    "No, I'm American. Are you also a student?":"いいえ、アメリカ人です。あなたも学生ですか？",
+    "Yes, I am a student. I study Chinese.":"はい、学生です。中国語を勉強しています。",
+    "Great! I need to go home, goodbye!":"素晴らしい！家に帰らなければなりません。さようなら！",
+    "Goodbye!":"さようなら！"
   },
   "ko": {
     "Tutor":"튜터","Lessons":"레슨","Grammar":"문법","Dict":"사전","Trans":"번역","Test":"테스트","Progress":"진행도",
@@ -10630,7 +10679,14 @@ const OFFLINE_DICTIONARY = {
     "Sign Up Free":"무료 가입",
     "Document AI":"문서 AI",
     "Premium Feature":"프리미엄 기능",
-    "Click to upload or drag & drop":"클릭하여 업로드하거나 드래그 앤 드롭"
+    "Click to upload or drag & drop":"클릭하여 업로드하거나 드래그 앤 드롭",
+    "Hello! I'm called Xiaoming, what are you called?":"안녕하세요! 저는 샤오밍이라고 합니다. 이름이 뭐예요?",
+    "Hello! I'm called David. Nice to meet you.":"안녕하세요! 저는 데이비드입니다. 만나서 반갑습니다.",
+    "Nice to meet you too! Are you Chinese?":"저도 반갑습니다! 중국 사람이에요?",
+    "No, I'm American. Are you also a student?":"아니요, 미국 사람이에요. 당신도 학생인가요?",
+    "Yes, I am a student. I study Chinese.":"네, 학생입니다. 중국어를 공부합니다.",
+    "Great! I need to go home, goodbye!":"좋아요! 집에 가야 해요, 안녕!",
+    "Goodbye!":"안녕!"
   }
 };
 
