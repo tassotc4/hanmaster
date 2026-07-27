@@ -548,7 +548,12 @@ const OFFLINE_DICTIONARY = {
     "Again": "Otra vez",
     "Hard": "Difícil",
     "Good": "Bueno",
-    "Easy": "Fácil"
+    "Easy": "Fácil",
+    "AI Grammar Check":"Revisión de Gramática con IA",
+    "Check Your Chinese Grammar":"Revisa tu Gramática China",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Pega oraciones en chino para obtener correcciones gramaticales, explicaciones y versiones mejoradas de la IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Pega texto chino aquí — ej. 你好吗？我正在学习中文。",
+    "Check Grammar":"Revisar Gramática"
 
   },
   "fr": {
@@ -940,7 +945,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=coup de pied, 足球=football.",
     "身=body, 体=form. Together = health.": "身=corps, 体=forme. Ensemble = santé.",
     "运=move, 动=action.": "运=déplacement, 动=action.",
-    "迟=late, 到=arrive.": "迟=en retard, 到=arriver."
+    "迟=late, 到=arrive.": "迟=en retard, 到=arriver.",
+    "AI Grammar Check":"Vérification Grammaticale IA",
+    "Check Your Chinese Grammar":"Vérifie ta Grammaire Chinoise",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Collez des phrases chinoises pour obtenir des corrections grammaticales, des explications et des versions améliorées par l'IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Collez du texte chinois ici — ex. 你好吗？我正在学习中文。",
+    "Check Grammar":"Vérifier la Grammaire"
+
   },
   "ja": {
     "1st Tone — High flat": "1stトーン — ハイフラット",
@@ -1331,7 +1342,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=キック、足球=サッカー。",
     "身=body, 体=form. Together = health.": "身=体、体=形。一緒に=健康。",
     "运=move, 动=action.": "运=移動、動=動作。",
-    "迟=late, 到=arrive.": "迟=遅れ、到=到着。"
+    "迟=late, 到=arrive.": "迟=遅れ、到=到着。",
+    "AI Grammar Check":"AI文法チェック",
+    "Check Your Chinese Grammar":"中国語の文法をチェック",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"中国語の文章を貼り付けて、AIによる文法修正、説明、改善版を取得してください。",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"ここに中国語のテキストを貼り付けてください — 例：你好吗？我正在学习中文。",
+    "Check Grammar":"文法をチェック"
+
   },
   "ko": {
     "1st Tone — High flat": "첫 번째 톤 — 하이 플랫",
@@ -1722,7 +1739,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=킥, 足球=축구.",
     "身=body, 体=form. Together = health.": "身=신체, 体=형태. 함께 = 건강.",
     "运=move, 动=action.": "运=이동, 动=동작.",
-    "迟=late, 到=arrive.": "迟=늦다, 到=도착."
+    "迟=late, 到=arrive.": "迟=늦다, 到=도착.",
+    "AI Grammar Check":"AI 문법 검사",
+    "Check Your Chinese Grammar":"중국어 문법 확인하기",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"중국어 문장을 붙여넣어 AI로부터 문법 교정, 설명 및 개선된 버전을 받아보세요.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"여기에 중국어 텍스트를 붙여넣으세요 — 예: 你好吗？我正在学习中文。",
+    "Check Grammar":"문법 검사"
+
   },
   "de": {
     "1st Tone — High flat": "1. Ton – Hoch, flach",
@@ -2113,7 +2136,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=Kick, 足球=Fußball.",
     "身=body, 体=form. Together = health.": "身=Körper, 体=Form. Zusammen = Gesundheit.",
     "运=move, 动=action.": "运=bewegen, 动=Aktion.",
-    "迟=late, 到=arrive.": "迟=spät, 到=ankommen."
+    "迟=late, 到=arrive.": "迟=spät, 到=ankommen.",
+    "AI Grammar Check":"KI-Grammatikprüfung",
+    "Check Your Chinese Grammar":"Überprüfe deine chinesische Grammatik",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Füge chinesische Sätze ein, um Grammatikkorrekturen, Erklärungen und verbesserte Versionen von der KI zu erhalten.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Füge hier chinesischen Text ein — z.B. 你好吗？我正在学习中文。",
+    "Check Grammar":"Grammatik prüfen"
+
   },
   "pt": {
     "1st Tone — High flat": "1º Tom - bemol agudo",
@@ -2504,7 +2533,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=chute, 足球=futebol.",
     "身=body, 体=form. Together = health.": "身=corpo, 体=forma. Juntos = saúde.",
     "运=move, 动=action.": "运=mover, 动=ação.",
-    "迟=late, 到=arrive.": "迟=tarde, 到=chegar."
+    "迟=late, 到=arrive.": "迟=tarde, 到=chegar.",
+    "AI Grammar Check":"Verificação Gramatical com IA",
+    "Check Your Chinese Grammar":"Verifique sua Gramática Chinesa",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Cole frases em chinês para obter correções gramaticais, explicações e versões melhoradas da IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Cole texto chinês aqui — ex. 你好吗？我正在学习中文。",
+    "Check Grammar":"Verificar Gramática"
+
   },
   "it": {
     "1st Tone — High flat": "1° tono: acuto e bemolle",
@@ -2895,7 +2930,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=calcio, 足球=calcio.",
     "身=body, 体=form. Together = health.": "身=corpo, 体=forma. Insieme = salute.",
     "运=move, 动=action.": "运=movimento, 动=azione.",
-    "迟=late, 到=arrive.": "迟=tardi, 到=arrivare."
+    "迟=late, 到=arrive.": "迟=tardi, 到=arrivare.",
+    "AI Grammar Check":"Controllo Grammaticale con IA",
+    "Check Your Chinese Grammar":"Controlla la tua Grammatica Cinese",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Incolla frasi in cinese per ottenere correzioni grammaticali, spiegazioni e versioni migliorate dall'IA.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Incolla qui il testo cinese — es. 你好吗？我正在学习中文。",
+    "Check Grammar":"Controlla Grammatica"
+
   },
   "ru": {
     "1st Tone — High flat": "1-й тон — Высокая бемоль.",
@@ -3286,7 +3327,13 @@ const OFFLINE_DICTIONARY = {
     "踢=kick, 足球=football.": "踢=удар, 足球=футбол.",
     "身=body, 体=form. Together = health.": "身=тело, 体=форма. Вместе = здоровье.",
     "运=move, 动=action.": "运=движение, 动=действие.",
-    "迟=late, 到=arrive.": "迟=опаздывать, 到=приходить."
+    "迟=late, 到=arrive.": "迟=опаздывать, 到=приходить.",
+    "AI Grammar Check":"Проверка грамматики с ИИ",
+    "Check Your Chinese Grammar":"Проверьте свою китайскую грамматику",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Вставьте китайские предложения, чтобы получить грамматические исправления, объяснения и улучшенные версии от ИИ.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Вставьте китайский текст сюда — напр. 你好吗？我正在学习中文。",
+    "Check Grammar":"Проверить грамматику"
+
   },
   "vi": {
     "1st Tone — High flat": "Giai điệu thứ nhất - Âm cao",
@@ -3757,7 +3804,13 @@ const OFFLINE_DICTIONARY = {
     "No, I'm American. Are you also a student?":"No, soy americano. ¿Tú también eres estudiante?",
     "Yes, I am a student. I study Chinese.":"Sí, soy estudiante. Estudio chino.",
     "Great! I need to go home, goodbye!":"¡Genial! tengo que irme a casa, ¡adiós!",
-    "Goodbye!":"¡Adiós!"
+    "Goodbye!":"¡Adiós!",
+    "AI Grammar Check":"Kiểm Tra Ngữ Pháp bằng AI",
+    "Check Your Chinese Grammar":"Kiểm Tra Ngữ Pháp Tiếng Trung của Bạn",
+    "Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"Dán các câu tiếng Trung để nhận chỉnh sửa ngữ pháp, giải thích và phiên bản cải thiện từ AI.",
+    "Paste Chinese text here — e.g. 你好吗？我正在学习中文。":"Dán văn bản tiếng Trung vào đây — vd. 你好吗？我正在学习中文。",
+    "Check Grammar":"Kiểm Tra Ngữ Pháp"
+
   },
   "fr": {
     "Tutor":"Tuteur","Lessons":"Leçons","Grammar":"Grammaire","Dict":"Dictionnaire","Trans":"Traduire","Test":"Examen","Progress":"Progrès",
