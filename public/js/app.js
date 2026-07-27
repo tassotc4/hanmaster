@@ -15016,6 +15016,7 @@ function buildGr(){
   // Page counter and arrows
   var navDiv = document.createElement('div');
   navDiv.className = 'flex items-center justify-center gap-4 mt-6';
+  navDiv.style.gridColumn = '1 / -1';
   navDiv.innerHTML = '<button onclick="grNav(-1)" class="w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--fg);outline:none"><i class="fas fa-chevron-left text-sm"></i></button>'
     + '<span class="text-xs font-semibold" style="color:var(--muted)">' + (grPage + 1) + ' / ' + totalPages + '</span>'
     + '<button onclick="grNav(1)" class="w-9 h-9 rounded-full flex items-center justify-center border-none cursor-pointer" style="background:var(--card2);color:var(--fg);outline:none"><i class="fas fa-chevron-right text-sm"></i></button>';
