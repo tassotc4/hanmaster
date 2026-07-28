@@ -61,6 +61,131 @@ footer a{color:var(--gold);text-decoration:none}
 @media(max-width:768px){.hero{padding:80px 16px 40px}.tone-btn{padding:8px 14px;font-size:12px}.cell{font-size:12px;min-height:32px}}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>
+// Mini translation dictionary for Pinyin Chart page (all 9 languages)
+const PC_TRANSLATIONS = {
+  "es": {
+    "Click to play":"Haz clic para reproducir",
+    "Column / Row label":"Etiqueta de columna/fila",
+    "Currently playing":"Reproduciendo ahora",
+    "1st Tone":"1er tono","2nd Tone":"2do tono","3rd Tone":"3.er tono","4th Tone":"4to tono",
+    "Neutral":"Neutro",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Busca cualquier pinyin... (p. ej., ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"1er tono: plano alto. Mantén el tono firme como una nota monótona.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"2do tono: ascendente. Empieza en medio y sube, como al hacer una pregunta.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"3.er tono: descendente luego ascendente. Empieza en medio, baja, luego sube.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"4to tono: caída pronunciada. Empieza alto y baja, como una orden.",
+    "Neutral tone — light and quick. No stress, no contour.":"Tono neutro: ligero y rápido. Sin énfasis, sin contorno.",
+    "Home":"Inicio","Launch App":"Abrir app",
+    "Interactive Pinyin Chart":"Gráfico de Pinyin Interactivo",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Gráfico de Pinyin Interactivo — Aprende la pronunciación del chino mandarín",
+  },
+  "fr": {
+    "Click to play":"Cliquez pour lire","Column / Row label":"Libellé colonne/ligne","Currently playing":"En cours de lecture",
+    "1st Tone":"1er ton","2nd Tone":"2e ton","3rd Tone":"3e ton","4th Tone":"4e ton","Neutral":"Neutre",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Cherchez un pinyin... (ex.: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"1er ton — haut plat. Maintenez la hauteur comme une note monotone.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"2e ton — montant. Partez du milieu et montez, comme pour poser une question.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"3e ton — descendant puis montant. Partez du milieu, descendez, puis montez.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"4e ton — chute brutale. Partez haut et descendez, comme un ordre.",
+    "Neutral tone — light and quick. No stress, no contour.":"Ton neutre — léger et rapide. Sans accent, sans contour.",
+    "Home":"Accueil","Launch App":"Ouvrir l'app",
+    "Interactive Pinyin Chart":"Tableau de Pinyin Interactif",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Tableau de Pinyin Interactif — Apprenez la prononciation du mandarin",
+  },
+  "de": {
+    "Click to play":"Klicken zum Abspielen","Column / Row label":"Spalten-/Zeilenbeschriftung","Currently playing":"Wird abgespielt",
+    "1st Tone":"1. Ton","2nd Tone":"2. Ton","3rd Tone":"3. Ton","4th Tone":"4. Ton","Neutral":"Neutral",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Pinyin suchen... (z.B. ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"1. Ton — hoch flach. Halten Sie die Tonhöhe wie eine monotone Note.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"2. Ton — steigend. Starten Sie in der Mitte und gehen Sie nach oben, wie beim Fragen.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"3. Ton — fallend dann steigend. Starten Sie in der Mitte, fallen Sie tief, dann steigen Sie.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"4. Ton — stark fallend. Starten Sie hoch und fallen Sie, wie ein Befehl.",
+    "Neutral tone — light and quick. No stress, no contour.":"Neutraler Ton — leicht und schnell. Keine Betonung, keine Kontur.",
+    "Home":"Startseite","Launch App":"App öffnen",
+    "Interactive Pinyin Chart":"Interaktive Pinyin-Tabelle",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Interaktive Pinyin-Tabelle — Lernen Sie Mandarin-Aussprache",
+  },
+  "pt": {
+    "Click to play":"Clique para reproduzir","Column / Row label":"Rótulo de coluna/linha","Currently playing":"Reproduzindo agora",
+    "1st Tone":"1º tom","2nd Tone":"2º tom","3rd Tone":"3º tom","4th Tone":"4º tom","Neutral":"Neutro",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Pesquise qualquer pinyin... (ex.: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"1º tom — alto plano. Mantenha a altura como uma nota monótona.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"2º tom — ascendente. Comece no meio e suba, como ao fazer uma pergunta.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"3º tom — descendente depois ascendente. Comece no meio, desça, depois suba.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"4º tom — queda brusca. Comece alto e desça, como um comando.",
+    "Neutral tone — light and quick. No stress, no contour.":"Tom neutro — leve e rápido. Sem ênfase, sem contorno.",
+    "Home":"Início","Launch App":"Abrir app",
+    "Interactive Pinyin Chart":"Gráfico de Pinyin Interativo",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Gráfico de Pinyin Interativo — Aprenda a pronúncia do mandarim",
+  },
+  "it": {
+    "Click to play":"Clicca per riprodurre","Column / Row label":"Etichetta colonna/riga","Currently playing":"In riproduzione",
+    "1st Tone":"1° tono","2nd Tone":"2° tono","3rd Tone":"3° tono","4th Tone":"4° tono","Neutral":"Neutro",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Cerca qualsiasi pinyin... (es.: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"1° tono — alto piatto. Mantieni l'altezza come una nota monotona.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"2° tono — ascendente. Parti da metà e sali, come per fare una domanda.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"3° tono — discendente poi ascendente. Parti da metà, scendi, poi sali.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"4° tono — caduta netta. Parti da alto e scendi, come un comando.",
+    "Neutral tone — light and quick. No stress, no contour.":"Tono neutro — leggero e veloce. Nessun accento, nessun contorno.",
+    "Home":"Home","Launch App":"Apri app",
+    "Interactive Pinyin Chart":"Tabella di Pinyin Interattiva",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Tabella di Pinyin Interattiva — Impara la pronuncia del mandarino",
+  },
+  "ru": {
+    "Click to play":"Нажмите, чтобы воспроизвести","Column / Row label":"Метка столбца/строки","Currently playing":"Сейчас воспроизводится",
+    "1st Tone":"1-й тон","2nd Tone":"2-й тон","3rd Tone":"3-й тон","4th Tone":"4-й тон","Neutral":"Нейтральный",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Ищите любой пиньинь... (например: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"1-й тон — высокий ровный. Держите высоту как монотонную ноту.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"2-й тон — восходящий. Начните со среднего и поднимитесь, как при вопросе.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"3-й тон — нисходящий затем восходящий. Начните со среднего, опуститесь низко, затем поднимитесь.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"4-й тон — резкое падение. Начните высоко и упадите, как команда.",
+    "Neutral tone — light and quick. No stress, no contour.":"Нейтральный тон — легкий и быстрый. Без ударения, без контура.",
+    "Home":"Главная","Launch App":"Открыть приложение",
+    "Interactive Pinyin Chart":"Интерактивная таблица пиньинь",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Интерактивная таблица пиньинь — Изучите произношение мандаринского диалекта",
+  },
+  "vi": {
+    "Click to play":"Nhấn để phát","Column / Row label":"Nhãn Cột / Hàng","Currently playing":"Đang phát",
+    "1st Tone":"Thanh 1","2nd Tone":"Thanh 2","3rd Tone":"Thanh 3","4th Tone":"Thanh 4","Neutral":"Trung tính",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"Tìm kiếm pinyin... (ví dụ: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"Thanh 1 — cao đều. Giữ cao độ ổn định như một nốt đơn điệu.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"Thanh 2 — lên cao. Bắt đầu ở giữa và đi lên, giống như đặt câu hỏi.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"Thanh 3 — xuống rồi lên. Bắt đầu ở giữa, xuống thấp, rồi lên.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"Thanh 4 — hạ mạnh. Bắt đầu cao và hạ xuống, như một mệnh lệnh.",
+    "Neutral tone — light and quick. No stress, no contour.":"Thanh trung tính — nhẹ và nhanh. Không nhấn mạnh, không đường cong.",
+    "Home":"Trang chủ","Launch App":"Mở ứng dụng",
+    "Interactive Pinyin Chart":"Bảng Pinyin Tương tác",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"Bảng Pinyin Tương tác — Học Phát âm Tiếng Trung",
+  },
+  "ja": {
+    "Click to play":"クリックして再生","Column / Row label":"列/行ラベル","Currently playing":"再生中",
+    "1st Tone":"第1声","2nd Tone":"第2声","3rd Tone":"第3声","4th Tone":"第4声","Neutral":"軽声",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"ピンインを検索... (例: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"第1声 — 高く平ら。単調な音のようにピッチを安定させます。",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"第2声 — 上昇。中音から始めて上がります。質問のように。",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"第3声 — 下降して上昇。中音から始めて低く下がり、その後上がります。",
+    "4th tone — falling sharply. Start high and drop, like a command.":"第4声 — 急激に下降。高音から始めて落とします。命令のように。",
+    "Neutral tone — light and quick. No stress, no contour.":"軽声 — 軽くて速い。強調も輪郭もなし。",
+    "Home":"ホーム","Launch App":"アプリを開く",
+    "Interactive Pinyin Chart":"インタラクティブピンイン表",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"インタラクティブピンイン表 — 中国語発音を学ぶ",
+  },
+  "ko": {
+    "Click to play":"클릭하여 재생","Column / Row label":"열/행 레이블","Currently playing":"재생 중",
+    "1st Tone":"제1성","2nd Tone":"제2성","3rd Tone":"제3성","4th Tone":"제4성","Neutral":"경성",
+    "Search any pinyin... (e.g. ma, bei, xiang)":"병음 검색... (예: ma, bei, xiang)",
+    "1st tone — high flat. Hold the pitch steady like a monotone note.":"제1성 — 높고 평평함. 단조로운 음처럼 음높이를 일정하게 유지하세요.",
+    "2nd tone — rising. Start mid and go up, like asking a question.":"제2성 — 상승. 중간에서 시작하여 올라갑니다. 질문하듯이.",
+    "3rd tone — dipping then rising. Start mid, dip low, then rise.":"제3성 — 하강 후 상승. 중간에서 시작하여 낮게 내려갔다가 올라갑니다.",
+    "4th tone — falling sharply. Start high and drop, like a command.":"제4성 — 급격히 하강. 높게 시작하여 떨어집니다. 명령하듯이.",
+    "Neutral tone — light and quick. No stress, no contour.":"경성 — 가볍고 빠름. 강세나 윤곽이 없습니다.",
+    "Home":"홈","Launch App":"앱 열기",
+    "Interactive Pinyin Chart":"대화형 병음 차트",
+    "Interactive Pinyin Chart — Learn Mandarin Pronunciation":"대화형 병음 차트 — 중국어 발음 배우기",
+  }
+};
+</script>
 </head>
 <body>
 <nav>
@@ -71,20 +196,20 @@ footer a{color:var(--gold);text-decoration:none}
 </nav>
 
 <section class="hero">
-<h1>Interactive <span>Pinyin Chart</span></h1>
-<p>Click any syllable to hear its pronunciation. Master Mandarin initials, finals, and tones — the foundation of Chinese pronunciation.</p>
+<h1><span data-tr="Interactive Pinyin Chart">Interactive Pinyin Chart</span></h1>
+<p data-tr="Click any syllable to hear its pronunciation. Master Mandarin initials, finals, and tones — the foundation of Chinese pronunciation.">Click any syllable to hear its pronunciation. Master Mandarin initials, finals, and tones — the foundation of Chinese pronunciation.</p>
 <div class="legend">
-<span><span class="dot" style="background:var(--card);border:1px solid var(--border)"></span>Click to play</span>
-<span><span class="dot" style="background:var(--card2)"></span>Column / Row label</span>
-<span><span class="dot" style="background:rgba(200,53,37,.15);border:1px solid var(--accent)"></span>Currently playing</span>
+<span><span class="dot" style="background:var(--card);border:1px solid var(--border)"></span><span data-tr="Click to play">Click to play</span></span>
+<span><span class="dot" style="background:var(--card2)"></span><span data-tr="Column / Row label">Column / Row label</span></span>
+<span><span class="dot" style="background:rgba(200,53,37,.15);border:1px solid var(--accent)"></span><span data-tr="Currently playing">Currently playing</span></span>
 </div>
 
 <div class="tone-bar">
-<button class="tone-btn active" data-tone="1"><span class="tone-label">ˉ</span>1st Tone</button>
-<button class="tone-btn" data-tone="2"><span class="tone-label">ˊ</span>2nd Tone</button>
-<button class="tone-btn" data-tone="3"><span class="tone-label">ˇ</span>3rd Tone</button>
-<button class="tone-btn" data-tone="4"><span class="tone-label">ˋ</span>4th Tone</button>
-<button class="tone-btn" data-tone="5"><span class="tone-label">˙</span>Neutral</button>
+<button class="tone-btn active" data-tone="1"><span class="tone-label">ˉ</span><span data-tr="1st Tone">1st Tone</span></button>
+<button class="tone-btn" data-tone="2"><span class="tone-label">ˊ</span><span data-tr="2nd Tone">2nd Tone</span></button>
+<button class="tone-btn" data-tone="3"><span class="tone-label">ˇ</span><span data-tr="3rd Tone">3rd Tone</span></button>
+<button class="tone-btn" data-tone="4"><span class="tone-label">ˋ</span><span data-tr="4th Tone">4th Tone</span></button>
+<button class="tone-btn" data-tone="5"><span class="tone-label">˙</span><span data-tr="Neutral">Neutral</span></button>
 </div>
 
 <div class="search-box">
@@ -263,6 +388,39 @@ document.addEventListener('touchstart', () => {
 }, {once: true});
 
 buildChart();
+
+// Apply translations
+(function(){
+  const lang = (function(){ try { return localStorage.getItem('app_lang') || 'en'; } catch(e){ return 'en'; } })();
+  if (lang === 'en' || !PC_TRANSLATIONS[lang]) return;
+  const d = PC_TRANSLATIONS[lang];
+  function t(s) { return d[s] || s; }
+  // Translate data-tr elements
+  document.querySelectorAll('[data-tr]').forEach(el => {
+    const key = el.getAttribute('data-tr');
+    if (key) el.textContent = t(key);
+  });
+  // Translate search placeholder
+  const searchInput = document.getElementById('search');
+  if (searchInput) searchInput.placeholder = t(searchInput.placeholder);
+  // Translate footer text
+  const footer = document.querySelector('footer p');
+  if (footer) {
+    const html = footer.innerHTML;
+    const translated = html.replace(/(Free interactive Pinyin chart from|Home|Launch App|MandarinCourse| — AI Chinese Tutor\.)/g, m => t(m));
+    footer.innerHTML = translated;
+  }
+  // Translate page title
+  document.title = t('Interactive Pinyin Chart — Learn Mandarin Pronunciation') + ' | MandarinCourse';
+  // Translate TONES descriptions
+  TONES.forEach(tone => { tone.d = t(tone.d); });
+  // Update info panel if visible
+  const activeCell = document.querySelector('.cell.playing');
+  if (activeCell) {
+    const syl = activeCell.dataset.syl;
+    if (syl) updateInfo(syl, currentTone || 1);
+  }
+})();
 </script>
 </body>
 </html>
