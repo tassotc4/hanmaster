@@ -11198,6 +11198,7 @@ const OFFLINE_DICTIONARY = {
     "my book":"cuốn sách của tôi",
     "one person":"một người",
   
+    "Click any syllable to hear its pronunciation. Master Mandarin initials, finals, and tones — the foundation of Chinese pronunciation.": "Nhấn vào âm tiết bất kỳ để nghe cách phát âm. Nắm vững thanh mẫu, vận mẫu và thanh điệu — nền tảng của phát âm tiếng Trung.",
     "Pinyin Chart":"Biểu đồ bính âm",
     "Interactive Pinyin Chart":"Biểu đồ bính âm tương tác",
     "Direct answers about our features, offline compatibility, and pronunciation grading.":"Câu trả lời trực tiếp về các tính năng của chúng tôi, khả năng tương thích ngoại tuyến và chấm điểm phát âm.",
