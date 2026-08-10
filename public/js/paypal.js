@@ -25,6 +25,8 @@ function renderPayPalButtons() {
         .then(function(details) {
           if (details.status === 'COMPLETED') {
             localStorage.setItem('is_premium', 'true');
+            localStorage.removeItem('premium_expiry');
+            localStorage.removeItem('mandarin30_used');
             toast('Welcome to MandarinCourse Premium! 🎉', 'var(--green)');
             updatePremiumUI();
             document.getElementById('premiumModal').style.display = 'none';

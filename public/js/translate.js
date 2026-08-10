@@ -178,7 +178,7 @@ function translateVoiceInput() {
   ic.className = 'fas fa-stop';
   if (lb) lb.textContent = 'Stop';
   input.placeholder = 'Recording... tap mic to stop';
-  navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true, sampleRate: 16000, sampleSize: 16 } }).then(stream => {
+  navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }).then(stream => {
     window._trStream = stream;
     window._trChunks = [];
     let mime = 'audio/mp4';

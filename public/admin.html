@@ -76,6 +76,11 @@ VAPID_PRIVATE_KEY=qBAiN51N4Arasyq4wELlHRwtEhhPHutJ0jDZanRtbqM
 </div>
 <div id="testResult" class="text-xs mt-2" style="color:var(--green)"></div>
 </div>
+<div class="card mb-6" style="border-color:#4898D5">
+<h3 class="font-bold text-sm mb-2" style="color:#4898D5"><i class="fas fa-users mr-1"></i> Users &amp; Time on Site</h3>
+<p class="text-xs mb-2" style="color:var(--fg2)">All registered emails with cumulative active time (from Supabase user_activity).</p>
+<div id="usersInfo" class="text-xs" style="color:var(--fg2)">Loading...</div>
+</div>
 <div class="card">
 <h3 class="font-bold text-sm mb-3">Send Test Push Notification</h3>
 <p class="text-xs mb-3" style="color:var(--fg2)">Broadcasts to all subscribed users</p>
@@ -111,6 +116,7 @@ function login() {
     var info = document.getElementById('serverInfo');
     info.innerHTML = '<div>Environment: ' + d.env + '</div><div>Mailgun: ' + (d.mailgun_configured ? '<span style="color:var(--green)">Yes ✓</span>' : '<span style="color:var(--accent)">No</span>') + '</div><div>Uptime: ' + Math.floor(d.uptime) + 's</div><div>Reminders: ' + d.reminders + '</div>';
     document.getElementById('smtpStatus').innerHTML = d.mailgun_configured ? '<span style="color:var(--green)">✓ Mailgun is configured — email sending active</span>' : '<span style="color:var(--accent)">✗ Mailgun not configured. Add MAILGUN_API_KEY and MAILGUN_DOMAIN in Render env vars.</span>';
+    loadUsers();
   })
   .catch(function(e) { alert('Error: ' + e.message); });
 }
@@ -133,6 +139,23 @@ function sendTestPush() {
   .then(function(r) { return r.json(); })
   .then(function(d) { document.getElementById('pushResult').textContent = 'Sent to ' + d.sent + ', failed ' + d.failed + ' (' + d.total + ' subs)'; })
   .catch(function(e) { document.getElementById('pushResult').textContent = 'Error: ' + e.message; });
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];}); }
+function fmtDuration(s){ s=parseInt(s,10)||0; var h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60; return (h>0?h+'h ':'')+(m>0?m+'m ':'')+sec+'s'; }
+function loadUsers(){
+  fetch('/api/admin/users', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({key:adminKey}) })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    var el=document.getElementById('usersInfo');
+    if(d.setup){ el.innerHTML='<span style="color:var(--gold)">&#9888; '+(d.error||'Setup required')+'</span>'; return; }
+    if(d.error){ el.innerHTML='<span style="color:var(--accent)">Error: '+d.error+'</span>'; return; }
+    if(!d.users || !d.users.length){ el.innerHTML='No registered users yet.'; return; }
+    var rows=d.users.map(function(u){
+      return '<div class="flex justify-between gap-2" style="border-bottom:1px solid var(--border);padding:7px 0"><span style="word-break:break-all">'+esc(u.email)+'</span><span style="color:var(--gold);white-space:nowrap">'+fmtDuration(u.total_seconds)+'</span><span style="color:var(--muted);white-space:nowrap">last: '+(u.last_active?new Date(u.last_active).toLocaleString():'never')+'</span></div>';
+    }).join('');
+    el.innerHTML = '<div class="font-bold mb-1" style="color:var(--fg)">'+d.count+' registered users</div>'+rows;
+  })
+  .catch(function(e){ document.getElementById('usersInfo').textContent='Error: '+e.message; });
 }
 function copyKeys() {
   var text = '';

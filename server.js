@@ -102,7 +102,7 @@ function apiLimiter(req, res, next) {
   const now = Date.now();
   if (!rateLimitStore[ip]) rateLimitStore[ip] = [];
   rateLimitStore[ip] = rateLimitStore[ip].filter(t => now - t < 60000);
-  if (rateLimitStore[ip].length >= 20) return res.status(429).json({ error: 'Too many requests, slow down.' });
+  if (rateLimitStore[ip].length >= 40) return res.status(429).json({ error: 'Too many requests, slow down.' });
   rateLimitStore[ip].push(now);
   next();
 }
@@ -167,6 +167,34 @@ app.post('/api/admin/stats', (req, res) => {
   });
 });
 
+app.post('/api/admin/users', async (req, res) => {
+  const { key } = req.body || {};
+  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return res.json({ users: [], setup: true, error: 'Add SUPABASE_SERVICE_ROLE_KEY env var on Railway to enable user analytics.' });
+  const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
+  try {
+    const headers = { 'apikey': serviceKey, 'Authorization': 'Bearer ' + serviceKey };
+    const authRes = await fetch(sbUrl + '/auth/v1/admin/users?per_page=1000', { headers });
+    const activityRes = await fetch(sbUrl + '/rest/v1/user_activity?select=user_id,email,total_seconds,last_seen', { headers });
+    let authData = await authRes.json();
+    const activityData = await activityRes.json();
+    if (Array.isArray(authData) === false && authData && Array.isArray(authData.users)) authData = authData.users;
+    const actMap = {};
+    (Array.isArray(activityData) ? activityData : []).forEach(a => { actMap[a.user_id] = a; });
+    const users = (Array.isArray(authData) ? authData : []).map(u => ({
+      email: (u.email || (u.user_metadata && u.user_metadata.email) || '').toLowerCase(),
+      created_at: u.created_at || null,
+      last_sign_in: u.last_sign_in_at || null,
+      total_seconds: (actMap[u.id] && actMap[u.id].total_seconds) || 0,
+      last_active: (actMap[u.id] && actMap[u.id].last_seen) || null
+    })).sort((a, b) => b.total_seconds - a.total_seconds);
+    res.json({ users, count: users.length });
+  } catch (e) {
+    res.json({ users: [], error: e.message });
+  }
+});
+
 app.post('/api/test', (req, res) => {
   res.json({ ok: true, body: req.body });
 });
@@ -201,7 +229,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       form.append('file', blob, `audio.${ext}`);
       form.append('model', 'whisper-large-v3-turbo');
       form.append('response_format', 'json');
-      form.append('prompt', 'Please transcribe the spoken language accurately. Common phrases: hello, how are you, thank you, good morning, good night, please, sorry.');
+      form.append('prompt', 'The audio is a student speaking a short phrase or sentence during a Mandarin Chinese lesson. Transcribe exactly what is spoken.');
       if (sourceLang && sourceLang !== 'zh') form.append('language', sourceLang);
 
       const wr = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -222,41 +250,83 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
       messages.push({ role: 'user', content: userMsg });
 
-      const cr = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.1 })
-      });
-      const cd = await cr.json();
-      if (!cr.ok) return res.status(cr.status).json({ error: cd });
-      const responseText = cd.choices?.[0]?.message?.content || transcribed;
-      return res.json({ candidates: [{ content: { parts: [{ text: responseText }] } }] });
+      if (!process.env.GROQ_API_KEY && !process.env.NVIDIA_API_KEY && !process.env.OPENROUTER_API_KEY) return res.status(500).json({ error: 'No API keys configured' });
+      const AUDIO_PROVIDERS = [
+        { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 15000 },
+        { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', timeout: 10000 },
+        { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
+        { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
+        { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 15000 },
+      ].filter(p => p.key);
+      async function audioChatProvider(p) {
+        const cr = await fetch(p.url + '/chat/completions', {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${p.key}` },
+          body: JSON.stringify({ model: p.model, messages, temperature: 0.1 }),
+          signal: AbortSignal.timeout(p.timeout)
+        });
+        const cd = await cr.json();
+        if (!cr.ok) throw new Error(cd.error?.message || JSON.stringify(cd));
+        return cd.choices?.[0]?.message?.content || transcribed;
+      }
+      let responseText, audioErr = '';
+      if (AUDIO_PROVIDERS.length > 1) {
+        responseText = await Promise.any(AUDIO_PROVIDERS.map(audioChatProvider)).catch(e => { audioErr = e.message || 'All providers failed'; return null; });
+      } else if (AUDIO_PROVIDERS.length === 1) {
+        try { responseText = await audioChatProvider(AUDIO_PROVIDERS[0]); } catch (e) { audioErr = e.message; }
+      }
+      if (responseText) return res.json({ candidates: [{ content: { parts: [{ text: responseText }] } }] });
+      return res.status(503).json({ error: 'AI service busy, please try again.', details: audioErr });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
   }
 
-  const apiKey = process.env.GROQ_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'Server Groq key not configured' });
+  if (!process.env.GROQ_API_KEY && !process.env.NVIDIA_API_KEY && !process.env.OPENROUTER_API_KEY) return res.status(500).json({ error: 'No API keys configured' });
 
-  try {
-    const messages = [];
-    if (systemInstruction) {
-      messages.push({ role: 'system', content: systemInstruction });
+  const messages = [];
+  if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
+  for (const c of contents) {
+    const text = (c.parts || []).map(p => p.text || '').join('');
+    if (text.trim()) {
+      messages.push({ role: c.role === 'model' ? 'assistant' : 'user', content: text });
     }
-    for (const c of contents) {
-      const text = (c.parts || []).map(p => p.text || '').join('');
-      if (text.trim()) messages.push({ role: 'user', content: text });
-    }
+  }
 
-    const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const PROVIDERS = [
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 15000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', timeout: 10000 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 15000 },
+  ].filter(p => p.key);
+
+  async function tryProvider(p) {
+    const resp = await fetch(p.url + '/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages, temperature: 0.2 })
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${p.key}` },
+      body: JSON.stringify({ model: p.model, messages, temperature: 0.2 }),
+      signal: AbortSignal.timeout(p.timeout)
     });
     const data = await resp.json();
-    if (!resp.ok) return res.status(resp.status).json({ error: data });
-    const text = data.choices?.[0]?.message?.content || '';
-    res.json({ candidates: [{ content: { parts: [{ text }] } }] });
+    if (!resp.ok) {
+      const errMsg = data.error?.message || JSON.stringify(data);
+      console.error('Provider failed:', p.model, errMsg);
+      throw new Error(errMsg);
+    }
+    return data.choices?.[0]?.message?.content || '';
+  }
+
+  try {
+    let text, errMsg = '';
+    if (PROVIDERS.length > 1) {
+      text = await Promise.any(PROVIDERS.map(tryProvider)).catch(e => { errMsg = e.message || 'All providers failed'; return null; });
+    } else if (PROVIDERS.length === 1) {
+      try { text = await tryProvider(PROVIDERS[0]); } catch (e) { errMsg = e.message; }
+    } else {
+      return res.status(500).json({ error: 'No API keys configured' });
+    }
+    if (text) return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
+    res.status(503).json({ error: 'AI service busy, please try again.', details: errMsg });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -735,29 +805,184 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
     };
 
     const systemPrompt = actionPrompts[action] || actionPrompts['summarize'];
-    const groqKey = process.env.GROQ_API_KEY;
-    if (!groqKey) return res.status(500).json({ error: 'Server key not configured' });
+    if (!process.env.GROQ_API_KEY && !process.env.NVIDIA_API_KEY && !process.env.OPENROUTER_API_KEY) return res.status(500).json({ error: 'No API keys configured' });
 
-    const groqResp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${groqKey}` },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: extractedText }
-        ],
-        temperature: 0.2,
-        max_tokens: 4096
-      })
-    });
-    const groqData = await groqResp.json();
-    if (!groqResp.ok) return res.status(groqResp.status).json({ error: groqData });
+    const DOC_PROVIDERS = [
+      { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 8000 },
+      { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 8000 },
+      { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 8000 },
+      { key: process.env.NVIDIA_API_KEY, url: 'https://integrate.api.nvidia.com/v1', model: 'deepseek-ai/deepseek-v4-flash', timeout: 2000 },
+      { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 5000 },
+    ].filter(p => p.key);
 
-    const aiResponse = groqData.choices?.[0]?.message?.content || '';
+    async function docProvider(p) {
+      const dr = await fetch(p.url + '/chat/completions', {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${p.key}` },
+        body: JSON.stringify({ model: p.model, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: extractedText }], temperature: 0.2, max_tokens: 4096 }),
+        signal: AbortSignal.timeout(p.timeout)
+      });
+      const dd = await dr.json();
+      if (!dr.ok) throw new Error(dd.error?.message || JSON.stringify(dd));
+      return dd.choices?.[0]?.message?.content || '';
+    }
+
+    let aiResponse, docErr = '';
+    if (DOC_PROVIDERS.length > 1) {
+      aiResponse = await Promise.any(DOC_PROVIDERS.map(docProvider)).catch(e => { docErr = e.message || 'All providers failed'; return null; });
+    } else if (DOC_PROVIDERS.length === 1) {
+      try { aiResponse = await docProvider(DOC_PROVIDERS[0]); } catch (e) { docErr = e.message; }
+    }
+    if (!aiResponse) return res.status(503).json({ error: 'AI service busy, please try again.', details: docErr });
     res.json({ text: extractedText.slice(0, 2000), response: aiResponse, action });
   } catch (err) {
     console.error('Document upload error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ===== HEYGEN WEBTRC TALKING AVATAR PROXIES =====
+const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY || '';
+
+// 1. Endpoint: Securely fetch temporary session token
+app.post('/api/heygen/token', async (req, res) => {
+  try {
+    if (!HEYGEN_API_KEY) {
+      return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server. Running in Simulation Mode.' });
+    }
+    const resp = await fetch('https://api.heygen.com/v1/streaming.create_token', {
+      method: 'POST',
+      headers: {
+        'x-api-key': HEYGEN_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+    const data = await resp.json();
+    if (data?.data?.token) {
+      res.json({ token: data.data.token });
+    } else {
+      res.status(500).json({ error: data?.message || 'Failed to generate token from HeyGen.' });
+    }
+  } catch (err) {
+    console.error('HeyGen token error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. Endpoint: Initialize new streaming session
+app.post('/api/heygen/new', async (req, res) => {
+  const { quality, avatar_name, voice, token } = req.body || {};
+  try {
+    if (!HEYGEN_API_KEY) {
+      return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server. Running in Simulation Mode.' });
+    }
+    const response = await fetch('https://api.heygen.com/v1/streaming.new', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        quality: quality || 'medium',
+        avatar_name: avatar_name || 'Benjamin_v3_20c0f43a',
+        voice: voice || { voice_id: 'en-US-JennyNeural' }
+      })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('HeyGen session create error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. Endpoint: Finalize peer connection SDP exchange
+app.post('/api/heygen/start', async (req, res) => {
+  const { session_id, sdp, token } = req.body || {};
+  try {
+    if (!HEYGEN_API_KEY) {
+      return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
+    }
+    const response = await fetch('https://api.heygen.com/v1/streaming.start', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ session_id, sdp })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('HeyGen start session error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. Endpoint: Exchange ICE candidates
+app.post('/api/heygen/ice', async (req, res) => {
+  const { session_id, candidate, token } = req.body || {};
+  try {
+    if (!HEYGEN_API_KEY) {
+      return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
+    }
+    const response = await fetch('https://api.heygen.com/v1/streaming.ice', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ session_id, candidate })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('HeyGen ice candidate error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5. Endpoint: Speak task dispatcher
+app.post('/api/heygen/task', async (req, res) => {
+  const { session_id, text, token } = req.body || {};
+  try {
+    if (!HEYGEN_API_KEY) {
+      return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
+    }
+    const response = await fetch('https://api.heygen.com/v1/streaming.task', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ session_id, text, task_type: 'talk' })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('HeyGen speaking task error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 6. Endpoint: Stop/Terminate streaming session
+app.post('/api/heygen/stop', async (req, res) => {
+  const { session_id, token } = req.body || {};
+  try {
+    if (!HEYGEN_API_KEY) {
+      return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
+    }
+    const response = await fetch('https://api.heygen.com/v1/streaming.stop', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ session_id })
+    });
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    console.error('HeyGen session stop error:', err);
     res.status(500).json({ error: err.message });
   }
 });

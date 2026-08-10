@@ -1,18 +1,42 @@
-﻿
+
 // H. Multi-Language Translations & Study Reminders Setup
 const APP_VER = '2024-07-28-1'; let currentAppLang = 'en';
 try {
-  currentAppLang = localStorage.getItem('app_lang');
-  if (!currentAppLang) {
-    const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko'};
-    const browserLang = (navigator.language || '').split('-')[0];
-    currentAppLang = langMap[browserLang] || 'en';
-    localStorage.setItem('app_lang', currentAppLang);
+  const urlParams = new URLSearchParams(window.location.search);
+  let queryLang = urlParams.get('lang');
+  if (queryLang) {
+    queryLang = queryLang.toLowerCase();
+    const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko','en':'en'};
+    if (langMap[queryLang]) {
+      currentAppLang = langMap[queryLang];
+      localStorage.setItem('app_lang', currentAppLang);
+    }
+  } else {
+    currentAppLang = localStorage.getItem('app_lang');
+    if (!currentAppLang) {
+      const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko'};
+      const browserLang = (navigator.language || '').split('-')[0];
+      currentAppLang = langMap[browserLang] || 'en';
+      localStorage.setItem('app_lang', currentAppLang);
+    }
   }
 } catch(e) {}
 
 const OFFLINE_DICTIONARY = {
   "es": {
+    "Default microphone":"Micrófono predeterminado",
+    "Microphone":"Micrófono",
+    "Microphone selected":"Micrófono seleccionado",
+    "Using default microphone":"Usando micrófono predeterminado",
+    "Test microphone":"Probar micrófono",
+    "Stop test":"Detener prueba",
+    "Tap Test, speak, and the bar should fill if the browser hears you.":"Toca Probar, habla y la barra debería llenarse si el navegador te escucha.",
+    "Mic is working — the browser hears you.":"El micrófono funciona: el navegador te escucha.",
+    "No signal. Try another device above, or check Windows: Settings > Privacy & security > Microphone > allow desktop apps.":"Sin señal. Prueba otro dispositivo arriba o revisa Windows: Configuración > Privacidad y seguridad > Micrófono > permitir aplicaciones de escritorio.",
+    "Speak now — the bar should fill...":"Habla ahora: la barra debería llenarse...",
+    "Mic access failed: ":"Acceso al micrófono falló: ",
+    "Microphone not supported in this browser.":"Micrófono no compatible en este navegador.",
+
     "1st Tone — High flat": "1er tono: bemol alto",
     "2nd Tone — Rising": "2do tono: ascendente",
     "3rd Tone — Dipping": "3.er tono: inmersión",
@@ -866,7 +890,26 @@ const OFFLINE_DICTIONARY = {
     "Sign up with email for 7 days free access to all HSK 1-9 features. After the trial, Premium is $9/month for unlimited access. Cancel anytime.":"Regístrese con correo electrónico para obtener acceso gratuito durante 7 días a todas las funciones de HSK 1-9. Después de la prueba, Premium cuesta $9/mes para acceso ilimitado. Cancele en cualquier momento.",
     "MandarinCourse covers HSK 1 through HSK 9 (the new HSK 3.0 standard). This includes over 10,000 vocabulary words with pinyin, audio, and example sentences.":"MandarinCourse cubre HSK 1 a HSK 9 (el nuevo estándar HSK 3.0). Esto incluye más de 10.000 palabras de vocabulario con pinyin, audio y oraciones de ejemplo.",
     "MandarinCourse focuses on real speaking practice with AI-powered pronunciation grading, a tone pitch visualizer, and SRS flashcards. Unlike gamified apps, you actively speak and get scored. It also covers all 9 HSK levels with offline PWA support.":"MandarinCourse se centra en la práctica real del habla con calificación de pronunciación basada en inteligencia artificial, un visualizador de tono y tarjetas didácticas SRS. A diferencia de las aplicaciones gamificadas, usted habla activamente y recibe puntos. También cubre los 9 niveles de HSK con soporte para PWA sin conexión.",
-    "Yes, you can cancel your Premium subscription at any time. No long-term commitment required. After canceling, you keep access until the end of your current billing period.":"Sí, puedes cancelar tu suscripción Premium en cualquier momento. No se requiere compromiso a largo plazo. Después de cancelar, mantienes el acceso hasta el final de tu período de facturación actual."
+    "Yes, you can cancel your Premium subscription at any time. No long-term commitment required. After canceling, you keep access until the end of your current billing period.":"Sí, puedes cancelar tu suscripción Premium en cualquier momento. No se requiere compromiso a largo plazo. Después de cancelar, mantienes el acceso hasta el final de tu período de facturación actual.",
+    "Structured Timed Class":"Clase cronometrada estructurada",
+    "Class":"Clase",
+    "AI Tutor":"Tutor IA",
+    "Pick a level and duration. Li Laoshi runs a full live lesson: warm-up, new vocabulary, guided speaking practice, a review quiz, and homework — paced by a timer, like a real class.":"Elige un nivel y una duración. Li Laoshi dirige una lección en vivo completa: calentamiento, vocabulario nuevo, práctica guiada de conversación, un repaso con preguntas y tarea, todo con cronómetro, como una clase real.",
+    "HSK Level":"Nivel HSK",
+    "Duration":"Duración",
+    "Start Class":"Iniciar clase",
+    "Free plan includes HSK 1. Higher levels require Premium.":"El plan gratuito incluye HSK 1. Los niveles superiores requieren Premium.",
+    "Earn +2 XP per minute and add the class words to your learned list.":"Gana +2 XP por minuto y añade las palabras de la clase a tu lista de aprendidas.",
+    "Warm-up":"Calentamiento",
+    "New Vocabulary":"Vocabulario nuevo",
+    "Guided Practice":"Práctica guiada",
+    "Review & Quiz":"Repaso y prueba",
+    "Recap & Homework":"Resumen y tarea",
+    "Timed class in progress.":"Clase cronometrada en curso.",
+    "Class complete! +":"¡Clase completada! +",
+    "Already chatting live with the AI teacher":"Ya estás chateando en vivo con la profesora IA",
+    "Chat Live with AI Tutor":"Chatea en vivo con la profesora IA",
+    "No speech heard — check that your microphone is the correct input device and not muted in Windows settings, then tap mic and speak clearly.":"No se escuchó habla — verifica que tu micrófono sea el dispositivo de entrada correcto y no esté silenciado en la configuración de Windows, luego toca el micrófono y habla claro."
   },
   "fr": {
     "1st Tone — High flat": "1er ton — Aigu bémol",
@@ -11581,7 +11624,7 @@ const OFFLINE_DICTIONARY = {
     "迟=late, 到=arrive.": "迟=muộn, 到=đến.",
   },
   "ja": {
-    "Tutor":"チューター","Lessons":"レッスン","Grammar":"文法","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
+    "Tutor":"チューター","Lessons":"レッスン",    "Grammar":"文法","AI Grammar Check":"AI文法チェック","Check Your Chinese Grammar":"中国語の文法をチェック","Paste Chinese sentences to get grammar corrections, explanations, and improved versions from AI.":"中国語の文章を貼り付けて、AIによる文法修正、説明、改善版を入手してください。","Dict":"辞書","Trans":"翻訳","Test":"テスト","Progress":"進捗",
     "AI Tutor":"AIチューター","Dictionary":"辞書","Level Test":"レベルテスト",
     "MandarinCourse":"中国語コース","Settings":"設定",
     "Cloud Account & Sync":"アカウントと同期","Sign In / Register":"ログイン / 登録",
@@ -13975,7 +14018,6 @@ function t(englishString) {
         return dict[key];
       }
     }
-    // Fallback: search all values for approximate match (handles whitespace / unicode variance)
     for (let key in dict) {
       if (key.normalize().toLowerCase() === englishString.trim().normalize().toLowerCase()) {
         return dict[key];
@@ -14273,6 +14315,7 @@ let filteredQZ = [...QZ].sort(() => Math.random() - 0.5).slice(0, 10);
 const WCH = typeof EXTRA_WRITING_CHARS !== 'undefined' ? EXTRA_WRITING_CHARS : "你好学习中文".split('');
 
 let tutLesson=null,tutStep=0,tutScores=[],srOn=false,recognition=null,micAvailable=false,geminiHistory=[],currentLiveTarget='',suggestedUserTarget=''; let mediaRecorder=null, audioChunks=[], lastUserAudioUrl=null, currentTurnId='', userAudioEl=null, activeMicStream=null; let _cachedChineseVoice=null; const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) || (window.matchMedia && window.matchMedia('(any-pointer: coarse)').matches);
+let timedClassActive=false,timedClassLevel=0,timedClassMinutes=0,timedClassSecondsLeft=0,timedClassTimer=null,timedClassPhase=0,timedSystemInstruction=null,timedCueTimers=[],timedCueSent={};
 let qIdx=0,qScore=0,qStartT=0,strokeCnt=0,curWI=0,drawing=false,ctx,canvas;
 let wrongAnswers = [], listenMode = false, dailyChallengeDone = false;
 // PWA & Advanced features globals
@@ -14294,26 +14337,22 @@ document.addEventListener('DOMContentLoaded',()=>{
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js').then(reg => {
       console.log('ServiceWorker registration successful:', reg.scope);
+      reg.update().catch(() => {});
       reg.addEventListener('updatefound', () => {
         const newWorker = reg.installing;
         if (newWorker) {
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log("New service worker installed. Force reloading...");
-              toast(t("New update installed! Reloading page..."), "var(--green)");
-              setTimeout(() => {
-                window.location.reload();
-              }, 1200);
+              console.log("New version available — will apply on next page load");
             }
           });
         }
       });
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (!refreshing) {
-          refreshing = true;
-          window.location.reload();
-        }
+        if (refreshing) return;
+        refreshing = true;
+        console.log("Service worker controller changed — new version active on next load");
       });
     }).catch(() => {});
   }
@@ -14330,40 +14369,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     openTopicLesson(topic, levelIdx);
   };
   buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildQzLvTabs();resetQuiz();buildHSK();initCv();updateDailyStats();translateUI();
-  console.log('DIAG: t("AI Grammar Check") =', t("AI Grammar Check"));
-  console.log('DIAG: currentAppLang =', currentAppLang);
-  console.log('DIAG: dict["AI Grammar Check"] =', OFFLINE_DICTIONARY['vi'] ? OFFLINE_DICTIONARY['vi']["AI Grammar Check"] : 'dict missing');
-  // Force grammar check translation (direct DOM fix)
-  (function() {
-    var gc = document.getElementById('grammarCheck');
-    if (!gc) { console.log('DIAG: grammarCheck section not found'); return; }
-    var viDict = OFFLINE_DICTIONARY['vi'];
-    if (!viDict) { console.log('DIAG: vi dict missing'); return; }
-    gc.querySelectorAll('[data-tr]').forEach(function(el) {
-      var key = el.getAttribute('data-tr');
-      var tr = viDict[key];
-      console.log('DIAG: elem data-tr="' + key + '" found=' + (tr ? 'yes' : 'no') + ' tr="' + (tr || '') + '"');
-      if (tr) {
-        if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
-          el.value = tr;
-        } else if (el.hasAttribute('placeholder')) {
-          el.setAttribute('placeholder', tr);
-        } else {
-          var textNodes = [];
-          for (var i = 0; i < el.childNodes.length; i++) {
-            if (el.childNodes[i].nodeType === 3 && el.childNodes[i].textContent.trim()) {
-              textNodes.push(el.childNodes[i]);
-            }
-          }
-          if (textNodes.length) {
-            textNodes[textNodes.length - 1].textContent = ' ' + tr;
-          } else {
-            el.textContent = tr;
-          }
-        }
-      }
-    });
-  })();
+  const selectLang = document.getElementById('appLanguageSelect');
+  if (selectLang) selectLang.value = currentAppLang;
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -14476,6 +14483,8 @@ function routeApp(path, btn) {
   if (!path || path === '/') {
     var s = getRouteSections();
     for (var i = 0; i < s.length; i++) s[i].style.display = '';
+    document.body.style.background = "var(--bg)";
+    document.body.classList.remove('spatial-theme');
     document.title = 'MandarinCourse — Learn Chinese Online with AI Tutor & HSK Lessons';
     var md = document.querySelector('meta[name="description"]');
     if (md) md.content = 'Master Chinese with MandarinCourse: AI tutor, HSK 1-9 lessons, grammar, character writing quizzes, SRS flashcards, document AI, translation. 10,000+ words, real-time speaking practice.';
@@ -14485,6 +14494,23 @@ function routeApp(path, btn) {
   }
   if (!APP_ROUTES[path]) path = '/app/tutor';
   var sectionId = APP_ROUTES[path];
+  console.log("ROUTE_APP PATH:", path, "SECTION_ID:", sectionId);
+  if (sectionId === 'tutor') {
+    document.body.style.background = "var(--bg)";
+    document.body.classList.add('spatial-theme');
+    document.body.classList.add('spatial-theme-tutor');
+    if (!tutLesson && typeof laoshiWelcome === 'function') {
+      setTimeout(laoshiWelcome, 200);
+    }
+  } else if (sectionId) {
+    document.body.style.background = "var(--bg)";
+    document.body.classList.add('spatial-theme');
+    document.body.classList.remove('spatial-theme-tutor');
+  } else {
+    document.body.style.background = "var(--bg)";
+    document.body.classList.remove('spatial-theme');
+    document.body.classList.remove('spatial-theme-tutor');
+  }
   var target = document.getElementById(sectionId);
   if (target) { scrollToSection('#' + sectionId); } else { window.scrollTo(0, 0); }
   var meta = ROUTE_META[path];
@@ -14578,12 +14604,64 @@ function getChineseVoice(){
 
 // TTS audio cache
 const ttsCache = {};
+let _apiTtsActive = false;
+function isTtsPlaying() {
+  try { if (window.speechSynthesis && window.speechSynthesis.speaking) return true; } catch(e) {}
+  return _apiTtsActive;
+}
+
+
+
+function startSpeakingAnimation() {
+  var el = document.getElementById('spatial-tutor-avatar');
+  if (el) el.classList.add('speaking');
+  var tc = document.querySelector('.tone-curve-wrap');
+  if (tc) tc.classList.add('active');
+  // Draw the tutor's tone curve from available pinyin
+  var py = getCurrentPinyin();
+  drawTutorToneCurve(py);
+}
+
+function getCurrentPinyin() {
+  var wp = document.getElementById('tutWp');
+  if (wp) {
+    var p = wp.textContent.trim();
+    if (p && p !== '--') return p;
+  }
+  if (tutLesson && tutLesson.dialogue && tutStep !== undefined && tutLesson.dialogue[tutStep]) {
+    var line = tutLesson.dialogue[tutStep];
+    var cn = line.cn || '';
+    var parts = [];
+    if (tutLesson.words) {
+      tutLesson.words.forEach(function(w) {
+        if (w.cn && cn.indexOf(w.cn) !== -1) {
+          parts.push({ cn: w.cn, py: w.py || '', idx: cn.indexOf(w.cn) });
+        }
+      });
+      parts.sort(function(a, b) { return a.idx - b.idx; });
+    }
+    if (parts.length > 0) {
+      return parts.map(function(p) { return p.py; }).join(' ');
+    }
+  }
+  return '';
+}
+function stopSpeakingAnimation() {
+  var el = document.getElementById('spatial-tutor-avatar');
+  if (el) el.classList.remove('speaking');
+  var tc = document.querySelector('.tone-curve-wrap');
+  if (tc) tc.classList.remove('active');
+}
 
 function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
   const cacheKey = lang + '|' + text;
   if (ttsCache[cacheKey]) {
     const audio = new Audio(ttsCache[cacheKey]);
-    audio.play().catch(() => {});
+    audio.playbackRate = rate;
+    audio.onplay = () => { _apiTtsActive = true; startSpeakingAnimation(); };
+    audio.onended = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
+    audio.onerror = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
+    audio.play().catch(() => { _apiTtsActive = false; stopSpeakingAnimation(); });
     return;
   }
   fetch('/api/tts?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang))
@@ -14593,7 +14671,10 @@ function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
       ttsCache[cacheKey] = url;
       const audio = new Audio(url);
       audio.playbackRate = rate;
-      audio.play().catch(() => {});
+      audio.onplay = () => { _apiTtsActive = true; startSpeakingAnimation(); };
+      audio.onended = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
+      audio.onerror = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
+      audio.play().catch(() => { _apiTtsActive = false; stopSpeakingAnimation(); });
       // Auto-cleanup after 30s
       setTimeout(() => { try { URL.revokeObjectURL(url); } catch {} }, 30000);
     })
@@ -14609,10 +14690,22 @@ function tryFallbackTTS(text, lang, rate) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = rate || 1.0;
+    u.onstart = () => startSpeakingAnimation();
+    u.onend = () => stopSpeakingAnimation();
+    u.onerror = () => stopSpeakingAnimation();
     const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(lang.split('-')[0]));
     if (voices.length > 0) u.voice = voices[voices.length - 1];
     speechSynthesis.speak(u);
   } catch(e) {}
+}
+
+function getEffectiveSpeechRate() {
+  const stored = localStorage.getItem('speech_rate');
+  if (stored && stored !== '') return parseFloat(stored);
+  const lvl = getChineseLevel();
+  if (lvl === 'never') return 0.75;
+  if (lvl === 'beginner') return 0.85;
+  return 1.0;
 }
 
 function speak(t, rate){
@@ -14621,11 +14714,14 @@ function speak(t, rate){
     srOn = false;
     updateMicUI('idle');
     const hasGoodVoice = window.speechSynthesis && getChineseVoice() !== null;
-    if (!hasGoodVoice || localStorage.getItem('tts_mode') === 'api') { speakViaAPI(t, 'zh-CN', rate || parseFloat(localStorage.getItem('speech_rate')) || 1.0); return; }
-    if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || 1.0); return; }
-    const u = new SpeechSynthesisUtterance(t); u.lang = 'zh-CN'; u.rate = rate || parseFloat(localStorage.getItem('speech_rate')) || 1.0;
+    if (!hasGoodVoice || localStorage.getItem('tts_mode') === 'api') { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
+    if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
+    const u = new SpeechSynthesisUtterance(t); u.lang = 'zh-CN'; u.rate = rate || getEffectiveSpeechRate();
+    u.onstart = () => startSpeakingAnimation();
+    u.onend = () => stopSpeakingAnimation();
+    u.onerror = () => stopSpeakingAnimation();
     const voice = getChineseVoice(); if (voice) u.voice = voice;
-    if (isMobileDevice) { try { speechSynthesis.speak(u); } catch(err) { speakViaAPI(t, 'zh-CN', rate || 1.0); } }
+    if (isMobileDevice) { try { speechSynthesis.speak(u); } catch(err) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); } }
     else {
       let isSpeaking = false; try { isSpeaking = speechSynthesis.speaking; } catch(e) {}
       if (isSpeaking) { try { if (!isMobileDevice) speechSynthesis.cancel(); } catch(e) {} setTimeout(() => { try { speechSynthesis.speak(u); } catch(err) {} }, 50); }
@@ -14677,20 +14773,14 @@ function startTutor(idx){
       return;
     }
   }
-  window._tutBusy=false;
+  window._renderedStep = -1;
   if (window._tutTO) clearTimeout(window._tutTO);
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   document.getElementById('tutTotal').textContent='--';
   document.getElementById('tutChat').innerHTML='';
     addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+t(tutLesson.title)+'</b> — '+tutLesson.level);
-  if (isRoleplayActive) {
-    let botRole = t("Speaker A"), userRole = t("Speaker B");
-    const title = tutLesson.title.toLowerCase();
-    if (title.includes('restaurant')) { botRole = t("Waiter"); userRole = t("Customer"); }
-    else if (title.includes('family') || title.includes('introducing')) { botRole = t("Friend A"); userRole = t("Friend B"); }
-    else if (title.includes('airport')) { botRole = t("Customs Officer"); userRole = t("Passenger"); }
-    else { botRole = t("Tutor"); userRole = t("Student"); }
-    addTutMsg('sys', '🎭 <b>'+t("Roleplay Characters Assigned")+'</b>: '+t("Bot")+' = <b>'+botRole+'</b> &middot; '+t("You")+' = <b>'+userRole+'</b>');
+  if (isLiveAIActive) {
+    addTutMsg('sys', '<i class="fas fa-robot mr-1"></i> <b>'+t('Live AI Tutor')+'</b> — '+t('Chat freely with the AI tutor'));
   }
   let vh='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-top:8px">';
     tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
@@ -14702,7 +14792,9 @@ function startTutor(idx){
 }
 
 function advanceTutor(){
-  if(window._tutBusy)return;window._tutBusy=true;setTimeout(()=>window._tutBusy=false,800);
+  // Render each step exactly once, but NEVER drop a new step
+  if (window._renderedStep === tutStep) return;
+  window._renderedStep = tutStep;
   if(!tutLesson||tutStep>=tutLesson.dialogue.length){finishTutor();return}
   const line=tutLesson.dialogue[tutStep];
   const w=tutLesson.words.find(w=>line.cn.includes(w.cn));
@@ -14712,33 +14804,27 @@ function advanceTutor(){
   document.getElementById('tutTip').style.display=w?'block':'none';
   if(w)document.getElementById('tutTip').textContent=t(w.tip);
   document.getElementById('scoreWrap').style.display='none';
-  let botRole = t("Tutor"), userRole = t("Student");
-  if (isRoleplayActive) {
-    const title = tutLesson.title.toLowerCase();
-    if (title.includes('restaurant')) { botRole = t("Waiter"); userRole = t("Customer"); }
-    else if (title.includes('family') || title.includes('introducing')) { botRole = t("Friend A"); userRole = t("Friend B"); }
-    else if (title.includes('airport')) { botRole = t("Customs Officer"); userRole = t("Passenger"); }
-  }
   if(line.who==='bot'){
-    document.getElementById('tutHint').textContent=isRoleplayActive ? t('Listen to')+' ['+botRole+'] '+t('speaking') : t('Type your response in the box below');
+    document.getElementById('tutHint').textContent=t('Type your response in the box below');
     document.getElementById('tutHint').style.color='var(--accent)';
-    document.getElementById('tutStatus').textContent=isRoleplayActive ? t('Roleplay')+' — ['+botRole+'] '+t('speaking') : t('Your turn')+' — '+t('type below');
-    setTimeout(()=>tutListen(),500);
+    document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
     addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    setTimeout(()=>tutListen(line.cn),500);
   } else {
-    document.getElementById('tutHint').textContent=isRoleplayActive ? t('Your turn')+' — '+t('speak')+' ['+userRole+'] '+t('lines') : t('Type Chinese below or press mic');
+    document.getElementById('tutHint').textContent=t('Type Chinese below or press mic');
     document.getElementById('tutHint').style.color='var(--accent)';
-    document.getElementById('tutStatus').textContent=isRoleplayActive ? t('Roleplay')+' — '+t('Your Turn')+' ['+userRole+']' : t('Your turn')+' — '+t('type below');
+    document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
   }
 }
 
-function tutListen(){
+function tutListen(text){
   const isLive = localStorage.getItem('tutor_mode') === 'live';
   if(isLive) {
     if(currentLiveTarget) speak(currentLiveTarget);
   } else {
-    if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
-    speak(tutLesson.dialogue[tutStep].cn);
+    const cn = text || (tutLesson && tutStep < tutLesson.dialogue.length ? tutLesson.dialogue[tutStep].cn : '');
+    if(!cn) return;
+    speak(cn);
   }
   const hWave = document.getElementById('hWave'); if(hWave) hWave.classList.remove('off');
   setTimeout(()=> { const hWave = document.getElementById('hWave'); if(hWave) hWave.classList.add('off'); }, 2000);
@@ -14749,7 +14835,9 @@ let _recAudioMode = false;
 function startAudioRecording(btn, ic) {
   if (_recAudioMode) {
     console.log("Stopping audio recording...");
+    clearTimeout(window._recAutoStopTimer);
     _recAudioMode = false;
+    stopTutorPitchTrack();
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.onstop = () => {
         console.log("MediaRecorder onstop fired, chunks:", audioChunks.length);
@@ -14793,12 +14881,13 @@ function startAudioRecording(btn, ic) {
   document.getElementById('tutHint').style.color = 'var(--green)';
   currentTurnId = 'voice-' + Date.now();
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }).then(stream => {
+    navigator.mediaDevices.getUserMedia(getMicAudioConstraints()).then(stream => {
       console.log("getUserMedia succeeded for recording fallback");
       // Amplify audio gain to help Whisper detect speech
       let recordStream = stream;
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
         const source = audioCtx.createMediaStreamSource(stream);
         const gain = audioCtx.createGain();
         gain.gain.value = 2.5;
@@ -14809,11 +14898,12 @@ function startAudioRecording(btn, ic) {
       } catch(e) {
         console.warn("Could not apply gain amplification, using raw stream:", e.message);
       }
-      activeMicStream = stream; // keep original for cleanup
+      activeMicStream = stream;
+      startTutorPitchTrack(recordStream);
       audioChunks = [];
-      let mime = 'audio/webm';
+      let mime = 'audio/mp4';
       if (typeof MediaRecorder.isTypeSupported === 'function') {
-        if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/mp4';
+        if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/webm';
         if (!MediaRecorder.isTypeSupported(mime)) mime = 'audio/ogg;codecs=opus';
         if (!MediaRecorder.isTypeSupported(mime)) mime = '';
       }
@@ -14831,7 +14921,26 @@ function startAudioRecording(btn, ic) {
       mediaRecorder.ondataavailable = e => {
         if (e.data.size > 0) audioChunks.push(e.data);
       };
-      mediaRecorder.start();
+      try {
+        mediaRecorder.start();
+      } catch(e) {
+        console.error("MediaRecorder start failed:", e);
+        _recAudioMode = false;
+        srOn = false;
+        btn.classList.remove('on');
+        ic.className = 'fas fa-microphone text-xl';
+        ic.style.color = 'var(--accent)';
+        document.getElementById('tutHint').textContent = t('Recording not supported on this device');
+        return;
+      }
+      // Auto-stop after 10s so the user never has to tap again
+      clearTimeout(window._recAutoStopTimer);
+      window._recAutoStopTimer = setTimeout(() => {
+        if (_recAudioMode) {
+          const b = document.getElementById('tutMic'), i = document.getElementById('tutMicIc');
+          startAudioRecording(b, i);
+        }
+      }, 10000);
     }).catch(err => {
       console.error("Audio recording fallback failed:", err);
       _recAudioMode = false;
@@ -14839,7 +14948,7 @@ function startAudioRecording(btn, ic) {
       btn.classList.remove('on');
       ic.className = 'fas fa-microphone text-xl';
       ic.style.color = 'var(--accent)';
-          document.getElementById('tutHint').textContent = t('Mic access denied. Use text box.');
+      document.getElementById('tutHint').textContent = t('Mic access denied. Use text box.');
     });
   } else {
     console.error("No getUserMedia available");
@@ -14852,7 +14961,8 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
   console.log("Sending audio to Gemini, length:", base64Audio.length, "mime:", mimeType, "retries left:", retries);
   const payload = {
     contents: [{ role: "user", parts: [{ inlineData: { mimeType: mimeType, data: base64Audio } }] }],
-    systemInstruction: "Transcribe the Mandarin Chinese speech in this audio accurately. Return ONLY the transcription in Chinese characters, nothing else."
+    systemInstruction: "Transcribe the speech in this audio accurately. If the speaker is speaking Mandarin Chinese, return the Chinese characters. If they are speaking English or another language, return their words in that language. Return ONLY the transcription, nothing else.",
+    sourceLang: getSpeechSrcLang()
   };
   document.getElementById('tutStatus').textContent = t('Transcribing...');
   const loaderId = 'loader-' + Date.now();
@@ -14879,12 +14989,18 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     if (transcript && transcript !== '(No response)' && !/no audio|no speech|没有音频|unable to transcribe|therefore no|no transcription/i.test(transcript)) {
       console.log("Transcription result:", transcript);
       document.getElementById('tutStatus').textContent = t('Heard: ') + transcript;
-      // Show confirmation before sending to AI
-      const confirmId = 'confirm-' + Date.now();
-      addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
+      // Live AI mode: send the transcript straight to the AI — no extra taps needed
+      if (localStorage.getItem('tutor_mode') === 'live') {
+        addLiveUserMsg(transcript);
+        setTimeout(() => sendToGemini(transcript), 300);
+      } else {
+        // Show confirmation before sending to AI (study mode)
+        const confirmId = 'confirm-' + Date.now();
+        addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
+      }
     } else {
       console.warn("Empty or no-speech transcription");
-      document.getElementById('tutHint').textContent = t('No speech detected — tap mic and speak clearly');
+      document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> '+t('No speech heard — check that your microphone is the correct input device and not muted in Windows settings, then tap mic and speak clearly.')+'</span>';
       document.getElementById('tutStatus').textContent = t('No speech detected');
     }
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
@@ -14898,7 +15014,14 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
 
 function confirmTranscript(transcript, loaderId) {
   if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
-  sendToGemini(transcript);
+  var tMode = localStorage.getItem('tutor_mode');
+  if (tMode !== 'live' && tutLesson && tutStep < tutLesson.dialogue.length) {
+    var target = tutLesson.dialogue[tutStep].cn;
+    var score = Math.round(sim(transcript, target) * 100);
+    processScore(transcript, score, target, 'voice-' + Date.now());
+  } else {
+    sendToGemini(transcript);
+  }
 }
 
 function rejectTranscript(confirmId, loaderId) {
@@ -14944,12 +15067,14 @@ function tutSpeak(){
   if (isMobileDevice && !localStorage.getItem('mic_prompted')) {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       document.getElementById('tutHint').textContent = t("Allow microphone access when prompted...");
-      navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
+      navigator.mediaDevices.getUserMedia(getMicAudioConstraints())
         .then(stream => {
           stream.getTracks().forEach(t => t.stop());
           localStorage.setItem('mic_prompted', 'true');
           console.log("Mobile microphone permission verified.");
-          document.getElementById('tutHint').textContent = t("Tap microphone again to start speaking.");
+          document.getElementById('tutHint').textContent = t('Listening...');
+          // Auto-continue straight into listening — no need to tap again
+          setTimeout(() => tutSpeak(), 300);
         })
         .catch(err => {
           console.error("Microphone permission denied:", err);
@@ -14989,7 +15114,7 @@ function tutSpeak(){
   }
   try {
     recognition=new SR();
-    recognition.lang='zh-CN';
+    recognition.lang=getSpeechLang();
     recognition.interimResults=false;
     recognition.maxAlternatives=3;
     
@@ -15001,34 +15126,69 @@ function tutSpeak(){
       if (wave) wave.style.display = 'inline-flex';
       document.getElementById('tutHint').style.color='var(--green)';
       currentTurnId = 'voice-' + Date.now();
+      // On mobile (esp. Android) SpeechRecognition already owns the mic — requesting a second
+      // audio stream via getUserMedia here can kill the recognition. Only run the pitch track
+      // visualizer on desktop.
+      if (!isMobileDevice && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia(getMicAudioConstraints())
+          .then(stream => {
+            activeMicStream = stream;
+            let trackStream = stream;
+            try {
+              const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const source = audioCtx.createMediaStreamSource(stream);
+              const gain = audioCtx.createGain();
+              gain.gain.value = 2.5;
+              const dest = audioCtx.createMediaStreamDestination();
+              source.connect(gain).connect(dest);
+              trackStream = dest.stream;
+            } catch(e) {}
+            startTutorPitchTrack(trackStream);
+          })
+          .catch(e => { console.warn("Pitch track stream failed in SpeechRecognition:", e); });
+      }
     };
     
     recognition.onresult=e=>{
-      const res=[];
-      for(let i=0;i<e.results[0].length;i++)res.push(e.results[0][i].transcript);
-      stopMediaRecorder();
-      const isLive = localStorage.getItem('tutor_mode') === 'live';
-      let best = e.results[0][0].transcript;
-      let bs = 0;
-      if (isLive) {
-        if (suggestedUserTarget) {
-          bs = sim(best, suggestedUserTarget);
-          for(let i=1;i<e.results[0].length;i++){
-            const s = sim(e.results[0][i].transcript, suggestedUserTarget);
-            if(s>bs){bs=s; best=e.results[0][i].transcript;}
+      try {
+        const isLive = localStorage.getItem('tutor_mode') === 'live';
+        let best = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript || '').trim();
+        stopMediaRecorder();
+        if (!best) {
+          srOn=false;
+          updateMicUI('idle');
+          document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> '+t('No speech heard — check that your microphone is the correct input device and not muted in Windows settings, then tap mic and speak clearly.')+'</span>';
+          return;
+        }
+        let bs = 0;
+        if (isLive) {
+          if (suggestedUserTarget) {
+            bs = sim(best, suggestedUserTarget);
+            for(let i=1;i<e.results[0].length;i++){
+              const s = sim(e.results[0][i].transcript, suggestedUserTarget);
+              if(s>bs){bs=s; best=e.results[0][i].transcript.trim();}
+            }
+          } else {
+            bs = Math.min(0.85, best.length / 20);
           }
+        } else if (target) {
+          bs = sim(best, target);
+          for(let i=1;i<e.results[0].length;i++){
+            const s = sim(e.results[0][i].transcript, target);
+            if(s>bs){bs=s; best=e.results[0][i].transcript.trim();}
+          }
+        }
+        // Live AI mode: bypass scoring, direct AI conversation
+        if (isLive) {
+          addLiveUserMsg(best);
+          setTimeout(() => sendToGemini(best), 300);
         } else {
-          bs = Math.min(0.85, best.length / 20);
+          const percentageScore = Math.round(bs * 100);
+          processScore(best, percentageScore, target, currentTurnId);
         }
-      } else {
-        bs = sim(best, target);
-        for(let i=1;i<e.results[0].length;i++){
-          const s = sim(e.results[0][i].transcript, target);
-          if(s>bs){bs=s; best=e.results[0][i].transcript;}
-        }
+      } catch(err) {
+        console.error("tutSpeak result error:", err);
       }
-      const percentageScore = Math.round(bs * 100);
-      processScore(best, percentageScore, target, currentTurnId);
       srOn=false;
       updateMicUI('idle');
     };
@@ -15038,8 +15198,8 @@ function tutSpeak(){
       stopMediaRecorder();
       srOn=false;
       updateMicUI('idle');
-      if (e.error === 'no-speech') {
-        console.warn("no-speech detected: switching to audio recording fallback");
+      if (e.error === 'no-speech' || e.error === 'network') {
+        console.warn(e.error + " detected: switching to audio recording fallback");
         window._useAudioFallback = true;
         localStorage.setItem('_useAudioFallback', 'true');
         document.getElementById('tutHint').innerHTML='<span style="color:var(--gold)"><i class="fas fa-info-circle"></i> '+t('Auto-switching to recording...')+'</span>';
@@ -15050,6 +15210,26 @@ function tutSpeak(){
         }, 300);
       } else {
         document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> '+t('Mic Error')+' ('+e.error+') — '+t('Try text box')+'</span>';
+        
+        // Safety guard: Disable voice mode on hardware/permission blocks to prevent loop freezes
+        if (['not-allowed', 'audio-capture', 'service-not-allowed'].includes(e.error)) {
+          console.warn("Disabling Voice Mode due to mic permission/hardware error:", e.error);
+          if (typeof voiceModeActive !== 'undefined' && voiceModeActive) {
+            voiceModeActive = false;
+            localStorage.setItem('voice_mode_active', 'false');
+            const vBtn = document.getElementById('tutVoiceModeBtn');
+            if (vBtn) {
+              vBtn.style.background = 'var(--card2)';
+              vBtn.style.color = 'var(--muted)';
+            }
+            toast(t('Voice Mode disabled: Microphone access required'), 'var(--accent)');
+          }
+        }
+        
+        // Auto-retry listening in roleplay mode ONLY if voiceModeActive is still true
+        if (isLiveAIActive && typeof voiceModeActive !== 'undefined' && voiceModeActive) {
+          setTimeout(() => { if (voiceModeActive && !srOn) tutSpeak(); }, 2000);
+        }
       }
     };
     
@@ -15073,7 +15253,33 @@ function tutSpeak(){
 function tutTypeSubmit(){
   const input=document.getElementById('tutTypeInput');const text=input.value.trim();
   if(!text){toast(t('Type Chinese characters first'),'var(--gold');return}
-  if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
+  
+  // Conversational guided commands when lesson is not active
+  const lowText = text.toLowerCase();
+  if (!tutLesson) {
+    if (['start', 'yes', 'ok', 'begin', 'go', 'play', 'y', 'sure', 'hello', 'hi', 'start lesson', '你好'].includes(lowText)) {
+      input.value = '';
+      startTutor(0);
+      return;
+    }
+    if (['next', 'continue', 'forward', 'n', 'c', 'next lesson', '继续'].includes(lowText) && window._nextTutorIdx !== undefined && window._nextTutorIdx !== null) {
+      input.value = '';
+      startTutor(window._nextTutorIdx);
+      return;
+    }
+  }
+  
+  // Live AI mode: bypass scoring, direct AI conversation
+  if (localStorage.getItem('tutor_mode') === 'live') {
+    input.value = '';
+    addLiveUserMsg(text);
+    setTimeout(() => sendToGemini(text), 300);
+    return;
+  }
+  
+  if (localStorage.getItem('tutor_mode') !== 'live') {
+    if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
+  }
   const target=localStorage.getItem('tutor_mode') === 'live' ? currentLiveTarget : tutLesson.dialogue[tutStep].cn;
   const sc=Math.round(sim(text,target)*100);
   processScore(text,sc);input.value='';
@@ -15082,7 +15288,10 @@ function tutTypeSubmit(){
 function processScore(text,sc,target,turnId){
   tutScores.push(sc);
   const avg=Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length);
-  document.getElementById('tutTotal').textContent=avg;
+  var totalEl=document.getElementById('tutTotal');
+  totalEl.textContent=avg;
+  totalEl.classList.remove('ph-loading');
+  totalEl.style.background='none';
   const ring=document.getElementById('scoreRing');ring.setAttribute('stroke-dashoffset',264-(264*sc/100));
   ring.setAttribute('stroke',sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--accent)');
   document.getElementById('tutSc').textContent=sc;
@@ -15100,26 +15309,120 @@ function processScore(text,sc,target,turnId){
     checkBadges();
   }
   
-  if (localStorage.getItem('tutor_mode') === 'live') {
+  const tMode = localStorage.getItem('tutor_mode');
+  console.log('processScore tutor_mode:', tMode);
+  if (tMode === 'live') {
     setTimeout(() => {
-      sendToGemini(text);
+        sendToGemini(text);
     }, 1200);
   } else {
-    setTimeout(()=>{tutStep++;advanceTutor()},1200);
+    if (sc < 80) {
+      // Pronunciation coaching: replay, teach, and let the student retry
+      setTimeout(() => {
+        coachPronunciation(target);
+      }, 1600);
+    } else {
+      setTimeout(()=>{tutStep++;advanceTutor()},1200);
+    }
   }
+}
+
+// Replay the sentence, teach correct pronunciation, and let the student retry
+function coachPronunciation(target) {
+  if (!target) return;
+  // Replay the sentence for the student
+  speak(target);
+  // Build a pronunciation teaching message
+  var py = getCurrentPinyin();
+  var meaning = '';
+  var tip = '';
+  if (tutLesson) {
+    if (tutLesson.dialogue && tutLesson.dialogue[tutStep]) {
+      meaning = tutLesson.dialogue[tutStep].en || '';
+    }
+    if (tutLesson.words) {
+      var w = tutLesson.words.find(function(ww) { return ww.cn && target.indexOf(ww.cn) !== -1 && ww.tip; });
+      if (w) tip = w.tip;
+    }
+  }
+  var html = '<div style="padding:6px 0">'
+    + '<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px"><i class="fas fa-ear-listen"></i> ' + t('Listen again, then repeat:') + '</div>'
+    + '<div style="font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:4px">' + target + '</div>'
+    + (py ? '<div style="font-size:14px;color:var(--neon-cyan);margin-bottom:4px;letter-spacing:1px">' + py + '</div>' : '')
+    + (meaning ? '<div style="font-size:12px;color:var(--muted)">' + t('Meaning:') + ' ' + meaning + '</div>' : '')
+    + (tip ? '<div style="font-size:12px;color:var(--fg2);margin-top:4px"><i class="fas fa-lightbulb"></i> ' + t('Tip:') + ' ' + tip + '</div>' : '')
+    + '</div>';
+  addTutMsg('bot', html);
+  document.getElementById('tutHint').innerHTML = '<span style="color:var(--gold);font-weight:700"><i class="fas fa-microphone"></i> ' + t('Try again — press the mic and repeat the sentence') + '</span>';
+  document.getElementById('tutStatus').textContent = t('Practice');
 }
 
 function tutSkip(){if(!tutLesson)return;tutStep++;advanceTutor()}
 
+function laoshiWelcome() {
+  tutLesson = null;
+  tutStep = 0;
+  tutScores = [];
+  window._renderedStep = -1;
+  document.getElementById('tutTotal').textContent = '--';
+  document.getElementById('tutChat').innerHTML = '';
+  document.getElementById('tutWd').textContent = '你好';
+  document.getElementById('tutWp').textContent = 'nǐ hǎo';
+  document.getElementById('tutWm').textContent = 'Hello';
+  
+  addTutMsg('sys', '<i class="fas fa-robot mr-1"></i> <b>' + t('Li Laoshi') + '</b> — ' + t('AI Chinese Teacher'));
+  
+  const msg = '<div style="padding:10px">'
+    + '<p style="font-size:15px;margin-bottom:8px"><b>' + t('Welcome to Class!') + '</b> 🌟</p>'
+    + '<p style="font-size:13px;line-height:1.5;margin-bottom:12px">' + t('I am Li Laoshi, your personal AI Chinese Speaking Teacher. I will guide you through the HSK curriculum step-by-step. Let\'s begin with our first lesson: <b>HSK 1 - Basic Greetings</b>.') + '</p>'
+    + '<button onclick="startTutor(0)" class="bp text-xs py-2 px-4 w-full" style="border-radius:10px;font-weight:700;box-shadow:0 0 12px var(--neon-gold);cursor:pointer"><i class="fas fa-play mr-1"></i> ' + t('Start Lesson 1: Basic Greetings') + '</button>'
+    + '</div>';
+  addTutMsg('sys', msg);
+  
+  document.getElementById('tutStatus').textContent = t('Ready');
+  document.getElementById('tutHint').textContent = t('Type "start" or click the button above');
+  document.getElementById('tutHint').style.color = 'var(--muted)';
+  
+  setBtns(true);
+}
+
 function finishTutor(){
   const avg=tutScores.length?Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length):0;
   let g=avg>=80?'<span style="color:var(--green2)"><i class="fas fa-trophy"></i> '+t('Excellent!')+'</span>':avg>=50?'<span style="color:var(--gold)"><i class="fas fa-star"></i> '+t('Good effort!')+'</span>':'<span style="color:var(--accent2)"><i class="fas fa-seedling"></i> '+t('Keep practicing!')+'</span>';
-  addTutMsg('sys','<div style="padding:10px"><b>'+t('Lesson Complete!')+'</b><br>'+t('Average:')+' <span style="color:var(--gold);font-size:18px;font-weight:800">'+avg+t('/100')+'</span><br>'+g+'<br><span style="font-size:11px;color:var(--muted)">'+t('Select another lesson above to continue.')+'</span></div>');
+  
+  // Find next lesson
+  const currentIdx = TL.indexOf(tutLesson);
+  const nextIdx = currentIdx + 1;
+  const hasNext = nextIdx < TL.length;
+  const nextLesson = hasNext ? TL[nextIdx] : null;
+  
+  let nextMsg = '';
+  if (hasNext) {
+    nextMsg = '<br><div style="margin-top:12px"><button onclick="startTutor(' + nextIdx + ')" class="bp text-xs py-2 px-4 w-full" style="border-radius:10px;font-weight:700;box-shadow:0 0 12px var(--neon-gold);cursor:pointer"><i class="fas fa-forward mr-1"></i> ' + t('Start Next Lesson:') + ' ' + t(nextLesson.title) + '</button></div>';
+  } else {
+    nextMsg = '<br><span style="font-size:11px;color:var(--muted)">' + t('You have completed the entire curriculum! 🎉') + '</span>';
+  }
+  
+  addTutMsg('sys','<div style="padding:10px"><b>'+t('Lesson Complete!')+'</b><br>'+t('Average:')+' <span style="color:var(--gold);font-size:18px;font-weight:800">'+avg+t('/100')+'</span><br>'+g+'<br><span style="font-size:11px;color:var(--muted)">'+t('Click below to continue to the next lesson.')+'</span>' + nextMsg + '</div>');
+  
   document.getElementById('tutStatus').textContent=t('Lesson complete!'); const hw = document.getElementById('tutHintWrapper'); if(hw) hw.style.display='none';
-  document.getElementById('tutHint').textContent=t('Select a lesson above');document.getElementById('tutHint').style.color='var(--muted)';
+  
+  if (hasNext) {
+    document.getElementById('tutHint').textContent = t('Type "next" or click below');
+    document.getElementById('tutHint').style.color = 'var(--gold)';
+    window._nextTutorIdx = nextIdx;
+  } else {
+    document.getElementById('tutHint').textContent = t('Curriculum completed!');
+    document.getElementById('tutHint').style.color = 'var(--muted)';
+    window._nextTutorIdx = null;
+  }
+  
   document.getElementById('tutWd').textContent='--';document.getElementById('tutWp').textContent='--';document.getElementById('tutWm').textContent='--';
   document.getElementById('scoreWrap').style.display='none';document.getElementById('tutTip').style.display='none';
-  setBtns(false);
+  
+  setBtns(true);
+  tutLesson = null;
+  
   // Gamification: XP for completing lesson
   addXP(10, 'Lesson completed'); trackDaily('lessons');
   const lessonsDone = parseInt(localStorage.getItem('lessons_completed') || '0') + 1;
@@ -15134,15 +15437,114 @@ function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubm
 function updateMicUI(state){
   const ic=document.getElementById('tutMicIc'),lb=document.getElementById('tutMicLabel'),btn=document.getElementById('tutMic');
   if(!ic||!lb||!btn)return;
+  var tc = document.querySelector('.tone-curve-wrap');
   if(state==='recording'||state==='stop'){
     ic.className='fas fa-stop'; ic.style.color='var(--green)'; ic.style.fontSize='24px';
     btn.classList.add('on');
     lb.textContent='Stop';
+    if (tc) tc.classList.add('active');
   } else {
     ic.className='fas fa-microphone'; ic.style.color='var(--accent)'; ic.style.fontSize='24px';
     btn.classList.remove('on');
     lb.textContent='Speak';
+    if (tc) tc.classList.remove('active');
   }
+}
+
+// ===== MICROPHONE DEVICE SELECTION =====
+let selectedMicId = localStorage.getItem('mic_device_id') || '';
+
+function getMicAudioConstraints() {
+  const opts = { echoCancellation: true, noiseSuppression: true };
+  if (selectedMicId) opts.deviceId = { exact: selectedMicId };
+  return { audio: opts };
+}
+
+function loadMicDevices() {
+  const sel = document.getElementById('micDeviceSelect');
+  if (!sel || !navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+  navigator.mediaDevices.enumerateDevices().then(devices => {
+    const mics = devices.filter(d => d.kind === 'audioinput');
+    if (!mics.length) return;
+    sel.innerHTML = '<option value="">' + t('Default microphone') + '</option>';
+    mics.forEach(d => {
+      const o = document.createElement('option');
+      o.value = d.deviceId;
+      o.textContent = d.label || (t('Microphone') + ' ' + sel.options.length);
+      sel.appendChild(o);
+    });
+    sel.value = selectedMicId;
+  }).catch(() => {});
+}
+
+function selectMicDevice(id) {
+  selectedMicId = id || '';
+  if (id) localStorage.setItem('mic_device_id', id);
+  else localStorage.removeItem('mic_device_id');
+  toast(selectedMicId ? t('Microphone selected') : t('Using default microphone'), 'var(--green)');
+}
+
+let _micTestCtx = null, _micTestStream = null, _micTestRaf = null;
+
+function toggleMicTest() {
+  const btn = document.getElementById('micTestBtn');
+  const bar = document.getElementById('micTestLevel');
+  const st = document.getElementById('micTestStatus');
+  if (_micTestStream) { stopMicTest(); return; }
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    if (st) st.textContent = t('Microphone not supported in this browser.');
+    return;
+  }
+  navigator.mediaDevices.getUserMedia(getMicAudioConstraints()).then(stream => {
+    _micTestStream = stream;
+    _micTestCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_micTestCtx.state === 'suspended') _micTestCtx.resume().catch(() => {});
+    const src = _micTestCtx.createMediaStreamSource(stream);
+    const an = _micTestCtx.createAnalyser();
+    an.fftSize = 1024;
+    src.connect(an);
+    const data = new Uint8Array(an.fftSize);
+    let silentTicks = 0;
+    const draw = () => {
+      an.getByteTimeDomainData(data);
+      let peak = 0;
+      for (let i = 0; i < data.length; i++) {
+        const v = Math.abs(data[i] - 128) / 128;
+        if (v > peak) peak = v;
+      }
+      bar.style.width = Math.min(100, Math.round(peak * 200)) + '%';
+      if (peak > 0.08) {
+        bar.style.background = 'var(--green)';
+        silentTicks = 0;
+        if (st) st.textContent = t('Mic is working — the browser hears you.');
+      } else {
+        bar.style.background = 'var(--red)';
+        silentTicks++;
+        if (silentTicks > 50 && st) st.textContent = t('No signal. Try another device above, or check Windows: Settings > Privacy & security > Microphone > allow desktop apps.');
+      }
+      _micTestRaf = requestAnimationFrame(draw);
+    };
+    draw();
+    if (btn) { btn.textContent = t('Stop test'); btn.style.background = 'var(--red)'; }
+    if (st) st.textContent = t('Speak now — the bar should fill...');
+    clearTimeout(window._micTestTimer);
+    window._micTestTimer = setTimeout(() => { if (_micTestStream) stopMicTest(); }, 8000);
+  }).catch(e => {
+    if (st) st.textContent = t('Mic access failed: ') + (e.name || e.message);
+  });
+}
+
+function stopMicTest() {
+  if (_micTestStream) { try { _micTestStream.getTracks().forEach(tr => tr.stop()); } catch (e) {} }
+  if (_micTestRaf) cancelAnimationFrame(_micTestRaf);
+  if (_micTestCtx) { try { _micTestCtx.close(); } catch (e) {} }
+  _micTestStream = null; _micTestCtx = null; _micTestRaf = null;
+  clearTimeout(window._micTestTimer);
+  const btn = document.getElementById('micTestBtn');
+  const bar = document.getElementById('micTestLevel');
+  if (btn) { btn.textContent = t('Test microphone'); btn.style.background = 'var(--accent)'; }
+  if (bar) { bar.style.width = '0%'; bar.style.background = 'var(--green)'; }
+  loadMicDevices();
 }
 
 // ===== DOCUMENT UPLOAD =====
@@ -16002,7 +16404,7 @@ function buildHSK(){
               <span class="fc font-black text-sm text-white">${w.cn}</span>
               <span class="text-xs font-semibold" style="color:var(--gold)">${w.py}</span>
             </div>
-            <div class="text-[10px] mt-0.5 text-muted truncate">${t(w.en)}</div>
+            <div class="text-[10px] mt-0.5 text-muted truncate" data-tr="${w.en.replace(/"/g, '&quot;')}">${t(w.en)}</div>
           </div>
           <button onclick="event.stopPropagation(); speak('${w.cn.replace(/'/g, "\'")}', 0.7)" class="w-7 h-7 rounded-full flex items-center justify-center text-[var(--blue)] bg-[rgba(72,152,213,.08)] hover:bg-[rgba(72,152,213,.15)] transition border-none cursor-pointer" title="Listen">
             <i class="fas fa-volume-high text-[10px]"></i>
@@ -16094,7 +16496,8 @@ function initHanziWriter(char) {
     padding: 5,
     strokeColor: '#000000',
     outlineColor: '#999999',
-    drawingColor: '#555555'
+    drawingColor: '#555555',
+    onCharacterDataLoadError: function(c) { console.warn('Could not load stroke data for character:', c); }
   });
   writer.quiz();
 }
@@ -16119,9 +16522,16 @@ function clrCv() {
   var lookup = typeof WRITING_CHAR_DATA !== 'undefined' ? WRITING_CHAR_DATA : {};
   var data = lookup[char] || {};
   var rfPy = document.getElementById('rfPy');
-  if (rfPy) rfPy.textContent = data.py || '--';
   var rfMn = document.getElementById('rfMn');
-  if (rfMn) rfMn.textContent = data.m || '--';
+  if (typeof HSK9_WRITING_MODE !== 'undefined' && HSK9_WRITING_MODE && window._hsk9Sentence && window._hsk9Chars) {
+    var idx = typeof window._hsk9Idx !== 'undefined' ? window._hsk9Idx : 0;
+    var pyList = (window._hsk9Sentence.sp || '').split(/[，；。！？、\s,;]+/).filter(Boolean);
+    if (rfPy) rfPy.textContent = pyList[idx] || '--';
+    if (rfMn) rfMn.textContent = data.m || window._hsk9Sentence.se || '--';
+  } else {
+    if (rfPy) rfPy.textContent = data.py || '--';
+    if (rfMn) rfMn.textContent = data.m || '--';
+  }
   initHanziWriter(char);
 }
 function nxtCh(){
@@ -16227,7 +16637,7 @@ function startToneCapture() {
     return;
   }
   
-  navigator.mediaDevices.getUserMedia({ audio: true })
+  navigator.mediaDevices.getUserMedia(getMicAudioConstraints())
     .then(stream => {
       toneMicStream = stream;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -16411,7 +16821,9 @@ let isInputListening = false;
 let _inputRecAudioMode = false;
 
 function inputAudioFallback(ic, input) {
+  var tc = document.querySelector('.tone-curve-wrap');
   if (_inputRecAudioMode) {
+    if (tc) tc.classList.remove('active');
     stopMediaRecorder();
     _inputRecAudioMode = false;
     isInputListening = false;
@@ -16433,7 +16845,8 @@ function inputAudioFallback(ic, input) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ role: "user", parts: [{ inlineData: { mimeType: mime, data: b64 } }] }],
-          systemInstruction: "Transcribe the Chinese speech in this audio. Return ONLY the transcription, nothing else."
+          systemInstruction: "Transcribe the speech in this audio accurately. If the speaker is speaking Mandarin Chinese, return the Chinese characters. If they are speaking English or another language, return their words in that language. Return ONLY the transcription, nothing else.",
+          sourceLang: getSpeechSrcLang()
         })
       }).then(r => r.json()).then(d => {
         const text = d.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -16451,7 +16864,8 @@ function inputAudioFallback(ic, input) {
   ic.className = 'fas fa-stop text-accent';
   input.placeholder = t('Recording... tap mic to stop');
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(stream => {
+    navigator.mediaDevices.getUserMedia(getMicAudioConstraints()).then(stream => {
+      if (tc) tc.classList.add('active');
       activeMicStream = stream;
       audioChunks = [];
       let mime = 'audio/mp4';
@@ -16507,14 +16921,16 @@ function toggleInputSpeech() {
   
   try {
     inputSpeechRecognition = new SpeechRecognition();
-    inputSpeechRecognition.lang = 'zh-CN';
+    inputSpeechRecognition.lang = getSpeechLang();
     inputSpeechRecognition.interimResults = true;
     inputSpeechRecognition.maxAlternatives = 1;
     
+    var tc = document.querySelector('.tone-curve-wrap');
     inputSpeechRecognition.onstart = () => {
       isInputListening = true;
       ic.className = 'fas fa-stop text-accent';
       input.placeholder = t('Listening... Speak in Mandarin');
+      if (tc) tc.classList.add('active');
     };
     
     inputSpeechRecognition.onresult = (e) => {
@@ -16524,6 +16940,7 @@ function toggleInputSpeech() {
     
     inputSpeechRecognition.onerror = (e) => {
       console.error("Input Speech Error:", e.error);
+      if (tc) tc.classList.remove('active');
       if (e.error === 'no-speech') {
         window._useAudioFallback = true;
         localStorage.setItem('_useAudioFallback', 'true');
@@ -16538,6 +16955,7 @@ function toggleInputSpeech() {
       isInputListening = false;
       ic.className = 'fas fa-microphone';
       input.placeholder = t('Type or speak Chinese here — e.g. 你好');
+      if (tc) tc.classList.remove('active');
     };
     
     inputSpeechRecognition.start();
@@ -16558,16 +16976,26 @@ function toggleSettingsModal() {
     if (showing) {
       updatePushToggleUI();
       loadProfile();
+      loadMicDevices();
     }
   }
 }
 
 function saveGeminiSettings() {
   const mode = document.getElementById('tutorModeSelect').value;
+  if (mode === 'live' && !hasPremiumAccess()) {
+    showPremiumPaywall(t('Live AI Tutor'));
+    document.getElementById('tutorModeSelect').value = localStorage.getItem('tutor_mode') || 'static';
+    return;
+  }
   const rate = document.getElementById('speechRateSelect').value;
   
   localStorage.setItem('tutor_mode', mode);
   localStorage.setItem('speech_rate', rate);
+  
+  // Hands-free by default in Live AI mode
+  if (mode === 'live') enableVoiceModeAuto();
+  else if (voiceModeActive) toggleVoiceMode();
   
   updateSpeechRateDisplay(rate);
   toast(t("Settings Saved! Mode: ") + (mode === 'live' ? t('Live AI') : t('Simulated')), "var(--green)");
@@ -16578,7 +17006,11 @@ function saveGeminiSettings() {
 }
 
 function loadGeminiSettings() {
-  const mode = localStorage.getItem('tutor_mode') || "static";
+  let mode = localStorage.getItem('tutor_mode') || "static";
+  if (mode === 'live' && !hasPremiumAccess()) {
+    mode = 'static';
+    localStorage.setItem('tutor_mode', 'static');
+  }
   const rate = localStorage.getItem('speech_rate') || "1.0";
   
   const modeSelect = document.getElementById('tutorModeSelect');
@@ -16586,8 +17018,96 @@ function loadGeminiSettings() {
   
   if (modeSelect) modeSelect.value = mode;
   if (rateSelect) rateSelect.value = rate;
+
+  const speechLangSel = document.getElementById('speechLangSelect');
+  if (speechLangSel) speechLangSel.value = getSpeechLang();
+  
+  const bmToggle = document.getElementById('beginnerModeToggle');
+  if (bmToggle) bmToggle.checked = isBeginnerMode;
+  
+  const btn = document.getElementById('tutRoleplayBtn');
+  if (btn) {
+    if (mode === 'live') {
+      btn.style.background = 'var(--neon-cyan)';
+      btn.style.color = '#000';
+      btn.innerHTML = '<i class="fas fa-robot mr-1"></i>Live AI';
+    } else {
+      btn.style.background = 'var(--card2)';
+      btn.style.color = 'var(--muted)';
+      btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>Study';
+    }
+  }
   
   updateSpeechRateDisplay(rate);
+}
+
+// Translate Chinese to the user's selected language for live AI user bubbles
+let _liveTrCache = {};
+async function translateToEnglish(text) {
+  if (_liveTrCache[text]) return _liveTrCache[text];
+  const targetLang = getTutorLangName();
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text }] }], systemInstruction: 'You are a professional translator, 100% fluent in ' + targetLang + ' at native-speaker level. Translate the Chinese text into natural, idiomatic ' + targetLang + ' — never literal. Reply with ONLY the ' + targetLang + ' translation and nothing else.' })
+  });
+  const data = await res.json();
+  let reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  reply = reply.replace(/^["']|["']$/g, '').trim();
+  if (reply) _liveTrCache[text] = reply;
+  return reply;
+}
+
+// Show the user's Chinese reply in the chat, then append its English translation
+function addLiveUserMsg(text) {
+  const trId = 'utr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+  const hasCn = /[\u4e00-\u9fa5]/.test(text);
+  let html = '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + text + '</div>';
+  if (hasCn) {
+    html += '<div id="' + trId + '" style="font-size:13px;color:var(--muted)"><i class="fas fa-language"></i> ' + t('Translating...') + '</div>';
+  }
+  addTutMsg('user', html);
+  if (hasCn) {
+    translateToEnglish(text).then(function(en) {
+      const el = document.getElementById(trId);
+      if (el) el.textContent = en || '';
+    }).catch(function() {
+      const el = document.getElementById(trId);
+      if (el) el.textContent = '';
+    });
+  }
+}
+
+// ===== MIC / SPEECH LANGUAGE =====
+const SPEECH_LANGS = [
+  { code: 'zh-CN', src: 'zh', name: 'Chinese (Mandarin)' },
+  { code: 'en-US', src: 'en', name: 'English' },
+  { code: 'es-ES', src: 'es', name: 'Spanish' },
+  { code: 'fr-FR', src: 'fr', name: 'French' },
+  { code: 'ja-JP', src: 'ja', name: 'Japanese' },
+  { code: 'ko-KR', src: 'ko', name: 'Korean' },
+  { code: 'de-DE', src: 'de', name: 'German' },
+  { code: 'pt-BR', src: 'pt', name: 'Portuguese' },
+  { code: 'it-IT', src: 'it', name: 'Italian' },
+  { code: 'ru-RU', src: 'ru', name: 'Russian' },
+  { code: 'vi-VN', src: 'vi', name: 'Vietnamese' }
+];
+function getSpeechLang() {
+  return localStorage.getItem('speech_lang') || 'zh-CN';
+}
+function getSpeechSrcLang() {
+  const f = SPEECH_LANGS.find(x => x.code === getSpeechLang());
+  return f ? f.src : 'zh';
+}
+function getTutorLangName() {
+  const c = getSpeechLang();
+  const f = SPEECH_LANGS.find(x => x.code === c);
+  if (f && c !== 'zh-CN') return f.name;
+  return currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
+}
+function saveSpeechLang(v) {
+  localStorage.setItem('speech_lang', v);
+  toast(t('Mic language set to:') + ' ' + (SPEECH_LANGS.find(x => x.code === v) || { name: v }).name, 'var(--green)');
 }
 
 function sendToGemini(userText) {
@@ -16609,18 +17129,61 @@ function sendToGemini(userText) {
   const loaderId = "loader-" + Date.now();
   addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Thinking...')+'</div>');
   
-  const langName = currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
-  
-  let systemInstruction = "You are Li Laoshi, a Chinese language tutor. CRITICAL: Respond in Chinese first, then provide a " + langName + " translation. Format your response exactly like this:\n\n[Chinese text here]\n\n" + langName + ": [" + langName + " translation here]\n\nExample:\n你好！今天天气很好，你最喜欢做什么？\n\n" + langName + ": Hello! The weather is nice today, what do you like to do most?\n\nKeep Chinese to 2-3 simple sentences for HSK learners.";
-  
-  if (isRoleplayActive) {
-    const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
-    const setup = getRoleplaySetup(activeTopic);
-    systemInstruction = "You are participating in an immersive Chinese roleplay scenario. CRITICAL: Respond in Chinese first, then provide a " + langName + " translation. Format your response exactly like this:\n\n[Chinese text here]\n\n" + langName + ": [" + langName + " translation here]\n\nAct strictly in character. Here are your roleplay parameters:\n" +
-      "1. Scenario setup: " + setup.prompt + "\n" +
-      "2. Your character role: " + setup.botRole + "\n" +
-      "3. User's character role: " + setup.userRole + "\n" +
-      "4. Keep Chinese replies to 2-3 simple sentences in character.";
+  const chineseLevel = getChineseLevel();
+  const langName = getTutorLangName();
+  const baseRules =
+    "You are also a professional translator, 100% fluent in " + langName + " at native-speaker level. You fully understand English and every other language.\n" +
+    "LANGUAGE RULES:\n" +
+    "1. Always understand exactly what the student means in ANY language (English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, Vietnamese, etc.). Never ignore or misunderstand them.\n" +
+    "2. Whenever you translate into " + langName + ", produce natural, idiomatic " + langName + " exactly as a native speaker would say it — NEVER literal or word-for-word translation. Preserve tone, politeness, and cultural nuance.\n" +
+    "3. If the student writes in " + langName + " or any other language, answer or acknowledge them clearly in their own language FIRST, then teach the Chinese phrase(s) they would use to say it.\n" +
+    "4. If the student writes in Chinese, respond in Chinese (following the level rules) and always give a professional, fluent " + langName + " translation.\n" +
+    "5. Correct the student's Chinese gently: give the correct sentence, then a one-line explanation in " + langName + ".\n" +
+    "6. Never refuse or dodge a question. If you are unsure, say so honestly in " + langName + ".\n" +
+    "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n";
+
+  let systemInstruction;
+  if (timedClassActive && timedSystemInstruction) {
+    systemInstruction = timedSystemInstruction;
+  } else if (chineseLevel === 'never') {
+    systemInstruction = "You are Li Laoshi, a patient Chinese tutor for a student who has NEVER studied Chinese and knows ZERO words.\n" + baseRules +
+      "TEACHING STYLE (absolute beginner):\n" +
+      "1. Teach ONLY ONE tiny phrase per message (max 3-5 characters, e.g. 你好, 谢谢, 再见, 我很好, 我叫...). Use ONLY the simplest HSK 1 vocabulary.\n" +
+      "2. Every message must follow EXACTLY this 3-part shape:\n" +
+      "   Part A — the Chinese phrase in 汉字 with pinyin right after it, like: 你好 (nǐ hǎo)\n" +
+      "   Part B — \"" + langName + ":\" then ONE short line with the meaning and a tiny explanation.\n" +
+      "   Part C — one super simple question in " + langName + " using that phrase, and the exact answer the student should say, with pinyin, like: You can say: nǐ hǎo\n" +
+      "3. Keep the ENTIRE message to 2-3 short " + langName + " sentences max. Never write paragraphs.\n" +
+      "4. Always end with a question so the student always knows it is their turn. Start with yes/no questions and 'say the word' questions.\n" +
+      "5. Praise every attempt warmly, even if imperfect. If wrong, correct gently in one short " + langName + " line and invite them to try again.\n" +
+      "6. If the student types or says anything in " + langName + ", teach them the Chinese for their exact sentence, character by character.\n" +
+      "7. EXAMPLE of a perfect first reply:\n你好 (nǐ hǎo)\n" + langName + ": Hello! This is the most common greeting. Now you try — say hello to me!\nYou can say: nǐ hǎo";
+  } else if (chineseLevel === 'beginner' || isBeginnerMode) {
+    systemInstruction = "You are Li Laoshi, a Chinese tutor for a BEGINNER who knows a few basic words (a few weeks to months of study).\n" + baseRules +
+      "TEACHING STYLE (beginner):\n" +
+      "1. Use ONLY HSK 1-2 vocabulary. Keep every sentence SHORT and simple. Never use advanced grammar, idioms, or long sentences.\n" +
+      "2. Each message teaches ONE new Chinese phrase (汉字 with pinyin in parentheses), gives its " + langName + " meaning, then asks ONE simple question using it.\n" +
+      "3. Give the exact answer the student can say, with pinyin, like: You can say: wǒ jiào xiǎo míng.\n" +
+      "4. Keep the whole message to 2-3 short " + langName + " sentences total. Never flood the student.\n" +
+      "5. Build step by step: start with greetings and introductions (你好, 我叫..., 我很好, 谢谢, 再见), then simple daily phrases. Only advance after the student succeeds.\n" +
+      "6. Always end with ONE simple question so the student always knows it is their turn.\n" +
+      "7. Praise effort warmly; correct gently in one short " + langName + " line and invite them to try again.\n" +
+      "8. If the student writes or says something in " + langName + ", teach them the Chinese for their exact sentence.\n" +
+      "9. FORMAT — reply in exactly this shape:\n[Chinese phrase] (pinyin)\n" + langName + ": [translation and short explanation]\nYou can say: [answer in pinyin]\nExample:\n我叫小明 (wǒ jiào xiǎo míng)\n" + langName + ": My name is Xiaoming. Now you tell me your name!\nYou can say: wǒ jiào xiǎo míng";
+  } else if (chineseLevel === 'advanced') {
+    systemInstruction = "You are Li Laoshi, a Chinese tutor for an ADVANCED learner (3+ years of study).\n" + baseRules +
+      "TEACHING STYLE (advanced):\n" +
+      "1. Respond ONLY in natural Chinese with native-level vocabulary and idioms (3-5 sentences).\n" +
+      "2. Do NOT add pinyin unless the student explicitly asks for it.\n" +
+      "3. Do NOT translate into " + langName + " unless the student asks; if the student writes in " + langName + ", answer briefly in " + langName + " then continue in Chinese.\n" +
+      "4. Correct mistakes briefly, in Chinese, and only when significant.";
+  } else {
+    systemInstruction = "You are Li Laoshi, a Chinese tutor for an INTERMEDIATE learner (about HSK 3-4).\n" + baseRules +
+      "TEACHING STYLE (intermediate):\n" +
+      "1. Respond in Chinese first (2-3 moderately simple sentences), then provide the " + langName + " translation. Format exactly:\n\n[Chinese text here]\n\n" + langName + ": [" + langName + " translation here]\n\nExample:\n你觉得运动重要吗？我每周都跑步。\n\n" + langName + ": Do you think exercise is important? I run every week.\n" +
+      "2. Include pinyin in parentheses only for NEW characters you introduce.\n" +
+      "3. If the student writes in " + langName + ", answer their question in " + langName + " and teach the Chinese phrases they need.\n" +
+      "4. Keep responses moderate: 2-3 simple Chinese sentences max, mostly HSK 3 vocabulary. Do not overwhelm the student.";
   }
   
   const payload = {
@@ -16643,63 +17206,107 @@ function sendToGemini(userText) {
     
     let reply = data.candidates[0].content.parts[0].text.trim();
     
-    // Parse Chinese and English from the response
+    // Parse Chinese and English from the response into separate display text
     let cleanReply = reply;
     let englishTranslation = "";
     
-    // Parse Chinese and the translation from the response (matches any language label like "English:", "Vietnamese:", etc.)
-    const langMatch = reply.match(/\n\s*[A-Z][a-z]+(\s[A-Z][a-z]+)?\s*:\s*([\s\S]*)/);
-    if (langMatch) {
-      englishTranslation = langMatch[2].trim();
-      cleanReply = reply.replace(/\n\s*[A-Z][a-z]+(\s[A-Z][a-z]+)?\s*:\s*[\s\S]*/, "").trim();
-    } else {
-      // Fallback: try to split by newline, take first block as Chinese
-      const parts = reply.split('\n').filter(l => l.trim());
-      cleanReply = parts.filter(l => /[\u4e00-\u9fa5]/.test(l)).join('\n') || parts[0];
-    }
+    // Remove parenthetical pinyin annotations like (nǐ hǎo) from the whole reply
+    const pinyinRe = /[A-Za-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü\s,，.。'’?？！!-]{2,}/;
+    const noPinyin = reply.replace(new RegExp('\\(' + pinyinRe.source + '\\)','g'), '')
+                          .replace(new RegExp('（' + pinyinRe.source + '）','g'), '');
     
-    let suggestedAnswer = cleanReply.split(/[？！。.\n]/).filter(s => s.trim().length > 0)[0] || cleanReply;
+    // Split the reply into alternating Chinese and Latin (tutor language) runs so
+    // the translation is never mixed into the Chinese line.
+    const cnParts = [];
+    const enParts = [];
+    const labelChars = 'A-Za-z\u00C0-\u02AF\u1E00-\u1EFF';
+    let buf = '';
+    let inCn = false;
+    const flush = () => {
+      const b = buf.trim();
+      buf = '';
+      if (!b) return;
+      if (inCn) {
+        cnParts.push(b);
+      } else {
+        const cleaned = b.replace(new RegExp('(^|\\s)[' + labelChars + ']+(?:\\s+[' + labelChars + ']+)?\\s*:\\s*', 'g'), ' ').trim();
+        if (cleaned) enParts.push(cleaned);
+      }
+    };
+    for (const ch of noPinyin) {
+      const isCn = ch >= '\u4e00' && ch <= '\u9fa5';
+      const isSpace = /\s/.test(ch);
+      const isPunct = /[，。！？、；：,.!?;:]/.test(ch);
+      if (isCn) {
+        if (!inCn) flush();
+        inCn = true;
+        buf += ch;
+      } else if (!isSpace && !isPunct) {
+        if (inCn) flush();
+        inCn = false;
+        buf += ch;
+      } else {
+        buf += ch;
+      }
+    }
+    flush();
+    
+    cleanReply = cnParts.join(' ').replace(/\s{2,}/g, ' ').trim();
+    englishTranslation = enParts.join(' ').replace(/\s{2,}/g, ' ').trim();
+    if (!cleanReply && englishTranslation) { cleanReply = englishTranslation; englishTranslation = ''; }
+    
+    // Speak & pronunciation target use ONLY the Chinese characters (never pinyin or English)
+    const speechText = (cleanReply.match(/[\u4e00-\u9fa5]+/g) || []).join(' ');
+    
+    let suggestedAnswer = speechText ? speechText.split(/[？！。.\n]/).filter(s => s.trim().length > 0)[0] || speechText : '';
     
     // Set targets for pronunciation matching
-    currentLiveTarget = cleanReply;
+    currentLiveTarget = speechText;
     suggestedUserTarget = suggestedAnswer;
     
     // Show in side panel
-    document.getElementById('tutWd').textContent = cleanReply;
+    document.getElementById('tutWd').textContent = speechText;
     document.getElementById('tutWp').textContent = suggestedAnswer;
     document.getElementById('tutWm').textContent = englishTranslation;
+
+    // Show the hint button with the suggested answer so beginners always know what to say
+    const hintWrapper = document.getElementById('tutHintWrapper');
+    const hintText = document.getElementById('tutHintText');
+    if (hintWrapper && hintText) {
+      if (suggestedAnswer && suggestedAnswer.length <= 12) {
+        hintText.textContent = suggestedAnswer;
+        hintWrapper.style.display = 'block';
+      } else {
+        hintWrapper.style.display = 'none';
+      }
+    }
     
     // Append response to history (store the original full reply)
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
     
-    // Add message to chat and speak
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + cleanReply.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>');
-    speak(cleanReply);
+    // Add message to chat, then pause briefly before speaking so the user is done talking
+    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : ''));
+    if (speechText) setTimeout(() => speak(speechText), 1100);
     
-    // Auto-listen in Voice Mode
-    if (voiceModeActive) {
+    // Auto-listen in Voice Mode or Live AI Mode — wait for speech to finish
+    if (voiceModeActive || localStorage.getItem('tutor_mode') === 'live') {
       setTimeout(() => {
-        if (voiceModeActive && !srOn) {
-          tutSpeak();
-        }
-      }, 2000);
+        const waitAndListen = () => {
+          if ((voiceModeActive || localStorage.getItem('tutor_mode') === 'live') && !srOn) {
+            if (isTtsPlaying()) {
+              setTimeout(waitAndListen, 500);
+            } else {
+              tutSpeak();
+            }
+          }
+        };
+        waitAndListen();
+      }, 2500);
     }
     
-    // Immersive Roleplay Status Updates for Live Mode
-    let botRole = "Tutor", userRole = "Student";
-    if (isRoleplayActive) {
-      const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
-      const setup = getRoleplaySetup(activeTopic);
-      botRole = setup.botRole.split(' ')[0];
-      userRole = setup.userRole.split(' ')[0];
-    }
-    if (isRoleplayActive) {
-      if (statusText) statusText.textContent = t('Roleplay')+' — '+t('Your Turn')+' ['+userRole+']';
-      document.getElementById('tutHint').textContent = t('Your Turn')+' — '+t('speak')+' ['+userRole+'] '+t('lines');
-    } else {
-      if (statusText) statusText.textContent = t("Your turn")+' — '+t("press mic");
-      document.getElementById('tutHint').textContent = t("Type Chinese below or press mic");
-    }
+    // Status updates for Live AI Mode
+    if (statusText) statusText.textContent = t("Your turn")+' — '+t("press mic");
+    document.getElementById('tutHint').textContent = t("Type Chinese below or press mic");
   })
   .catch(err => {
     console.error("Gemini Error:", err);
@@ -16713,7 +17320,243 @@ function sendToGemini(userText) {
       addTutMsg('warn', '⚠️ <b>'+t('Tutor Connection Failed')+'</b> — '+t('Error generating reply. Please try again later.'));
       if (statusText) statusText.textContent = t("Error");
     }
+    // Auto-retry listening in voice mode after error
+    if (voiceModeActive) {
+      setTimeout(() => { if (!srOn) tutSpeak(); }, 3000);
+    }
   });
+}
+
+// ===== TIMED STRUCTURED CLASSES (live in-class style) =====
+const TIMED_PHASE_NAMES = ['Warm-up','New Vocabulary','Guided Practice','Review & Quiz','Recap & Homework'];
+
+function timedPhaseName(p) {
+  return t(TIMED_PHASE_NAMES[p] || TIMED_PHASE_NAMES[0]);
+}
+
+function collectTimedVocab(levelIdx) {
+  const lessons = getLessonsForLevel(levelIdx);
+  const seen = {}, words = [];
+  lessons.forEach(l => (l.words || []).forEach(w => {
+    if (w && w.cn && !seen[w.cn]) { seen[w.cn] = 1; words.push(w); }
+  }));
+  return words.slice(0, 8);
+}
+
+function buildTimedAgenda(levelIdx, minutes) {
+  const totalMin = Math.max(5, parseInt(minutes) || 15);
+  const warm = Math.max(1, Math.round(totalMin * 0.15));
+  const vocab = Math.max(2, Math.round(totalMin * 0.25));
+  const practice = Math.max(2, Math.round(totalMin * 0.30));
+  const review = Math.max(1, Math.round(totalMin * 0.15));
+  const recap = Math.max(1, totalMin - warm - vocab - practice - review);
+  const vocabSlice = collectTimedVocab(levelIdx);
+  const vocabList = vocabSlice.map(w => w.cn + ' (' + (w.py || '') + ') — ' + (w.en || '')).join('\n') || 'Simple words from the lesson topic';
+  const levelName = (LV[levelIdx] || { n: 'HSK 1' }).n;
+  const levelNum = levelIdx + 1;
+  return { totalMin, warm, vocab, practice, review, recap, vocabSlice, vocabList, levelName, levelNum };
+}
+
+function buildTimedSystemInstruction(agenda) {
+  const langName = getTutorLangName();
+  const a = agenda;
+  return "You are Li Laoshi, a professional Chinese teacher leading a LIVE structured class. The student chose a " + a.levelName + " class of " + a.totalMin + " minutes. Follow the class plan below exactly, like a real in-person lesson. Adjust ALL vocabulary and grammar to the " + a.levelName + " level (HSK " + a.levelNum + " range).\n" +
+    "CLASS PLAN (total " + a.totalMin + " minutes — pace yourself so every phase is covered, keep each phase roughly within its budget):\n" +
+    "1. Warm-up (" + a.warm + " min): Greet the student warmly in Chinese, ask how they are, review 1-2 phrases they may know. Keep it SHORT (2-3 exchanges max).\n" +
+    "2. New Vocabulary (" + a.vocab + " min): Teach the words below ONE at a time. For each word: Chinese with pinyin in parentheses, its " + langName + " meaning, and ONE short example sentence. After each word ask the student to repeat it aloud (give: You can say: <pinyin>). Then quickly recap all the words together.\n" +
+    "3. Guided Practice (" + a.practice + " min): Hold a short conversation using the new words. Ask simple questions, always give the exact answer the student can say, correct gently, and praise effort.\n" +
+    "4. Review & Quiz (" + a.review + " min): Ask 3-4 quick review questions that mix the new words (meaning, pinyin, or use-in-a-sentence).\n" +
+    "5. Recap & Homework (" + a.recap + " min): Summarize what was learned (list the words with pinyin), give ONE small homework task, and say goodbye.\n\n" +
+    "VOCABULARY FOR THIS CLASS:\n" + a.vocabList + "\n\n" +
+    "TEACHING RULES:\n" +
+    "1. Use " + langName + " for all explanations and translations; teach Chinese with pinyin in parentheses.\n" +
+    "2. Always understand what the student says in ANY language; never ignore them. If they write in " + langName + ", acknowledge them first, then teach the Chinese phrase they need.\n" +
+    "3. Correct gently: correct sentence first, then one short " + langName + " explanation.\n" +
+    "4. Keep every message concise (2-4 sentences) and always end with a question or a clear 'your turn'.\n" +
+    "5. Praise genuine effort warmly.\n" +
+    "6. When you receive an internal cue that starts with （阶段提示：...）, immediately switch to that phase and continue teaching — do not mention the cue.\n" +
+    "7. If the student wants to go faster or slower, respect their pace but still try to complete the class plan.\n" +
+    "8. If the student writes in Chinese, respond in Chinese and give a fluent " + langName + " translation.";
+}
+
+function openTimedClassModal() {
+  const modal = document.getElementById('timedClassModal');
+  if (!modal) return;
+  const lvSel = document.getElementById('timedLvSelect');
+  if (lvSel) {
+    lvSel.innerHTML = '';
+    LV.forEach((l, i) => {
+      const o = document.createElement('option');
+      o.value = i;
+      o.textContent = l.n + ' — ' + l.d;
+      lvSel.appendChild(o);
+    });
+    if (typeof curLv === 'number' && curLv >= 0) lvSel.value = String(curLv);
+  }
+  const firstDur = document.querySelector('.timed-dur-btn');
+  if (firstDur && !document.querySelector('.timed-dur-btn[data-selected]')) pickTimedDuration(firstDur, parseInt(firstDur.getAttribute('data-min') || '15', 10));
+  modal.style.display = 'flex';
+}
+
+function closeTimedClassModal() {
+  const modal = document.getElementById('timedClassModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function pickTimedDuration(btn, minutes) {
+  document.querySelectorAll('.timed-dur-btn').forEach(b => {
+    b.style.background = 'var(--card2)';
+    b.style.color = 'var(--fg)';
+    b.style.borderColor = 'var(--border)';
+  });
+  btn.style.background = 'var(--gold)';
+  btn.style.color = '#000';
+  btn.style.borderColor = 'var(--gold)';
+  btn.setAttribute('data-selected', String(minutes));
+}
+
+function startTimedClass() {
+  const lvSel = document.getElementById('timedLvSelect');
+  const selectedDur = document.querySelector('.timed-dur-btn[data-selected]');
+  const minutes = selectedDur ? parseInt(selectedDur.getAttribute('data-min') || '15', 10) : 15;
+  const levelIdx = parseInt((lvSel && lvSel.value) || '0', 10);
+  if (!hasPremiumAccess() && levelIdx >= 1) {
+    closeTimedClassModal();
+    showPremiumPaywall(LV[levelIdx].n);
+    return;
+  }
+  closeTimedClassModal();
+  const agenda = buildTimedAgenda(levelIdx, minutes);
+  timedClassLevel = levelIdx;
+  timedClassMinutes = agenda.totalMin;
+  timedClassSecondsLeft = agenda.totalMin * 60;
+  timedClassPhase = 0;
+  timedCueSent = {};
+  timedCueTimers = [];
+  timedSystemInstruction = buildTimedSystemInstruction(agenda);
+
+  // Reset the live AI session state
+  tutLesson = TL[0];
+  tutScores = [];
+  geminiHistory = [];
+  currentLiveTarget = '';
+  suggestedUserTarget = '';
+  const chat = document.getElementById('tutChat');
+  if (chat) chat.innerHTML = '<div class="csys"><i class="fas fa-info-circle mr-1"></i> ' + t('Live AI Mode:') + ' ' + t('Timed class in progress.') + '</div>';
+  const totalEl = document.getElementById('tutTotal');
+  if (totalEl) totalEl.textContent = '--';
+
+  // Ensure Live AI mode is active
+  if (localStorage.getItem('tutor_mode') !== 'live') {
+    localStorage.setItem('tutor_mode', 'live');
+    const modeSelect = document.getElementById('tutorModeSelect');
+    if (modeSelect) modeSelect.value = 'live';
+    const btn = document.getElementById('tutRoleplayBtn');
+    if (btn) {
+      btn.style.background = 'var(--neon-cyan)';
+      btn.style.color = '#000';
+      btn.innerHTML = '<i class="fas fa-robot mr-1"></i>Live AI';
+    }
+  }
+  setBtns(true);
+
+  timedClassActive = true;
+  const bar = document.getElementById('timedClassBar');
+  if (bar) bar.style.display = 'flex';
+  const banner = document.getElementById('tutLiveBanner');
+  if (banner) banner.style.display = 'none';
+  const lvEl = document.getElementById('timedClassLv');
+  if (lvEl) lvEl.textContent = agenda.levelName;
+  updateTimedPhaseLabel();
+  updateTimedTimerUI();
+  scrollToSection('#tutor');
+
+  startTimedTimer();
+  scheduleTimedCues(agenda);
+  sendToGemini('（课堂开始）老师，请开始今天的' + agenda.levelName + '课程。先打招呼，然后按照教学计划进行。');
+}
+
+function scheduleTimedCues(agenda) {
+  const a = agenda;
+  const minutes = a.totalMin * 60;
+  const plan = [
+    { phase: 1, at: a.warm * 60, cue: '（阶段提示：热身结束。现在进入第二阶段：新词汇教学。请逐个介绍本课词汇，先教发音，再给例句，让学生跟着读。）' },
+    { phase: 2, at: (a.warm + a.vocab) * 60, cue: '（阶段提示：新词汇教学结束。现在进入第三阶段：口语练习。用刚学的词汇与学生进行简短对话，每个问题后给出学生可以说出的答案。）' },
+    { phase: 3, at: (a.warm + a.vocab + a.practice) * 60, cue: '（阶段提示：口语练习结束。现在进入第四阶段：复习与快速测验。出3-4个简单问题复习本节课词汇。）' },
+    { phase: 4, at: (a.warm + a.vocab + a.practice + a.review) * 60, cue: '（阶段提示：复习结束。现在进入最后阶段：课堂总结。列出今天学的所有词汇，布置一个小作业，然后告别。）' }
+  ];
+  plan.forEach(b => {
+    if (b.at >= minutes) return;
+    const timer = setTimeout(() => {
+      if (!timedClassActive || timedCueSent[b.phase]) return;
+      timedCueSent[b.phase] = true;
+      timedClassPhase = b.phase;
+      updateTimedPhaseLabel();
+      sendToGemini(b.cue);
+    }, b.at * 1000);
+    timedCueTimers.push(timer);
+  });
+}
+
+function updateTimedPhaseLabel() {
+  const el = document.getElementById('timedClassPhase');
+  if (el) el.textContent = timedPhaseName(timedClassPhase);
+}
+
+function startTimedTimer() {
+  if (timedClassTimer) clearInterval(timedClassTimer);
+  timedClassTimer = setInterval(() => {
+    timedClassSecondsLeft--;
+    updateTimedTimerUI();
+    if (timedClassSecondsLeft <= 0) {
+      clearInterval(timedClassTimer);
+      timedClassTimer = null;
+      endTimedClass();
+    }
+  }, 1000);
+}
+
+function updateTimedTimerUI() {
+  const el = document.getElementById('timedTimer');
+  if (!el) return;
+  const s = Math.max(0, timedClassSecondsLeft);
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  el.textContent = m + ':' + (sec < 10 ? '0' : '') + sec;
+  el.style.color = s <= 120 ? 'var(--accent)' : 'var(--gold)';
+  const prog = document.getElementById('timedClassProgress');
+  if (prog) prog.style.width = (100 * s / (timedClassMinutes * 60)).toFixed(1) + '%';
+}
+
+function endTimedClass() {
+  if (!timedClassActive) return;
+  const minutes = timedClassMinutes;
+  const levelIdx = timedClassLevel;
+  if (timedClassTimer) { clearInterval(timedClassTimer); timedClassTimer = null; }
+  timedCueTimers.forEach(t => clearTimeout(t));
+  timedCueTimers = [];
+  timedClassPhase = 4;
+  updateTimedPhaseLabel();
+
+  // Award progress: XP + daily activity + mark class vocab as learned
+  try {
+    trackDaily('lessons');
+    addXP(Math.max(5, Math.round(minutes * 2)), 'timed_class');
+    const learned = JSON.parse(localStorage.getItem('learned_words') || '{}');
+    collectTimedVocab(levelIdx).forEach(w => { learned[w.cn] = true; });
+    localStorage.setItem('learned_words', JSON.stringify(learned));
+    if (typeof updateProgress === 'function') updateProgress();
+  } catch (e) {}
+
+  sendToGemini('（时间到！老师，请给这节课做个简短的课堂总结：列出今天学的所有词汇，布置一个小作业，然后向学生告别。请保持简洁。）');
+  timedClassActive = false;
+  timedSystemInstruction = null;
+
+  const bar = document.getElementById('timedClassBar');
+  if (bar) setTimeout(() => { bar.style.display = 'none'; }, 5000);
+  const banner = document.getElementById('tutLiveBanner');
+  if (banner) setTimeout(() => { banner.style.display = ''; }, 5000);
+  toast('🎓 ' + t('Class complete! +') + (Math.max(5, Math.round(minutes * 2))) + ' XP', 'var(--gold)', 4000);
 }
 
 function useHint() {
@@ -16859,7 +17702,7 @@ function startPronRecording() {
     return;
   }
   pronChunks = [];
-  navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(stream => {
+  navigator.mediaDevices.getUserMedia(getMicAudioConstraints()).then(stream => {
     pronMediaRecorder = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/mp4', audioBitsPerSecond: 128000 });
     pronMediaRecorder.ondataavailable = e => { if (e.data.size > 0) pronChunks.push(e.data); };
     pronMediaRecorder.onstop = () => {
@@ -17025,6 +17868,99 @@ function toggleVoiceMode() {
     if (btn) { btn.style.background = 'var(--card2)'; btn.style.color = 'var(--muted)'; }
     if (label) label.textContent = t('Voice');
     toast(t('Voice Mode OFF'), 'var(--gold)');
+  }
+}
+
+function enableVoiceModeAuto() {
+  voiceModeActive = true;
+  localStorage.setItem('voice_mode', 'on');
+  const btn = document.getElementById('tutVoiceModeBtn');
+  const label = document.getElementById('tutVoiceModeLabel');
+  if (btn) { btn.style.background = 'var(--green)'; btn.style.color = '#fff'; }
+  if (label) label.textContent = t('On');
+}
+
+function startLiveTutor() {
+  let mode = localStorage.getItem('tutor_mode') || "static";
+  if (mode === 'live') {
+    toast(t('Already chatting live with the AI teacher'), 'var(--green)');
+    return;
+  }
+  if (!hasPremiumAccess()) {
+    showPremiumPaywall(t('Live AI Tutor'));
+    return;
+  }
+  localStorage.setItem('tutor_mode', 'live');
+  const modeSelect = document.getElementById('tutorModeSelect');
+  if (modeSelect) modeSelect.value = 'live';
+  const btn = document.getElementById('tutRoleplayBtn');
+  if (btn) {
+    btn.style.background = 'var(--neon-cyan)';
+    btn.style.color = '#000';
+    btn.innerHTML = '<i class="fas fa-robot mr-1"></i>Live AI';
+  }
+  isLiveAIActive = true;
+  tutStep = 0;
+  tutLesson = TL[0];
+  // Start in clean typing-chat mode — disable voice auto-listen so it doesn't loop on no-mic setups
+  if (typeof voiceModeActive !== 'undefined' && voiceModeActive) {
+    voiceModeActive = false;
+    localStorage.setItem('voice_mode', 'off');
+    const vBtn = document.getElementById('tutVoiceModeBtn');
+    const vLabel = document.getElementById('tutVoiceModeLabel');
+    if (vBtn) { vBtn.style.background = 'var(--card2)'; vBtn.style.color = 'var(--muted)'; }
+    if (vLabel) vLabel.textContent = t('Voice');
+  }
+  geminiHistory = [];
+  const chat = document.getElementById('tutChat');
+  if (chat) chat.innerHTML = '';
+  setBtns(true);
+  toast(t('Live AI Tutor mode activated!'), 'var(--green)');
+  if (!localStorage.getItem('chinese_level')) {
+    showLevelModal();
+    _pendingLiveGreeting = true;
+    return;
+  }
+  sendLiveGreeting();
+}
+
+function toggleRoleplayMode() {
+  let mode = localStorage.getItem('tutor_mode') || "static";
+  if (mode !== 'live' && !hasPremiumAccess()) {
+    showPremiumPaywall(t('Live AI Tutor'));
+    return;
+  }
+  mode = mode === 'live' ? 'static' : 'live';
+  localStorage.setItem('tutor_mode', mode);
+  
+  // Hands-free by default in Live AI mode
+  if (mode === 'live') enableVoiceModeAuto();
+  else if (voiceModeActive) toggleVoiceMode();
+  
+  const btn = document.getElementById('tutRoleplayBtn');
+  const modeSelect = document.getElementById('tutorModeSelect');
+  if (modeSelect) modeSelect.value = mode;
+
+  if (mode === 'live') {
+    if (btn) { 
+      btn.style.background = 'var(--neon-cyan)'; 
+      btn.style.color = '#000';
+      btn.innerHTML = '<i class="fas fa-robot mr-1"></i>Live AI';
+    }
+    toast(t('Live AI Tutor mode activated!'), 'var(--green)');
+  } else {
+    if (btn) { 
+      btn.style.background = 'var(--card2)'; 
+      btn.style.color = 'var(--muted)';
+      btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>Study';
+    }
+    toast(t('Structured Lesson mode activated!'), 'var(--gold)');
+  }
+  
+  if (typeof tutLesson !== 'undefined' && tutLesson) {
+    if (window.startTutor && typeof TL !== 'undefined') {
+      startTutor(TL.indexOf(tutLesson));
+    }
   }
 }
 
@@ -17287,14 +18223,7 @@ function openTopicLesson(topicName, lvIdx) {
     if (chat) chat.innerHTML = '';
     
     let activePrompt = "今天的对话主题是：" + topicName + "。请用中文打招呼，然后问一个关于这个话题的简单问题。";
-    
-    if (isRoleplayActive) {
-      const setup = getRoleplaySetup(topicName);
-      activePrompt = setup.prompt;
-      addTutMsg('sys', `🎭 <b>Roleplay Characters Assigned</b>:<br>&bull; Bot Role: <b>${setup.botRole}</b><br>&bull; Your Role: <b>${setup.userRole}</b>`);
-    } else {
-      addTutMsg('sys', '🤖 <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
-    }
+    addTutMsg('sys', '🤖 <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
     
     sendToGemini(activePrompt);
     setBtns(true);
@@ -17627,6 +18556,8 @@ function subscribePremium() {
   .then(function(details) {
     if (details.status === 'COMPLETED') {
       localStorage.setItem('is_premium', 'true');
+      localStorage.removeItem('premium_expiry');
+      localStorage.removeItem('mandarin30_used');
       togglePremiumModal();
       updatePremiumUI();
       if (lessonsMode === 'topics') buildTopics();
@@ -18072,6 +19003,9 @@ document.addEventListener('keydown', function(e) {
 function stopMediaRecorder() {
   const wave = document.getElementById('tutVoiceWave');
   if (wave) wave.style.display = 'none';
+  stopTutorPitchTrack();
+  _recAudioMode = false;
+  _inputRecAudioMode = false;
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     try {
       mediaRecorder.stop();
@@ -18112,76 +19046,312 @@ function playRecordedVoice(url) {
   }
 })();
 
-// A. Theme Color Toggler
-// DUPLICATE THEME & RADICAL EXPLORER SECTION DELETED TO PREVENT REDECLARATION SYNTAX ERRORS
-// C. Dialogue Roleplay Mode
-let isRoleplayActive = false;
-function getRoleplaySetup(topicName) {
-  let botRole = "老师 🎓", userRole = "学生 📝";
-  let prompt = "我们来做一个角色扮演对话。你是中文老师，我是学生。请用中文跟我说话，用简单的汉语。";
-  const t = topicName.toLowerCase();
-  if (t.includes('restaurant') || t.includes('food') || t.includes('eat') || t.includes('hsk 1 lesson 2')) {
-    botRole = "服务员 🧑‍🍳";
-    userRole = "顾客 🍽️";
-    prompt = "我们来做一个角色扮演对话。你是餐厅的服务员，我是顾客。请先用中文跟我打招呼，问我想吃什么。";
-  } else if (t.includes('family') || t.includes('friend') || t.includes('introducing') || t.includes('hsk 1 lesson 3')) {
-    botRole = "朋友 A 👥";
-    userRole = "朋友 B 👥";
-    prompt = "我们来做一个角色扮演对话。你是朋友A，我是朋友B，我们在咖啡馆见面。请先用中文跟我打招呼，问我家人怎么样。";
-  } else if (t.includes('airport') || t.includes('travel') || t.includes('hsk 1 lesson 4')) {
-    botRole = "海关人员 👮";
-    userRole = "乘客 ✈️";
-    prompt = "我们来做一个角色扮演对话。你是北京机场的海关人员，我是乘客。请先用中文跟我打招呼，要看我的护照。";
-  // Extended roleplay scenarios from tutor-data.js
-  } else if (typeof EXTRA_ROLEPLAY_SCENARIOS !== 'undefined') {
-    for (const s of EXTRA_ROLEPLAY_SCENARIOS) {
-      if (s.match.some(m => t.includes(m))) {
-        botRole = s.botRole;
-        userRole = s.userRole;
-        prompt = s.prompt;
-        break;
+
+
+// Spatial UI — Tone Curve: actual pitch tracking + pinyin tones
+var tutorPitchHistory = [];
+var tutorPitchTrackId = null;
+var tutorAnalyser = null;
+var tutorAudioCtx = null;
+
+// Tone contour Y positions for each tone (as fraction of height, 0=top)
+var TONE_CONTOURS = {
+  1: [0.25, 0.25],       // high flat
+  2: [0.75, 0.2],        // rising
+  3: [0.4, 0.85, 0.35],  // dipping
+  4: [0.2, 0.8],         // falling
+  5: [0.5, 0.5]          // neutral
+};
+
+function drawToneCurveGrid(svg, w, h) {
+  var g = svg.querySelector('g');
+  if (!g) { g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); svg.appendChild(g); }
+  // Grid lines
+  for (var i = 0; i <= 4; i++) {
+    var x = w * i / 4;
+    var l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', x); l.setAttribute('y1', '0'); l.setAttribute('x2', x); l.setAttribute('y2', h);
+    l.setAttribute('class', 'tone-curve-grid');
+    g.appendChild(l);
+  }
+  for (var i = 0; i <= 2; i++) {
+    var y = h * i / 2;
+    var l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    l.setAttribute('x1', '0'); l.setAttribute('y1', y); l.setAttribute('x2', w); l.setAttribute('y2', y);
+    l.setAttribute('class', 'tone-curve-grid');
+    g.appendChild(l);
+  }
+}
+
+// Parse tone numbers from pinyin string (e.g. "nǐ hǎo" → [3,3])
+function parseTonesFromPinyin(py) {
+  if (!py || py === '--') return [];
+  var tones = [];
+  var parts = py.trim().split(/[\s,、，]+/);
+  for (var p = 0; p < parts.length; p++) {
+    var syllable = parts[p];
+    if (!syllable) continue;
+    // Check all vowel tone marks
+    if (/[āēīōōūǖ]/.test(syllable)) tones.push(1);
+    else if (/[áéíóóúǘ]/.test(syllable)) tones.push(2);
+    else if (/[ǎěǐǒǒǔǚ]/.test(syllable)) tones.push(3);
+    else if (/[àèìòòùǜ]/.test(syllable)) tones.push(4);
+    else {
+      // Check numeric tone suffix (ni3 → 3)
+      var nm = syllable.match(/(\d)$/);
+      if (nm) {
+        var t = parseInt(nm[1], 10);
+        tones.push(t >= 1 && t <= 5 ? t : 5);
+      } else {
+        tones.push(5); // neutral
       }
     }
   }
-  return { botRole, userRole, prompt };
+  return tones;
 }
 
-function toggleRoleplayMode() {
-  isRoleplayActive = !isRoleplayActive;
-  const btn = document.getElementById('tutRoleplayBtn');
+// Draw the tutor's expected tone curve from a pinyin phrase
+function drawTutorToneCurve(py) {
+  var svg = document.querySelector('.tone-curve-wrap svg');
+  if (!svg) return;
+  var w = svg.clientWidth || 280, h = svg.clientHeight || 60;
+  svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+  var g = svg.querySelector('g');
+  if (!g) { g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); svg.appendChild(g); }
+  // Draw grid if not present
+  if (!g.querySelector('.tone-curve-grid')) drawToneCurveGrid(svg, w, h);
+  // Clear old tutor/student paths
+  var oldPaths = g.querySelectorAll('.tone-curve-tutor, .tone-curve-student');
+  for (var i = 0; i < oldPaths.length; i++) oldPaths[i].remove();
+
+  var tones = parseTonesFromPinyin(py);
+  if (tones.length === 0) {
+    tones = [2, 3, 4, 1];
+  }
+
+  var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  var d = '';
+  var segments = tones.length;
+  var segW = w / segments;
+
+  for (var s = 0; s < segments; s++) {
+    var contour = TONE_CONTOURS[tones[s]] || TONE_CONTOURS[5];
+    var points = contour.length;
+    for (var p = 0; p < points; p++) {
+      var x = s * segW + (p / (points - 1 || 1)) * segW;
+      var y = contour[p] * h;
+      d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+    }
+  }
+  path.setAttribute('d', d);
+  path.setAttribute('class', 'tone-curve-tutor');
+  g.appendChild(path);
+}
+
+// Start pitch tracking from a mic stream and draw on the student curve
+function startTutorPitchTrack(stream) {
+  stopTutorPitchTrack();
+  if (!stream || !stream.active) return;
+  try {
+    tutorAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (tutorAudioCtx.state === 'suspended') tutorAudioCtx.resume();
+    var source = tutorAudioCtx.createMediaStreamSource(stream);
+    tutorAnalyser = tutorAudioCtx.createAnalyser();
+    tutorAnalyser.fftSize = 2048;
+    source.connect(tutorAnalyser);
+  } catch(e) { console.error('tutor pitch track init error:', e); return; }
+
+  var svg = document.querySelector('.tone-curve-wrap svg');
+  if (!svg) return;
+  var w = svg.clientWidth || 280, h = svg.clientHeight || 60;
+  var g = svg.querySelector('g');
+  if (!g) return;
+
+  // Remove old student path, create new one
+  var old = g.querySelector('.tone-curve-student');
+  if (old) old.remove();
+  var studentPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  studentPath.setAttribute('class', 'tone-curve-student');
+  g.appendChild(studentPath);
+
+  tutorPitchHistory = [];
+  var maxPoints = 60;
+  var minPitch = 80, maxPitch = 350;
+
+  function tick() {
+    if (!tutorAnalyser || tutorPitchTrackId === null) return;
+    var buffer = new Float32Array(tutorAnalyser.fftSize);
+    tutorAnalyser.getFloatTimeDomainData(buffer);
+    var pitch = autoCorrelate(buffer, tutorAudioCtx.sampleRate);
+    if (pitch !== -1 && pitch > 70 && pitch < 500) {
+      tutorPitchHistory.push(pitch);
+      if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
+    }
+    // Draw student curve (only if we have data)
+    var d = '';
+    if (tutorPitchHistory.length > 1) {
+      for (var i = 0; i < tutorPitchHistory.length; i++) {
+        var x = (i / maxPoints) * w * 0.9 + w * 0.05;
+        var pct = (tutorPitchHistory[i] - minPitch) / (maxPitch - minPitch);
+        pct = Math.max(0.05, Math.min(0.95, pct));
+        var y = h - pct * h;
+        d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+    }
+    studentPath.setAttribute('d', d);
+    tutorPitchTrackId = requestAnimationFrame(tick);
+  }
+  tutorPitchTrackId = requestAnimationFrame(tick);
+}
+
+function stopTutorPitchTrack() {
+  if (tutorPitchTrackId) { cancelAnimationFrame(tutorPitchTrackId); tutorPitchTrackId = null; }
+  tutorPitchHistory = [];
+  if (tutorAudioCtx) { try { tutorAudioCtx.close(); } catch(e) {} tutorAudioCtx = null; }
+  tutorAnalyser = null;
+  // Remove student path
+  var svg = document.querySelector('.tone-curve-wrap svg');
+  if (svg) {
+    var g = svg.querySelector('g');
+    if (g) {
+      var old = g.querySelector('.tone-curve-student');
+      if (old) old.remove();
+    }
+  }
+}
+
+// Init grid on load
+(function initToneCurves() {
+  var svg = document.querySelector('.tone-curve-wrap svg');
+  if (svg) {
+    var w = svg.clientWidth || 280, h = svg.clientHeight || 60;
+    svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    drawToneCurveGrid(svg, w, h);
+    drawTutorToneCurve('');
+  }
+})();
+
+// Spatial UI — Tutor Blackboard Tracing Observer
+(function initTutorBlackboardObserver() {
+  let tutorWriter = null;
+  
+  function updateTutorHanziWriter() {
+    const el = document.getElementById('tutWd');
+    if (!el) return;
+    const cn = el.textContent || '';
+    const match = cn.match(/[\u4e00-\u9fa5]/);
+    const char = match ? match[0] : '';
+    
+    if (typeof HanziWriter === 'undefined') {
+      return;
+    }
+    const target = document.getElementById('tutor-character-target');
+    if (!target) return;
+    target.innerHTML = '';
+    
+    if (!char || char === '--') {
+      return;
+    }
+    
+    tutorWriter = HanziWriter.create('tutor-character-target', char, {
+      width: 100,
+      height: 100,
+      showCharacter: false,
+      showOutline: true,
+      padding: 5,
+      strokeColor: '#00f0ff', // neon cyan
+      outlineColor: '#334155',
+      drawingColor: '#e2e8f0',
+      onCharacterDataLoadError: function(c) { console.warn('Could not load stroke data for character:', c); }
+    });
+    tutorWriter.quiz();
+  }
+  
+  window.animateTutorCh = function() {
+    if (tutorWriter) tutorWriter.animateCharacter();
+  };
+  window.quizTutorCh = function() {
+    if (tutorWriter) tutorWriter.quiz();
+  };
+
+  const targetNode = document.getElementById('tutWd');
+  if (targetNode) {
+    const observer = new MutationObserver(updateTutorHanziWriter);
+    observer.observe(targetNode, { characterData: true, childList: true, subtree: true });
+    updateTutorHanziWriter();
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      const el = document.getElementById('tutWd');
+      if (el) {
+        const observer = new MutationObserver(updateTutorHanziWriter);
+        observer.observe(el, { characterData: true, childList: true, subtree: true });
+        updateTutorHanziWriter();
+      }
+    });
+  }
+})();
+
+// A. Theme Color Toggler
+// DUPLICATE THEME & RADICAL EXPLORER SECTION DELETED TO PREVENT REDECLARATION SYNTAX ERRORS
+// C. Live AI Tutor Mode
+let isLiveAIActive = false;
+let isBeginnerMode = localStorage.getItem('beginner_mode') === 'true';
+function toggleBeginnerMode() {
+  const el = document.getElementById('beginnerModeToggle');
+  if (!el) return;
+  isBeginnerMode = el.checked;
+  localStorage.setItem('beginner_mode', isBeginnerMode);
+  toast(isBeginnerMode ? t("Beginner Mode ON — speak your language, AI teaches Chinese") : t("Beginner Mode OFF — standard Chinese conversation"), "var(--gold)");
+}
+
+
+function toggleLiveAITutor() {
+  if (!isLiveAIActive && !hasPremiumAccess()) {
+    showPremiumPaywall(t('Live AI Tutor'));
+    return;
+  }
+  isLiveAIActive = !isLiveAIActive;
+  const btn = document.getElementById('tutLiveBtn');
   if (!btn) return;
   
-  if (isRoleplayActive) {
-    btn.innerHTML = '<i class="fas fa-theater-masks mr-1"></i>'+t('Roleplay');
+  if (isLiveAIActive) {
+    btn.innerHTML = '<i class="fas fa-robot mr-1"></i>'+t('Live Tutor');
     btn.style.color = 'var(--gold)';
     btn.style.background = 'rgba(212,166,79,.1)';
-    toast(t("Dialogue Roleplay Mode Active! Speak your role lines."), "var(--green)");
     
-    // Assign roleplay character immediately
-    const activeTopic = localStorage.getItem('active_topic_name') || (tutLesson ? tutLesson.title : "Greetings");
-    const setup = getRoleplaySetup(activeTopic);
-    addTutMsg('sys', `🎭 <b>Roleplay Characters Assigned</b>:<br>&bull; Bot Role: <b>${setup.botRole}</b><br>&bull; Your Role: <b>${setup.userRole}</b>`);
-    
-    if (localStorage.getItem('tutor_mode') === 'live') {
-      geminiHistory = [
-        { role: "user", parts: [{ text: setup.prompt }] }
-      ];
-      sendToGemini("你好！请用中文跟我聊天。");
+    // Automatically switch to Live AI Mode for free conversation
+    if (localStorage.getItem('tutor_mode') !== 'live') {
+      localStorage.setItem('tutor_mode', 'live');
+      const toggle = document.getElementById('tutModeToggle');
+      if (toggle) toggle.checked = true;
+      toast(t("Live AI Tutor Mode Active!") + ' ' + t("Chat with the AI freely."), "var(--green)");
+    } else {
+      toast(t("Live AI Tutor Mode Active!"), "var(--green)");
     }
+    
+    // Reset tutor state for live free conversation
+    tutStep = 0;
+    tutLesson = TL[0];
+    const chat = document.getElementById('tutChat');
+    if (chat) chat.innerHTML = '';
+    
+    // Clear history and start fresh conversation
+    geminiHistory = [];
+    setBtns(true);
+    if (!localStorage.getItem('chinese_level')) {
+      showLevelModal();
+      _pendingLiveGreeting = true;
+      return;
+    }
+    sendLiveGreeting();
   } else {
-    btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>'+t('Study');
+    btn.innerHTML = '<i class="fas fa-robot mr-1"></i><span data-tr="Study">Study</span>';
     btn.style.color = 'var(--muted)';
     btn.style.background = 'var(--card2)';
     toast(t("Returned to Dialogue Study Mode."), "var(--gold)");
     
-    if (localStorage.getItem('tutor_mode') === 'live') {
-      geminiHistory = [];
-      sendToGemini("你好！请用中文跟我聊天。我是你的学生。");
-    }
-  }
-  
-  if (localStorage.getItem('tutor_mode') !== 'live') {
-    resetTutor();
+    geminiHistory = [];
+    sendToGemini("你好！请用中文跟我聊天。我是你的学生。");
   }
 }
 
@@ -18202,7 +19372,7 @@ function startComparisonRecord() {
     toast(t("Recording not supported."), "var(--accent)");
     return;
   }
-  navigator.mediaDevices.getUserMedia({ audio: true })
+  navigator.mediaDevices.getUserMedia(getMicAudioConstraints())
     .then(stream => {
       compRecorder = new MediaRecorder(stream);
       compChunks = [];
@@ -18298,6 +19468,7 @@ document.addEventListener('keydown', function(e) {
       { id: 'reviewModal', close: function(){ document.getElementById('reviewModal').style.display='none' } },
       { id: 'listenQuizOverlay', close: closeListenQuiz },
       { id: 'etymologyModal', close: function(){ document.getElementById('etymologyModal').style.display='none' } },
+      { id: 'timedClassModal', close: closeTimedClassModal },
       { id: 'globalError', close: function(){ document.getElementById('globalError').style.display='none' } }
     ];
     for (const m of modals) {
@@ -18439,18 +19610,22 @@ function changeAppLanguage(lang) {
   currentAppLang = lang;
   localStorage.setItem('app_lang', lang);
   
-  // Re-build all visual elements to apply translations instantly
-  if (lessonsMode === 'topics') buildTopics();
-  else if (lessonsMode === 'podcast') buildPodcastTopics();
-  else buildFlashcards();
-  buildTutorTabs();
-  buildLvTabs();
-  buildGrLvTabs(); buildGr(); buildQzLvTabs(); resetQuiz(); updateDailyStats();
-  buildHSK();
-  buildPy();
-  buildRadicals();
-  buildHero();
+  try {
+    if (lessonsMode === 'topics') buildTopics();
+    else if (lessonsMode === 'podcast') buildPodcastTopics();
+    else buildFlashcards();
+    buildTutorTabs();
+    buildLvTabs();
+    buildGrLvTabs(); buildGr(); buildQzLvTabs(); resetQuiz(); updateDailyStats();
+    buildHSK();
+    buildPy();
+    buildRadicals();
+    buildHero();
+  } catch(e) {}
   translateUI();
+  try { document.querySelectorAll('#grammarCheck [data-tr]').forEach(function(e){ var k=e.getAttribute('data-tr'); if(k) e.textContent = t(k); }); } catch(e){}
+  var pyFrame = document.getElementById('pinyinChart') ? document.getElementById('pinyinChart').querySelector('iframe') : null;
+  if (pyFrame && pyFrame.contentWindow) pyFrame.contentWindow.postMessage({ type: 'language-change', lang: lang }, '*');
   
   const dropdown = document.getElementById('langDropdown');
   if (dropdown) dropdown.style.display = 'none';
@@ -18458,12 +19633,22 @@ function changeAppLanguage(lang) {
   const selectLang = document.getElementById('appLanguageSelect');
   if (selectLang) selectLang.value = lang;
   
-  // Restart the current active lesson/tutor session in the new language
-  const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
-  openTopicLesson(activeTopic);
+  try {
+    const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
+    openTopicLesson(activeTopic);
+  } catch(e) {}
   
   toast(t("Language changed to: ") + lang.toUpperCase(), "var(--green)");
 }
+
+// Ensure grammar check section re-translates on every language change
+document.addEventListener('languageChange', function(e) {
+  var gc = document.getElementById('grammarCheck');
+  if (gc) gc.querySelectorAll('[data-tr]').forEach(function(el) {
+    var k = el.getAttribute('data-tr');
+    if (k) el.textContent = t(k);
+  });
+});
 
 async function saveReminderSettings() {
   const interval = document.getElementById('reminderIntervalSelect').value;
@@ -18563,7 +19748,9 @@ async function saveProfile() {
   if (typeof supabaseClient !== 'undefined' && supabaseClient) {
     var s = await supabaseClient.auth.getSession();
     if (s.data.session) {
-      await supabaseClient.from('user_profiles').upsert({ user_id:s.data.session.user.id, display_name:name, updated_at:new Date().toISOString() }, { onConflict:'user_id' }).catch(function(){});
+      try {
+        await supabaseClient.from('user_profiles').upsert({ user_id:s.data.session.user.id, display_name:name, updated_at:new Date().toISOString() }, { onConflict:'user_id' });
+      } catch(e) { console.error('saveProfile sync error:', e); }
     }
   }
   document.getElementById('profileNameInput').style.display = 'none';
@@ -18787,12 +19974,69 @@ function onboardPick(section) {
   if (section === 'lessons') navTo('#lessons');
   else if (section === 'tutor') navTo('#tutor');
   else if (section === 'test') navTo('#test');
+  if (!localStorage.getItem('chinese_level')) setTimeout(showLevelModal, 400);
 }
 
 function skipOnboarding() {
   const o = document.getElementById('onboardingOverlay');
   if (o) o.style.display = 'none';
   localStorage.setItem('onboarding_done', 'true');
+  if (!localStorage.getItem('chinese_level')) setTimeout(showLevelModal, 400);
+}
+
+// ===== CHINESE LEVEL SELECTION =====
+function getChineseLevel() {
+  return localStorage.getItem('chinese_level') || (isBeginnerMode ? 'beginner' : 'beginner');
+}
+
+let _pendingLiveGreeting = false;
+
+function sendLiveGreeting() {
+  const lvl = getChineseLevel();
+  if (lvl === 'never' || lvl === 'beginner') {
+    sendToGemini("Hello! I am a complete beginner learning Chinese. Please teach me very slowly and simply. 你好！");
+  } else {
+    sendToGemini("你好！请用中文跟我聊天。");
+  }
+}
+
+function showLevelModal() {
+  const o = document.getElementById('levelModal');
+  if (o) o.style.display = 'flex';
+}
+
+function setChineseLevel(lvl) {
+  localStorage.setItem('chinese_level', lvl);
+  if (lvl === 'never' || lvl === 'beginner') {
+    isBeginnerMode = true;
+    localStorage.setItem('beginner_mode', 'true');
+  } else {
+    isBeginnerMode = false;
+    localStorage.setItem('beginner_mode', 'false');
+  }
+  const o = document.getElementById('levelModal');
+  if (o) o.style.display = 'none';
+  const bmToggle = document.getElementById('beginnerModeToggle');
+  if (bmToggle) bmToggle.checked = isBeginnerMode;
+  const label = lvl === 'never' ? t("Perfect! I'll teach you from zero, very slowly.") :
+    lvl === 'beginner' ? t("Great! I'll use simple Chinese and guide you step by step.") :
+    lvl === 'intermediate' ? t("Nice! I'll speak natural Chinese at a moderate pace with pinyin.") :
+    t("Awesome! I'll challenge you with natural, native-level Chinese.");
+  toast(label, 'var(--gold)');
+  if (_pendingLiveGreeting) {
+    _pendingLiveGreeting = false;
+    sendLiveGreeting();
+  }
+}
+
+function skipLevelModal() {
+  localStorage.setItem('chinese_level', 'beginner');
+  const o = document.getElementById('levelModal');
+  if (o) o.style.display = 'none';
+  if (_pendingLiveGreeting) {
+    _pendingLiveGreeting = false;
+    sendLiveGreeting();
+  }
 }
 
 // ===== PUSH NOTIFICATIONS =====
@@ -19347,9 +20591,13 @@ async function submitLBScore() {
 }
 
 // ===== GLOBAL ERROR HANDLER =====
+function isBenignError(msg) {
+  if (!msg) return true;
+  return /script error|favicon|manifest|failed to fetch|networkerror|network error|load failed|failed to load resource|abort|timeout|char data|character data|hanzi|getuserMedia|notallowederror|notreadableerror|overconstrained|NotFoundError|TypeError: Cannot read properties of undefined \(reading 'voice'\)|speechSynthesis|webkitSpeechRecognition|audio/i.test(msg);
+}
 window.addEventListener('error', function(e) {
   console.error('Global error:', e.message, e.filename, e.lineno);
-  if (e.message && (e.message.includes('Script error') || e.message.includes('favicon') || e.message.includes('manifest'))) return;
+  if (isBenignError(e.message)) return;
   const el = document.getElementById('globalError');
   if (!el) return;
   el.style.display = 'flex';
@@ -19357,6 +20605,7 @@ window.addEventListener('error', function(e) {
 });
 window.addEventListener('unhandledrejection', function(e) {
   console.error('Unhandled rejection:', e.reason);
+  if (isBenignError(e.reason && (e.reason.message || String(e.reason)))) return;
   const el = document.getElementById('globalError');
   if (!el) return;
   el.style.display = 'flex';
@@ -19639,8 +20888,61 @@ function applyReferral(code) {
   return true;
 }
 
+// ===== 30-DAY FREE PROMO (code: mandarin30) =====
+const FREE_TRIAL_CODE = 'mandarin30';
+const FREE_TRIAL_MS = 30 * 24 * 60 * 60 * 1000;
+
+function applyFreeTrialCode(code) {
+  if (!code) return false;
+  if (String(code).trim().toLowerCase() !== FREE_TRIAL_CODE) {
+    toast(t('Invalid promo code.'), 'var(--accent)');
+    return false;
+  }
+  if (localStorage.getItem('mandarin30_used')) {
+    toast(t('Offer already used on this device.'), 'var(--gold)');
+    return true;
+  }
+  localStorage.setItem('mandarin30_used', 'true');
+  const expiry = Date.now() + FREE_TRIAL_MS;
+  const existing = parseInt(localStorage.getItem('premium_expiry') || '0');
+  localStorage.setItem('premium_expiry', Math.max(expiry, existing).toString());
+  localStorage.setItem('is_premium', 'true');
+  updatePremiumUI();
+  toast(t('30 days free activated!'), 'var(--green)', 5000);
+  return true;
+}
+
+function applyPromoCodeFromUI() {
+  const input = document.getElementById('promoCodeInput');
+  if (!input || !input.value.trim()) { toast(t('Enter your promo code.'), 'var(--gold)'); return; }
+  applyFreeTrialCode(input.value.trim());
+  if (localStorage.getItem('is_premium') === 'true') {
+    const modal = document.getElementById('premiumModal');
+    if (modal) modal.style.display = 'none';
+  }
+}
+
+function showExtendOffer() {
+  const title = document.getElementById('premTitle');
+  if (title) title.textContent = t('Your 30-day free plan has ended');
+  const msg = document.getElementById('premMsg');
+  if (msg) msg.textContent = t('Extend with Premium — HSK 1-9, advanced AI tutor, ad-free. Only $9/month via PayPal.');
+  const modal = document.getElementById('premiumModal');
+  if (modal) modal.style.display = 'flex';
+  if (typeof paypal !== 'undefined') renderPayPalButtons();
+  toast(t('Your 30-day free plan ended. Extend with PayPal?'), 'var(--gold)', 5000);
+}
+
 function hasPremiumAccess() {
-  if (localStorage.getItem('is_premium') === 'true') return true;
+  if (localStorage.getItem('is_premium') === 'true') {
+    const expiry = parseInt(localStorage.getItem('premium_expiry') || '0');
+    if (expiry > 0 && Date.now() > expiry) {
+      localStorage.removeItem('is_premium');
+      updatePremiumUI();
+    } else {
+      return true;
+    }
+  }
   const trialStart = parseInt(localStorage.getItem('trial_start') || '0');
   if (trialStart && Date.now() - trialStart < 7 * 24 * 60 * 60 * 1000) return true;
   return false;
@@ -19650,7 +20952,11 @@ function checkPremiumExpiry() {
   const expiry = parseInt(localStorage.getItem('premium_expiry') || '0');
   if (expiry > 0 && Date.now() > expiry) {
     localStorage.removeItem('is_premium');
+    localStorage.removeItem('premium_expiry');
+    const wasPromo = localStorage.getItem('mandarin30_used');
+    localStorage.removeItem('mandarin30_used');
     updatePremiumUI();
+    if (wasPromo) showExtendOffer();
   }
   const trialStart = parseInt(localStorage.getItem('trial_start') || '0');
   if (trialStart > 0 && Date.now() - trialStart >= 7 * 24 * 60 * 60 * 1000) {
@@ -19705,7 +21011,6 @@ function shareReferral() {
 }
 
 // Check premium expiry on load and periodically
-setInterval(checkPremiumExpiry, 60000);
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(checkPremiumExpiry, 100);
   // Check URL for referral code — auto-apply silently
@@ -19714,6 +21019,13 @@ document.addEventListener('DOMContentLoaded', function() {
   if (ref && ref.length >= 4) {
     setTimeout(function() { applyReferral(ref.toUpperCase()); }, 1500);
   }
+  // Check URL for 30-day free promo code — auto-apply silently
+  const promo = params.get('code');
+  if (promo && promo.trim()) {
+    setTimeout(function() { applyFreeTrialCode(promo.trim()); }, 1500);
+  }
+  // Keep checking so the free plan is cancelled automatically once it expires
+  setInterval(checkPremiumExpiry, 60000);
 });
 
 // ===== INIT =====
@@ -19769,3 +21081,6 @@ document.addEventListener('DOMContentLoaded', function() {
   if (initPath === '/app' || initPath === '/app/') initPath = '/app/tutor';
   routeApp(initPath);
 });
+
+
+
