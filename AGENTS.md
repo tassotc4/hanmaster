@@ -1,0 +1,41 @@
+# MandarinCourse (Hanmaster) — Dev Memory
+
+HSK 1-9 PWA called MandarinCourse / Hanmaster. Live URL: https://mandarincourse.app
+Railway service: `hanmaster`. Git repo: https://github.com/tassotc4/hanmaster.git (user Joseph Kuo `tassotc4@yahoo.com`).
+
+## Workflow / Important Details
+- Deploy: `railway up --detach`. Commits: only commit/push when the user explicitly asks.
+- Local dev server: `node server.js` on 0.0.0.0:8080. Restart it (kill PID) after editing `server.js` so the change loads; static files under `public/` are read from disk each request (no restart needed).
+- Cache busting: after ANY edit to `public/js/app.js`, `public/css/app.css`, `public/app.html`, `public/pinyin-chart.html`, bump the version `v=NN` in `public/app.html` (4 refs: two preloads ~L18-19, stylesheet ~L203, script ~L1661) AND `CACHE = 'mandarincourse-vNN'` in `public/sw.js`. Ranges have gone v43→v52. The `console`-override shim (~L19137 of app.js) makes DevTools attribute every log line to the shim, so real call sites are at the file:line the source shows — don't trust DevTools line numbers.
+- ENCODING HAZARD (critical): `public/app.html` is UTF-8 (no BOM) and MUST stay that way. Never write it with PowerShell `Set-Content -Encoding UTF8` (adds a BOM). Use .NET `[System.IO.File]::WriteAllText(path, str, (New-Object System.Text.UTF8Encoding($false)))`. The file previously suffered a double-encoding corruption (UTF-8→CP1252→UTF-8); the clean original is backed up at `C:\Users\HP\AppData\Local\Temp\opencode\app.html.mojibake-backup`. Correct recovery (if it recurs): read bytes → `buf.toString('utf8')` → re-encode each char with a Windows-1252 mapping (special: €→0x80, —→0x97, –→0x96, ー→(U+30FC keep), œ→0x9C, ž→0x9E, …, ƒ→0x83, etc.) → write raw bytes. All 161577 chars were mappable, so the whole file was uniformly double-encoded.
+- Supabase NOT set up yet: user must run `supabase/setup.sql` in Supabase dashboard SQL editor (project `enisseoyaledojeuykbd`) for login/progress/activity; `SUPABASE_SERVICE_ROLE_KEY` also unset.
+
+## AI Tutor ("Li Laoshi") — how it's set up (`public/js/app.js`)
+Two input paths — a Web Speech API path and a recording-fallback path:
+
+1. **Recording fallback (what actually works on the user's Windows laptop)** — `startAudioRecording(btn, ic)` ~L14907:
+   - Captures the RAW `getUserMedia` stream into `MediaRecorder`. IMPORTANT: do NOT route the mic through a Web Audio gain/pitch graph for recording — a suspended/failed AudioContext silently outputs silence on Windows. Analyser is used ONLY for level metering (`window._recLevelIv` interval, 120ms, time-domain peak).
+   - Started directly from `tutSpeak()` when `window._useAudioFallback` is set (set permanently after the first SpeechRecognition `no-speech` failure on this machine; cleared only when the user picks a mic via `selectMicDevice`). SpeechRecognition takes ~6-8s to error on this machine, so the fallback flag skips it entirely.
+   - **Auto-stop on silence** (added v52): the level interval tracks last-sound time (`_recLastSound`); after 1.6s of silence, ≥2s after start (`_recStartedAt`), it auto-stops the recorder by calling `startAudioRecording` again. The 10s safety auto-stop timer also remains. So hands-free turns: AI speaks → auto-listens → user speaks → auto-stops on pause → sends.
+   - `mediaRecorder.onstop` gate: if peak < 0.05 → treated as silent (bytes are NOT a reliable silence check — AAC encodes silence as data too); skips Gemini, offers `autoDetectMic()` sweep (level-based) and auto-switches `mic_device_id`. Real speech → `sendAudioToGemini(base64, 3, mime)`.
+   - Note: only the OLD pitch-track visualizer still uses the Web Audio gain graph (in the SpeechRecognition `onstart`), which is fine — it's audio-out only.
+2. **Transcription** — `sendAudioToGemini` ~L15055 posts `{contents:[{inlineData...}], systemInstruction:"Transcribe the speech...", sourceLang}` to `POST /api/chat`. **Server now returns the raw Whisper transcript** (`whisper-large-v3-turbo`) directly — do NOT run it through an LLM "transcribe" step; that previously hallucinated replies and 503s. In Live AI mode the transcript is sent straight to `sendToGemini` (~L17301); study mode shows a ✓/✕ confirm that auto-confirms after 2s (`confirmTranscript`).
+
+### Live AI conversation (the "tutor chat")
+- `sendToGemini(userText)` builds `systemInstruction` from level selectors (~L17333): `never`/`beginner`/`intermediate`/`advanced`, plus `baseRules` (translator + language rules, includes anti-repetition rules 8-10: never reuse phrases from chat history, vary openings, follow topic-change requests).
+- v51 anti-repetition fix: each level's TEACHING STYLE strictly limits the "drill template" (phrase → pinyin → "You can say: ...") to the FIRST message only; from message 2 it must be a natural conversational reply to what the student actually said, teach ONE new phrase, never repeat, always end with a question.
+- Reply display parsing (~L17398-17463) splits the model text into Chinese runs (`cleanReply`) and tutor-language runs (`englishTranslation`). If the reply has Chinese but the model omitted the translation, v52 added a fallback: `translateToEnglish(cleanReply)` fills it into the bot bubble (`botTr-<id>`) and the side panel (`#tutWm`).
+- After a bot reply in live mode, an auto-listen loop (~L17484) waits for TTS to finish (`isTtsPlaying()`) then calls `tutSpeak()` again → hands-free loop.
+- The whole `geminiHistory` array is sent as `contents` each turn; reset on new session (~L17629/18109/18413).
+- **Full translation coverage (v53)**: tutor content translates to the user's selected language via `t()` using `OFFLINE_DICTIONARY` (large per-language dicts: es/fr/ja/ko/de/pt/it/ru/vi). For strings MISSING from the dictionary, `ensureTutorTranslation(text, els)` (~L17262) AI-translates on the fly into `getTutorLangName()` via `POST /api/chat` and caches in localStorage key `tutor_ai_tr_cache`. Wired into `advanceTutor` (side panel `#tutWm`/`#tutTip` + bot bubble) and `coachPronunciation` (meaning/tip spans). Live-mode replies are already translated by the model (`langName` in systemInstruction) with the `translateToEnglish` fallback.
+
+## Localization / languages
+- Globe button (`#langBtn` + `#langDropdown` in app.html ~L239-255) switches the UI language via `changeAppLanguage()` (~L19836) — the 9 non-English names are Español, Français, 日本語, 한국어, Deutsch, Português, Italiano, русский, Tiếng Việt (they were mojibake `EspaÃ±ol`/`æ—¥æœ¬èªž` etc. until fixed by the v52 re-encode; keep them as proper UTF-8).
+- Mic speech language lists (`SPEECH_LANGS` ~L17282, `#micLangSelect` options ~L1316-1328, `#appLanguageSelect` ~L1342-1353) — keep names ASCII-true (e.g. "Español (Spanish)") in real UTF-8.
+
+## Other known features/fixes (don't regress)
+- Sidebar view routing (`navTo`, routes like `/app/translate`) + `resetTutorTotal` prevents avg-flicker.
+- Multiple-choice randomization: `randomizeOptions(oArr, correctIndex)` (grammar, listening quiz, daily challenge, exam answer redistribution).
+- Light theme: `.theme-light` overrides in `public/css/app.css` (~L83-95); `pinyin-chart.html` reads `hsk_theme` from localStorage and applies `.theme-light` via a storage listener.
+- Wider scrollbars (11px thumb) on `.app-sidebar`, main, and list panes (CSS top + Firefox `scrollbar-*`).
+- Static checks: `node --check public/js/app.js` after editing (always used; app.js must stay BOM-free UTF-8 without a trailing comma on the last object/array element).

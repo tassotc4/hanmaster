@@ -229,7 +229,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       form.append('file', blob, `audio.${ext}`);
       form.append('model', 'whisper-large-v3-turbo');
       form.append('response_format', 'json');
-      form.append('prompt', 'The audio is a student speaking a short phrase or sentence during a Mandarin Chinese lesson. Transcribe exactly what is spoken.');
+      form.append('prompt', 'The audio is a student speaking a short phrase or sentence during a Mandarin Chinese lesson. Transcribe exactly what is spoken in the speaker\'s own language (Chinese characters if Mandarin, otherwise the spoken language). Do not add, translate, guess, or repeat any words.');
       if (sourceLang && sourceLang !== 'zh') form.append('language', sourceLang);
 
       const wr = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -246,36 +246,11 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
         ? textParts.map(t => t.replace(/\{\{transcribed\}\}/g, transcribed)).join('\n')
         : transcribed;
 
-      const messages = [];
-      if (systemInstruction) messages.push({ role: 'system', content: systemInstruction });
-      messages.push({ role: 'user', content: userMsg });
-
-      if (!process.env.GROQ_API_KEY && !process.env.NVIDIA_API_KEY && !process.env.OPENROUTER_API_KEY) return res.status(500).json({ error: 'No API keys configured' });
-      const AUDIO_PROVIDERS = [
-        { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 15000 },
-        { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', timeout: 10000 },
-        { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
-        { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
-        { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 15000 },
-      ].filter(p => p.key);
-      async function audioChatProvider(p) {
-        const cr = await fetch(p.url + '/chat/completions', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${p.key}` },
-          body: JSON.stringify({ model: p.model, messages, temperature: 0.1 }),
-          signal: AbortSignal.timeout(p.timeout)
-        });
-        const cd = await cr.json();
-        if (!cr.ok) throw new Error(cd.error?.message || JSON.stringify(cd));
-        return cd.choices?.[0]?.message?.content || transcribed;
-      }
-      let responseText, audioErr = '';
-      if (AUDIO_PROVIDERS.length > 1) {
-        responseText = await Promise.any(AUDIO_PROVIDERS.map(audioChatProvider)).catch(e => { audioErr = e.message || 'All providers failed'; return null; });
-      } else if (AUDIO_PROVIDERS.length === 1) {
-        try { responseText = await audioChatProvider(AUDIO_PROVIDERS[0]); } catch (e) { audioErr = e.message; }
-      }
-      if (responseText) return res.json({ candidates: [{ content: { parts: [{ text: responseText }] } }] });
-      return res.status(503).json({ error: 'AI service busy, please try again.', details: audioErr });
+      // Return the REAL Whisper transcript directly. Do NOT pass it through an
+      // LLM — LLMs hallucinate "I'm a large language model..." instead of
+      // transcribing, which poisoned the tutor chat. All audio callers want a
+      // transcription, not a conversational reply.
+      return res.json({ candidates: [{ content: { parts: [{ text: userMsg }] } }] });
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }

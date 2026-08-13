@@ -59,7 +59,12 @@ footer a{color:var(--gold);text-decoration:none}
 .legend span{display:flex;align-items:center;gap:6px}
 .legend .dot{width:10px;height:10px;border-radius:3px;display:inline-block}
 @media(max-width:768px){.hero{padding:80px 16px 40px}.tone-btn{padding:8px 14px;font-size:12px}.cell{font-size:12px;min-height:32px}}
+.theme-light{--bg:#F8F6F3!important;--bg2:#EEEAE3!important;--card:#FFFFFF!important;--card2:#E4DFD7!important;--border:#B5AEA2!important;--fg:#131110!important;--fg2:#4A423A!important;--muted:#5A5248!important;--accent:#0B676B!important;--accent2:#0E7C81!important;--gold:#92620C!important;--green:#1E7A45!important;--blue:#2C6FA8!important}
+.theme-light nav{background:rgba(248,246,243,.95)!important}
+.theme-light .cell.playing{background:rgba(11,103,107,.15)!important}
+.theme-light input{color-scheme:light}
 </style>
+<script>function applyChartTheme(){try{if(localStorage.getItem('hsk_theme')==='light'){document.documentElement.classList.add('theme-light')}else{document.documentElement.classList.remove('theme-light')}}catch(e){}}applyChartTheme();window.addEventListener('storage',applyChartTheme);</script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script>
 // Mini translation dictionary for Pinyin Chart page (all 9 languages)

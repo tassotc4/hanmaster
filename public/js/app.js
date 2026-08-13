@@ -36,6 +36,14 @@ const OFFLINE_DICTIONARY = {
     "Speak now — the bar should fill...":"Habla ahora: la barra debería llenarse...",
     "Mic access failed: ":"Acceso al micrófono falló: ",
     "Microphone not supported in this browser.":"Micrófono no compatible en este navegador.",
+    "Checking microphone devices...":"Revisando dispositivos de micrófono...",
+    "Microphone switched to: ":"Micrófono cambiado a: ",
+    "No microphone signal detected. Check Windows mic permissions or plug in a mic.":"No se detectó señal de micrófono. Revisa los permisos de micrófono de Windows o conecta un micrófono.",
+    "No sound detected from your microphone.":"No se detectó sonido de tu micrófono.",
+    "Mic seems silent — trying another device...":"El micrófono parece estar en silencio: probando otro dispositivo...",
+    "No working mic found. Check Windows: Settings > Privacy & security > Microphone > allow desktop apps.":"No se encontró micrófono funcional. Revisa Windows: Configuración > Privacidad y seguridad > Micrófono > permitir aplicaciones de escritorio.",
+    "Auto-switching to recording... speak now!":"Cambiando a grabación... ¡habla ahora!",
+    "Recording... speak now (tap mic to stop)":"Grabando... habla ahora (toca el micrófono para detener)",
 
     "1st Tone — High flat": "1er tono: bemol alto",
     "2nd Tone — Rising": "2do tono: ascendente",
@@ -14479,17 +14487,45 @@ function getRouteSections() {
   if (!sectionRouteEls) sectionRouteEls = document.querySelectorAll('section[data-route]');
   return sectionRouteEls;
 }
+function getLandingEls() {
+  return document.querySelectorAll('main > header, main > section:not([data-route])');
+}
+function showLanding() {
+  var els = getLandingEls();
+  for (var i = 0; i < els.length; i++) els[i].style.display = '';
+  var s = getRouteSections();
+  for (var i = 0; i < s.length; i++) s[i].style.display = 'none';
+  var ft = document.querySelector('footer');
+  if (ft) ft.style.display = '';
+  window.scrollTo(0, 0);
+  revealFu();
+  if (typeof observeFu === 'function') setTimeout(observeFu, 60);
+}
+function hideLanding() {
+  var els = getLandingEls();
+  for (var i = 0; i < els.length; i++) els[i].style.display = 'none';
+  var ft = document.querySelector('footer');
+  if (ft) ft.style.display = 'none';
+  window.scrollTo(0, 0);
+}
+function revealFu() {
+  document.querySelectorAll('.fu').forEach(function(e) {
+    var r = e.getBoundingClientRect();
+    if (r.width > 0 && r.height > 0) e.classList.add('v');
+  });
+}
 function routeApp(path, btn) {
   if (!path || path === '/') {
-    var s = getRouteSections();
-    for (var i = 0; i < s.length; i++) s[i].style.display = '';
+    showLanding();
     document.body.style.background = "var(--bg)";
     document.body.classList.remove('spatial-theme');
+    document.body.classList.remove('spatial-theme-tutor');
     document.title = 'MandarinCourse — Learn Chinese Online with AI Tutor & HSK Lessons';
     var md = document.querySelector('meta[name="description"]');
     if (md) md.content = 'Master Chinese with MandarinCourse: AI tutor, HSK 1-9 lessons, grammar, character writing quizzes, SRS flashcards, document AI, translation. 10,000+ words, real-time speaking practice.';
     var ogTitle = document.querySelector('meta[property="og:title"]');
     if (ogTitle) ogTitle.content = document.title;
+    syncSidebar('/');
     return;
   }
   if (!APP_ROUTES[path]) path = '/app/tutor';
@@ -14511,8 +14547,10 @@ function routeApp(path, btn) {
     document.body.classList.remove('spatial-theme');
     document.body.classList.remove('spatial-theme-tutor');
   }
-  var target = document.getElementById(sectionId);
-  if (target) { scrollToSection('#' + sectionId); } else { window.scrollTo(0, 0); }
+  hideLanding();
+  var s = getRouteSections();
+  for (var i = 0; i < s.length; i++) s[i].style.display = s[i].id === sectionId ? '' : 'none';
+  window.scrollTo(0, 0);
   var meta = ROUTE_META[path];
   if (meta) {
     document.title = meta.title;
@@ -14524,8 +14562,11 @@ function routeApp(path, btn) {
   document.querySelectorAll('.mnb').forEach(function(b) { b.classList.remove('act'); });
   document.querySelectorAll('.mnb-sm').forEach(function(b) { b.classList.remove('act'); });
   if (btn) btn.classList.add('act');
+  syncSidebar(path);
   var toolsDD = document.getElementById('toolsDropdown');
   if (toolsDD) toolsDD.style.display = 'none';
+  revealFu();
+  if (typeof observeFu === 'function') setTimeout(observeFu, 60);
 }
 function navTo(selector, btn) {
   unlockIOSAudio();
@@ -14548,6 +14589,30 @@ function navTo(selector, btn) {
   if (toolsDD) toolsDD.style.display = 'none';
 }
 window.addEventListener('popstate', function() { routeApp(location.pathname); });
+
+function toggleSidebar() {
+  const sb = document.getElementById('appSidebar');
+  const bk = document.getElementById('sidebarBackdrop');
+  if (!sb) return;
+  const open = sb.classList.contains('open');
+  if (open) closeSidebar();
+  else { sb.classList.add('open'); bk.classList.add('open'); document.body.classList.add('sb-open'); }
+}
+
+function closeSidebar() {
+  const sb = document.getElementById('appSidebar');
+  const bk = document.getElementById('sidebarBackdrop');
+  if (sb) sb.classList.remove('open');
+  if (bk) bk.classList.remove('open');
+  document.body.classList.remove('sb-open');
+}
+
+function syncSidebar(path) {
+  document.querySelectorAll('.sbn').forEach(function(b) { b.classList.remove('act'); });
+  if (!path) path = '/';
+  const el = document.querySelector('.sbn[data-route="' + path + '"]');
+  if (el) el.classList.add('act');
+}
 
 function toggleMobileMore() {
   const menu = document.getElementById('mnMoreMenu');
@@ -14776,7 +14841,7 @@ function startTutor(idx){
   window._renderedStep = -1;
   if (window._tutTO) clearTimeout(window._tutTO);
   tutLesson=TL[idx];tutStep=0;tutScores=[];
-  document.getElementById('tutTotal').textContent='--';
+  resetTutorTotal();
   document.getElementById('tutChat').innerHTML='';
     addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+t(tutLesson.title)+'</b> — '+tutLesson.level);
   if (isLiveAIActive) {
@@ -14803,12 +14868,18 @@ function advanceTutor(){
   document.getElementById('tutWm').textContent=t(line.en);
   document.getElementById('tutTip').style.display=w?'block':'none';
   if(w)document.getElementById('tutTip').textContent=t(w.tip);
+  const tutWmEl = document.getElementById('tutWm');
+  const tutTipEl = document.getElementById('tutTip');
+  if (t(line.en) === line.en) ensureTutorTranslation(line.en, [tutWmEl]);
+  if (w && t(w.tip) === w.tip) ensureTutorTranslation(w.tip, [tutTipEl]);
   document.getElementById('scoreWrap').style.display='none';
   if(line.who==='bot'){
     document.getElementById('tutHint').textContent=t('Type your response in the box below');
     document.getElementById('tutHint').style.color='var(--accent)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
-    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div id="'+msgEnId+'" style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
     setTimeout(()=>tutListen(line.cn),500);
   } else {
     document.getElementById('tutHint').textContent=t('Type Chinese below or press mic');
@@ -14841,6 +14912,26 @@ function startAudioRecording(btn, ic) {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.onstop = () => {
         console.log("MediaRecorder onstop fired, chunks:", audioChunks.length);
+        if (window._recLevelIv) { clearInterval(window._recLevelIv); window._recLevelIv = null; }
+        const peak = window._recPeak || 0;
+        console.log("Recording peak level:", peak);
+        const totalBytes = audioChunks.reduce((a, c) => a + (c ? c.size : 0), 0);
+        console.log("Recording total bytes:", totalBytes);
+        // Web-Audio analyser is the reliable signal: if the peak stays near
+        // zero the whole recording, the mic delivered true silence — do NOT
+        // send it to Gemini (it would only hallucinate a reply).
+        if (peak < 0.05) {
+          console.warn("Mic appears silent (peak " + peak.toFixed(3) + "), skipping Gemini");
+          document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> ' + t('No sound detected from your microphone.') + '</span>';
+          toast(t('Mic seems silent — trying another device...'), 'var(--gold)', 2500);
+          setTimeout(() => {
+            autoDetectMic().then(found => {
+              if (found) { toast(t('Microphone switched to: ') + found + '. ' + t('Tap mic and speak again.'), 'var(--green)', 4500); }
+              else { toast(t('No working mic found. Check Windows: Settings > Privacy & security > Microphone > allow desktop apps.'), 'var(--accent)', 7000); }
+            });
+          }, 400);
+          return;
+        }
         if (activeMicStream) {
           try { activeMicStream.getTracks().forEach(t => t.stop()); } catch(e) {}
           activeMicStream = null;
@@ -14871,11 +14962,13 @@ function startAudioRecording(btn, ic) {
   }
   console.log("Starting audio recording...");
   _recAudioMode = true;
+  window._recStartedAt = Date.now();
+  window._recLastSound = 0;
   srOn = true;
   updateMicUI('recording');
   // Stop any TTS playback immediately to prevent feedback loop
   if (!isMobileDevice) { try { speechSynthesis.cancel(); } catch(e) {} }
-  document.getElementById('tutHint').textContent = t('Recording... tap mic to stop');
+  document.getElementById('tutHint').textContent = t('Recording... speak now (auto-stops when you pause)');
   const wave = document.getElementById('tutVoiceWave');
   if (wave) wave.style.display = 'inline-flex';
   document.getElementById('tutHint').style.color = 'var(--green)';
@@ -14883,23 +14976,38 @@ function startAudioRecording(btn, ic) {
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
     navigator.mediaDevices.getUserMedia(getMicAudioConstraints()).then(stream => {
       console.log("getUserMedia succeeded for recording fallback");
-      // Amplify audio gain to help Whisper detect speech
-      let recordStream = stream;
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
-        const source = audioCtx.createMediaStreamSource(stream);
-        const gain = audioCtx.createGain();
-        gain.gain.value = 2.5;
-        const dest = audioCtx.createMediaStreamDestination();
-        source.connect(gain).connect(dest);
-        recordStream = dest.stream;
-        console.log("Audio gain amplification applied (2.5x)");
-      } catch(e) {
-        console.warn("Could not apply gain amplification, using raw stream:", e.message);
-      }
+      // Record the RAW stream directly. Do NOT route it through a Web Audio
+      // graph — a suspended/failed AudioContext can silently output silence even
+      // when the microphone itself works fine.
+      const recordStream = stream;
       activeMicStream = stream;
-      startTutorPitchTrack(recordStream);
+      window._recPeak = 0;
+      try {
+        const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx2.state === 'suspended') ctx2.resume().catch(() => {});
+        const src2 = ctx2.createMediaStreamSource(stream);
+        const an2 = ctx2.createAnalyser();
+        an2.fftSize = 1024;
+        src2.connect(an2);
+        const rdata = new Uint8Array(an2.fftSize);
+        window._recLevelIv = setInterval(() => {
+          an2.getByteTimeDomainData(rdata);
+          let p = 0;
+          for (let i = 0; i < rdata.length; i++) { const v = Math.abs(rdata[i] - 128) / 128; if (v > p) p = v; }
+          if (p > window._recPeak) window._recPeak = p;
+          const now = Date.now();
+          if (p >= 0.05) {
+            window._recLastSound = now;
+          } else if (_recAudioMode && window._recLastSound && window._recStartedAt && (now - window._recLastSound) > 1600 && (now - window._recStartedAt) > 2000) {
+            console.log("Silence detected (1.6s), auto-stopping recording");
+            window._recLastSound = 0;
+            clearTimeout(window._recAutoStopTimer);
+            const b = document.getElementById('tutMic'), i = document.getElementById('tutMicIc');
+            if (_recAudioMode) startAudioRecording(b, i);
+          }
+        }, 120);
+      } catch(e) { console.warn("Level meter unavailable:", e.message); }
+      startTutorPitchTrack(stream);
       audioChunks = [];
       let mime = 'audio/mp4';
       if (typeof MediaRecorder.isTypeSupported === 'function') {
@@ -14994,9 +15102,15 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
         addLiveUserMsg(transcript);
         setTimeout(() => sendToGemini(transcript), 300);
       } else {
-        // Show confirmation before sending to AI (study mode)
+        // Show confirmation before sending to AI (study mode), then auto-send
+        // after ~2s so the tutor always responds even if the user doesn't tap ✓.
         const confirmId = 'confirm-' + Date.now();
-        addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + transcript.replace(/'/g, "\\'") + '\',\'' + loaderId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
+        const safeTr = transcript.replace(/'/g, "\\'");
+        addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + safeTr + '\',\'' + loaderId + '\',\'' + confirmId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
+        setTimeout(function() {
+          const el = document.getElementById(confirmId);
+          if (el && el.dataset.done !== '1') confirmTranscript(transcript, loaderId, confirmId);
+        }, 2000);
       }
     } else {
       console.warn("Empty or no-speech transcription");
@@ -15012,7 +15126,8 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
   });
 }
 
-function confirmTranscript(transcript, loaderId) {
+function confirmTranscript(transcript, loaderId, confirmId) {
+  if (confirmId) { const el = document.getElementById(confirmId); if (el) el.dataset.done = '1'; }
   if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   var tMode = localStorage.getItem('tutor_mode');
   if (tMode !== 'live' && tutLesson && tutStep < tutLesson.dialogue.length) {
@@ -15025,6 +15140,7 @@ function confirmTranscript(transcript, loaderId) {
 }
 
 function rejectTranscript(confirmId, loaderId) {
+  if (confirmId) { const el = document.getElementById(confirmId); if (el) el.dataset.done = '1'; }
   if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   const el = document.getElementById(confirmId);
   if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px">'+t('Cancelled — tap mic to try again')+'</span>';
@@ -15084,10 +15200,14 @@ function tutSpeak(){
     }
   }
   
-  // Clear stale fallback flag — try SpeechRecognition first on desktop
-  localStorage.removeItem('_useAudioFallback');
-  window._useAudioFallback = false;
-  
+  // If SpeechRecognition previously failed with no-speech on this machine,
+  // skip it on subsequent taps — it only wastes ~6-8s before erroring anyway.
+  // The recording fallback (raw stream → Gemini) is what actually works there.
+  if (window._useAudioFallback || localStorage.getItem('_useAudioFallback') === 'true') {
+    console.log("Direct to audio recording (SpeechRecognition not reliable on this device)");
+    return startAudioRecording(btn, ic);
+  }
+
   if(srOn){
     stopMediaRecorder();
     if (recognition) {
@@ -15202,8 +15322,12 @@ function tutSpeak(){
         console.warn(e.error + " detected: switching to audio recording fallback");
         window._useAudioFallback = true;
         localStorage.setItem('_useAudioFallback', 'true');
-        document.getElementById('tutHint').innerHTML='<span style="color:var(--gold)"><i class="fas fa-info-circle"></i> '+t('Auto-switching to recording...')+'</span>';
+        document.getElementById('tutHint').innerHTML='<span style="color:var(--gold)"><i class="fas fa-info-circle"></i> '+t('Auto-switching to recording... speak now!')+'</span>';
         clearTimeout(window._srFailTimer);
+        // Go STRAIGHT to recording — no device sweep delay. The sweep uses Web
+        // Audio levels which can misreport on some machines; the raw recording
+        // itself works. If the recording turns out genuinely silent, the
+        // byte-size check in onstop will run autoDetectMic.
         setTimeout(() => {
           console.log("Starting audio recording fallback now");
           startAudioRecording(btn, ic);
@@ -15349,22 +15473,39 @@ function coachPronunciation(target) {
     + '<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px"><i class="fas fa-ear-listen"></i> ' + t('Listen again, then repeat:') + '</div>'
     + '<div style="font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:4px">' + target + '</div>'
     + (py ? '<div style="font-size:14px;color:var(--neon-cyan);margin-bottom:4px;letter-spacing:1px">' + py + '</div>' : '')
-    + (meaning ? '<div style="font-size:12px;color:var(--muted)">' + t('Meaning:') + ' ' + meaning + '</div>' : '')
-    + (tip ? '<div style="font-size:12px;color:var(--fg2);margin-top:4px"><i class="fas fa-lightbulb"></i> ' + t('Tip:') + ' ' + tip + '</div>' : '')
+    + (meaning ? '<div style="font-size:12px;color:var(--muted)">' + t('Meaning:') + ' <span id="coachMeaning-' + Date.now() + '">' + t(meaning) + '</span></div>' : '')
+    + (tip ? '<div style="font-size:12px;color:var(--fg2);margin-top:4px"><i class="fas fa-lightbulb"></i> ' + t('Tip:') + ' <span id="coachTip-' + Date.now() + '">' + t(tip) + '</span></div>' : '')
     + '</div>';
   addTutMsg('bot', html);
+  if (meaning) {
+    const me = document.querySelector('[id^="coachMeaning-"]');
+    if (me && t(meaning) === meaning) ensureTutorTranslation(meaning, [me]);
+  }
+  if (tip) {
+    const te = document.querySelector('[id^="coachTip-"]');
+    if (te && t(tip) === tip) ensureTutorTranslation(tip, [te]);
+  }
   document.getElementById('tutHint').innerHTML = '<span style="color:var(--gold);font-weight:700"><i class="fas fa-microphone"></i> ' + t('Try again — press the mic and repeat the sentence') + '</span>';
   document.getElementById('tutStatus').textContent = t('Practice');
 }
 
 function tutSkip(){if(!tutLesson)return;tutStep++;advanceTutor()}
 
+function resetTutorTotal() {
+  const el = document.getElementById('tutTotal');
+  if (el) {
+    el.textContent = '--';
+    el.classList.remove('ph-loading');
+    el.style.background = 'none';
+  }
+}
+
 function laoshiWelcome() {
   tutLesson = null;
   tutStep = 0;
   tutScores = [];
   window._renderedStep = -1;
-  document.getElementById('tutTotal').textContent = '--';
+  resetTutorTotal();
   document.getElementById('tutChat').innerHTML = '';
   document.getElementById('tutWd').textContent = '你好';
   document.getElementById('tutWp').textContent = 'nǐ hǎo';
@@ -15481,6 +15622,10 @@ function selectMicDevice(id) {
   selectedMicId = id || '';
   if (id) localStorage.setItem('mic_device_id', id);
   else localStorage.removeItem('mic_device_id');
+  // User explicitly picked a mic — reset the "SpeechRecognition unreliable"
+  // flag so we give it a fresh chance with the new device.
+  window._useAudioFallback = false;
+  localStorage.removeItem('_useAudioFallback');
   toast(selectedMicId ? t('Microphone selected') : t('Using default microphone'), 'var(--green)');
 }
 
@@ -15545,6 +15690,62 @@ function stopMicTest() {
   if (btn) { btn.textContent = t('Test microphone'); btn.style.background = 'var(--accent)'; }
   if (bar) { bar.style.width = '0%'; bar.style.background = 'var(--green)'; }
   loadMicDevices();
+}
+
+// Sweep every available mic and auto-select the first one that produces real
+// audio LEVELS. Uses the Web Audio analyser — compressed byte size can't tell
+// silence apart, but wave peaks can.
+// Returns a Promise resolving to the device label (and auto-selects it) or null.
+function autoDetectMic() {
+  return new Promise(function(resolve) {
+    let done = false;
+    const finish = function(r) { if (!done) { done = true; resolve(r); } };
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return finish(null);
+    navigator.mediaDevices.enumerateDevices().then(function(devices) {
+      const mics = devices.filter(function(d) { return d.kind === 'audioinput'; });
+      if (!mics.length) return finish(null);
+      let idx = 0;
+      const testOne = function() {
+        if (done) return;
+        if (idx >= mics.length) return finish(null);
+        const d = mics[idx];
+        const o = { audio: { echoCancellation: true, noiseSuppression: true, deviceId: { exact: d.deviceId } } };
+        navigator.mediaDevices.getUserMedia(o).then(function(stream) {
+          let ctx;
+          try { ctx = new (window.AudioContext || window.webkitAudioContext)(); }
+          catch(e) { stream.getTracks().forEach(function(t){t.stop();}); idx++; testOne(); return; }
+          if (ctx.state === 'suspended') ctx.resume().catch(function(){});
+          const src = ctx.createMediaStreamSource(stream);
+          const an = ctx.createAnalyser();
+          an.fftSize = 1024;
+          src.connect(an);
+          const data = new Uint8Array(an.fftSize);
+          let peak = 0, samples = 0;
+          const iv = setInterval(function() {
+            an.getByteTimeDomainData(data);
+            let p = 0;
+            for (let i = 0; i < data.length; i++) { const v = Math.abs(data[i] - 128) / 128; if (v > p) p = v; }
+            if (p > peak) peak = p;
+            samples++;
+            if (samples >= 10) {
+              clearInterval(iv);
+              stream.getTracks().forEach(function(t){t.stop();});
+              try { ctx.close(); } catch(e) {}
+              if (peak > 0.05) {
+                selectedMicId = d.deviceId;
+                localStorage.setItem('mic_device_id', d.deviceId);
+                if (typeof loadMicDevices === 'function') loadMicDevices();
+                finish(d.label || (t('Microphone') + ' ' + (idx + 1)));
+              } else {
+                idx++; testOne();
+              }
+            }
+          }, 120);
+        }).catch(function() { idx++; testOne(); });
+      };
+      testOne();
+    }).catch(function() { finish(null); });
+  });
 }
 
 // ===== DOCUMENT UPLOAD =====
@@ -16103,6 +16304,9 @@ function showListenQuestion() {
     + '<div id="listenFeedback" class="text-sm mt-4" style="min-height:24px"></div>';
   
   const optsDiv = document.getElementById('listenOptions');
+  const ro = randomizeOptions(q.o, q.a);
+  q.o = ro.shuffled;
+  q.a = ro.a;
   q.o.forEach((opt, i) => {
     const b = document.createElement('button');
     b.className = 'bq';
@@ -16243,6 +16447,9 @@ function startDailyChallenge() {
     + '<div id="dailyFeedback" class="text-sm mt-4" style="min-height:24px"></div>';
   
   const optsDiv = document.getElementById('dailyOptions');
+  const ro = randomizeOptions(q.o, q.a);
+  q.o = ro.shuffled;
+  q.a = ro.a;
   q.o.forEach((opt, i) => {
     const b = document.createElement('button');
     b.className = 'bq';
@@ -17058,6 +17265,46 @@ async function translateToEnglish(text) {
   return reply;
 }
 
+// Translate a string into the user's selected language when the offline
+// dictionary has no entry for it (dictionary miss → tutor content falls back
+// to English). AI-translated results are cached in localStorage so each string
+// is translated only once.
+let _aiTrCache = null;
+function loadAiTrCache() {
+  if (_aiTrCache) return _aiTrCache;
+  try { _aiTrCache = JSON.parse(localStorage.getItem('tutor_ai_tr_cache') || '{}') || {}; }
+  catch(e) { _aiTrCache = {}; }
+  return _aiTrCache;
+}
+function saveAiTrCache() {
+  try { localStorage.setItem('tutor_ai_tr_cache', JSON.stringify(_aiTrCache)); } catch(e) {}
+}
+async function aiTranslate(text) {
+  const targetLang = getTutorLangName();
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text }] }], systemInstruction: 'You are a professional translator, 100% fluent in ' + targetLang + ' at native-speaker level. Translate the following text into natural, idiomatic ' + targetLang + ' — never literal, never add explanations. Reply with ONLY the ' + targetLang + ' translation and nothing else.' })
+  });
+  const data = await res.json();
+  let reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  reply = reply.replace(/^["']|["']$/g, '').trim();
+  return reply;
+}
+// Fill `els` (DOM elements) with a translation of `text` into the selected
+// language. Only used when t(text) found nothing in the offline dictionary.
+function ensureTutorTranslation(text, els) {
+  if (!text || currentAppLang === 'en' || getTutorLangName() === 'English') return;
+  const cache = loadAiTrCache();
+  if (cache[text]) { els.forEach(el => { if (el) el.textContent = cache[text]; }); return; }
+  aiTranslate(text).then(en => {
+    if (!en) return;
+    cache[text] = en;
+    saveAiTrCache();
+    els.forEach(el => { if (el) el.textContent = en; });
+  }).catch(() => {});
+}
+
 // Show the user's Chinese reply in the chat, then append its English translation
 function addLiveUserMsg(text) {
   const trId = 'utr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
@@ -17140,7 +17387,10 @@ function sendToGemini(userText) {
     "4. If the student writes in Chinese, respond in Chinese (following the level rules) and always give a professional, fluent " + langName + " translation.\n" +
     "5. Correct the student's Chinese gently: give the correct sentence, then a one-line explanation in " + langName + ".\n" +
     "6. Never refuse or dodge a question. If you are unsure, say so honestly in " + langName + ".\n" +
-    "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n";
+    "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n" +
+    "8. NEVER repeat yourself. Never reuse a Chinese phrase, a translation, an explanation, or a question you already said earlier in this conversation — the whole chat history is visible to you. Every reply must respond to what the student ACTUALLY just said and advance the conversation to something NEW.\n" +
+    "9. Vary your wording and openings. After the first exchange, drop formulaic drilling rituals and talk like a natural, friendly tutor. Do not open every reply with the same greeting or 'Now you try' line.\n" +
+    "10. If the student asks to change the topic or says 'teach me something else' / '別的東西', switch topics immediately and teach something new instead of repeating.\n";
 
   let systemInstruction;
   if (timedClassActive && timedSystemInstruction) {
@@ -17148,42 +17398,44 @@ function sendToGemini(userText) {
   } else if (chineseLevel === 'never') {
     systemInstruction = "You are Li Laoshi, a patient Chinese tutor for a student who has NEVER studied Chinese and knows ZERO words.\n" + baseRules +
       "TEACHING STYLE (absolute beginner):\n" +
-      "1. Teach ONLY ONE tiny phrase per message (max 3-5 characters, e.g. 你好, 谢谢, 再见, 我很好, 我叫...). Use ONLY the simplest HSK 1 vocabulary.\n" +
-      "2. Every message must follow EXACTLY this 3-part shape:\n" +
-      "   Part A — the Chinese phrase in 汉字 with pinyin right after it, like: 你好 (nǐ hǎo)\n" +
-      "   Part B — \"" + langName + ":\" then ONE short line with the meaning and a tiny explanation.\n" +
-      "   Part C — one super simple question in " + langName + " using that phrase, and the exact answer the student should say, with pinyin, like: You can say: nǐ hǎo\n" +
-      "3. Keep the ENTIRE message to 2-3 short " + langName + " sentences max. Never write paragraphs.\n" +
-      "4. Always end with a question so the student always knows it is their turn. Start with yes/no questions and 'say the word' questions.\n" +
-      "5. Praise every attempt warmly, even if imperfect. If wrong, correct gently in one short " + langName + " line and invite them to try again.\n" +
-      "6. If the student types or says anything in " + langName + ", teach them the Chinese for their exact sentence, character by character.\n" +
-      "7. EXAMPLE of a perfect first reply:\n你好 (nǐ hǎo)\n" + langName + ": Hello! This is the most common greeting. Now you try — say hello to me!\nYou can say: nǐ hǎo";
+      "1. THE FIRST MESSAGE ONLY: use exactly this 3-part shape to introduce yourself:\n" +
+      "   Part A — 你好 (nǐ hǎo)\n" +
+      "   Part B — \"" + langName + ": Hello! This is the most common greeting. Now you try — say hello to me!\"\n" +
+      "   Part C — You can say: nǐ hǎo\n" +
+      "2. FROM THE SECOND MESSAGE ON, STOP the drill template. Talk naturally and briefly: respond to exactly what the student said, acknowledge it, then introduce ONE new tiny phrase (max 3-5 characters, simplest HSK 1 words like 谢谢, 再见, 我很好, 我叫...) in 1-2 short " + langName + " lines.\n" +
+      "3. NEVER repeat a phrase, meaning, or question you already used earlier in the chat — pick a NEW phrase every reply.\n" +
+      "4. Always end with one very simple yes/no or 'say the word' question so the student knows it is their turn.\n" +
+      "5. If the student writes in " + langName + ", first acknowledge in one short " + langName + " line, then teach the Chinese for their exact sentence.\n" +
+      "6. Praise every attempt warmly, even if imperfect. If wrong, correct gently in one short " + langName + " line and invite them to try again.\n" +
+      "7. EXAMPLE of the perfect first reply:\n你好 (nǐ hǎo)\n" + langName + ": Hello! This is the most common greeting. Now you try — say hello to me!\nYou can say: nǐ hǎo";
   } else if (chineseLevel === 'beginner' || isBeginnerMode) {
     systemInstruction = "You are Li Laoshi, a Chinese tutor for a BEGINNER who knows a few basic words (a few weeks to months of study).\n" + baseRules +
       "TEACHING STYLE (beginner):\n" +
       "1. Use ONLY HSK 1-2 vocabulary. Keep every sentence SHORT and simple. Never use advanced grammar, idioms, or long sentences.\n" +
-      "2. Each message teaches ONE new Chinese phrase (汉字 with pinyin in parentheses), gives its " + langName + " meaning, then asks ONE simple question using it.\n" +
-      "3. Give the exact answer the student can say, with pinyin, like: You can say: wǒ jiào xiǎo míng.\n" +
-      "4. Keep the whole message to 2-3 short " + langName + " sentences total. Never flood the student.\n" +
-      "5. Build step by step: start with greetings and introductions (你好, 我叫..., 我很好, 谢谢, 再见), then simple daily phrases. Only advance after the student succeeds.\n" +
-      "6. Always end with ONE simple question so the student always knows it is their turn.\n" +
+      "2. THE FIRST MESSAGE uses the teaching format: [Chinese phrase] (pinyin), then its " + langName + " meaning, then 'You can say: ...' with pinyin (e.g. 我叫小明 (wǒ jiào xiǎo míng)). FROM THE SECOND MESSAGE ON, drop that format and be conversational: respond to what the student actually said, praise them, and teach ONE new phrase per reply in 1-3 short " + langName + " sentences.\n" +
+      "3. NEVER repeat a phrase, meaning, or question already used earlier in the chat — always advance to a NEW phrase.\n" +
+      "4. Build step by step: greetings and introductions (你好, 我叫..., 我很好, 谢谢, 再见), then simple daily phrases. Only advance after the student succeeds.\n" +
+      "5. Always end with ONE simple question so the student always knows it is their turn.\n" +
+      "6. If the student writes or says something in " + langName + ", answer in " + langName + " first in one line, then teach the Chinese for their exact sentence.\n" +
       "7. Praise effort warmly; correct gently in one short " + langName + " line and invite them to try again.\n" +
-      "8. If the student writes or says something in " + langName + ", teach them the Chinese for their exact sentence.\n" +
-      "9. FORMAT — reply in exactly this shape:\n[Chinese phrase] (pinyin)\n" + langName + ": [translation and short explanation]\nYou can say: [answer in pinyin]\nExample:\n我叫小明 (wǒ jiào xiǎo míng)\n" + langName + ": My name is Xiaoming. Now you tell me your name!\nYou can say: wǒ jiào xiǎo míng";
+      "8. Vary your openings and wording every reply — never start every message with the same greeting or the same drill line.";
   } else if (chineseLevel === 'advanced') {
     systemInstruction = "You are Li Laoshi, a Chinese tutor for an ADVANCED learner (3+ years of study).\n" + baseRules +
       "TEACHING STYLE (advanced):\n" +
       "1. Respond ONLY in natural Chinese with native-level vocabulary and idioms (3-5 sentences).\n" +
       "2. Do NOT add pinyin unless the student explicitly asks for it.\n" +
       "3. Do NOT translate into " + langName + " unless the student asks; if the student writes in " + langName + ", answer briefly in " + langName + " then continue in Chinese.\n" +
-      "4. Correct mistakes briefly, in Chinese, and only when significant.";
+      "4. Correct mistakes briefly, in Chinese, and only when significant.\n" +
+      "5. NEVER repeat a phrase or idea already used earlier in the chat — always respond directly to what the student just said and advance the topic.";
   } else {
     systemInstruction = "You are Li Laoshi, a Chinese tutor for an INTERMEDIATE learner (about HSK 3-4).\n" + baseRules +
       "TEACHING STYLE (intermediate):\n" +
       "1. Respond in Chinese first (2-3 moderately simple sentences), then provide the " + langName + " translation. Format exactly:\n\n[Chinese text here]\n\n" + langName + ": [" + langName + " translation here]\n\nExample:\n你觉得运动重要吗？我每周都跑步。\n\n" + langName + ": Do you think exercise is important? I run every week.\n" +
       "2. Include pinyin in parentheses only for NEW characters you introduce.\n" +
       "3. If the student writes in " + langName + ", answer their question in " + langName + " and teach the Chinese phrases they need.\n" +
-      "4. Keep responses moderate: 2-3 simple Chinese sentences max, mostly HSK 3 vocabulary. Do not overwhelm the student.";
+      "4. Keep responses moderate: 2-3 simple Chinese sentences max, mostly HSK 3 vocabulary. Do not overwhelm the student.\n" +
+      "5. NEVER repeat a phrase, translation, or question already used earlier in the chat — respond to exactly what the student just said and advance to something NEW.\n" +
+      "6. Vary your openings and wording every reply; never open with the same sentence twice.";
   }
   
   const payload = {
@@ -17285,7 +17537,21 @@ function sendToGemini(userText) {
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
     
     // Add message to chat, then pause briefly before speaking so the user is done talking
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (englishTranslation ? '<div style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + englishTranslation + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : ''));
+    const hasCn = /[\u4e00-\u9fa5]/.test(cleanReply);
+    const botTrId = 'botTr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (hasCn ? '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + (englishTranslation || '<i class="fas fa-language"></i> ' + t('Translating...')) + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : ''));
+    // If the model's reply has Chinese but no English translation was embedded, fetch one now
+    if (hasCn && !englishTranslation) {
+      translateToEnglish(cleanReply).then(function(en) {
+        const el = document.getElementById(botTrId);
+        if (el) el.textContent = en || t('(translation unavailable)');
+        const wm = document.getElementById('tutWm');
+        if (wm && en) wm.textContent = en;
+      }).catch(function() {
+        const el = document.getElementById(botTrId);
+        if (el) el.textContent = t('(translation unavailable)');
+      });
+    }
     if (speechText) setTimeout(() => speak(speechText), 1100);
     
     // Auto-listen in Voice Mode or Live AI Mode — wait for speech to finish
@@ -17443,8 +17709,7 @@ function startTimedClass() {
   suggestedUserTarget = '';
   const chat = document.getElementById('tutChat');
   if (chat) chat.innerHTML = '<div class="csys"><i class="fas fa-info-circle mr-1"></i> ' + t('Live AI Mode:') + ' ' + t('Timed class in progress.') + '</div>';
-  const totalEl = document.getElementById('tutTotal');
-  if (totalEl) totalEl.textContent = '--';
+  resetTutorTotal();
 
   // Ensure Live AI mode is active
   if (localStorage.getItem('tutor_mode') !== 'live') {
@@ -17592,6 +17857,14 @@ const GRAMMAR_EXERCISES = [
 ];
 let grammarExIdx = 0, grammarExScore = 0;
 
+// ===== GRAMMAR EXERCISE =====
+// Shuffle multiple-choice options and remap the correct-answer index so the
+// right answer is never always the same letter/position.
+function randomizeOptions(oArr, correctIndex) {
+  const shuffled = [...oArr].sort(() => Math.random() - 0.5);
+  return { shuffled: shuffled, a: shuffled.indexOf(oArr[correctIndex]) };
+}
+
 function startGrammarExercise() {
   grammarExIdx = 0;
   grammarExScore = 0;
@@ -17615,7 +17888,7 @@ function showGrammarExercise() {
     + '<div id="geFeedback" class="text-sm mt-4 text-center" style="min-height:24px"></div>';
   
   const optsDiv = document.getElementById('geOptions');
-  ex.options.forEach((opt, i) => {
+  [...ex.options].sort(() => Math.random() - 0.5).forEach(opt => {
     const b = document.createElement('button');
     b.className = 'bq';
     b.textContent = opt;
@@ -19006,6 +19279,7 @@ function stopMediaRecorder() {
   stopTutorPitchTrack();
   _recAudioMode = false;
   _inputRecAudioMode = false;
+  if (window._recLevelIv) { clearInterval(window._recLevelIv); window._recLevelIv = null; }
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     try {
       mediaRecorder.stop();
@@ -20429,6 +20703,9 @@ function showExamQuestion() {
   content.innerHTML += '<div class="grid gap-2" id="examOptions"></div><div id="examFeedback" class="text-sm mt-2 text-center" style="min-height:20px"></div>';
   
   const optsDiv = document.getElementById('examOptions');
+  const ro = randomizeOptions(q.o, q.a);
+  q.o = ro.shuffled;
+  q.a = ro.a;
   q.o.forEach((opt, i) => {
     const b = document.createElement('button'); b.className = 'bq'; b.textContent = opt;
     b.onclick = () => {
@@ -21050,6 +21327,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.ph-loading').forEach(function(el) {
       if (el.textContent !== '--') el.classList.remove('ph-loading');
     });
+    resetTutorTotal();
   }, 3000);
   
   // PWA install prompt — defer to user gesture
