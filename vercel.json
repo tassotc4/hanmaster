@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/app(.*)", "destination": "/api/index.js" },
+    { "source": "/admin", "destination": "/api/index.js" },
+    { "source": "/pinyin-chart", "destination": "/api/index.js" },
+    { "source": "/printable/(.*)", "destination": "/api/index.js" },
+    { "source": "/((?!api|app|admin|pinyin-chart|printable).*\\..*)", "destination": "/public/$1" },
+    { "source": "/", "destination": "/api/index.js" }
+  ]
+}

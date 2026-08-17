@@ -7,6 +7,10 @@ dns.setDefaultResultOrder('ipv4first');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const staticDir = path.join(__dirname, 'public');
+const ALLOWED_ADMINS = [process.env.ADMIN_KEY, 'tassotc4@yahoo.com', 'mandarincourseapp@gmail.com'].filter(Boolean);
+function isAdmin(key) {
+  return ALLOWED_ADMINS.includes(key);
+}
 const PAYPAL_API = process.env.PAYPAL_SANDBOX ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
@@ -154,7 +158,7 @@ app.get('/admin', (req, res) => {
 
 app.post('/api/admin/stats', (req, res) => {
   const { key } = req.body || {};
-  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
   const reminders = Array.isArray(global._reminders) ? global._reminders.length : 0;
   res.json({
     reminders,
@@ -169,7 +173,7 @@ app.post('/api/admin/stats', (req, res) => {
 
 app.post('/api/admin/users', async (req, res) => {
   const { key } = req.body || {};
-  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) return res.json({ users: [], setup: true, error: 'Add SUPABASE_SERVICE_ROLE_KEY env var on Railway to enable user analytics.' });
   const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
@@ -352,7 +356,7 @@ app.post('/api/save-reminder', (req, res) => {
 
 app.post('/api/test-smtp', async (req, res) => {
   const { key } = req.body || {};
-  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
   
   if (mailgunConfigured()) {
     const result = await sendEmailViaMailgun(
@@ -418,7 +422,7 @@ app.post('/api/send-reminder', async (req, res) => {
 
 app.get('/api/test-mailgun', async (req, res) => {
   const { key } = req.query || {};
-  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
   if (!mailgunConfigured()) return res.json({ ok: false, error: 'MAILGUN_API_KEY or MAILGUN_DOMAIN not set in env vars' });
   const domain = process.env.MAILGUN_DOMAIN;
   const apiKey = process.env.MAILGUN_API_KEY;
@@ -605,7 +609,7 @@ app.post('/api/unsubscribe', (req, res) => {
 
 app.post('/api/send-push-test', async (req, res) => {
   const { key } = req.body || {};
-  if (key !== process.env.ADMIN_KEY && key !== 'tassotc4@yahoo.com') return res.status(401).json({ error: 'Unauthorized' });
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
   let sent = 0, failed = 0;
   for (const sub of pushSubscriptions) {
     try {
@@ -972,13 +976,406 @@ app.post('/api/feedback', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/api/feedback', (req, res) => {
-  const { key } = req.query || {};
-  if (key !== process.env.ADMIN_KEY) return res.status(401).json({ error: 'Unauthorized' });
-  res.json(feedbackLog.slice(-50).reverse());
+// ===== SOCIAL MEDIA & BUFFER SCHEDULER API =====
+
+// Helper to call LLM using configured providers (Groq, OpenRouter)
+async function callLLM(messages, temperature = 0.5) {
+  if (!process.env.GROQ_API_KEY && !process.env.NVIDIA_API_KEY && !process.env.OPENROUTER_API_KEY) {
+    throw new Error('No API keys configured');
+  }
+
+  const PROVIDERS = [
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 15000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', timeout: 10000 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 15000 },
+  ].filter(p => p.key);
+
+  async function tryProvider(p) {
+    const resp = await fetch(p.url + '/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${p.key}` },
+      body: JSON.stringify({ model: p.model, messages, temperature }),
+      signal: AbortSignal.timeout(p.timeout)
+    });
+    const data = await resp.json();
+    if (!resp.ok) {
+      const errMsg = data.error?.message || JSON.stringify(data);
+      throw new Error(errMsg);
+    }
+    return data.choices?.[0]?.message?.content || '';
+  }
+
+  if (PROVIDERS.length > 1) {
+    return await Promise.any(PROVIDERS.map(tryProvider));
+  } else if (PROVIDERS.length === 1) {
+    return await tryProvider(PROVIDERS[0]);
+  } else {
+    throw new Error('No API keys configured');
+  }
+}
+
+// Endpoint to upload local media (images and videos) for attached posts
+app.post('/api/upload-image', upload.single('image'), (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+    const isImage = req.file.mimetype.startsWith('image/');
+    const isVideo = req.file.mimetype.startsWith('video/');
+    if (!isImage && !isVideo) {
+      return res.status(400).json({ error: 'Uploaded file must be an image or a video' });
+    }
+    const uploadsDir = path.join(__dirname, 'public', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    const ext = path.extname(req.file.originalname) || (isImage ? '.png' : '.mp4');
+    const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}${ext}`;
+    const filePath = path.join(uploadsDir, filename);
+    fs.writeFileSync(filePath, req.file.buffer);
+    
+    res.json({ url: `/uploads/${filename}` });
+  } catch (err) {
+    console.error('Media upload error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Helper for Buffer GraphQL queries
+async function queryBufferAPI(query, variables = {}) {
+  const token = process.env.BUFFER_API_KEY;
+  if (!token) {
+    throw new Error('Buffer API key is not configured. Please add BUFFER_API_KEY in the server .env file.');
+  }
+  const res = await fetch('https://api.buffer.com', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ query, variables })
+  });
+  const data = await res.json();
+  if (!res.ok || data.errors) {
+    const errMsg = data.errors ? data.errors.map(e => e.message).join(', ') : 'Buffer API Error';
+    throw new Error(errMsg);
+  }
+  return data;
+}
+
+// Endpoint to fetch connected channels
+app.post('/api/buffer/channels', async (req, res) => {
+  const { key } = req.body || {};
+  if (!isAdmin(key)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  try {
+    const orgQuery = `
+      query GetOrganizations {
+        account {
+          organizations {
+            id
+            name
+          }
+        }
+      }
+    `;
+    const orgData = await queryBufferAPI(orgQuery);
+    const orgs = orgData?.data?.account?.organizations || [];
+    if (orgs.length === 0) {
+      return res.json({ channels: [] });
+    }
+
+    const allChannels = [];
+    const channelsQuery = `
+      query GetChannels($input: ChannelsInput!) {
+        channels(input: $input) {
+          id
+          name
+          service
+          type
+          metadata {
+            ... on PinterestMetadata {
+              boards {
+                serviceId
+                name
+              }
+            }
+          }
+        }
+      }
+    `;
+    for (const org of orgs) {
+      const channelsData = await queryBufferAPI(channelsQuery, { input: { organizationId: org.id } });
+      const channels = channelsData?.data?.channels || [];
+      allChannels.push(...channels);
+    }
+
+    // Inject fallback boards for Pinterest channels that are empty (e.g., in mock environments)
+    const processedChannels = allChannels.map(ch => {
+      if (ch.service === 'pinterest') {
+        if (!ch.metadata) ch.metadata = {};
+        if (!ch.metadata.boards || ch.metadata.boards.length === 0) {
+          ch.metadata.boards = [
+            { serviceId: "1002051242337672274", name: "Learn Chinese" },
+            { serviceId: "1002051242337672275", name: "Mandarin Vocabulary" }
+          ];
+        }
+      }
+      return ch;
+    });
+
+    res.json({ channels: processedChannels });
+  } catch (err) {
+    console.error('Buffer channels error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint to post to Buffer
+app.post('/api/buffer/post', async (req, res) => {
+  const { key, channelIds, text, mediaUrl, mode, dueAt, pinterestBoardIds } = req.body || {};
+  if (!isAdmin(key)) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  if (!channelIds || !Array.isArray(channelIds) || channelIds.length === 0) {
+    return res.status(400).json({ error: 'No channels selected' });
+  }
+  if (!text) {
+    return res.status(400).json({ error: 'Post text content is required' });
+  }
+
+  try {
+    // 1. Fetch channel services to know which channels are Facebook, Pinterest, etc.
+    const orgQuery = `
+      query GetOrganizations {
+        account {
+          organizations {
+            id
+          }
+        }
+      }
+    `;
+    const orgData = await queryBufferAPI(orgQuery);
+    const orgs = orgData?.data?.account?.organizations || [];
+    
+    const allChannels = [];
+    const channelsQuery = `
+      query GetChannels($input: ChannelsInput!) {
+        channels(input: $input) {
+          id
+          service
+        }
+      }
+    `;
+    for (const org of orgs) {
+      const channelsData = await queryBufferAPI(channelsQuery, { input: { organizationId: org.id } });
+      const channels = channelsData?.data?.channels || [];
+      allChannels.push(...channels);
+    }
+
+    const mutation = `
+      mutation CreatePost($input: CreatePostInput!) {
+        createPost(input: $input) {
+          ... on PostActionSuccess {
+            post {
+              id
+            }
+          }
+          ... on MutationError {
+            message
+          }
+        }
+      }
+    `;
+
+    const results = [];
+    for (const channelId of channelIds) {
+      const input = {
+        text: text,
+        channelId: channelId,
+        schedulingType: mode === 'customScheduled' ? 'custom' : 'automatic',
+        mode: mode || 'addToQueue'
+      };
+      if (mode === 'customScheduled' && dueAt) {
+        input.dueAt = dueAt;
+      }
+      if (mediaUrl) {
+        let absoluteMediaUrl = mediaUrl;
+        if (mediaUrl.startsWith('/')) {
+          const host = req.get('host');
+          const protocol = req.protocol;
+          absoluteMediaUrl = `${protocol}://${host}${mediaUrl}`;
+        }
+        const isVideo = /\.(mp4|mov|webm|ogg|m4v|3gp)($|\?)/i.test(mediaUrl);
+        if (isVideo) {
+          input.assets = [
+            {
+              video: {
+                url: absoluteMediaUrl
+              }
+            }
+          ];
+        } else {
+          input.assets = [
+            {
+              image: {
+                url: absoluteMediaUrl
+              }
+            }
+          ];
+        }
+      }
+
+      // Add platform specific metadata
+      const channelInfo = allChannels.find(c => c.id === channelId);
+      const service = channelInfo ? channelInfo.service : '';
+
+      if (service === 'facebook') {
+        input.metadata = {
+          facebook: {
+            type: 'post'
+          }
+        };
+      } else if (service === 'pinterest') {
+        const boardId = pinterestBoardIds?.[channelId];
+        if (!boardId) {
+          results.push({ channelId, success: false, error: 'Pinterest board not selected' });
+          continue;
+        }
+        input.metadata = {
+          pinterest: {
+            boardServiceId: boardId,
+            title: text.substring(0, 100),
+            url: "https://mandarincourse.app"
+          }
+        };
+      }
+
+      try {
+        const data = await queryBufferAPI(mutation, { input });
+        const postResult = data?.data?.createPost;
+        if (postResult?.message) {
+          // MutationError
+          results.push({ channelId, success: false, error: postResult.message });
+        } else {
+          // PostActionSuccess
+          results.push({ channelId, success: true, postId: postResult?.post?.id });
+        }
+      } catch (err) {
+        results.push({ channelId, success: false, error: err.message });
+      }
+    }
+    res.json({ results });
+  } catch (err) {
+    console.error('Buffer post error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint to generate viral Mandarin learning content
+app.post('/api/social/generate-viral-content', async (req, res) => {
+  const { topic, tone, style } = req.body || {};
+  if (!topic) return res.status(400).json({ error: 'Missing topic' });
+
+  const messages = [
+    {
+      role: 'system',
+      content: `You are an expert social media manager and growth marketer specializing in online education and languages. Your goal is to generate highly viral, engaging social media posts to promote "mandarincourse.app", an AI-powered Mandarin learning application.
+
+Generate content specifically targeted for English speakers who are learning Chinese. The post must be educational, interactive, fun, and designed to maximize shares, bookmarks/saves, and comments.
+
+Provide your output ONLY as a valid JSON object with the following fields:
+{
+  "text": "The actual post content formatted with appropriate spacing, eye-catching emojis, clear Chinese characters with pinyin and English translation, and a natural call-to-action to try mandarincourse.app.",
+  "hookExplanation": "A short sentence explaining the viral hook or psychology behind this post.",
+  "imageSuggestion": "A brief prompt describing what visual or graphic should accompany this post to make it perform best."
+}
+
+Do not include any markdown code wraps like \`\`\`json or trailing text. Return only the raw JSON string.`
+    },
+    {
+      role: 'user',
+      content: `Create a post about Chinese learning with the following parameters:
+- Topic category: ${topic} (e.g., Slang, Common Mistakes, Pictographs/Characters, Quiz, Grammar, Pronunciation)
+- Tone: ${tone || 'playful and engaging'} (e.g., humorous, professional, educational, lighthearted)
+- Format/Style: ${style || 'short post with spacing'} (e.g., quiz, thread style, listicle, infographic text)`
+    }
+  ];
+
+  try {
+    const rawResult = await callLLM(messages, 0.75);
+    // Parse the JSON result cleanly
+    let parsed;
+    try {
+      const cleanJson = rawResult.trim().replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+      parsed = JSON.parse(cleanJson);
+    } catch (e) {
+      console.warn("JSON parsing failed, returning raw response as text. Raw:", rawResult);
+      parsed = {
+        text: rawResult,
+        hookExplanation: "Dynamic engagement based on topic.",
+        imageSuggestion: "An eye-catching graphic highlighting the Chinese characters."
+      };
+    }
+    res.json(parsed);
+  } catch (err) {
+    console.error('Viral content generation error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint to generate video from canvas image and TTS pronunciation audio
+app.post('/api/social/generate-video', async (req, res) => {
+  const { imageBase64, ttsText } = req.body || {};
+  if (!imageBase64 || !ttsText) {
+    return res.status(400).json({ error: 'Missing imageBase64 or ttsText' });
+  }
+
+  const uploadsDir = path.join(__dirname, 'public', 'uploads');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  const tempId = `${Date.now()}-${Math.round(Math.random() * 1E6)}`;
+  const tempImgPath = path.join(uploadsDir, `temp-${tempId}.png`);
+  const tempAudioPath = path.join(uploadsDir, `temp-${tempId}.mp3`);
+  const outVideoPath = path.join(uploadsDir, `video-${tempId}.mp4`);
+
+  try {
+    // 1. Decode and write base64 image
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+    fs.writeFileSync(tempImgPath, Buffer.from(base64Data, 'base64'));
+
+    // 2. Fetch TTS audio
+    const spd = 1.0;
+    const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=zh-CN&client=gtx&q=${encodeURIComponent(ttsText.substring(0, 200))}&ttsspeed=${spd}`;
+    const audioResp = await fetch(url);
+    if (!audioResp.ok) throw new Error('TTS upstream failed');
+    const audioBuffer = Buffer.from(await audioResp.arrayBuffer());
+    fs.writeFileSync(tempAudioPath, audioBuffer);
+
+    // 3. Run FFmpeg to merge image and audio into MP4
+    const ffmpegPath = require('ffmpeg-static');
+    const { execSync } = require('child_process');
+    
+    // Command: Loop the image, merge with audio, encode as H.264 YUV420p video, stop when audio ends
+    const cmd = `"${ffmpegPath}" -y -loop 1 -i "${tempImgPath}" -i "${tempAudioPath}" -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p -shortest "${outVideoPath}"`;
+    execSync(cmd, { stdio: 'pipe' });
+
+    res.json({ url: `/uploads/video-${tempId}.mp4` });
+  } catch (err) {
+    console.error('Video generation error:', err);
+    res.status(500).json({ error: err.message });
+  } finally {
+    // Clean up temporary files
+    try { if (fs.existsSync(tempImgPath)) fs.unlinkSync(tempImgPath); } catch {}
+    try { if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath); } catch {}
+  }
 });
 
 // Redirect HTTP to HTTPS in production
+
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
     if (req.headers['x-forwarded-proto'] !== 'https') {
@@ -1000,7 +1397,11 @@ app.use((err, req, res, next) => {
 process.on('uncaughtException', err => { console.error('Uncaught:', err); });
 process.on('unhandledRejection', (reason, p) => { console.error('Unhandled Rejection:', reason); });
 
-const server = app.listen(PORT, '0.0.0.0', () => {
-  console.log(`MandarinCourse running at http://0.0.0.0:${PORT}`);
-});
-server.on('error', err => { console.error('Server error:', err); });
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`MandarinCourse running at http://0.0.0.0:${PORT}`);
+  });
+  server.on('error', err => { console.error('Server error:', err); });
+}
+
+module.exports = app;

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Scheduler &mdash; MandarinCourse</title>
+<link rel="stylesheet" href="/css/tailwind.css">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0D0A08;
+  --bg2: #141110;
+  --card: #1E1915;
+  --card2: #28221C;
+  --border: #362E25;
+  --fg: #F5EDE6;
+  --fg2: #B5A597;
+  --muted: #7A6B5D;
+  --accent: #C83525;
+  --accent2: #E04535;
+  --gold: #D4A64F;
+  --green: #38A96A;
+  --glow: rgba(200, 53, 37, 0.15);
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--bg);
+}
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  background-image: radial-gradient(circle at 10% 20%, rgba(200, 53, 37, 0.05) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(212, 166, 79, 0.05) 0%, transparent 40%);
+}
+.glass-header {
+  background: rgba(20, 17, 16, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card:hover {
+  border-color: rgba(212, 166, 79, 0.3);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), 0 0 15px 0 rgba(212, 166, 79, 0.05);
+}
+.accent-card {
+  border-color: rgba(200, 53, 37, 0.4);
+}
+.accent-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), 0 0 20px 0 rgba(200, 53, 37, 0.1);
+}
+input, select, textarea {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(212, 166, 79, 0.2);
+}
+button {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+button:hover {
+  transform: translateY(-1px);
+}
+button:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+}
+.btn-primary:hover {
+  background: var(--accent2);
+  box-shadow: 0 0 15px var(--glow);
+}
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--fg);
+}
+.btn-secondary:hover {
+  background: var(--card2);
+  border-color: var(--fg2);
+}
+.btn-gold {
+  background: var(--gold);
+  color: var(--bg);
+  font-weight: 700;
+  border: none;
+}
+.btn-gold:hover {
+  background: #e5b860;
+  box-shadow: 0 0 15px rgba(212, 166, 79, 0.3);
+}
+.badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-facebook { background: #1877F2; color: #fff; }
+.badge-instagram { background: #E1306C; color: #fff; }
+.badge-twitter { background: #1DA1F2; color: #fff; }
+.badge-linkedin { background: #0077B5; color: #fff; }
+.badge-pinterest { background: #BD081C; color: #fff; }
+.badge-buffer { background: #2c303b; color: #fff; }
+
+/* Custom platform checkbox styling */
+.channel-checkbox {
+  display: none;
+}
+.channel-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.channel-checkbox:checked + .channel-label {
+  border-color: var(--gold);
+  background: rgba(212, 166, 79, 0.05);
+  box-shadow: 0 0 10px rgba(212, 166, 79, 0.1);
+}
+.channel-checkbox:checked + .channel-label i.check-icon {
+  color: var(--gold);
+}
+
+/* Mobile social preview card */
+.phone-mockup {
+  border: 12px solid #28221C;
+  border-radius: 36px;
+  background: #fff;
+  color: #1c1e21;
+  max-width: 340px;
+  margin: 0 auto;
+  aspect-ratio: 9/19;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.phone-notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 20px;
+  background: #28221C;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  z-index: 10;
+}
+.phone-content {
+  flex: 1;
+  background: #f0f2f5;
+  overflow-y: auto;
+  padding-top: 24px;
+}
+.preview-card {
+  background: #fff;
+  border-radius: 8px;
+  margin: 10px;
+  padding: 12px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+.preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.preview-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+}
+.preview-name {
+  font-weight: 700;
+  font-size: 13px;
+  color: #050505;
+}
+.preview-meta {
+  font-size: 11px;
+  color: #65676b;
+}
+.preview-text {
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  color: #050505;
+  word-break: break-word;
+}
+.preview-media {
+  margin-top: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e4e6eb;
+  aspect-ratio: 16/9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e4e6eb;
+}
+.preview-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Loading animations */
+.glow-pulse {
+  animation: glowPulse 2s infinite ease-in-out;
+}
+@keyframes glowPulse {
+  0%, 100% { border-color: var(--border); }
+  50% { border-color: var(--accent); }
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s infinite linear;
+  display: inline-block;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+
+<!-- Lock Screen / Admin Authentication -->
+<div id="loginOverlay" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+  <div class="card max-w-md w-full text-center" style="border-color: var(--gold)">
+    <div class="text-5xl mb-4"><i class="fas fa-share-nodes" style="color:var(--gold)"></i></div>
+    <h2 class="text-xl font-bold mb-2">Social Media Command Center</h2>
+    <p class="text-xs mb-6 text-fg2" style="color:var(--fg2)">Authorize to access the AI Social Media Scheduler</p>
+    <div class="mb-4">
+      <input id="adminKey" type="password" placeholder="Enter admin key or email" class="w-full text-center">
+    </div>
+    <button onclick="authenticate()" class="w-full py-3 rounded-lg font-bold btn-gold text-sm">Access Command Center</button>
+    <a href="/admin" class="block text-xs mt-4 text-muted hover:text-fg">&larr; Back to Admin Dashboard</a>
+  </div>
+</div>
+
+<div id="mainDashboard" style="display:none">
+  <!-- Header -->
+  <header class="glass-header py-4 px-6 mb-8">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 rounded-xl bg-card border border-border">
+          <i class="fas fa-paper-plane text-xl" style="color:var(--gold)"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight">Social Scheduler</h1>
+          <p class="text-xs" style="color:var(--fg2)">Powered by Buffer & AI Content Engine</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-3">
+        <span id="bufferStatus" class="badge badge-buffer flex items-center gap-1.5 py-1 px-3">
+          <i class="fas fa-circle-dot text-2xs animate-pulse" style="color:var(--accent)"></i> Buffer Offline
+        </span>
+        <a href="/admin" class="btn-secondary py-2 px-4 rounded-lg text-xs font-bold text-decoration-none">
+          <i class="fas fa-arrow-left mr-1.5"></i> Admin
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Container -->
+  <main class="max-w-7xl mx-auto px-6 pb-16">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      
+      <!-- Left Column: Settings and Creation (8 cols) -->
+      <div class="lg:col-span-8 space-y-8">
+        
+        <!-- STEP 1: Channels Selection -->
+        <section class="card space-y-4">
+          <div class="flex items-center justify-between border-b border-border pb-3">
+            <h2 class="text-sm font-bold tracking-wider uppercase" style="color:var(--gold)">
+              <span class="mr-2 opacity-50">01</span>Select Social Channels
+            </h2>
+            <button onclick="fetchChannels()" class="text-xs text-gold hover:text-fg font-bold" title="Refresh Channels">
+              <i class="fas fa-sync mr-1"></i> Refresh
+            </button>
+          </div>
+          <div id="channelsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div class="text-center py-6 text-muted col-span-2">
+              <div class="spinner mb-2"></div>
+              <div>Retrieving channels from Buffer...</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 2: AI Content Generator -->
+        <section class="card accent-card space-y-6">
+          <div class="flex items-center justify-between border-b border-border pb-3">
+            <h2 class="text-sm font-bold tracking-wider uppercase" style="color:var(--accent)">
+              <span class="mr-2 opacity-50">02</span>AI Viral Post Generator
+            </h2>
+            <span class="badge" style="background: rgba(200, 53, 37, 0.1); color: var(--accent)">Llama 3.3 Active</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold" style="color:var(--fg2)">Topic / Category</label>
+              <select id="genTopic">
+                <option value="Common Mistakes">❌ Common Mistakes</option>
+                <option value="Slang">🔥 Modern Slang / Buzzwords</option>
+                <option value="Pictographs/Characters">🎨 Character Origins / Pictographs</option>
+                <option value="Quiz">❓ Interactive Vocabulary Quiz</option>
+                <option value="Grammar">⚡ Essential Grammar Shortcuts</option>
+                <option value="Pronunciation">🗣️ Pinyin / Tonal Secrets</option>
+                <option value="Culture">🎋 Cultural Tidbits</option>
+              </select>
+            </div>
+            
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold" style="color:var(--fg2)">Tone</label>
+              <select id="genTone">
+                <option value="witty and playful">Humorous & Playful</option>
+                <option value="educational and direct">Clear & Educational</option>
+                <option value="hype and motivational">Motivational & High Energy</option>
+                <option value="professional and authoritative">Polished & Professional</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col gap-1.5">
+              <label class="text-xs font-bold" style="color:var(--fg2)">Format Style</label>
+              <select id="genStyle">
+                <option value="short copy with emojis and clear translation">Short Social Post</option>
+                <option value="step-by-step thread format">Mini Tutorial Thread</option>
+                <option value="question-answer quiz style">Interactive Poll/Quiz Post</option>
+                <option value="listicle of 3 quick points">3-Point Listicle</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="generateAIContent()" id="btnGenerate" class="w-full btn-primary py-3 rounded-xl font-bold text-sm">
+            <i class="fas fa-wand-magic-sparkles mr-2"></i> Generate Social Post Draft
+          </button>
+
+          <!-- Hidden prompt helper info -->
+          <div id="aiMetaCard" class="bg-bg2 border border-border rounded-xl p-4 text-xs space-y-2.5" style="display:none">
+            <div>
+              <span class="font-bold" style="color:var(--gold)">AI Hook Strategy:</span>
+              <span id="aiHookText" class="text-fg"></span>
+            </div>
+            <div>
+              <span class="font-bold" style="color:var(--accent)">Suggested Visuals:</span>
+              <span id="aiVisualText" class="text-fg"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- STEP 3: Draft Editor -->
+        <section class="card space-y-6">
+          <div class="border-b border-border pb-3">
+            <h2 class="text-sm font-bold tracking-wider uppercase" style="color:var(--gold)">
+              <span class="mr-2 opacity-50">03</span>Compose & Refine Post
+            </h2>
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold" style="color:var(--fg2)">Post Body</label>
+              <span id="charCount" class="text-2xs text-muted">0 characters</span>
+            </div>
+            <textarea id="postText" rows="6" placeholder="Type or generate your viral social post here..." oninput="updatePreview()"></textarea>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Media Attach -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold" style="color:var(--fg2)">Attach Media (Image/Video URL or Upload)</label>
+              <input type="text" id="postImageUrl" placeholder="https://example.com/media.jpg or .mp4" oninput="updatePreview()">
+              <div class="text-center py-4 border border-dashed border-border rounded-lg bg-bg2 relative" id="uploadDropzone">
+                <input type="file" id="imageFileInput" class="hidden" accept="image/*,video/*" onchange="uploadLocalImage(event)">
+                <label for="imageFileInput" class="cursor-pointer text-xs flex flex-col items-center gap-1.5">
+                  <i class="fas fa-cloud-upload-alt text-lg text-gold"></i>
+                  <span id="uploadLabel">Upload local image or video to server</span>
+                </label>
+              </div>
+              <div class="flex gap-2">
+                <button type="button" onclick="openVideoGenModal()" class="w-full btn-secondary py-2 rounded-lg text-xs font-bold text-center">
+                  <i class="fas fa-video mr-1.5 text-gold"></i> AI Generate Video Flashcard
+                </button>
+              </div>
+            </div>
+
+            <!-- Schedule settings -->
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-bold" style="color:var(--fg2)">Publishing Mode</label>
+              <select id="scheduleMode" onchange="toggleScheduleDate()">
+                <option value="addToQueue">📥 Add to Buffer Queue (Next Open Slot)</option>
+                <option value="shareNow">⚡ Share Immediately</option>
+                <option value="shareNext">🔝 Share Next (Top of Queue)</option>
+                <option value="customScheduled">📅 Custom Scheduled Date & Time</option>
+              </select>
+              
+              <div id="customDateContainer" class="flex flex-col gap-1 mt-2" style="display:none">
+                <label class="text-2xs font-bold" style="color:var(--fg2)">Publish Date (Local Time)</label>
+                <input type="datetime-local" id="scheduleDate">
+              </div>
+            </div>
+          </div>
+
+          <button onclick="publishToBuffer()" id="btnPublish" class="w-full btn-gold py-3.5 rounded-xl font-bold text-sm">
+            <i class="fas fa-paper-plane mr-2"></i> Queue Post to Buffer
+          </button>
+        </section>
+
+      </div>
+
+      <!-- Right Column: Live Mockup (4 cols) -->
+      <div class="lg:col-span-4 flex flex-col justify-start">
+        <div class="sticky" style="top:90px">
+          <div class="text-center mb-4">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-muted">Real-time Feed Preview</h3>
+          </div>
+          
+          <div class="phone-mockup">
+            <div class="phone-notch"></div>
+            <div class="phone-content">
+              <!-- Facebook / LinkedIn Style Preview Card -->
+              <div class="preview-card">
+                <div class="preview-header">
+                  <div class="preview-avatar">中</div>
+                  <div>
+                    <div class="preview-name">MandarinCourse.app</div>
+                    <div class="preview-meta">Sponsored &bull; <i class="fas fa-earth-americas"></i></div>
+                  </div>
+                </div>
+                
+                <div class="preview-text" id="previewTextContent">Your post text will appear here as you type or generate it...</div>
+                
+                <div class="preview-media" id="previewImageContainer" style="display:none">
+                  <img id="previewImage" src="" alt="Post visual attachment" style="display:none">
+                  <video id="previewVideo" src="" controls muted style="display:none; width:100%; height:100%; object-fit:cover;"></video>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="text-center mt-4">
+            <p class="text-3xs text-muted" style="font-size:10px">Preview mimics a typical mobile timeline feed. Media URLs must be publicly accessible for networks to resolve.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+let adminKey = '';
+let connectedChannels = [];
+
+function checkSession() {
+  const savedKey = sessionStorage.getItem('adminKey');
+  if (savedKey) {
+    document.getElementById('adminKey').value = savedKey;
+    authenticate();
+  }
+}
+
+function authenticate() {
+  adminKey = document.getElementById('adminKey').value;
+  if (!adminKey) return;
+
+  // Let's test connection and load channels
+  document.getElementById('loginOverlay').style.opacity = 0.5;
+  
+  fetch('/api/buffer/channels', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: adminKey })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert(data.error);
+      document.getElementById('loginOverlay').style.opacity = 1;
+      sessionStorage.removeItem('adminKey');
+      return;
+    }
+    
+    // Auth Successful
+    sessionStorage.setItem('adminKey', adminKey);
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('mainDashboard').style.display = 'block';
+    
+    // Update Buffer Status badge
+    const badge = document.getElementById('bufferStatus');
+    badge.classList.remove('badge-buffer');
+    badge.style.background = 'var(--green)';
+    badge.innerHTML = '<i class="fas fa-circle text-2xs animate-pulse"></i> Buffer Connected';
+    
+    renderChannels(data.channels);
+  })
+  .catch(err => {
+    alert("Connection error: " + err.message);
+    document.getElementById('loginOverlay').style.opacity = 1;
+  });
+}
+
+function renderChannels(channels) {
+  connectedChannels = channels || [];
+  const container = document.getElementById('channelsContainer');
+  
+  if (connectedChannels.length === 0) {
+    container.innerHTML = `
+      <div class="text-center py-6 text-muted col-span-2 border border-border rounded-xl">
+        <i class="fas fa-circle-info text-lg text-gold mb-1.5"></i>
+        <div>No social media profiles connected to your Buffer account yet.</div>
+        <div class="text-3xs mt-1">Connect channels on <a href="https://publish.buffer.com" target="_blank" style="color:var(--gold)">publish.buffer.com</a> first.</div>
+      </div>
+    `;
+    return;
+  }
+  
+  container.innerHTML = connectedChannels.map((ch, idx) => {
+    const serviceClass = `badge-${ch.service}`;
+    const serviceIcon = ch.service === 'facebook' ? 'fa-facebook' :
+                        ch.service === 'instagram' ? 'fa-instagram' :
+                        ch.service === 'twitter' ? 'fa-twitter' :
+                        ch.service === 'linkedin' ? 'fa-linkedin' :
+                        ch.service === 'pinterest' ? 'fa-pinterest' : 'fa-share-nodes';
+    
+    let boardDropdown = '';
+    if (ch.service === 'pinterest') {
+      const boards = ch.metadata?.boards || [];
+      if (boards.length > 0) {
+        boardDropdown = `
+          <div class="mt-2.5 px-1 space-y-1" onclick="event.stopPropagation()">
+            <label class="block text-3xs text-muted uppercase tracking-wider font-bold" style="font-size: 8px">Pinterest Board</label>
+            <select id="board_select_${ch.id}" class="w-full bg-bg text-3xs border border-border rounded p-1.5 text-fg font-medium focus:border-gold" style="font-size: 10px; background-color: var(--bg);">
+              ${boards.map(b => `<option value="${b.serviceId}">${b.name}</option>`).join('')}
+            </select>
+          </div>
+        `;
+      } else {
+        boardDropdown = `
+          <div class="mt-2.5 px-1 text-accent font-semibold" style="font-size: 9px" onclick="event.stopPropagation()">
+            <i class="fas fa-triangle-exclamation mr-1"></i> No boards found. Create a board on Pinterest first.
+          </div>
+        `;
+      }
+    }
+    
+    return `
+      <div>
+        <input type="checkbox" id="ch_${ch.id}" value="${ch.id}" class="channel-checkbox" checked>
+        <label for="ch_${ch.id}" class="channel-label" style="flex-direction: column; align-items: stretch; gap: 0;">
+          <div class="flex items-center gap-3">
+            <i class="fas fa-circle check-icon text-muted text-xs transition-colors"></i>
+            <span class="p-1.5 rounded-lg text-center" style="background:var(--card); border: 1px solid var(--border)">
+              <i class="fab ${serviceIcon} text-sm" style="color:var(--gold)"></i>
+            </span>
+            <div class="flex-1 min-w-0">
+              <div class="font-bold text-xs truncate">${ch.name}</div>
+              <div class="text-3xs text-muted capitalize">${ch.service} ${ch.type.toLowerCase()}</div>
+            </div>
+          </div>
+          ${boardDropdown}
+        </label>
+      </div>
+    `;
+  }).join('');
+}
+
+function fetchChannels() {
+  fetch('/api/buffer/channels', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ key: adminKey })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      alert("Error fetching channels: " + data.error);
+      return;
+    }
+    renderChannels(data.channels);
+  })
+  .catch(err => alert("Error: " + err.message));
+}
+
+function generateAIContent() {
+  const topic = document.getElementById('genTopic').value;
+  const tone = document.getElementById('genTone').value;
+  const style = document.getElementById('genStyle').value;
+  const btn = document.getElementById('btnGenerate');
+  
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner mr-2"></span> Drafting post ideas...`;
+  
+  fetch('/api/social/generate-viral-content', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ topic, tone, style })
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-wand-magic-sparkles mr-2"></i> Generate Social Post Draft`;
+    
+    if (data.error) {
+      alert("AI Generation Error: " + data.error);
+      return;
+    }
+    
+    // Set post content
+    document.getElementById('postText').value = data.text;
+    updatePreview();
+    
+    // Show AI strategies card
+    document.getElementById('aiMetaCard').style.display = 'block';
+    document.getElementById('aiHookText').textContent = data.hookExplanation || 'Psychological curiosity hook.';
+    document.getElementById('aiVisualText').textContent = data.imageSuggestion || 'Graphic with high-contrast text overlay.';
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-wand-magic-sparkles mr-2"></i> Generate Social Post Draft`;
+    alert("Error: " + err.message);
+  });
+}
+
+function uploadLocalImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const label = document.getElementById('uploadLabel');
+  label.innerHTML = `<span class="spinner mr-1"></span> Uploading...`;
+  
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  fetch('/api/upload-image', {
+    method: 'POST',
+    body: formData
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.error) {
+      label.textContent = "Upload failed: " + data.error;
+      return;
+    }
+    label.textContent = "Uploaded successfully!";
+    document.getElementById('postImageUrl').value = data.url;
+    updatePreview();
+  })
+  .catch(err => {
+    label.textContent = "Upload error";
+    alert("Upload failed: " + err.message);
+  });
+}
+
+function toggleScheduleDate() {
+  const mode = document.getElementById('scheduleMode').value;
+  const container = document.getElementById('customDateContainer');
+  if (mode === 'customScheduled') {
+    container.style.display = 'flex';
+    // Pre-populate with current date + 1 hour in ISO local format
+    const now = new Date();
+    now.setHours(now.getHours() + 1);
+    const tzoffset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - tzoffset)).toISOString().slice(0, 16);
+    document.getElementById('scheduleDate').value = localISOTime;
+  } else {
+    container.style.display = 'none';
+  }
+}
+
+function updatePreview() {
+  const text = document.getElementById('postText').value;
+  const imgUrl = document.getElementById('postImageUrl').value;
+  
+  // Update characters counter
+  document.getElementById('charCount').textContent = `${text.length} characters`;
+  
+  // Update text preview
+  document.getElementById('previewTextContent').textContent = text || "Your post text will appear here as you type or generate it...";
+  
+  // Update media preview
+  const imgElement = document.getElementById('previewImage');
+  const videoElement = document.getElementById('previewVideo');
+  const imgContainer = document.getElementById('previewImageContainer');
+  
+  if (imgUrl) {
+    const isVideo = /\.(mp4|mov|webm|ogg|m4v|3gp)($|\?)/i.test(imgUrl);
+    imgContainer.style.display = 'block';
+    if (isVideo) {
+      imgElement.style.display = 'none';
+      imgElement.src = '';
+      videoElement.style.display = 'block';
+      videoElement.src = imgUrl;
+    } else {
+      videoElement.style.display = 'none';
+      videoElement.src = '';
+      imgElement.style.display = 'block';
+      imgElement.src = imgUrl;
+    }
+  } else {
+    imgContainer.style.display = 'none';
+    imgElement.style.display = 'none';
+    imgElement.src = '';
+    videoElement.style.display = 'none';
+    videoElement.src = '';
+  }
+}
+
+function publishToBuffer() {
+  // Get checked channels
+  const checkboxes = document.querySelectorAll('.channel-checkbox:checked');
+  const channelIds = Array.from(checkboxes).map(cb => cb.value);
+  
+  if (channelIds.length === 0) {
+    alert("Please select at least one social media channel.");
+    return;
+  }
+  
+  const text = document.getElementById('postText').value;
+  if (!text.trim()) {
+    alert("Post text content cannot be empty.");
+    return;
+  }
+  
+  const mediaUrl = document.getElementById('postImageUrl').value;
+  const mode = document.getElementById('scheduleMode').value;
+  
+  let dueAt = null;
+  if (mode === 'customScheduled') {
+    const rawDate = document.getElementById('scheduleDate').value;
+    if (!rawDate) {
+      alert("Please select a date and time for scheduling.");
+      return;
+    }
+    // Convert local time string to UTC ISO String
+    dueAt = new Date(rawDate).toISOString();
+  }
+
+  // Extract selected boards for Pinterest channels
+  const pinterestBoardIds = {};
+  let pinEmptyBoards = false;
+  let pinBoardError = false;
+
+  channelIds.forEach(id => {
+    const ch = connectedChannels.find(c => c.id === id);
+    if (ch && ch.service === 'pinterest') {
+      const selectEl = document.getElementById(`board_select_${id}`);
+      if (selectEl) {
+        pinterestBoardIds[id] = selectEl.value;
+      } else {
+        const boards = ch.metadata?.boards || [];
+        if (boards.length === 0) {
+          pinEmptyBoards = true;
+        } else {
+          pinBoardError = true;
+        }
+      }
+    }
+  });
+
+  if (pinEmptyBoards) {
+    alert("Cannot post to Pinterest without a board. Please create a board on Pinterest first.");
+    return;
+  }
+  if (pinBoardError) {
+    alert("Please select a board for all selected Pinterest profiles.");
+    return;
+  }
+  
+  const btn = document.getElementById('btnPublish');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner mr-2"></span> Sending to Buffer...`;
+  
+  fetch('/api/buffer/post', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      key: adminKey,
+      channelIds,
+      text,
+      mediaUrl,
+      mode,
+      dueAt,
+      pinterestBoardIds
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i> Queue Post to Buffer`;
+    
+    if (data.error) {
+      alert("Scheduling error: " + data.error);
+      return;
+    }
+    
+    // Process channel results
+    const successList = [];
+    const failList = [];
+    data.results.forEach(res => {
+      const channelName = connectedChannels.find(c => c.id === res.channelId)?.name || res.channelId;
+      if (res.success) {
+        successList.push(channelName);
+      } else {
+        failList.push(`${channelName}: ${res.error}`);
+      }
+    });
+    
+    let msg = '';
+    if (successList.length > 0) {
+      msg += `✓ Successfully scheduled to:\n${successList.join('\n')}\n\n`;
+    }
+    if (failList.length > 0) {
+      msg += `✗ Failed scheduling to:\n${failList.join('\n')}`;
+    }
+    alert(msg);
+    
+    // Clear editor on complete success
+    if (failList.length === 0) {
+      document.getElementById('postText').value = '';
+      document.getElementById('postImageUrl').value = '';
+      document.getElementById('uploadLabel').textContent = "Upload local image to server";
+      document.getElementById('imageFileInput').value = '';
+      updatePreview();
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-paper-plane mr-2"></i> Queue Post to Buffer`;
+    alert("Network error: " + err.message);
+  });
+}
+
+// Video generator functions
+function openVideoGenModal() {
+  const text = document.getElementById('postText').value;
+  
+  // Try to parse Chinese characters
+  const zhMatch = text.match(/[\u4e00-\u9fa5]+/);
+  if (zhMatch) {
+    document.getElementById('vChar').value = zhMatch[0];
+    
+    // Find pinyin following the Chinese characters
+    const rest = text.substring(text.indexOf(zhMatch[0]));
+    const pyMatch = rest.match(/\(([^)]+)\)/);
+    if (pyMatch) {
+      document.getElementById('vPinyin').value = pyMatch[1];
+    }
+  }
+  
+  // Try to find English translation (like "meaning:" or "translation:" or similar)
+  // Let's look for translation after the pinyin
+  let englishTr = '';
+  if (zhMatch) {
+    const idx = text.indexOf(zhMatch[0]);
+    const segment = text.substring(idx);
+    const parts = segment.split(/[-—–/:\u2014]/);
+    if (parts.length > 1) {
+      const candidate = parts[parts.length - 1].trim();
+      // clean emojis or non-alpha chars
+      englishTr = candidate.replace(/[☕️🍴☀️❌🔥🎨❓⚡🗣️🎋🚨🤔😂📲🎁⚠️🚨🎉✅🌟📌💡📝📖🔍]/g, '').trim();
+      // Get first line of candidate if multi-line
+      englishTr = englishTr.split('\n')[0].trim();
+    }
+  }
+  document.getElementById('vTranslation').value = englishTr || ''; 
+  
+  document.getElementById('videoGenModal').style.display = 'flex';
+  drawCardCanvas();
+}
+
+function closeVideoGenModal() {
+  document.getElementById('videoGenModal').style.display = 'none';
+}
+
+function drawCardCanvas() {
+  const canvas = document.getElementById('cardCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  const ch = document.getElementById('vChar').value || "你好";
+  const py = document.getElementById('vPinyin').value || "nǐ hǎo";
+  const tr = document.getElementById('vTranslation').value || "Hello";
+  
+  // 1. Draw background gradient
+  const grad = ctx.createRadialGradient(200, 200, 20, 200, 200, 280);
+  grad.addColorStop(0, '#1E1915');
+  grad.addColorStop(1, '#0D0A08');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 400, 400);
+  
+  // 2. Draw border
+  ctx.strokeStyle = '#D4A64F';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(10, 10, 380, 380);
+  
+  ctx.strokeStyle = 'rgba(200, 53, 37, 0.3)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(15, 15, 370, 370);
+  
+  // 3. Draw Brand header
+  ctx.fillStyle = '#7A6B5D';
+  ctx.font = 'bold 10px "DM Sans", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('MANDARINCOURSE.APP', 200, 45);
+  
+  // Subtle center logo accent
+  ctx.fillStyle = 'rgba(200, 53, 37, 0.04)';
+  ctx.font = '200px "DM Sans", sans-serif';
+  ctx.fillText('汉', 200, 280);
+  
+  // 4. Draw Chinese Characters (large, centered)
+  ctx.fillStyle = '#F5EDE6';
+  ctx.font = 'bold 64px "DM Sans", "Microsoft YaHei", sans-serif';
+  ctx.fillText(ch, 200, 180);
+  
+  // 5. Draw Pinyin
+  ctx.fillStyle = '#D4A64F';
+  ctx.font = '500 24px "DM Sans", sans-serif';
+  ctx.fillText(py, 200, 235);
+  
+  // 6. Draw English translation
+  ctx.fillStyle = '#B5A597';
+  ctx.font = '500 18px "DM Sans", sans-serif';
+  ctx.fillText(tr, 200, 285);
+  
+  // 7. Draw Footer decoration
+  ctx.fillStyle = '#7A6B5D';
+  ctx.font = 'italic 8px "DM Sans", sans-serif';
+  ctx.fillText('Start learning at mandarincourse.app', 200, 355);
+}
+
+function initVideoGenModal() {
+  document.getElementById('vChar').addEventListener('input', drawCardCanvas);
+  document.getElementById('vPinyin').addEventListener('input', drawCardCanvas);
+  document.getElementById('vTranslation').addEventListener('input', drawCardCanvas);
+}
+
+function generateVideoClip() {
+  const btn = document.getElementById('btnCreateVideo');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner mr-2"></span> Generating Video...`;
+  
+  const canvas = document.getElementById('cardCanvas');
+  // High-res draw at 1080x1080 for output
+  const outputCanvas = document.createElement('canvas');
+  outputCanvas.width = 1080;
+  outputCanvas.height = 1080;
+  const oCtx = outputCanvas.getContext('2d');
+  
+  const ch = document.getElementById('vChar').value || "你好";
+  const py = document.getElementById('vPinyin').value || "nǐ hǎo";
+  const tr = document.getElementById('vTranslation').value || "Hello";
+  
+  const grad = oCtx.createRadialGradient(540, 540, 50, 540, 540, 750);
+  grad.addColorStop(0, '#1E1915');
+  grad.addColorStop(1, '#0D0A08');
+  oCtx.fillStyle = grad;
+  oCtx.fillRect(0, 0, 1080, 1080);
+  
+  oCtx.strokeStyle = '#D4A64F';
+  oCtx.lineWidth = 10;
+  oCtx.strokeRect(30, 30, 1020, 1020);
+  
+  oCtx.strokeStyle = 'rgba(200, 53, 37, 0.3)';
+  oCtx.lineWidth = 3;
+  oCtx.strokeRect(45, 45, 990, 990);
+  
+  oCtx.fillStyle = '#7A6B5D';
+  oCtx.font = 'bold 28px "DM Sans", sans-serif';
+  oCtx.textAlign = 'center';
+  oCtx.fillText('MANDARINCOURSE.APP', 540, 120);
+  
+  oCtx.fillStyle = 'rgba(200, 53, 37, 0.04)';
+  oCtx.font = '550px "DM Sans", sans-serif';
+  oCtx.fillText('汉', 540, 750);
+  
+  oCtx.fillStyle = '#F5EDE6';
+  oCtx.font = 'bold 180px "DM Sans", "Microsoft YaHei", sans-serif';
+  oCtx.fillText(ch, 540, 500);
+  
+  oCtx.fillStyle = '#D4A64F';
+  oCtx.font = '500 70px "DM Sans", sans-serif';
+  oCtx.fillText(py, 540, 640);
+  
+  oCtx.fillStyle = '#B5A597';
+  oCtx.font = '500 50px "DM Sans", sans-serif';
+  oCtx.fillText(tr, 540, 760);
+  
+  oCtx.fillStyle = '#7A6B5D';
+  oCtx.font = 'italic 24px "DM Sans", sans-serif';
+  oCtx.fillText('Start learning at mandarincourse.app', 540, 950);
+  
+  const imageBase64 = outputCanvas.toDataURL('image/png');
+  const ttsText = ch;
+  
+  fetch('/api/social/generate-video', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ imageBase64, ttsText })
+  })
+  .then(res => res.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-wand-magic-sparkles mr-2"></i>Generate MP4 Video`;
+    
+    if (data.error) {
+      alert("Video Generation Error: " + data.error);
+      return;
+    }
+    
+    document.getElementById('postImageUrl').value = data.url;
+    updatePreview();
+    closeVideoGenModal();
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = `<i class="fas fa-wand-magic-sparkles mr-2"></i>Generate MP4 Video`;
+    alert("Error: " + err.message);
+  });
+}
+
+// Check session on load
+window.onload = () => {
+  checkSession();
+  initVideoGenModal();
+};
+</script>
+
+<!-- Video Generation Modal -->
+<div id="videoGenModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4" style="display:none">
+  <div class="card max-w-lg w-full space-y-6" style="border-color: var(--gold)">
+    <div class="flex items-center justify-between border-b border-border pb-3">
+      <h3 class="text-sm font-bold tracking-wider uppercase text-gold">
+        <i class="fas fa-video mr-2"></i>AI Video Flashcard Generator
+      </h3>
+      <button onclick="closeVideoGenModal()" class="text-muted hover:text-fg"><i class="fas fa-times"></i></button>
+    </div>
+    
+    <div class="space-y-4">
+      <p class="text-xs text-muted">Generate a 1080x1080 social video from text. This will overlay the Chinese, Pinyin, and English on a premium dark card and sync it with pronunciation audio.</p>
+      
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold" style="color:var(--fg2)">Chinese Character(s)</label>
+          <input type="text" id="vChar" placeholder="你好" class="w-full">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold" style="color:var(--fg2)">Pinyin</label>
+          <input type="text" id="vPinyin" placeholder="nǐ hǎo" class="w-full">
+        </div>
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold" style="color:var(--fg2)">English Translation</label>
+          <input type="text" id="vTranslation" placeholder="Hello" class="w-full">
+        </div>
+      </div>
+
+      <!-- Live preview of canvas -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-bold" style="color:var(--fg2)">Card Preview</label>
+        <div class="flex justify-center bg-bg2 border border-border rounded-xl p-4">
+          <canvas id="cardCanvas" width="400" height="400" style="max-width: 250px; width: 100%; aspect-ratio: 1; border-radius: 8px; border: 1px solid var(--border)"></canvas>
+        </div>
+      </div>
+    </div>
+    
+    <div class="flex gap-3">
+      <button onclick="generateVideoClip()" id="btnCreateVideo" class="flex-1 py-3 btn-gold rounded-lg font-bold text-sm">
+        <i class="fas fa-wand-magic-sparkles mr-2"></i>Generate MP4 Video
+      </button>
+      <button onclick="closeVideoGenModal()" class="py-3 px-5 btn-secondary rounded-lg font-bold text-sm">Cancel</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
+
