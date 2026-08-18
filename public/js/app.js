@@ -15226,6 +15226,10 @@ function tutSpeak(){
     localStorage.setItem('_useAudioFallback', 'true');
     return startAudioRecording(btn, ic);
   }
+  // Auto-detect is only supported via Whisper server-side fallback
+  if (getSpeechLang() === 'auto') {
+    return startAudioRecording(btn, ic);
+  }
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   if (!SR) {
     window._useAudioFallback = true;
@@ -17255,10 +17259,14 @@ let _liveTrCache = {};
 async function translateToEnglish(text) {
   if (_liveTrCache[text]) return _liveTrCache[text];
   const targetLang = getTutorLangName();
+  let instruction = 'You are a professional translator, 100% fluent in ' + targetLang + ' at native-speaker level. Translate the Chinese text into natural, idiomatic ' + targetLang + ' — never literal. Reply with ONLY the ' + targetLang + ' translation and nothing else.';
+  if (targetLang === 'Auto-detect') {
+    instruction = 'You are a professional translator. Detect the student\'s native language (e.g. English, Spanish, Vietnamese, Thai, French, etc.) from the conversation context or their last message, and translate the Chinese text into that language. Reply with ONLY the translation, no explanations, no extra text.';
+  }
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text }] }], systemInstruction: 'You are a professional translator, 100% fluent in ' + targetLang + ' at native-speaker level. Translate the Chinese text into natural, idiomatic ' + targetLang + ' — never literal. Reply with ONLY the ' + targetLang + ' translation and nothing else.' })
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text }] }], systemInstruction: instruction })
   });
   const data = await res.json();
   let reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
@@ -17329,6 +17337,7 @@ function addLiveUserMsg(text) {
 
 // ===== MIC / SPEECH LANGUAGE =====
 const SPEECH_LANGS = [
+  { code: 'auto', src: '', name: 'Auto-detect' },
   { code: 'zh-CN', src: 'zh', name: 'Chinese (Mandarin)' },
   { code: 'en-US', src: 'en', name: 'English' },
   { code: 'es-ES', src: 'es', name: 'Spanish' },
@@ -17380,7 +17389,8 @@ function sendToGemini(userText) {
   addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Thinking...')+'</div>');
   
   const chineseLevel = getChineseLevel();
-  const langName = getTutorLangName();
+  const tutorLang = getTutorLangName();
+  const langName = tutorLang === 'Auto-detect' ? "the student's native language (e.g. English, Spanish, Vietnamese, Thai, etc. - auto-detected from their messages)" : tutorLang;
   const baseRules =
     "You are also a professional translator, 100% fluent in " + langName + " at native-speaker level. You fully understand English and every other language.\n" +
     "LANGUAGE RULES:\n" +
