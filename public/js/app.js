@@ -14779,7 +14779,7 @@ function speak(t, rate){
     srOn = false;
     updateMicUI('idle');
     const hasGoodVoice = window.speechSynthesis && getChineseVoice() !== null;
-    if (!hasGoodVoice || localStorage.getItem('tts_mode') === 'api') { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
+    if (!hasGoodVoice || localStorage.getItem('tts_mode') !== 'auto') { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
     if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
     const u = new SpeechSynthesisUtterance(t); u.lang = 'zh-CN'; u.rate = rate || getEffectiveSpeechRate();
     u.onstart = () => startSpeakingAnimation();
@@ -17225,6 +17225,8 @@ function loadGeminiSettings() {
   
   if (modeSelect) modeSelect.value = mode;
   if (rateSelect) rateSelect.value = rate;
+  const ttsSelect = document.getElementById('ttsModeSelect');
+  if (ttsSelect) ttsSelect.value = localStorage.getItem('tts_mode') || 'api';
 
   const speechLangSel = document.getElementById('speechLangSelect');
   if (speechLangSel) speechLangSel.value = getSpeechLang();
