@@ -17541,9 +17541,10 @@ function sendToGemini(userText) {
     // Add message to chat, then pause briefly before speaking so the user is done talking
     const hasCn = /[\u4e00-\u9fa5]/.test(cleanReply);
     const botTrId = 'botTr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (hasCn ? '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + (englishTranslation || '<i class="fas fa-language"></i> ' + t('Translating...')) + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : ''));
+    const initialTr = (englishTranslation && englishTranslation.length >= cleanReply.length * 0.6) ? englishTranslation : '<i class="fas fa-language"></i> ' + t('Translating...');
+    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (hasCn ? '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + initialTr + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : ''));
     // If the model's reply has Chinese but no English translation was embedded, fetch one now
-    if (hasCn && !englishTranslation) {
+    if (hasCn && (!englishTranslation || englishTranslation.length < cleanReply.length * 0.6)) {
       translateToEnglish(cleanReply).then(function(en) {
         const el = document.getElementById(botTrId);
         if (el) el.textContent = en || t('(translation unavailable)');
