@@ -17339,7 +17339,8 @@ const SPEECH_LANGS = [
   { code: 'pt-BR', src: 'pt', name: 'Portuguese' },
   { code: 'it-IT', src: 'it', name: 'Italian' },
   { code: 'ru-RU', src: 'ru', name: 'Russian' },
-  { code: 'vi-VN', src: 'vi', name: 'Vietnamese' }
+  { code: 'vi-VN', src: 'vi', name: 'Vietnamese' },
+  { code: 'th-TH', src: 'th', name: 'Thai' }
 ];
 function getSpeechLang() {
   return localStorage.getItem('speech_lang') || 'zh-CN';
