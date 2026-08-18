@@ -272,11 +272,11 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
   }
 
   const PROVIDERS = [
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 15000 },
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', timeout: 10000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', timeout: 15000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-20b', timeout: 10000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.6-27b', timeout: 15000 },
     { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
     { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
-    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 15000 },
   ].filter(p => p.key);
 
   async function tryProvider(p) {

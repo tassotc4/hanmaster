@@ -14920,7 +14920,7 @@ function startAudioRecording(btn, ic) {
         // Web-Audio analyser is the reliable signal: if the peak stays near
         // zero the whole recording, the mic delivered true silence — do NOT
         // send it to Gemini (it would only hallucinate a reply).
-        if (peak < 0.05) {
+        if (peak < 0.001 && totalBytes < 1000) {
           console.warn("Mic appears silent (peak " + peak.toFixed(3) + "), skipping Gemini");
           document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> ' + t('No sound detected from your microphone.') + '</span>';
           toast(t('Mic seems silent — trying another device...'), 'var(--gold)', 2500);
