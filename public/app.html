@@ -238,21 +238,24 @@
       </div>
     </div>
     <!-- Language Selector -->
-    <div class="relative inline-block text-left">
-      <button id="langBtn" onclick="toggleLangDropdown(event)" class="w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] cursor-pointer" style="background:var(--card2);color:var(--blue);outline:none;" title="Select Language" data-tr="Select Language" aria-label="Select Language">
-        <i class="fas fa-globe text-sm"></i>
+    <div class="relative inline-block text-left mr-1">
+      <button id="langBtn" onclick="toggleLangDropdown(event)" class="px-2.5 py-1.5 rounded-full flex items-center gap-1.5 border border-[var(--border)] cursor-pointer text-[11px] font-semibold" style="background:var(--card2);color:var(--fg);outline:none;" title="Select Language" data-tr="Select Language" aria-label="Select Language">
+        <i class="fas fa-globe text-[13px]" style="color:var(--blue)"></i>
+        <span id="currentLangLabel">English</span>
+        <i class="fas fa-chevron-down text-[8px] opacity-60"></i>
       </button>
-      <div id="langDropdown" class="absolute right-0 mt-2 w-44 rounded-lg shadow-lg border border-[var(--border)] py-1 z-[3000]" style="background:var(--card); display:none;">
-        <button onclick="event.stopPropagation(); changeAppLanguage('en')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">English</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('es')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Español</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('fr')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Français</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('ja')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">日本語</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('ko')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">한국어</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('de')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Deutsch</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('pt')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Português</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('it')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Italiano</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('ru')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">русский</button>
-        <button onclick="event.stopPropagation(); changeAppLanguage('vi')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;">Tiếng Việt</button>
+      <div id="langDropdown" class="absolute right-0 mt-2 w-44 rounded-xl shadow-2xl border border-[var(--border)] py-1.5 z-[3000]" style="background:var(--card); display:none; backdrop-filter: blur(10px);">
+        <button onclick="event.stopPropagation(); changeAppLanguage('en')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">English</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('es')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Español</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('fr')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Français</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ja')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">日本語</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ko')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">한국어</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('de')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Deutsch</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('pt')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Português</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('it')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Italiano</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ru')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Русский</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('vi')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Tiếng Việt</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('th')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">ไทย (Thai)</button>
       </div>
     </div>
 
@@ -1354,6 +1357,7 @@
         <option value="it">Italiano</option>
         <option value="ru">русский</option>
         <option value="vi">Tiếng Việt</option>
+        <option value="th">ไทย (Thai)</option>
       </select>
     </div>
     <div class="mb-5">

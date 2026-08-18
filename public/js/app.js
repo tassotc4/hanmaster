@@ -14379,6 +14379,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildQzLvTabs();resetQuiz();buildHSK();initCv();updateDailyStats();translateUI();
   const selectLang = document.getElementById('appLanguageSelect');
   if (selectLang) selectLang.value = currentAppLang;
+  const label = document.getElementById('currentLangLabel');
+  if (label) {
+    const langNames = {
+      'en': 'English', 'es': 'Español', 'fr': 'Français', 'ja': '日本語', 'ko': '한국어',
+      'de': 'Deutsch', 'pt': 'Português', 'it': 'Italiano', 'ru': 'Русский', 'vi': 'Tiếng Việt', 'th': 'ไทย'
+    };
+    label.textContent = langNames[currentAppLang] || currentAppLang.toUpperCase();
+  }
   // Force reveal all scroll-animation elements immediately to ensure visibility on mobile
   document.querySelectorAll('.fu').forEach(el => el.classList.add('v'));
   document.getElementById('tDay').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'});
@@ -19920,6 +19928,15 @@ function changeAppLanguage(lang) {
   
   const selectLang = document.getElementById('appLanguageSelect');
   if (selectLang) selectLang.value = lang;
+  
+  const label = document.getElementById('currentLangLabel');
+  if (label) {
+    const langNames = {
+      'en': 'English', 'es': 'Español', 'fr': 'Français', 'ja': '日本語', 'ko': '한국어',
+      'de': 'Deutsch', 'pt': 'Português', 'it': 'Italiano', 'ru': 'Русский', 'vi': 'Tiếng Việt', 'th': 'ไทย'
+    };
+    label.textContent = langNames[lang] || lang.toUpperCase();
+  }
   
   try {
     const activeTopic = localStorage.getItem('active_topic_name') || "Greetings";
