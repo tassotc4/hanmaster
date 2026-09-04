@@ -30,5 +30,17 @@
   },
   "allowScripts": {
     "ffmpeg-static@5.3.0": true
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tassotc4/hanmaster.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/tassotc4/hanmaster/issues"
+  },
+  "homepage": "https://github.com/tassotc4/hanmaster#readme"
 }

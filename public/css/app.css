@@ -107,6 +107,37 @@ html{scrollbar-width:auto;scrollbar-color:var(--border) var(--bg2)}
 .voice-wave-bar:nth-child(5) { height: 5px; animation-delay: 0.6s; background: var(--accent2); }
 @keyframes pulseWave { 0% { transform: scaleY(0.4); } 100% { transform: scaleY(1.4); } }
 
+/* Canvas Visualizer styling */
+#tutVoiceCanvas {
+  display: none;
+  vertical-align: middle;
+  margin-left: 8px;
+  background: transparent;
+}
+
+/* Pinyin Hiding via Body Class */
+body.hide-pinyin rt {
+  display: none !important;
+}
+
+body.hide-pinyin ruby {
+  margin: 0 !important;
+}
+
+/* Tone Mistake Styling */
+.tone-mistake {
+  position: relative;
+}
+.tone-mistake::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-bottom: 2px dashed #fb923c;
+}
+
+
 @media (max-width: 767px) {
   #tutor { padding-left: 4px !important; padding-right: 4px !important; padding-top: 24px !important; padding-bottom: 24px !important; }
   #tutor > div { max-width: 100% !important; width: 100% !important; margin-left: 0 !important; margin-right: 0 !important; }
@@ -834,5 +865,118 @@ main,footer{margin-left:260px}
   main,footer{margin-left:0}
 }
 
+/* Compact mobile navbar responsive rules */
+@media (max-width: 768px) {
+  .nb span[data-tr="MandarinCourse"] {
+    display: none !important;
+  }
+  .nb a.flex.items-center.gap-2\.5 {
+    gap: 0 !important;
+  }
+  .nb div.max-w-6xl {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+  .nb .flex.items-center.gap-2\.5 {
+    gap: 6px !important; /* Reduce button spacing on mobile */
+  }
+  .nb .mr-1 {
+    margin-right: 0 !important; /* Remove individual right margins to rely on gap */
+  }
+}
 
+@media (max-width: 640px) {
+  #langBtn {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  #langBtn #currentLangLabel,
+  #langBtn .fa-chevron-down {
+    display: none !important;
+  }
+}
+/* Onboarding Modal Styles */
+#onboardingModal {
+  background: rgba(13, 10, 8, 0.96) !important;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+}
+.onboarding-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  animation: onboardingFadeIn 0.4s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+@keyframes onboardingFadeIn {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.onboarding-step {
+  display: none;
+}
+.onboarding-step.active {
+  display: block;
+}
+.onboarding-option-card {
+  background: var(--card2);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  outline: none;
+  font-family: inherit;
+  width: 100%;
+}
+.onboarding-option-card:hover {
+  border-color: var(--accent);
+  background: rgba(200, 53, 37, 0.04);
+  transform: translateY(-1px);
+}
+.onboarding-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 26px;
+}
+.onboarding-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--gold));
+  width: 25%;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+#forgotPasswordWrap {
+  margin-top: 10px;
+}
 
+.onboarding-mic-glow {
+  animation: micPulse 1.8s infinite ease-in-out;
+}
+
+@keyframes micPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(200, 53, 37, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(200, 53, 37, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(200, 53, 37, 0);
+  }
+}

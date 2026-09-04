@@ -1,4 +1,4 @@
-const CACHE = 'mandarincourse-v53';
+const CACHE = 'mandarincourse-v70';
 const urlsToCache = ['/', '/app', '/manifest.json', '/pinyin-chart', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/tutor-data-more.js', '/js/app.js', '/css/tailwind.css', '/css/app.css', '/audio/podcast-ep1.mp3', '/audio/podcast-ep2.mp3', '/audio/podcast-ep3.mp3', '/audio/podcast-ep4.mp3', '/audio/podcast-ep5.mp3', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -32,16 +32,31 @@ self.addEventListener('notificationclick', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Network-first with cache fallback for all requests
+  // Only handle same-origin GET requests. Never cache live API responses,
+  // and never let a failure reject the fetch event (which surfaces as
+  // "Failed to fetch" / network errors in the console and breaks audio blobs).
+  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Network-first with cache fallback
   e.respondWith(
     fetch(e.request).then(response => {
-      if (e.request.method === 'GET' && response.status === 200) {
+      if (response && response.status === 200) {
         var clone = response.clone();
         caches.open(CACHE).then(function(cache) { cache.put(e.request, clone); }).catch(function(){});
       }
       return response;
     }).catch(function() {
-      return caches.match(e.request).then(function(res) { return res || fetch(e.request); });
+      return caches.match(e.request).then(function(res) {
+        if (res) return res;
+        // SPA route fallback: serve the cached app shell for any navigation
+        if (e.request.mode === 'navigate') {
+          return caches.match('/app').then(function(shell) {
+            return shell || caches.match('/') || Response.error();
+          });
+        }
+        return Response.error();
+      });
     })
   );
 });

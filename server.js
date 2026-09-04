@@ -7,11 +7,36 @@ dns.setDefaultResultOrder('ipv4first');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const staticDir = path.join(__dirname, 'public');
+const IS_SERVERLESS = !!process.env.VERCEL;
 const ALLOWED_ADMINS = [process.env.ADMIN_KEY, 'tassotc4@yahoo.com', 'mandarincourseapp@gmail.com'].filter(Boolean);
 function isAdmin(key) {
   return ALLOWED_ADMINS.includes(key);
 }
 const PAYPAL_API = process.env.PAYPAL_SANDBOX ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
+const FISH_AUDIO_KEY = process.env.FISH_AUDIO_API_KEY || process.env.FISHAUDIO_API_KEY || '';
+const FISH_AUDIO_MODEL = process.env.FISH_AUDIO_MODEL || process.env.FISHAUDIO_MODEL || 's2.1-pro-free';
+const FISH_AUDIO_VOICE = process.env.FISH_AUDIO_REFERENCE_ID || process.env.FISHAUDIO_REFERENCE_ID || process.env.FISHAUDIO_VOICE || '';
+async function fishTts(text, speed = 1.0) {
+  const spd = Math.min(2.0, Math.max(0.5, parseFloat(speed) || 1.0));
+  const body = { text: String(text).substring(0, 500), format: 'mp3' };
+  if (FISH_AUDIO_VOICE) body.reference_id = FISH_AUDIO_VOICE;
+  body.prosody = { speed: spd, volume: 0, normalize_loudness: true };
+  const resp = await fetch('https://api.fish.audio/v1/tts', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + FISH_AUDIO_KEY,
+      'Content-Type': 'application/json',
+      'model': FISH_AUDIO_MODEL
+    },
+    body: JSON.stringify(body)
+  });
+  if (!resp.ok) {
+    let msg = 'Fish TTS upstream returned ' + resp.status;
+    try { const e = await resp.text(); if (e) msg += ': ' + e.slice(0, 200); } catch {}
+    throw new Error(msg);
+  }
+  return Buffer.from(await resp.arrayBuffer());
+}
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
 const multer = require('multer');
@@ -156,6 +181,10 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(staticDir, 'admin.html'));
 });
 
+app.get('/social', (req, res) => {
+  res.sendFile(path.join(staticDir, 'social.html'));
+});
+
 app.post('/api/admin/stats', (req, res) => {
   const { key } = req.body || {};
   if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
@@ -225,25 +254,56 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       if (!audioData) return res.status(400).json({ error: 'No audio data' });
 
       const buf = Buffer.from(audioData, 'base64');
-      console.log("Audio buffer size:", buf.length, "mimeType:", mimeType);
+      console.log("Audio buffer size:", buf.length, "mimeType:", mimeType, "lang:", sourceLang);
       if (buf.length < 100) return res.status(400).json({ error: 'Audio too small: ' + buf.length + ' bytes' });
-      const form = new FormData();
-      const blob = new Blob([buf], { type: mimeType });
-      const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('mp4') ? 'mp4' : mimeType.includes('mpeg') ? 'mpeg' : mimeType.includes('ogg') ? 'ogg' : mimeType.includes('opus') ? 'opus' : mimeType.includes('wav') ? 'wav' : 'webm';
-      form.append('file', blob, `audio.${ext}`);
-      form.append('model', 'whisper-large-v3-turbo');
-      form.append('response_format', 'json');
-      form.append('prompt', 'The audio is a student speaking a short phrase or sentence during a Mandarin Chinese lesson. Transcribe exactly what is spoken in the speaker\'s own language (Chinese characters if Mandarin, otherwise the spoken language). Do not add, translate, guess, or repeat any words.');
-      if (sourceLang && sourceLang !== 'zh') form.append('language', sourceLang);
 
-      const wr = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
-        method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: form
-      });
-      const wd = await wr.json();
-      if (!wr.ok) return res.status(wr.status).json({ error: wd });
+      // Whisper auto-language-detection hallucinates Latin gibberish on short or
+      // noisy Mandarin clips (e.g. "Wishwan her Yenna Nai Caffey"). Always force
+      // the mic's selected language (including zh) instead of letting it guess.
+      const forceLang = sourceLang === 'auto' || !sourceLang ? undefined : sourceLang;
+      const basePrompt = 'The audio is a student speaking a short phrase or sentence during a Mandarin Chinese lesson. Transcribe exactly what is spoken in the speaker\'s own language (Chinese characters if Mandarin, otherwise the spoken language). Do not add, translate, guess, or repeat any words.';
 
-      const transcribed = wd.text || '';
+      async function runWhisper(lang, prompt) {
+        const fm = new FormData();
+        const blob = new Blob([buf], { type: mimeType });
+        const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('mp4') ? 'mp4' : mimeType.includes('mpeg') ? 'mpeg' : mimeType.includes('ogg') ? 'ogg' : mimeType.includes('opus') ? 'opus' : mimeType.includes('wav') ? 'wav' : 'webm';
+        fm.append('file', blob, `audio.${ext}`);
+        fm.append('model', 'whisper-large-v3-turbo');
+        fm.append('response_format', 'json');
+        fm.append('temperature', '0');
+        fm.append('prompt', prompt);
+        if (lang) fm.append('language', lang);
+        const r = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
+          method: 'POST', headers: { 'Authorization': `Bearer ${apiKey}` }, body: fm
+        });
+        const j = await r.json();
+        if (!r.ok) throw new Error(j.error?.message || 'Whisper failed');
+        return j.text || '';
+      }
+
+      let transcribed = await runWhisper(forceLang, basePrompt);
+
+      // If the user explicitly selected Chinese, but spoke pinyin/gibberish (not natural conversational English), retry once forcing Chinese:
+      const isEnglish = /\b(my|name|is|i|i'm|im|you|what|how|why|when|where|who|hello|hi|hey|please|thank|thanks|yes|no|can|could|do|does|did|not|from|am|are|student|teacher|speak|learn|chinese|mandarin|english|help)\b/i.test(transcribed);
+      if (forceLang === 'zh' && transcribed && !/[\u4e00-\u9fa5]/.test(transcribed) && !isEnglish) {
+        console.warn("zh transcript has no CJK (<" + transcribed + ">) and is not English, retrying with forced Chinese...");
+        try {
+          const retryText = await runWhisper('zh', 'The speaker is definitely speaking Mandarin Chinese. Transcribe the Chinese characters exactly.');
+          if (retryText && /[\u4e00-\u9fa5]/.test(retryText)) {
+            transcribed = retryText;
+          }
+        } catch(e) {
+          console.warn("Whisper retry failed, keeping original transcript:", e.message);
+        }
+      }
+
       if (!transcribed.trim() || /no audio|no speech|没有音频|unable to transcribe/i.test(transcribed)) {
+        return res.status(400).json({ error: 'No speech detected in audio' });
+      }
+      // Whisper sometimes echoes the prompt above back when the audio is near-silent
+      // (e.g. "Transcribe exactly what is spoken in the language."). Treat those echoes
+      // as no-speech; otherwise each one spams the live tutor with a fake turn.
+      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate/i.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       const userMsg = textParts.length > 0
@@ -272,18 +332,18 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
   }
 
   const PROVIDERS = [
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', timeout: 15000 },
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-20b', timeout: 10000 },
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.6-27b', timeout: 15000 },
-    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
-    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', timeout: 20000, priority: 1 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-20b', timeout: 15000, priority: 2 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.6-27b', timeout: 15000, priority: 3 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 20000, priority: 4 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 20000, priority: 5 },
   ].filter(p => p.key);
 
   async function tryProvider(p) {
     const resp = await fetch(p.url + '/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${p.key}` },
-      body: JSON.stringify({ model: p.model, messages, temperature: 0.2 }),
+      body: JSON.stringify({ model: p.model, messages, temperature: 0.7 }),
       signal: AbortSignal.timeout(p.timeout)
     });
     const data = await resp.json();
@@ -296,13 +356,18 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
   }
 
   try {
-    let text, errMsg = '';
-    if (PROVIDERS.length > 1) {
-      text = await Promise.any(PROVIDERS.map(tryProvider)).catch(e => { errMsg = e.message || 'All providers failed'; return null; });
-    } else if (PROVIDERS.length === 1) {
-      try { text = await tryProvider(PROVIDERS[0]); } catch (e) { errMsg = e.message; }
-    } else {
-      return res.status(500).json({ error: 'No API keys configured' });
+    let text = '', errMsg = '';
+    // Sequential priority: use the strongest model first for the best conversation
+    // quality, only failing down to weaker/free models when the strong ones error.
+    const ordered = PROVIDERS.slice().sort((a, b) => a.priority - b.priority);
+    for (const p of ordered) {
+      try {
+        text = await tryProvider(p);
+        if (text && text.trim()) break;
+      } catch (e) {
+        errMsg = (errMsg ? errMsg + ' | ' : '') + (e.message || String(e));
+        console.warn('Provider skipped (' + p.model + '):', e.message);
+      }
     }
     if (text) return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
     res.status(503).json({ error: 'AI service busy, please try again.', details: errMsg });
@@ -314,8 +379,20 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
 app.get('/api/tts', apiLimiter, async (req, res) => {
   const text = req.query.text;
   const lang = req.query.lang || 'zh-CN';
+  const engine = req.query.engine || 'auto';
   if (!text || text.length > 500) return res.status(400).json({ error: 'Missing or too long text' });
+  const useFish = engine !== 'google' && FISH_AUDIO_KEY && /^zh/i.test(lang || '');
   try {
+    if (useFish) {
+      try {
+        const buf = await fishTts(text);
+        res.set('Content-Type', 'audio/mpeg');
+        res.set('Cache-Control', 'public, max-age=86400');
+        return res.send(buf);
+      } catch (e) {
+        console.warn('Fish TTS failed, falling back to Google:', e.message);
+      }
+    }
     const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=gtx&q=${encodeURIComponent(text)}`;
     const resp = await fetch(url);
     if (!resp.ok) return res.status(502).json({ error: 'TTS upstream failed' });
@@ -329,10 +406,20 @@ app.get('/api/tts', apiLimiter, async (req, res) => {
 });
 
 app.post('/api/tts', apiLimiter, async (req, res) => {
-  const { text, lang, speed } = req.body || {};
+  const { text, lang, speed, engine } = req.body || {};
   if (!text || !lang) return res.status(400).json({ error: 'Missing text or lang' });
   try {
     const spd = Math.min(2.0, Math.max(0.5, parseFloat(speed) || 1.0));
+    const useFish = engine !== 'google' && FISH_AUDIO_KEY && /^zh/i.test(lang || '');
+    if (useFish) {
+      try {
+        const buf = await fishTts(text, spd);
+        res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buf.byteLength, 'Cache-Control': 'public, max-age=86400' });
+        return res.send(buf);
+      } catch (e) {
+        console.warn('Fish TTS failed, falling back to Google:', e.message);
+      }
+    }
     const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=gtx&q=${encodeURIComponent(text.substring(0,200))}&ttsspeed=${spd}`;
     const resp = await fetch(url);
     if (!resp.ok) return res.status(502).json({ error: 'TTS upstream returned ' + resp.status });
@@ -511,6 +598,18 @@ app.post('/api/paypal/create-order', async (req, res) => {
   const accessToken = await getPayPalAccessToken();
   if (!accessToken) return res.status(500).json({ error: 'Failed to get PayPal token' });
 
+  const { plan } = req.body || {};
+  let price = '9.00';
+  let desc = 'MandarinCourse Premium - Monthly';
+  
+  if (plan === 'annual') {
+    price = '59.00';
+    desc = 'MandarinCourse Premium - Annual';
+  } else if (plan === 'lifetime') {
+    price = '129.00';
+    desc = 'MandarinCourse Premium - Lifetime Access';
+  }
+
   try {
     const resp = await fetch(
       PAYPAL_API + '/v2/checkout/orders',
@@ -523,8 +622,8 @@ app.post('/api/paypal/create-order', async (req, res) => {
         body: JSON.stringify({
           intent: 'CAPTURE',
           purchase_units: [{
-            description: 'MandarinCourse Premium - Monthly',
-            amount: { currency_code: 'USD', value: '9.00' }
+            description: desc,
+            amount: { currency_code: 'USD', value: price }
           }]
         })
       }
@@ -791,7 +890,8 @@ app.post('/api/upload-document', upload.single('document'), async (req, res) => 
       { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 8000 },
       { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 8000 },
       { key: process.env.NVIDIA_API_KEY, url: 'https://integrate.api.nvidia.com/v1', model: 'deepseek-ai/deepseek-v4-flash', timeout: 2000 },
-      { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 5000 },
+      { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', timeout: 15000 },
+      { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-20b', timeout: 10000 },
     ].filter(p => p.key);
 
     async function docProvider(p) {
@@ -985,11 +1085,11 @@ async function callLLM(messages, temperature = 0.5) {
   }
 
   const PROVIDERS = [
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile', timeout: 15000 },
-    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'llama-3.1-8b-instant', timeout: 10000 },
-    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 15000 },
-    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 15000 },
-    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-nano-30b-a3b:free', timeout: 15000 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-120b', timeout: 20000, priority: 1 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'openai/gpt-oss-20b', timeout: 15000, priority: 2 },
+    { key: process.env.GROQ_API_KEY, url: 'https://api.groq.com/openai/v1', model: 'qwen/qwen3.6-27b', timeout: 15000, priority: 3 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'google/gemma-4-31b-it:free', timeout: 20000, priority: 4 },
+    { key: process.env.OPENROUTER_API_KEY, url: 'https://openrouter.ai/api/v1', model: 'nvidia/nemotron-3-super-120b-a12b:free', timeout: 20000, priority: 5 },
   ].filter(p => p.key);
 
   async function tryProvider(p) {
@@ -1007,18 +1107,26 @@ async function callLLM(messages, temperature = 0.5) {
     return data.choices?.[0]?.message?.content || '';
   }
 
-  if (PROVIDERS.length > 1) {
-    return await Promise.any(PROVIDERS.map(tryProvider));
-  } else if (PROVIDERS.length === 1) {
-    return await tryProvider(PROVIDERS[0]);
-  } else {
-    throw new Error('No API keys configured');
+  let text = '', errMsg = '';
+  const ordered = PROVIDERS.slice().sort((a, b) => a.priority - b.priority);
+  for (const p of ordered) {
+    try {
+      text = await tryProvider(p);
+      if (text && text.trim()) return text;
+    } catch (e) {
+      errMsg = (errMsg ? errMsg + ' | ' : '') + (e.message || String(e));
+      console.warn('Social LLM provider skipped (' + p.model + '):', e.message);
+    }
   }
+  throw new Error(errMsg || 'All LLM providers failed');
 }
 
 // Endpoint to upload local media (images and videos) for attached posts
 app.post('/api/upload-image', upload.single('image'), (req, res) => {
   try {
+    if (IS_SERVERLESS) {
+      return res.status(509).json({ error: 'Media uploads are not supported on this host. Attach media directly from a public URL instead.' });
+    }
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const isImage = req.file.mimetype.startsWith('image/');
     const isVideo = req.file.mimetype.startsWith('video/');
@@ -1325,11 +1433,15 @@ Do not include any markdown code wraps like \`\`\`json or trailing text. Return 
   }
 });
 
+
 // Endpoint to generate video from canvas image and TTS pronunciation audio
 app.post('/api/social/generate-video', async (req, res) => {
   const { imageBase64, ttsText } = req.body || {};
   if (!imageBase64 || !ttsText) {
     return res.status(400).json({ error: 'Missing imageBase64 or ttsText' });
+  }
+  if (IS_SERVERLESS) {
+    return res.status(509).json({ error: 'MP4 video generation is not available on this host. Use text posts instead.' });
   }
 
   const uploadsDir = path.join(__dirname, 'public', 'uploads');

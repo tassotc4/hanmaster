@@ -6,7 +6,7 @@ try {
   let queryLang = urlParams.get('lang');
   if (queryLang) {
     queryLang = queryLang.toLowerCase();
-    const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko','en':'en'};
+    const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko','en':'en','th':'th','id':'id','ar':'ar','tr':'tr'};
     if (langMap[queryLang]) {
       currentAppLang = langMap[queryLang];
       localStorage.setItem('app_lang', currentAppLang);
@@ -14,7 +14,7 @@ try {
   } else {
     currentAppLang = localStorage.getItem('app_lang');
     if (!currentAppLang) {
-      const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko'};
+      const langMap = {'es':'es','fr':'fr','de':'de','pt':'pt','it':'it','ru':'ru','vi':'vi','ja':'ja','ko':'ko','th':'th','id':'id','ar':'ar','tr':'tr'};
       const browserLang = (navigator.language || '').split('-')[0];
       currentAppLang = langMap[browserLang] || 'en';
       localStorage.setItem('app_lang', currentAppLang);
@@ -14522,7 +14522,7 @@ function revealFu() {
     if (r.width > 0 && r.height > 0) e.classList.add('v');
   });
 }
-function routeApp(path, btn) {
+async function routeApp(path, btn) {
   if (!path || path === '/') {
     showLanding();
     document.body.style.background = "var(--bg)";
@@ -14536,6 +14536,22 @@ function routeApp(path, btn) {
     syncSidebar('/');
     return;
   }
+  
+  // Guard app routes: require registration/sign-in
+  if (path.startsWith('/app') || path === '/pinyin-chart') {
+    if (supabaseClient) {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        console.log("No session found, redirecting to landing...");
+        history.replaceState(null, '', '/');
+        showLanding();
+        toast(t("Please sign up or sign in to access this feature."), "var(--gold)", 4500);
+        openAuthModal();
+        return;
+      }
+    }
+  }
+  
   if (!APP_ROUTES[path]) path = '/app/tutor';
   var sectionId = APP_ROUTES[path];
   console.log("ROUTE_APP PATH:", path, "SECTION_ID:", sectionId);
@@ -14678,9 +14694,33 @@ function getChineseVoice(){
 // TTS audio cache
 const ttsCache = {};
 let _apiTtsActive = false;
+let _apiTtsPending = false;
+let _apiTtsAudio = null;
+let _apiTtsSource = null; // active BufferSource from the boosted WebAudio TTS path
 function isTtsPlaying() {
   try { if (window.speechSynthesis && window.speechSynthesis.speaking) return true; } catch(e) {}
-  return _apiTtsActive;
+  if (_apiTtsPending || _apiTtsActive) return true;
+  // A created-but-not-yet-playing API audio must also block the mic: there is a
+  // brief gap between new Audio(...) and its onplay firing where _apiTtsActive is
+  // still false, but the speaker may already be ringing out. Treat any live audio
+  // element as playing to avoid opening the mic into the tail of the greeting.
+  if (_apiTtsAudio) return true;
+  return false;
+}
+function stopApiTts() {
+  _apiTtsPending = false;
+  _apiTtsActive = false;
+  try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e) {}
+  if (_apiTtsAudio) {
+    try { _apiTtsAudio.pause(); _apiTtsAudio.currentTime = 0; } catch(e) {}
+    _apiTtsAudio = null;
+  }
+  if (_apiTtsSource) {
+    try { _apiTtsSource.disconnect(); } catch(e) {}
+    try { _apiTtsSource.stop(); } catch(e) {}
+    _apiTtsSource = null;
+  }
+  stopSpeakingAnimation();
 }
 
 
@@ -14726,32 +14766,138 @@ function stopSpeakingAnimation() {
   if (tc) tc.classList.remove('active');
 }
 
+function blobToDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onload = () => resolve(fr.result);
+    fr.onerror = () => reject(fr.error);
+    fr.readAsDataURL(blob);
+  });
+}
+
+function dataUrlToArrayBuffer(dataUrl) {
+  try {
+    const i = dataUrl.indexOf(',');
+    const b64 = dataUrl.slice(i + 1);
+    const bin = atob(b64);
+    const len = bin.length;
+    const bytes = new Uint8Array(len);
+    for (let k = 0; k < len; k++) bytes[k] = bin.charCodeAt(k);
+    return bytes.buffer;
+  } catch (e) { return null; }
+}
+
+// TTS from the Google translate endpoint is quite quiet (low-bitrate mono MP3),
+// so we route playback through a Web Audio GainNode to boost it. iOS Safari only
+// lets an <audio> element / AudioContext play after a real user gesture, so we
+// create+resume the shared context AND bless a persistent <audio> element inside
+// the first gesture (primeTtsAudioGesture). Desktop plays a fresh element.
+const TTS_VOLUME_BOOST = 2.8;
+let _ttsPersistAudio = null;
+let _ttsCtx = null;
+let _ttsGain = null;
+function getTtsContext() {
+  if (!_ttsCtx) {
+    const AC = (window && (window.AudioContext || window.webkitAudioContext)) || (typeof AudioContext !== 'undefined' ? AudioContext : null);
+    if (!AC) return null;
+    try {
+      _ttsCtx = new AC();
+      _ttsGain = _ttsCtx.createGain();
+      _ttsGain.gain.setTargetAtTime(TTS_VOLUME_BOOST, _ttsCtx.currentTime, 0.02);
+      _ttsGain.connect(_ttsCtx.destination);
+    } catch (e) { _ttsCtx = null; _ttsGain = null; }
+  }
+  if (_ttsCtx && _ttsCtx.state === 'suspended') {
+    try { _ttsCtx.resume().catch ? _ttsCtx.resume().catch(() => {}) : _ttsCtx.resume(); } catch (e) {}
+  }
+  return _ttsCtx;
+}
+
+function primeTtsAudioGesture() {
+  // Bless a persistent <audio> element on mobile (iOS needs a gesture-played element)
+  if (isMobileDevice && !_ttsPersistAudio && window.Audio) {
+    try {
+      _ttsPersistAudio = new Audio();
+      _ttsPersistAudio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhAgAAAAAA';
+      _ttsPersistAudio.load();
+      _ttsPersistAudio.play().catch(() => {});
+    } catch (e) {}
+  }
+  // Create + resume the shared gain-boosted AudioContext inside the gesture (iOS unlock)
+  getTtsContext();
+}
+
+// Try to play through the boosted WebAudio GainNode. Returns true on success,
+// false if unavailable/undecodable (caller then falls back to the <audio> element).
+function tryPlayBoosted(src, rate) {
+  let ctx;
+  try { ctx = getTtsContext(); } catch (e) { ctx = null; }
+  if (!ctx || !_ttsGain) return false;
+  const buf = dataUrlToArrayBuffer(src);
+  if (!buf) return false;
+  try {
+    const decoded = ctx.decodeAudioData(buf);
+    // Block the mic/auto-listen the moment boosted playback is committed: the
+    // decode+schedule below is async, and if _apiTtsActive stayed false through
+    // that window, isTtsPlaying() would return false and the auto-listen would
+    // open the mic into the tutor's just-starting speech -> self-echo (v70).
+    _apiTtsPending = true;
+    _apiTtsActive = true;
+    // resolved promise => schedule the boosted playback
+    decoded.then(function (aud) {
+      try {
+        const s = ctx.createBufferSource();
+        s.buffer = aud;
+        s.playbackRate = rate || 1.0;
+        _apiTtsSource = s;
+        _apiTtsActive = true;
+        startSpeakingAnimation();
+        s.onended = () => { _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; stopSpeakingAnimation(); };
+        s.connect(_ttsGain);
+        try { if (ctx.state === 'suspended') ctx.resume(); } catch (e2) {}
+        s.start();
+      } catch (e) {
+        _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; _ttsCtx = null; _ttsGain = null; stopSpeakingAnimation();
+      }
+    }).catch(function () {
+      // decode failed — fall back to the <audio> element path
+      _apiTtsPending = false;
+    });
+    return true;
+  } catch (e) { return false; }
+}
+
 function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
   const cacheKey = lang + '|' + text;
-  if (ttsCache[cacheKey]) {
-    const audio = new Audio(ttsCache[cacheKey]);
+  stopApiTts();
+  const playFrom = (src) => {
+    // Preferred: boosted WebAudio path (fixes the very quiet Google TTS).
+    // Fallback: <audio> element (persistent on iOS so it's gesture-blessed).
+    if (tryPlayBoosted(src, rate)) return;
+    const audio = (isMobileDevice && _ttsPersistAudio) ? _ttsPersistAudio : new Audio();
+    _apiTtsAudio = audio;
+    try { audio.src = src; } catch (e) {}
     audio.playbackRate = rate;
-    audio.onplay = () => { _apiTtsActive = true; startSpeakingAnimation(); };
-    audio.onended = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
-    audio.onerror = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
-    audio.play().catch(() => { _apiTtsActive = false; stopSpeakingAnimation(); });
-    return;
-  }
-  fetch('/api/tts?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang))
+    audio.onplay = () => { _apiTtsPending = false; _apiTtsActive = true; startSpeakingAnimation(); };
+    audio.onended = () => { _apiTtsActive = false; _apiTtsAudio = null; stopSpeakingAnimation(); };
+    audio.onerror = () => { _apiTtsActive = false; _apiTtsAudio = null; stopSpeakingAnimation(); };
+    audio.play().catch(() => { _apiTtsActive = false; _apiTtsAudio = null; stopSpeakingAnimation(); });
+  };
+  // Prefer a cached data: URL. Unlike a revocable blob: URL, a data: URL never
+  // becomes invalid, so replaying the same text (lesson lines, replay buttons)
+  // cannot hit the "net::ERR_FILE_NOT_FOUND / revoked blob" failure.
+  if (ttsCache[cacheKey]) { playFrom(ttsCache[cacheKey]); return; }
+  _apiTtsPending = true;
+  const engine = localStorage.getItem('tts_mode') === 'fish' ? '&engine=fish' : '';
+  fetch('/api/tts?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang) + engine)
     .then(r => r.blob())
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      ttsCache[cacheKey] = url;
-      const audio = new Audio(url);
-      audio.playbackRate = rate;
-      audio.onplay = () => { _apiTtsActive = true; startSpeakingAnimation(); };
-      audio.onended = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
-      audio.onerror = () => { _apiTtsActive = false; stopSpeakingAnimation(); };
-      audio.play().catch(() => { _apiTtsActive = false; stopSpeakingAnimation(); });
-      // Auto-cleanup after 30s
-      setTimeout(() => { try { URL.revokeObjectURL(url); } catch {} }, 30000);
+    .then(blob => blobToDataUrl(blob))
+    .then(dataUrl => {
+      ttsCache[cacheKey] = dataUrl;
+      playFrom(dataUrl);
     })
     .catch(() => {
+      _apiTtsPending = false;
       // Absolute fallback: try browser TTS
       tryFallbackTTS(text, lang, rate);
     });
@@ -14786,6 +14932,7 @@ function speak(t, rate){
     if (recognition) { try { recognition.onend = null; recognition.onerror = null; recognition.abort(); } catch(e) {} }
     srOn = false;
     updateMicUI('idle');
+    stopApiTts();
     const hasGoodVoice = window.speechSynthesis && getChineseVoice() !== null;
     if (!hasGoodVoice || localStorage.getItem('tts_mode') !== 'auto') { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
     if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
@@ -14886,7 +15033,7 @@ function advanceTutor(){
     document.getElementById('tutHint').style.color='var(--accent)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
     const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+line.cn+'</div><div id="'+msgEnId+'" style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
     if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
     setTimeout(()=>tutListen(line.cn),500);
   } else {
@@ -14922,16 +15069,16 @@ function startAudioRecording(btn, ic) {
         console.log("MediaRecorder onstop fired, chunks:", audioChunks.length);
         if (window._recLevelIv) { clearInterval(window._recLevelIv); window._recLevelIv = null; }
         const peak = window._recPeak || 0;
-        console.log("Recording peak level:", peak);
+        const ctxState = window._recAudioContextState || 'suspended';
+        console.log("Recording peak level:", peak, "AudioContext state:", ctxState);
         const totalBytes = audioChunks.reduce((a, c) => a + (c ? c.size : 0), 0);
         console.log("Recording total bytes:", totalBytes);
         // Web-Audio analyser is the reliable signal: if the peak stays near
-        // zero the whole recording, the mic delivered true silence — do NOT
-        // send it to Gemini (it would only hallucinate a reply).
-        if (peak < 0.03) {
-          console.warn("Mic appears silent (peak " + peak.toFixed(3) + "), skipping Gemini");
+        // Only trigger silence warning if mic delivered near-zero amplitude AND audio bytes are negligible
+        if (peak < 0.02 && ctxState === 'running' && totalBytes < 1000) {
+          console.warn("Mic appears silent (peak " + peak.toFixed(3) + ", bytes " + totalBytes + "), skipping transcription");
           document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> ' + t('No sound detected from your microphone.') + '</span>';
-          toast(t('Mic seems silent — trying another device...'), 'var(--gold)', 2500);
+          toast(t('Mic seems silent — check device and speak again.'), 'var(--gold)', 2500);
           setTimeout(() => {
             autoDetectMic().then(found => {
               if (found) { toast(t('Microphone switched to: ') + found + '. ' + t('Tap mic and speak again.'), 'var(--green)', 4500); }
@@ -14974,8 +15121,13 @@ function startAudioRecording(btn, ic) {
   window._recLastSound = Date.now();
   srOn = true;
   updateMicUI('recording');
-  // Stop any TTS playback immediately to prevent feedback loop
+  // Stop any TTS playback immediately to prevent feedback loop.
+  // Both the browser SpeechSynthesis AND the API-based TTS audio element must
+  // be stopped — the Google/Fish audio engine plays through an <audio> element
+  // that speechSynthesis.cancel() does NOT touch, so without stopApiTts() the
+  // mic opens while playback is still ringing out -> audible echo/feedback.
   if (!isMobileDevice) { try { speechSynthesis.cancel(); } catch(e) {} }
+  stopApiTts();
   document.getElementById('tutHint').textContent = t('Recording... speak now (auto-stops when you pause)');
   const wave = document.getElementById('tutVoiceWave');
   if (wave) wave.style.display = 'inline-flex';
@@ -14990,13 +15142,23 @@ function startAudioRecording(btn, ic) {
       const recordStream = stream;
       activeMicStream = stream;
       window._recPeak = 0;
+      window._recSoundMs = 0;
+      window._recAudioContextState = 'suspended';
       try {
         const ctx2 = new (window.AudioContext || window.webkitAudioContext)();
-        if (ctx2.state === 'suspended') ctx2.resume().catch(() => {});
+        window._recAudioContextState = ctx2.state;
+        if (ctx2.state === 'suspended') {
+          ctx2.resume().then(() => {
+            window._recAudioContextState = ctx2.state;
+          }).catch(() => {});
+        } else {
+          window._recAudioContextState = ctx2.state;
+        }
         const src2 = ctx2.createMediaStreamSource(stream);
         const an2 = ctx2.createAnalyser();
         an2.fftSize = 1024;
         src2.connect(an2);
+        try { startVoiceWaveAnimation(an2); } catch(e) {}
         const rdata = new Uint8Array(an2.fftSize);
         window._recLevelIv = setInterval(() => {
           an2.getByteTimeDomainData(rdata);
@@ -15004,10 +15166,12 @@ function startAudioRecording(btn, ic) {
           for (let i = 0; i < rdata.length; i++) { const v = Math.abs(rdata[i] - 128) / 128; if (v > p) p = v; }
           if (p > window._recPeak) window._recPeak = p;
           const now = Date.now();
-          if (p >= 0.05) {
+          const soundThreshold = 0.025;
+          if (p >= soundThreshold) {
             window._recLastSound = now;
-          } else if (_recAudioMode && window._recLastSound && window._recStartedAt && (now - window._recLastSound) > 1600 && (now - window._recStartedAt) > 2000) {
-            console.log("Silence detected (1.6s), auto-stopping recording");
+            window._recSoundMs = (window._recSoundMs || 0) + 120;
+          } else if (_recAudioMode && window._recLastSound && window._recStartedAt && (now - window._recLastSound) > 1700 && (now - window._recStartedAt) > 2000) {
+            console.log("Silence detected (1.7s), auto-stopping recording");
             window._recLastSound = 0;
             clearTimeout(window._recAutoStopTimer);
             const b = document.getElementById('tutMic'), i = document.getElementById('tutMicIc');
@@ -15082,7 +15246,8 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
   };
   document.getElementById('tutStatus').textContent = t('Transcribing...');
   const loaderId = 'loader-' + Date.now();
-  addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Transcribing audio...')+'</div>');
+  const _tl = addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Transcribing audio...')+'</div>');
+  if (_tl) _tl.style.animation = 'none';
   fetch('/api/chat', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -15102,6 +15267,12 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '(No response)';
     console.log("Gemini reply text:", reply.substring(0, 100));
     let transcript = reply.replace(/^TRANSCRIPTION:\s*/i, '').trim();
+    // Reject obvious Whisper prompt echoes or known silence hallucinations
+    const looksGarbage = /^(t he|mbc|subtitles|amara|transcribe|thank you for watching)$/i.test(transcript) || /^transcribe/i.test(transcript);
+    if (looksGarbage) {
+      console.warn("Rejected low-quality hallucination:", transcript);
+      transcript = '';
+    }
     if (transcript && transcript !== '(No response)' && !/no audio|no speech|没有音频|unable to transcribe|therefore no|no transcription/i.test(transcript)) {
       console.log("Transcription result:", transcript);
       document.getElementById('tutStatus').textContent = t('Heard: ') + transcript;
@@ -15124,6 +15295,9 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       console.warn("Empty or no-speech transcription");
       document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> '+t('No speech heard — check that your microphone is the correct input device and not muted in Windows settings, then tap mic and speak clearly.')+'</span>';
       document.getElementById('tutStatus').textContent = t('No speech detected');
+      if ((typeof voiceModeActive !== 'undefined' && voiceModeActive) || localStorage.getItem('tutor_mode') === 'live') {
+        setTimeout(() => { if (!srOn && !isTtsPlaying()) tutSpeak(); }, 1500);
+      }
     }
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
   }).catch(err => {
@@ -15182,6 +15356,7 @@ function tutSpeak(){
   
   // Cancel any active SpeechSynthesis before starting microphone
   if (!isMobileDevice) { speechSynthesis.cancel(); }
+  stopApiTts();
   
   unlockIOSAudio();
   const target=localStorage.getItem('tutor_mode') === 'live' ? currentLiveTarget : tutLesson.dialogue[tutStep].cn;
@@ -15483,7 +15658,7 @@ function coachPronunciation(target) {
   }
   var html = '<div style="padding:6px 0">'
     + '<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px"><i class="fas fa-ear-listen"></i> ' + t('Listen again, then repeat:') + '</div>'
-    + '<div style="font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:4px">' + target + '</div>'
+    + '<div style="font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:4px">' + formatChineseTextWithRuby(target) + '</div>'
     + (py ? '<div style="font-size:14px;color:var(--neon-cyan);margin-bottom:4px;letter-spacing:1px">' + py + '</div>' : '')
     + (meaning ? '<div style="font-size:12px;color:var(--muted)">' + t('Meaning:') + ' <span id="coachMeaning-' + Date.now() + '">' + t(meaning) + '</span></div>' : '')
     + (tip ? '<div style="font-size:12px;color:var(--fg2);margin-top:4px"><i class="fas fa-lightbulb"></i> ' + t('Tip:') + ' <span id="coachTip-' + Date.now() + '">' + t(tip) + '</span></div>' : '')
@@ -15585,7 +15760,7 @@ function finishTutor(){
 }
 
 function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
-function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);document.getElementById('tutChat').scrollTop=9999}
+function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);requestAnimationFrame(()=>{document.getElementById('tutChat').scrollTop=9999});return d}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
 function updateMicUI(state){
   const ic=document.getElementById('tutMicIc'),lb=document.getElementById('tutMicLabel'),btn=document.getElementById('tutMic');
@@ -15608,7 +15783,7 @@ function updateMicUI(state){
 let selectedMicId = localStorage.getItem('mic_device_id') || '';
 
 function getMicAudioConstraints() {
-  const opts = { echoCancellation: true, noiseSuppression: true };
+  const opts = { echoCancellation: true, noiseSuppression: true, autoGainControl: true };
   if (selectedMicId) opts.deviceId = { exact: selectedMicId };
   return { audio: opts };
 }
@@ -15721,7 +15896,7 @@ function autoDetectMic() {
         if (done) return;
         if (idx >= mics.length) return finish(null);
         const d = mics[idx];
-        const o = { audio: { echoCancellation: true, noiseSuppression: true, deviceId: { exact: d.deviceId } } };
+        const o = { audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, deviceId: { exact: d.deviceId } } };
         navigator.mediaDevices.getUserMedia(o).then(function(stream) {
           let ctx;
           try { ctx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -15743,7 +15918,7 @@ function autoDetectMic() {
               clearInterval(iv);
               stream.getTracks().forEach(function(t){t.stop();});
               try { ctx.close(); } catch(e) {}
-              if (peak > 0.05) {
+              if (peak > 0.02) {
                 selectedMicId = d.deviceId;
                 localStorage.setItem('mic_device_id', d.deviceId);
                 if (typeof loadMicDevices === 'function') loadMicDevices();
@@ -16204,6 +16379,7 @@ function speakQuizWord() {
 let iosAudioUnlocked = false;
 function unlockIOSAudio() {
   if (iosAudioUnlocked) return;
+  primeTtsAudioGesture();
   if (window.speechSynthesis) {
     try {
       const u = new SpeechSynthesisUtterance('');
@@ -17202,8 +17378,9 @@ function toggleSettingsModal() {
 
 function saveGeminiSettings() {
   const mode = document.getElementById('tutorModeSelect').value;
-  if (mode === 'live' && !hasPremiumAccess()) {
+  if (mode === 'live' && !hasTutorAccess()) {
     showPremiumPaywall(t('Live AI Tutor'));
+    toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
     document.getElementById('tutorModeSelect').value = localStorage.getItem('tutor_mode') || 'static';
     return;
   }
@@ -17370,14 +17547,27 @@ function getTutorLangName() {
   const c = getSpeechLang();
   const f = SPEECH_LANGS.find(x => x.code === c);
   if (f && c !== 'zh-CN') return f.name;
-  return currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : 'English';
+  return currentAppLang === 'es' ? 'Spanish' : currentAppLang === 'fr' ? 'French' : currentAppLang === 'ja' ? 'Japanese' : currentAppLang === 'ko' ? 'Korean' : currentAppLang === 'de' ? 'German' : currentAppLang === 'pt' ? 'Portuguese' : currentAppLang === 'it' ? 'Italian' : currentAppLang === 'ru' ? 'Russian' : currentAppLang === 'vi' ? 'Vietnamese' : currentAppLang === 'th' ? 'Thai' : currentAppLang === 'id' ? 'Indonesian' : currentAppLang === 'ar' ? 'Arabic' : currentAppLang === 'tr' ? 'Turkish' : 'English';
 }
 function saveSpeechLang(v) {
   localStorage.setItem('speech_lang', v);
   toast(t('Mic language set to:') + ' ' + (SPEECH_LANGS.find(x => x.code === v) || { name: v }).name, 'var(--green)');
 }
 
+function isAutoIntroText(text) {
+  if (!text) return false;
+  return text.indexOf('__PLACEMENT_START__') !== -1 ||
+         text.indexOf('（课堂开始）') === 0 ||
+         text.indexOf('（时间到！') === 0 ||
+         text.indexOf('(System note:') === 0 ||
+         text.indexOf('(Internal note:') === 0 ||
+         text === "你好！请用中文跟我聊天。" ||
+         text === "你好！请用中文跟我聊天。我是你的学生。" ||
+         text.indexOf("Hello! I am a complete beginner learning Chinese") === 0;
+}
+
 function sendToGemini(userText) {
+  _introTurnForSpeech = isAutoIntroText(userText);
   const statusText = document.getElementById('tutStatus');
   
   if (!navigator.onLine) {
@@ -17385,6 +17575,37 @@ function sendToGemini(userText) {
     if (statusText) statusText.textContent = t('Disconnected');
     document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent2);font-weight:700"><i class="fas fa-wifi-slash"></i> '+t('No internet — Live AI unavailable')+'</span>';
     return;
+  }
+
+  // Daily limit for free tier
+  if (!hasPremiumAccess()) {
+    const today = new Date().toISOString().split('T')[0];
+    const storedDate = localStorage.getItem('tutor_usage_date');
+    let count = parseInt(localStorage.getItem('tutor_messages_count') || '0');
+    
+    if (storedDate !== today) {
+      localStorage.setItem('tutor_usage_date', today);
+      localStorage.setItem('tutor_messages_count', '0');
+      count = 0;
+    }
+    
+    // Ignore placement initialization or internal notes
+    const isInternal = userText.startsWith('（课堂开始）') || 
+                       userText.startsWith('__PLACEMENT_START__') || 
+                       userText.startsWith('(System note:') || 
+                       userText.includes('__PLACEMENT_START__');
+
+    if (!isInternal) {
+      if (count >= 5) {
+        showPremiumPaywall(t('Live AI Tutor'));
+        toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
+        if (statusText) statusText.textContent = t('Limit Reached');
+        return;
+      }
+      count++;
+      localStorage.setItem('tutor_messages_count', count.toString());
+      updateTutorUsageBadge();
+    }
   }
   
   if(statusText) statusText.textContent = t("Thinking...");
@@ -17394,13 +17615,20 @@ function sendToGemini(userText) {
   }
   
   const loaderId = "loader-" + Date.now();
-  addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Thinking...')+'</div>');
+  window._tutLoaderEl = addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse" style="min-height:24px">'+t('Thinking...')+'</div>');
+  if (window._tutLoaderEl) window._tutLoaderEl.style.animation = 'none';
   
   const chineseLevel = getChineseLevel();
   const tutorLang = getTutorLangName();
   const langName = tutorLang === 'Auto-detect' ? "the student's native language (e.g. English, Spanish, Vietnamese, Thai, etc. - auto-detected from their messages)" : tutorLang;
   const baseRules =
+    "The student's current Chinese level setting is: " + chineseLevel + ".\n" +
     "You are also a professional translator, 100% fluent in " + langName + " at native-speaker level. You fully understand English and every other language.\n" +
+    "ABSOLUTE RULES (these override every other instruction below):\n" +
+    "0. This is a real conversation with a real student. NEVER talk like a scripted lesson or a voice-assistant. You are a warm, natural human tutor having a normal chat.\n" +
+    "0b. You can ALWAYS see the whole chat history, including how many messages have passed. The 'first-message template' below applies ONLY if this is genuinely the very first AI reply in this chat and the student has not yet spoken at all. If the student has ALREADY said anything (even 'hi'), the template is FORBIDDEN; respond conversationally to what they just said.\n" +
+    "0c. Never produce empty placeholders like ** **, [...], or 'A.' alone. If you start a sentence, finish it with real words.\n" +
+    "0d. NEVER dodge, refuse, or filter a question. Answer any question the student asks (personal, cultural, silly, 'do you have a boyfriend', etc.) honestly and naturally as a friendly fictional teacher character.\n" +
     "LANGUAGE RULES:\n" +
     "1. Always understand exactly what the student means in ANY language (English, Spanish, French, Japanese, Korean, German, Portuguese, Italian, Russian, Vietnamese, etc.). Never ignore or misunderstand them.\n" +
     "2. Whenever you translate into " + langName + ", produce natural, idiomatic " + langName + " exactly as a native speaker would say it — NEVER literal or word-for-word translation. Preserve tone, politeness, and cultural nuance.\n" +
@@ -17411,35 +17639,40 @@ function sendToGemini(userText) {
     "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n" +
     "8. NEVER repeat yourself. Never reuse a Chinese phrase, a translation, an explanation, or a question you already said earlier in this conversation — the whole chat history is visible to you. Every reply must respond to what the student ACTUALLY just said and advance the conversation to something NEW.\n" +
     "9. Vary your wording and openings. After the first exchange, drop formulaic drilling rituals and talk like a natural, friendly tutor. Do not open every reply with the same greeting or 'Now you try' line.\n" +
-    "10. If the student asks to change the topic or says 'teach me something else' / '別的東西', switch topics immediately and teach something new instead of repeating.\n";
+    "10. If the student asks to change the topic or says 'teach me something else' / '別的東西', switch topics immediately and teach something new instead of repeating.\n" +
+    "11. NEVER write these drill strings: '你会说 X 吗？', '你可以说 X', 'Can you say X?', 'You can say:', 'Now you try', '你试试说'. Teach new Chinese by using it naturally inside a real sentence, not by ordering the student to repeat it.\n" +
+    "12. ALWAYS end your Chinese teaching with a real, natural question that continues the conversation — never a 'repeat after me' command.\n" +
+    "13. CONFUSION ESCAPE HATCH: at ANY moment, if the student says they don't understand, asks something in their own language, or clearly struggles, switch FULLY to " + langName + " immediately — explain everything in " + langName + " until they are comfortable again, then gently return to Chinese. Never leave the student stuck.\n" +
+    "14. SILENT LEVEL ASSESSMENT: every turn, quietly judge the student's OWN Chinese production (never count messages they wrote in their native language): do they understand your Chinese without asking for repeats or translations, how wide is their vocabulary and grammar compared to their level band, how frequent are significant errors. ONLY when ALL of these have been clearly true across several recent exchanges — (a) they understand your Chinese unprompted, (b) they produce their own multi-word Chinese sentences with few significant errors, (c) they comfortably use words/patterns beyond their band, (d) you have not offered a level change yet in this conversation — end that reply with EXACTLY ONE marker [LEVELUP: beginner] or [LEVELUP: intermediate] or [LEVELUP: advanced] (one step above the student's current level), and warmly tell them in " + langName + " that they are ready for more challenging Chinese. Never write the word 'LEVELUP' anywhere else; never downgrade silently — if they seem over-leveled, simplify your Chinese instead; never use the marker more than once per conversation.\n";
 
   let systemInstruction;
-  if (timedClassActive && timedSystemInstruction) {
+  if (_interviewActive) {
+    systemInstruction = buildInterviewInstruction(getInterviewLangName());
+  } else if (timedClassActive && timedSystemInstruction) {
     systemInstruction = timedSystemInstruction;
   } else if (chineseLevel === 'never') {
     systemInstruction = "You are Li Laoshi, a patient Chinese tutor for a student who has NEVER studied Chinese and knows ZERO words.\n" + baseRules +
       "TEACHING STYLE (absolute beginner):\n" +
-      "1. THE FIRST MESSAGE ONLY: use exactly this 3-part shape to introduce yourself:\n" +
-      "   Part A — 你好 (nǐ hǎo)\n" +
-      "   Part B — \"" + langName + ": Hello! This is the most common greeting. Now you try — say hello to me!\"\n" +
-      "   Part C — You can say: nǐ hǎo\n" +
-      "2. FROM THE SECOND MESSAGE ON, STOP the drill template. Talk naturally and briefly: respond to exactly what the student said, acknowledge it, then introduce ONE new tiny phrase (max 3-5 characters, simplest HSK 1 words like 谢谢, 再见, 我很好, 我叫...) in 1-2 short " + langName + " lines.\n" +
-      "3. NEVER repeat a phrase, meaning, or question you already used earlier in the chat — pick a NEW phrase every reply.\n" +
-      "4. Always end with one very simple yes/no or 'say the word' question so the student knows it is their turn.\n" +
+      "1. THE FIRST MESSAGE ONLY: introduce yourself very simply — one short greeting like 你好，我叫李老师。 — then one or two friendly sentences to make the student comfortable, and ONE simple yes/no question to start the conversation.\n" +
+      "2. FROM THE SECOND MESSAGE ON, respond conversationally to exactly what the student said, then introduce ONE new tiny phrase (max 3-5 characters, simplest HSK 1 words like 谢谢, 再见, 我很好, 我叫...) by using it naturally inside a real sentence.\n" +
+      "3. NEVER repeat a phrase, meaning, or question already used earlier in the chat — pick a NEW phrase every reply.\n" +
+      "4. Always end with one very simple yes/no or follow-up question so the student knows it is their turn.\n" +
       "5. If the student writes in " + langName + ", first acknowledge in one short " + langName + " line, then teach the Chinese for their exact sentence.\n" +
       "6. Praise every attempt warmly, even if imperfect. If wrong, correct gently in one short " + langName + " line and invite them to try again.\n" +
-      "7. EXAMPLE of the perfect first reply:\n你好 (nǐ hǎo)\n" + langName + ": Hello! This is the most common greeting. Now you try — say hello to me!\nYou can say: nǐ hǎo";
+      "7. Output format REQUIRED for every reply — Chinese first, then the translation on its own line starting with 'English:' (or your real language name):\n\n[one or two short Chinese sentences]\n\n" + langName + ": [natural translation of those Chinese sentences]\n";
   } else if (chineseLevel === 'beginner' || isBeginnerMode) {
     systemInstruction = "You are Li Laoshi, a Chinese tutor for a BEGINNER who knows a few basic words (a few weeks to months of study).\n" + baseRules +
       "TEACHING STYLE (beginner):\n" +
       "1. Use ONLY HSK 1-2 vocabulary. Keep every sentence SHORT and simple. Never use advanced grammar, idioms, or long sentences.\n" +
-      "2. THE FIRST MESSAGE uses the teaching format: [Chinese phrase] (pinyin), then its " + langName + " meaning, then 'You can say: ...' with pinyin (e.g. 我叫小明 (wǒ jiào xiǎo míng)). FROM THE SECOND MESSAGE ON, drop that format and be conversational: respond to what the student actually said, praise them, and teach ONE new phrase per reply in 1-3 short " + langName + " sentences.\n" +
-      "3. NEVER repeat a phrase, meaning, or question already used earlier in the chat — always advance to a NEW phrase.\n" +
-      "4. Build step by step: greetings and introductions (你好, 我叫..., 我很好, 谢谢, 再见), then simple daily phrases. Only advance after the student succeeds.\n" +
-      "5. Always end with ONE simple question so the student always knows it is their turn.\n" +
-      "6. If the student writes or says something in " + langName + ", answer in " + langName + " first in one line, then teach the Chinese for their exact sentence.\n" +
-      "7. Praise effort warmly; correct gently in one short " + langName + " line and invite them to try again.\n" +
-      "8. Vary your openings and wording every reply — never start every message with the same greeting or the same drill line.";
+      "2. THE FIRST MESSAGE ONLY: greet the student simply and ask one easy question, e.g. 你好！你叫什么名字？\n" +
+      "3. FROM THE SECOND MESSAGE ON, respond conversationally to what the student actually said, praise them, and teach ONE new phrase per reply by using it naturally inside a real sentence (never as a 'You can say: ...' drill).\n" +
+      "4. NEVER repeat a phrase, meaning, or question already used earlier in the chat — always advance to a NEW phrase.\n" +
+      "5. Build step by step: greetings and introductions (你好, 我叫..., 我很好, 谢谢, 再见), then simple daily phrases. Only advance after the student succeeds.\n" +
+      "6. Always end with ONE simple follow-up question so the student always knows it is their turn.\n" +
+      "7. If the student writes or says something in " + langName + ", answer in " + langName + " first in one line, then teach the Chinese for their exact sentence.\n" +
+      "8. Praise effort warmly; correct gently in one short " + langName + " line and invite them to try again.\n" +
+      "9. Vary your openings and wording every reply — never start every message with the same greeting or the same drill line.\n" +
+      "10. Output format REQUIRED for every reply — Chinese first, then the translation on its own line starting with 'English:' (or your real language name):\n\n[one or two short Chinese sentences]\n\n" + langName + ": [natural translation of those Chinese sentences]\n";
   } else if (chineseLevel === 'advanced') {
     systemInstruction = "You are Li Laoshi, a Chinese tutor for an ADVANCED learner (3+ years of study).\n" + baseRules +
       "TEACHING STYLE (advanced):\n" +
@@ -17474,59 +17707,60 @@ function sendToGemini(userText) {
     return res.json();
   })
   .then(data => {
+    // Replace the "Thinking..." loader capsule in place instead of removing it and
+    // inserting a fresh bubble — avoids the visible flash/reflow that causes flicker.
     const loader = document.getElementById(loaderId);
-    if (loader) loader.remove();
+    const loaderCapsule = window._tutLoaderEl && window._tutLoaderEl.contains(loader) ? window._tutLoaderEl : null;
+    window._tutLoaderEl = null;
     
     let reply = data.candidates[0].content.parts[0].text.trim();
-    
+
+    // Strip internal control markers before display/speech/history
+    const lvlMarkerM = reply.match(/\[LEVEL:\s*(never|beginner|intermediate|advanced)\s*\]/i);
+    const upMarkerM = reply.match(/\[LEVELUP:\s*(beginner|intermediate|advanced)\s*\]/i);
+    if (lvlMarkerM) reply = reply.replace(lvlMarkerM[0], '').trim();
+    if (upMarkerM) reply = reply.replace(upMarkerM[0], '').trim();
+
     // Parse Chinese and English from the response into separate display text
     let cleanReply = reply;
     let englishTranslation = "";
     
+    // Clean the reply: strip stray markdown bold, empty placeholders, empty quotes
+    const pre = reply
+      .replace(/\*\*\s*\*\*/g, ' ')
+      .replace(/\*\*/g, '')
+      .replace(/^\s*-\s*/, '')
+      .replace(/“\s*”/g, ' ')
+      .replace(/""/g, ' ')
+      .trim();
+    
     // Remove parenthetical pinyin annotations like (nǐ hǎo) from the whole reply
     const pinyinRe = /[A-Za-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü\s,，.。'’?？！!-]{2,}/;
-    const noPinyin = reply.replace(new RegExp('\\(' + pinyinRe.source + '\\)','g'), '')
-                          .replace(new RegExp('（' + pinyinRe.source + '）','g'), '');
+    const stripPinyin = (s) => s.replace(new RegExp('\\(' + pinyinRe.source + '\\)','g'), '')
+                                .replace(new RegExp('（' + pinyinRe.source + '）','g'), '')
+                                .replace(/[，。！？、；：,.!?;:\s\-—]+$/,'')
+                                .replace(/\s{2,}/g, ' ')
+                                .trim();
     
-    // Split the reply into alternating Chinese and Latin (tutor language) runs so
-    // the translation is never mixed into the Chinese line.
-    const cnParts = [];
-    const enParts = [];
-    const labelChars = 'A-Za-z\u00C0-\u02AF\u1E00-\u1EFF';
-    let buf = '';
-    let inCn = false;
-    const flush = () => {
-      const b = buf.trim();
-      buf = '';
-      if (!b) return;
-      if (inCn) {
-        cnParts.push(b);
-      } else {
-        const cleaned = b.replace(new RegExp('(^|\\s)[' + labelChars + ']+(?:\\s+[' + labelChars + ']+)?\\s*:\\s*', 'g'), ' ').trim();
-        if (cleaned) enParts.push(cleaned);
-      }
-    };
-    for (const ch of noPinyin) {
-      const isCn = ch >= '\u4e00' && ch <= '\u9fa5';
-      const isSpace = /\s/.test(ch);
-      const isPunct = /[，。！？、；：,.!?;:]/.test(ch);
-      if (isCn) {
-        if (!inCn) flush();
-        inCn = true;
-        buf += ch;
-      } else if (!isSpace && !isPunct) {
-        if (inCn) flush();
-        inCn = false;
-        buf += ch;
-      } else {
-        buf += ch;
-      }
+    // The model is instructed to output Chinese first, then its own label line
+    // (e.g. "English: <translation>"). Find that block split so the two are never
+    // mixed together. Recognise the tutor language name plus common translation tags.
+    const tutorLabel = langName === 'Auto-detect' ? '' : langName;
+    const labelCands = [tutorLabel, 'English', 'Translation', '翻译', 'traduzione', 'traducción', 'traduction', 'Übersetzung', 'перевод', 'dịch', 'dịch thuật'].filter(Boolean);
+    const escaped = labelCands.map(l => l.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+    const labelRe = new RegExp('(?:^|\\n)\\s*(?:' + escaped + ')\\s*(?:\\s*translation)?\\s*[:：]', 'i');
+    const li = pre.search(labelRe);
+    if (li >= 0) {
+      cleanReply = stripPinyin(pre.slice(0, li));
+      englishTranslation = stripPinyin(pre.slice(li).replace(labelRe, ' '));
+    } else {
+      // No explicit label: keep the whole cleaned reply as the displayed text and
+      // let the AI-translate fallback below build the translation.
+      cleanReply = stripPinyin(pre);
+      englishTranslation = '';
     }
-    flush();
     
-    cleanReply = cnParts.join(' ').replace(/\s{2,}/g, ' ').trim();
-    englishTranslation = enParts.join(' ').replace(/\s{2,}/g, ' ').trim();
-    if (!cleanReply && englishTranslation) { cleanReply = englishTranslation; englishTranslation = ''; }
+    if (!cleanReply) cleanReply = pre;
     
     // Speak & pronunciation target use ONLY the Chinese characters (never pinyin or English)
     const speechText = (cleanReply.match(/[\u4e00-\u9fa5]+/g) || []).join(' ');
@@ -17538,9 +17772,13 @@ function sendToGemini(userText) {
     suggestedUserTarget = suggestedAnswer;
     
     // Show in side panel
-    document.getElementById('tutWd').textContent = speechText;
-    document.getElementById('tutWp').textContent = suggestedAnswer;
-    document.getElementById('tutWm').textContent = englishTranslation;
+    if (!_interviewActive) {
+      document.getElementById('tutWd').textContent = speechText;
+      document.getElementById('tutWp').textContent = suggestedAnswer;
+      document.getElementById('tutWm').textContent = englishTranslation || cleanReply;
+    } else {
+      document.getElementById('tutWm').textContent = cleanReply;
+    }
 
     // Show the hint button with the suggested answer so beginners always know what to say
     const hintWrapper = document.getElementById('tutHintWrapper');
@@ -17561,7 +17799,13 @@ function sendToGemini(userText) {
     const hasCn = /[\u4e00-\u9fa5]/.test(cleanReply);
     const botTrId = 'botTr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
     const initialTr = (englishTranslation && englishTranslation.length >= cleanReply.length * 0.6) ? englishTranslation : '<i class="fas fa-language"></i> ' + t('Translating...');
-    addTutMsg('bot', '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + cleanReply + '</div>' + (hasCn ? '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + initialTr + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : ''));
+    const botHtml = '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + formatChineseTextWithRuby(cleanReply) + '</div>' + (hasCn ? '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + initialTr + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : '');
+    if (loaderCapsule) {
+      loaderCapsule.innerHTML = botHtml;
+      loaderCapsule.style.animation = 'bi .3s ease-out';
+    } else {
+      addTutMsg('bot', botHtml);
+    }
     // If the model's reply has Chinese but no English translation was embedded, fetch one now
     if (hasCn && (!englishTranslation || englishTranslation.length < cleanReply.length * 0.6)) {
       translateToEnglish(cleanReply).then(function(en) {
@@ -17574,24 +17818,53 @@ function sendToGemini(userText) {
         if (el) el.textContent = t('(translation unavailable)');
       });
     }
+    const isIntroReply = _introTurnForSpeech;
+    _introTurnForSpeech = false;
+
+    // Always speak the reply (so the AI tutor is never silently "typing only").
+    // For auto-generated intro/greeting turns we still speak, but we do NOT
+    // auto-open the mic afterwards — that waiting-for-speech was the echo source,
+    // and the mic should only open on explicit user interaction.
     if (speechText) setTimeout(() => speak(speechText), 1100);
-    
-    // Auto-listen in Voice Mode or Live AI Mode — wait for speech to finish
-    if (voiceModeActive || localStorage.getItem('tutor_mode') === 'live') {
+    else if (_interviewActive && cleanReply) setTimeout(() => speakViaAPI(cleanReply, getInterviewLangCode(), 1.0), 1100);
+
+    // Auto-listen in Voice Mode or Live AI Mode — but never for an auto-intro
+    // turn (the greeting), so the mic doesn't open into the tutor's reply (echo).
+    if (!isIntroReply && (voiceModeActive || localStorage.getItem('tutor_mode') === 'live')) {
       setTimeout(() => {
         const waitAndListen = () => {
           if ((voiceModeActive || localStorage.getItem('tutor_mode') === 'live') && !srOn) {
             if (isTtsPlaying()) {
               setTimeout(waitAndListen, 500);
             } else {
-              tutSpeak();
+              // Ensure the speaker is fully silent before the mic opens — stop any
+              // residual/browser TTS and wait a little longer (especially for the
+              // very first greeting audio) so it can't ring into the recording.
+              try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e) {}
+              // Longer settle after the speaker actually stops: with v69 the boosted
+              // TTS now keeps isTtsPlaying() true for its full duration (incl. the
+              // async WebAudio decode/schedule window), so this extra delay just lets
+              // any residual ring-out decay before the mic opens — prevents self-echo.
+              setTimeout(() => { if (!srOn) { stopApiTts(); tutSpeak(); } }, 900);
             }
           }
         };
         waitAndListen();
       }, 2500);
     }
-    
+
+    // Placement interview bookkeeping + level-up offers
+    if (_interviewActive) {
+      _interviewTurns++;
+      if (lvlMarkerM) {
+        completePlacement(lvlMarkerM[1].toLowerCase());
+      } else if (_interviewTurns >= 7 && !_interviewNudged) {
+        _interviewNudged = true;
+        geminiHistory.push({ role: "user", parts: [{ text: "(Internal note: please finish the placement NOW — give your short summary in the student's language and output the [LEVEL: ...] marker on its own final line.)" }] });
+      }
+    }
+    if (upMarkerM) offerLevelUp(upMarkerM[1].toLowerCase());
+
     // Status updates for Live AI Mode
     if (statusText) statusText.textContent = t("Your turn")+' — '+t("press mic");
     document.getElementById('tutHint').textContent = t("Type Chinese below or press mic");
@@ -18181,8 +18454,9 @@ function startLiveTutor() {
     toast(t('Already chatting live with the AI teacher'), 'var(--green)');
     return;
   }
-  if (!hasPremiumAccess()) {
+  if (!hasTutorAccess()) {
     showPremiumPaywall(t('Live AI Tutor'));
+    toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
     return;
   }
   localStorage.setItem('tutor_mode', 'live');
@@ -18211,9 +18485,11 @@ function startLiveTutor() {
   if (chat) chat.innerHTML = '';
   setBtns(true);
   toast(t('Live AI Tutor mode activated!'), 'var(--green)');
-  if (!localStorage.getItem('chinese_level')) {
-    showLevelModal();
-    _pendingLiveGreeting = true;
+  _levelupOffered = false;
+  // Make sure usage badge is shown/updated
+  updateTutorUsageBadge();
+  if (!isTutorOnboarded()) {
+    startPlacementInterview();
     return;
   }
   sendLiveGreeting();
@@ -18221,8 +18497,9 @@ function startLiveTutor() {
 
 function toggleRoleplayMode() {
   let mode = localStorage.getItem('tutor_mode') || "static";
-  if (mode !== 'live' && !hasPremiumAccess()) {
+  if (mode !== 'live' && !hasTutorAccess()) {
     showPremiumPaywall(t('Live AI Tutor'));
+    toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
     return;
   }
   mode = mode === 'live' ? 'static' : 'live';
@@ -18507,6 +18784,15 @@ function openTopicLesson(topicName, lvIdx) {
   const isLive = localStorage.getItem('tutor_mode') === 'live';
   
   if (isLive) {
+    // First-ever live session: run the placement interview before any topic
+    if (!isTutorOnboarded()) {
+      tutLesson = TL[0];
+      geminiHistory = [];
+      setBtns(true);
+      scrollToSection('#tutor');
+      startPlacementInterview();
+      return;
+    }
     // Start Live AI Mode on this topic dynamically
     tutLesson = TL[0]; // dummy placeholder
     tutScores = [];
@@ -18799,8 +19085,15 @@ function applyRecommendedLevel() {
 // ===== CHARACTER-BY-CHARACTER COLOR-CODED PRONUNCIATION FEEDBACK =====
 function colorCodePronunciation(target, spoken) {
   if (!target) return spoken;
+  
+  const cleanSpoken = spoken.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
+  const cleanTarget = target.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
+  
+  const targetPinyin = getPinyinForChineseText(cleanTarget);
+  const spokenPinyin = getPinyinForChineseText(cleanSpoken);
+  
   let html = "";
-  const normSpoken = spoken.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
+  let spokenIdx = 0;
   
   for (let i = 0; i < target.length; i++) {
     const char = target[i];
@@ -18808,12 +19101,59 @@ function colorCodePronunciation(target, spoken) {
       html += char;
       continue;
     }
-    if (normSpoken.includes(char)) {
-      html += '<span style="color:#4ade80; font-weight:bold;">' + char + '</span>';
+    
+    const targetToken = targetPinyin.find(t => t.cn.includes(char)) || { cn: char, py: '' };
+    
+    let matchedChar = false;
+    let toneMistake = false;
+    let spokenTonePy = '';
+    
+    let lookAheadRange = 3;
+    let foundIdx = -1;
+    for (let offset = -lookAheadRange; offset <= lookAheadRange; offset++) {
+      const idx = spokenIdx + offset;
+      if (idx >= 0 && idx < cleanSpoken.length) {
+        if (cleanSpoken[idx] === char) {
+          foundIdx = idx;
+          matchedChar = true;
+          break;
+        }
+      }
+    }
+    
+    if (matchedChar) {
+      html += '<span style="color:#4ade80; font-weight:bold;" title="' + t('Correct!') + '">' + char + '</span>';
+      spokenIdx = foundIdx + 1;
     } else {
-      html += '<span style="color:#f87171; font-weight:bold;">' + char + '</span>';
+      let foundToneIdx = -1;
+      const targetBase = getBaseSyllable(targetToken.py);
+      
+      if (targetBase) {
+        for (let offset = -1; offset <= 2; offset++) {
+          const idx = spokenIdx + offset;
+          if (idx >= 0 && idx < cleanSpoken.length) {
+            const spokenChar = cleanSpoken[idx];
+            const spokenToken = spokenPinyin.find(t => t.cn.includes(spokenChar)) || { cn: spokenChar, py: '' };
+            const spokenBase = getBaseSyllable(spokenToken.py);
+            if (spokenBase === targetBase && spokenToken.py !== targetToken.py) {
+              foundToneIdx = idx;
+              toneMistake = true;
+              spokenTonePy = spokenToken.py;
+              break;
+            }
+          }
+        }
+      }
+      
+      if (toneMistake) {
+        html += '<span class="tone-mistake" style="color:#fb923c; font-weight:bold; border-bottom:1px dashed #fb923c; cursor:help;" title="' + t('Tone Mistake! Expected: ') + targetToken.py + ', ' + t('Said: ') + spokenTonePy + '">' + char + '</span>';
+        spokenIdx = foundToneIdx + 1;
+      } else {
+        html += '<span style="color:#f87171; font-weight:bold;" title="' + t('Incorrect or missed') + '">' + char + '</span>';
+      }
     }
   }
+  
   return html;
 }
 
@@ -19298,9 +19638,12 @@ document.addEventListener('keydown', function(e) {
 function stopMediaRecorder() {
   const wave = document.getElementById('tutVoiceWave');
   if (wave) wave.style.display = 'none';
+  const canvas = document.getElementById('tutVoiceCanvas');
+  if (canvas) canvas.style.display = 'none';
   stopTutorPitchTrack();
   _recAudioMode = false;
   _inputRecAudioMode = false;
+  srOn = false;
   if (window._recLevelIv) { clearInterval(window._recLevelIv); window._recLevelIv = null; }
   if (mediaRecorder && mediaRecorder.state !== 'inactive') {
     try {
@@ -19455,6 +19798,7 @@ function startTutorPitchTrack(stream) {
     tutorAnalyser = tutorAudioCtx.createAnalyser();
     tutorAnalyser.fftSize = 2048;
     source.connect(tutorAnalyser);
+    try { startVoiceWaveAnimation(tutorAnalyser); } catch(e) {}
   } catch(e) { console.error('tutor pitch track init error:', e); return; }
 
   var svg = document.querySelector('.tone-curve-wrap svg');
@@ -19601,11 +19945,53 @@ function toggleBeginnerMode() {
 }
 
 
-function toggleLiveAITutor() {
-  if (!isLiveAIActive && !hasPremiumAccess()) {
-    showPremiumPaywall(t('Live AI Tutor'));
+function hasTutorAccess() {
+  if (hasPremiumAccess()) return true;
+  
+  const today = new Date().toISOString().split('T')[0];
+  const storedDate = localStorage.getItem('tutor_usage_date');
+  let count = parseInt(localStorage.getItem('tutor_messages_count') || '0');
+  
+  if (storedDate !== today) {
+    localStorage.setItem('tutor_usage_date', today);
+    localStorage.setItem('tutor_messages_count', '0');
+    count = 0;
+  }
+  
+  return count < 5;
+}
+
+function updateTutorUsageBadge() {
+  const badge = document.getElementById('tutorLimitBadge');
+  if (!badge) return;
+  
+  if (hasPremiumAccess()) {
+    badge.style.display = 'none';
     return;
   }
+  
+  const today = new Date().toISOString().split('T')[0];
+  const storedDate = localStorage.getItem('tutor_usage_date');
+  let count = parseInt(localStorage.getItem('tutor_messages_count') || '0');
+  
+  if (storedDate !== today) {
+    localStorage.setItem('tutor_usage_date', today);
+    localStorage.setItem('tutor_messages_count', '0');
+    count = 0;
+  }
+  
+  const remaining = Math.max(0, 5 - count);
+  badge.textContent = remaining + ' ' + t('free chats left');
+  badge.style.display = 'inline-block';
+}
+
+function toggleLiveAITutor() {
+  if (!isLiveAIActive && !hasTutorAccess()) {
+    showPremiumPaywall(t('Live AI Tutor'));
+    toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
+    return;
+  }
+  updateTutorUsageBadge();
   isLiveAIActive = !isLiveAIActive;
   const btn = document.getElementById('tutLiveBtn');
   if (!btn) return;
@@ -19628,15 +20014,15 @@ function toggleLiveAITutor() {
     // Reset tutor state for live free conversation
     tutStep = 0;
     tutLesson = TL[0];
+    _levelupOffered = false;
     const chat = document.getElementById('tutChat');
     if (chat) chat.innerHTML = '';
     
     // Clear history and start fresh conversation
     geminiHistory = [];
     setBtns(true);
-    if (!localStorage.getItem('chinese_level')) {
-      showLevelModal();
-      _pendingLiveGreeting = true;
+    if (!isTutorOnboarded()) {
+      startPlacementInterview();
       return;
     }
     sendLiveGreeting();
@@ -20295,6 +20681,106 @@ function getChineseLevel() {
 }
 
 let _pendingLiveGreeting = false;
+let _introTurnForSpeech = false;
+
+// ===== PLACEMENT INTERVIEW & LEVEL PROGRESSION =====
+const LEVEL_ORDER = ['never','beginner','intermediate','advanced'];
+let _interviewActive = false;
+let _interviewTurns = 0;
+let _interviewNudged = false;
+let _levelupOffered = false;
+
+function isTutorOnboarded(){ return localStorage.getItem('tutor_onboarded') === 'true'; }
+function getBrowserLangCode(){ return navigator.language || 'en-US'; }
+function getInterviewLangName(){
+  const tl = getTutorLangName();
+  if (tl && tl !== 'Auto-detect' && tl !== 'Chinese (Mandarin)') return tl;
+  const bl = getBrowserLangCode().split('-')[0];
+  return ({es:'Spanish',fr:'French',ja:'Japanese',ko:'Korean',de:'German',pt:'Portuguese',it:'Italian',ru:'Russian',vi:'Vietnamese',th:'Thai'})[bl] || 'English';
+}
+function getInterviewLangCode(){
+  const c = localStorage.getItem('speech_lang');
+  if (c && c !== 'auto' && c !== 'zh-CN') {
+    const f = SPEECH_LANGS.find(x => x.code === c);
+    if (f) return c;
+  }
+  const bl = getBrowserLangCode().split('-')[0];
+  return ({es:'es-ES',fr:'fr-FR',ja:'ja-JP',ko:'ko-KR',de:'de-DE',pt:'pt-BR',it:'it-IT',ru:'ru-RU',vi:'vi-VN',th:'th-TH'})[bl] || 'en-US';
+}
+function applyLevelSetting(lvl){
+  localStorage.setItem('chinese_level', lvl);
+  const bm = (lvl === 'never' || lvl === 'beginner');
+  isBeginnerMode = bm;
+  localStorage.setItem('beginner_mode', bm ? 'true' : 'false');
+  const bmToggle = document.getElementById('beginnerModeToggle');
+  if (bmToggle) bmToggle.checked = bm;
+}
+function levelDisplayName(lvl){
+  return lvl === 'never' ? 'HSK 0 (from zero)' : lvl === 'beginner' ? 'HSK 1-2' : lvl === 'intermediate' ? 'HSK 3-4' : 'HSK 5+';
+}
+function startPlacementInterview(){
+  _interviewActive = true;
+  _interviewTurns = 0;
+  _interviewNudged = false;
+  _levelupOffered = false;
+  geminiHistory = [];
+  currentLiveTarget = '';
+  suggestedUserTarget = '';
+  const chat = document.getElementById('tutChat');
+  if (chat) chat.innerHTML = '';
+  addTutMsg('sys', '🎯 <b>'+t('Placement chat')+'</b> — '+t("Li Laoshi will ask you a few quick questions in your own language to find your level. Answer naturally, by voice or text."));
+  sendToGemini("__PLACEMENT_START__ Please begin now.");
+}
+function buildInterviewInstruction(interviewLang){
+  return "You are Li Laoshi, a warm professional Chinese teacher. You are about to run a SHORT PLACEMENT INTERVIEW with a new student.\n" +
+    "LANGUAGE: Conduct this ENTIRE interview in " + interviewLang + " ONLY. Do NOT teach any Chinese yet and do not write Chinese phrases for them (if the student answers partly in Chinese, note it silently for your assessment).\n" +
+    "FORMAT: One short friendly message per turn — a one-line intro of what you're doing on your first message only, then exactly ONE question per message. Wait for their answer before the next question.\n" +
+    "QUESTIONS TO COVER (adapt wording naturally, never list them robotically): their name/background; how long they've studied Chinese and how (self-taught, classes, apps?); what they can already do in Chinese (greetings? read characters? hold a conversation?); why they're learning Chinese and what they want to use it for; how they like to learn.\n" +
+    "Keep it light and encouraging — 4 to 6 questions total maximum. If their answers already make the level obvious sooner, wrap up early.\n" +
+    "WHEN FINISHED: write a short warm summary in " + interviewLang + " (2-3 sentences) of what you learned about them and how you'll teach them, then on the very last line output EXACTLY ONE marker with nothing after it:\n" +
+    "[LEVEL: never] = zero or almost zero Chinese\n[LEVEL: beginner] = a few weeks or months, basic words/phrases only (HSK 1-2)\n[LEVEL: intermediate] = can hold simple conversations on everyday topics (HSK 3-4)\n[LEVEL: advanced] = comfortable discussing varied or complex topics (HSK 5+)\n" +
+    "Judge ONLY from evidence in their answers. Never mention the marker itself.";
+}
+function completePlacement(lvl){
+  _interviewActive = false;
+  _interviewTurns = 0;
+  _interviewNudged = false;
+  _levelupOffered = false;
+  applyLevelSetting(lvl);
+  localStorage.setItem('tutor_onboarded', 'true');
+  toast(t('Placement complete') + ' — ' + t('starting at') + ' ' + levelDisplayName(lvl), 'var(--gold)');
+  geminiHistory.push({ role: "user", parts: [{ text: "(System note: placement interview is over. From your next message onward, teach normally at this chosen level following your usual teaching style.)" }] });
+}
+function restartPlacementInterview(){
+  if (!hasTutorAccess()) {
+    showPremiumPaywall(t('Live AI Tutor'));
+    toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
+    return;
+  }
+  localStorage.removeItem('chinese_level');
+  if (localStorage.getItem('tutor_mode') !== 'live') localStorage.setItem('tutor_mode','live');
+  scrollToSection('#tutor');
+  startPlacementInterview();
+}
+function offerLevelUp(nextLvl){
+  if (_levelupOffered || _interviewActive || timedClassActive) return;
+  const cur = getChineseLevel();
+  if (LEVEL_ORDER.indexOf(nextLvl) <= LEVEL_ORDER.indexOf(cur)) return;
+  _levelupOffered = true;
+  addTutMsg('sys', '<div style="background:rgba(212,166,79,.08);border:1px solid var(--border);border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.5">📈 <b>'+t('Your tutor thinks you are ready for more!')+'</b><br>'+t('Move up to')+' <b>'+levelDisplayName(nextLvl)+'?</b><div style="display:flex;gap:8px;margin-top:8px"><button onclick="acceptLevelUp(\''+nextLvl+'\')" style="padding:6px 14px;border-radius:8px;border:none;background:var(--gold);color:#000;font-weight:700;font-size:12px;cursor:pointer">'+t('Move up')+'</button><button onclick="declineLevelUp()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;cursor:pointer">'+t('Stay here')+'</button></div></div>');
+  document.getElementById('tutChat').scrollTop = 9999;
+}
+function acceptLevelUp(lvl){
+  applyLevelSetting(lvl);
+  _levelupOffered = false;
+  geminiHistory.push({ role: "user", parts: [{ text: "(System note: the student accepted moving up to " + lvl + " level. Adjust your teaching from the next message.)" }] });
+  toast(t('Level up! Now teaching at') + ' ' + levelDisplayName(lvl), 'var(--green)');
+}
+function declineLevelUp(){
+  _levelupOffered = true;
+  geminiHistory.push({ role: "user", parts: [{ text: "(System note: the student prefers to stay at the current level for now. Do not suggest leveling up again this session.)" }] });
+  toast(t('Staying at your current level'), 'var(--accent2)');
+}
 
 function sendLiveGreeting() {
   const lvl = getChineseLevel();
@@ -21389,7 +21875,575 @@ document.addEventListener('DOMContentLoaded', function() {
   var initPath = location.pathname;
   if (initPath === '/app' || initPath === '/app/') initPath = '/app/tutor';
   routeApp(initPath);
+  
+  // Init Tutor Usage Badge
+  updateTutorUsageBadge();
+  
+  // Init Pinyin Display Preference
+  initPinyinDisplay();
+  
+  // Init Onboarding Flow
+  initOnboarding();
 });
 
+// ===== PINYIN RUBY DISPLAY & TOGGLING LOGIC =====
 
+function getBaseSyllable(pinyin) {
+  if (!pinyin) return '';
+  return pinyin.toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z]/g, "");
+}
 
+function getPinyinForChineseText(text) {
+  if (typeof HSK_WORDS === 'undefined') return [{ cn: text, py: '' }];
+  let result = [];
+  let i = 0;
+  const maxLen = 4;
+  
+  while (i < text.length) {
+    const char = text[i];
+    if (!/[\u4e00-\u9fa5]/.test(char)) {
+      result.push({ cn: char, py: '' });
+      i++;
+      continue;
+    }
+    
+    let matched = false;
+    for (let len = Math.min(maxLen, text.length - i); len >= 1; len--) {
+      const sub = text.substring(i, i + len);
+      const match = HSK_WORDS.find(w => w.c === sub);
+      if (match) {
+        const pyParts = match.p.split(/\s+/);
+        if (pyParts.length === sub.length) {
+          for (let j = 0; j < sub.length; j++) {
+            result.push({ cn: sub[j], py: pyParts[j] });
+          }
+        } else {
+          result.push({ cn: sub, py: match.p });
+        }
+        i += len;
+        matched = true;
+        break;
+      }
+    }
+    
+    if (!matched) {
+      const fallbackMatch = HSK_WORDS.find(w => w.c.includes(char));
+      if (fallbackMatch) {
+        const idx = fallbackMatch.c.indexOf(char);
+        const pinyinArr = fallbackMatch.p.split(/\s+/);
+        const singlePy = pinyinArr[idx] || pinyinArr[0] || '';
+        result.push({ cn: char, py: singlePy });
+      } else {
+        result.push({ cn: char, py: '' });
+      }
+      i++;
+    }
+  }
+  return result;
+}
+
+function formatChineseTextWithRuby(text) {
+  if (!text) return '';
+  const tokens = getPinyinForChineseText(text);
+  let html = '';
+  for (const t of tokens) {
+    if (t.py) {
+      html += `<ruby style="ruby-position: over; margin: 0 1px;">${t.cn}<rt class="pinyin-text" style="font-size: 11px; color: var(--muted); user-select: none;">${t.py}</rt></ruby>`;
+    } else {
+      html += `<span style="font-size: 20px; margin: 0 1px; vertical-align: bottom;">${t.cn}</span>`;
+    }
+  }
+  return html;
+}
+
+function togglePinyinDisplay() {
+  const show = localStorage.getItem('show_pinyin') !== 'false';
+  const newShow = !show;
+  localStorage.setItem('show_pinyin', newShow ? 'true' : 'false');
+  updatePinyinUI(newShow);
+  toast(newShow ? t("Pinyin display enabled") : t("Pinyin display disabled"), "var(--green)");
+}
+
+function updatePinyinUI(show) {
+  const btn = document.getElementById('tutPinyinToggleBtn');
+  if (show) {
+    document.body.classList.remove('hide-pinyin');
+    if (btn) btn.classList.add('active');
+  } else {
+    document.body.classList.add('hide-pinyin');
+    if (btn) btn.classList.remove('active');
+  }
+}
+
+function initPinyinDisplay() {
+  const show = localStorage.getItem('show_pinyin') !== 'false';
+  updatePinyinUI(show);
+}
+
+// ===== REAL-TIME VOICE WAVEFORM VISUALIZER =====
+
+let voiceWaveAnimId = null;
+function startVoiceWaveAnimation(analyser) {
+  if (voiceWaveAnimId) cancelAnimationFrame(voiceWaveAnimId);
+  const canvas = document.getElementById('tutVoiceCanvas');
+  if (!canvas) return;
+  const cssWave = document.getElementById('tutVoiceWave');
+  if (cssWave) cssWave.style.display = 'none';
+  canvas.style.display = 'inline-block';
+  
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  
+  const bufferLength = analyser.frequencyBinCount;
+  const dataArray = new Uint8Array(bufferLength);
+  
+  function draw() {
+    if (!srOn) {
+      canvas.style.display = 'none';
+      if (voiceWaveAnimId) cancelAnimationFrame(voiceWaveAnimId);
+      return;
+    }
+    voiceWaveAnimId = requestAnimationFrame(draw);
+    analyser.getByteTimeDomainData(dataArray);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    
+    // Draw 3 layered pulsing waves
+    const colors = [
+      'rgba(59, 130, 246, 0.85)', // var(--blue) alternative or bright blue
+      'rgba(45, 212, 191, 0.55)', // bright teal
+      'rgba(245, 158, 11, 0.35)'   // amber gold
+    ];
+    
+    const time = Date.now() * 0.0035;
+    ctx.lineWidth = 1.8;
+    
+    for (let waveIdx = 0; waveIdx < 3; waveIdx++) {
+      ctx.strokeStyle = colors[waveIdx];
+      ctx.beginPath();
+      
+      const wavePhase = waveIdx * Math.PI / 3;
+      const sliceWidth = rect.width / bufferLength;
+      let x = 0;
+      
+      for (let i = 0; i < bufferLength; i++) {
+        const v = (dataArray[i] / 128.0) - 1.0; 
+        const envelope = Math.sin((i / bufferLength) * Math.PI);
+        const amp = v * (rect.height / 2) * 2.2 * envelope;
+        
+        // Add dynamic ripple even in silence
+        const ripple = Math.sin(time + (i * 0.08) + wavePhase) * 1.2 * envelope;
+        const y = (rect.height / 2) + amp + ripple;
+        
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        
+        x += sliceWidth;
+      }
+      ctx.stroke();
+    }
+  }
+  draw();
+}
+
+// ===== ONBOARDING FLOW LOGIC =====
+let onboardingLang = 'en';
+let onboardingLevel = 'beginner';
+let onboardingHSKLevel = 1;
+let onboardingGoal = '15';
+
+// Quiz State
+let currentQuizQuestion = 0;
+let quizScore = 0;
+const quizQuestions = [
+  {
+    q: 'Translate "Nǐ hǎo" (你好)',
+    options: ['Hello', 'Thank you', 'Goodbye'],
+    correct: 0
+  },
+  {
+    q: 'Which character means "water"?',
+    options: ['火 (fire)', '水 (water)', '山 (mountain)'],
+    correct: 1
+  },
+  {
+    q: 'Translate "Wǒ chī píngguǒ" (我吃苹果)',
+    options: ['I drink tea', 'I eat apples', 'I am studying Chinese'],
+    correct: 1
+  }
+];
+
+function startOnboardingQuiz() {
+  currentQuizQuestion = 0;
+  quizScore = 0;
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const subtitleEl = document.getElementById('quizSubtitle');
+  const boxEl = document.getElementById('quizQuestionBox');
+  if (!subtitleEl || !boxEl) return;
+
+  const qData = quizQuestions[currentQuizQuestion];
+  subtitleEl.textContent = t('Question {num} of 3: {txt}')
+    .replace('{num}', currentQuizQuestion + 1)
+    .replace('{txt}', t(qData.q));
+
+  boxEl.innerHTML = '';
+  qData.options.forEach((opt, idx) => {
+    const btn = document.createElement('div');
+    btn.className = 'onboarding-option-card justify-between cursor-pointer';
+    btn.innerHTML = `<span class="text-xs text-white font-bold">${t(opt)}</span><i class="fas fa-chevron-right text-muted text-[10px]"></i>`;
+    btn.onclick = () => handleQuizAnswer(idx);
+    boxEl.appendChild(btn);
+  });
+}
+
+function handleQuizAnswer(selectedIdx) {
+  const qData = quizQuestions[currentQuizQuestion];
+  if (selectedIdx === qData.correct) {
+    quizScore++;
+  }
+
+  currentQuizQuestion++;
+  if (currentQuizQuestion < quizQuestions.length) {
+    renderQuizQuestion();
+  } else {
+    // If score is 0 or 1, place at HSK 1. If 2 or 3, keep level choice
+    if (quizScore <= 1) {
+      onboardingHSKLevel = 1;
+      onboardingLevel = 'beginner';
+    }
+    
+    // Advance to Step 3
+    document.getElementById('onboardingStepQuiz').style.display = 'none';
+    document.getElementById('onboardingStep3').classList.add('active');
+    document.getElementById('onboardingProgressFill').style.width = '75%';
+  }
+}
+
+window.selectOnboardingLang = function(lang) {
+  onboardingLang = lang;
+  if (typeof changeAppLanguage === 'function') changeAppLanguage(lang);
+  
+  // Advance to Step 2
+  document.getElementById('onboardingStep1').classList.remove('active');
+  document.getElementById('onboardingStep2').classList.add('active');
+  document.getElementById('onboardingProgressFill').style.width = '35%';
+};
+
+window.selectOnboardingLevel = function(level, HSKlevel) {
+  onboardingLevel = level;
+  onboardingHSKLevel = HSKlevel;
+  
+  // Advance to Step Quiz
+  document.getElementById('onboardingStep2').classList.remove('active');
+  document.getElementById('onboardingStepQuiz').style.display = 'block';
+  document.getElementById('onboardingProgressFill').style.width = '55%';
+  startOnboardingQuiz();
+};
+
+window.selectOnboardingGoal = function(goal) {
+  onboardingGoal = goal;
+  localStorage.setItem('study_daily_goal', goal);
+  
+  // Advance to Step 4 (Loader)
+  document.getElementById('onboardingStep3').classList.remove('active');
+  document.getElementById('onboardingStep4').classList.add('active');
+  document.getElementById('onboardingProgressFill').style.width = '90%';
+  
+  // Simulate plan generation
+  const statusTexts = [
+    t("Analyzing your level & goals..."),
+    t("Assembling vocabulary syllabus..."),
+    t("Tailoring speaking exercises..."),
+    t("Custom program finalized!")
+  ];
+  
+  let textIdx = 0;
+  const statusEl = document.getElementById('onboardingStatusText');
+  
+  const interval = setInterval(() => {
+    textIdx++;
+    if (textIdx < statusTexts.length) {
+      if (statusEl) statusEl.textContent = statusTexts[textIdx];
+    } else {
+      clearInterval(interval);
+      // Advance to Calibration
+      document.getElementById('onboardingStep4').classList.remove('active');
+      document.getElementById('onboardingStepCalibration').style.display = 'block';
+      document.getElementById('onboardingProgressFill').style.width = '100%';
+      startSpeechCalibration();
+    }
+  }, 650);
+};
+
+let calibrationRecognition = null;
+let calibrationStream = null;
+let calibrationAnalyser = null;
+let calibrationLevelTimer = null;
+let calibrationCtx = null;
+
+function stopCalibrationCapture() {
+  if (calibrationLevelTimer) { clearInterval(calibrationLevelTimer); calibrationLevelTimer = null; }
+  if (calibrationRecognition) {
+    try { calibrationRecognition.stop(); } catch(e) {}
+    calibrationRecognition = null;
+  }
+  if (calibrationStream) {
+    try { calibrationStream.getTracks().forEach(function(t){ t.stop(); }); } catch(e) {}
+    calibrationStream = null;
+  }
+  if (calibrationCtx && calibrationCtx.state === 'running') {
+    try { calibrationCtx.close(); } catch(e) {}
+  }
+  calibrationCtx = null;
+  calibrationAnalyser = null;
+}
+
+function calibrationHasMics() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+}
+
+// Reliable, volume-based mic calibration that works identically to the tutor's
+// audio-recording fallback. It listens for actual audible speech (peak level)
+// instead of relying on the flaky Web Speech API, which fails on some Windows
+// machines (the reason the tutor uses the MediaRecorder fallback there).
+function startSpeechCalibration() {
+  const statusEl = document.getElementById('calibratorStatus');
+  const iconEl = document.getElementById('calibratorIcon');
+  const waveEl = document.getElementById('calibratorWave');
+  if (statusEl) statusEl.textContent = t('Speak "Nǐ hǎo" (Hello) out loud to calibrate your mic.');
+  if (iconEl) {
+    iconEl.className = 'fas fa-microphone text-2xl text-[var(--accent)]';
+    iconEl.parentElement.style.background = 'rgba(200, 53, 37, 0.1)';
+    iconEl.parentElement.style.borderColor = 'rgba(200, 53, 37, 0.2)';
+    iconEl.parentElement.classList.add('onboarding-mic-glow');
+  }
+  if (waveEl) waveEl.style.display = 'flex';
+
+  if (!calibrationHasMics()) {
+    setTimeout(skipCalibration, 2500);
+    return;
+  }
+
+  // If Web Speech API is available AND the recording fallback isn't forced, use it
+  // (it also verifies recognition, not just volume). Otherwise fall through to the
+  // volume-based listener below.
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const forceFallback = window._useAudioFallback || localStorage.getItem('_useAudioFallback') === 'true';
+  if (SpeechRecognition && !forceFallback && calibrationHasMics()) {
+    try {
+      calibrationRecognition = new SpeechRecognition();
+      calibrationRecognition.continuous = false;
+      calibrationRecognition.interimResults = false;
+      calibrationRecognition.lang = 'zh-CN';
+      calibrationRecognition.onresult = function(event) {
+        handleCalibrationSuccess();
+      };
+      calibrationRecognition.onerror = function() {
+        // Fall back to volume detection instead of giving up.
+        calibrationRecognition = null;
+        if (document.getElementById('onboardingStepCalibration').style.display === 'block') {
+          startCalibrationVolumeListener();
+        }
+      };
+      calibrationRecognition.onend = function() {
+        if (document.getElementById('onboardingStepCalibration').style.display === 'block' && calibrationRecognition) {
+          try { calibrationRecognition.start(); } catch(e) {}
+        }
+      };
+      calibrationRecognition.start();
+      return;
+    } catch (e) {
+      console.warn('Speech calibration start error:', e);
+      calibrationRecognition = null;
+    }
+  }
+
+  startCalibrationVolumeListener();
+}
+
+function startCalibrationVolumeListener() {
+  if (!calibrationHasMics()) { setTimeout(skipCalibration, 2500); return; }
+  const statusEl = document.getElementById('calibratorStatus');
+  if (!document.getElementById('onboardingStepCalibration') || document.getElementById('onboardingStepCalibration').style.display !== 'block') return;
+  if (statusEl) statusEl.textContent = t('Speak "Nǐ hǎo" (Hello) — I\'m listening for your voice.');
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+    calibrationStream = stream;
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      calibrationCtx = ctx;
+      if (ctx.state === 'suspended') { ctx.resume().catch(function(){}); }
+      const src = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 1024;
+      src.connect(analyser);
+      calibrationAnalyser = analyser;
+      const data = new Uint8Array(analyser.fftSize);
+      let heardSpeech = false;
+      calibrationLevelTimer = setInterval(function() {
+        if (!calibrationAnalyser) return;
+        calibrationAnalyser.getByteTimeDomainData(data);
+        let peak = 0;
+        for (let i = 0; i < data.length; i++) {
+          const v = Math.abs(data[i] - 128) / 128;
+          if (v > peak) peak = v;
+        }
+        // Robust threshold: require a couple of consecutive samples above the
+        // speech floor so ambient noise / clicks don't false-trigger.
+        if (peak >= 0.08) {
+          if (heardSpeech) { handleCalibrationSuccess(); }
+          else heardSpeech = true;
+        } else if (heardSpeech && peak < 0.04) {
+          heardSpeech = false;
+        }
+      }, 160);
+      // Safety: don't stall the onboarding if no speech is ever detected.
+      setTimeout(function() {
+        if (calibrationLevelTimer) {
+          stopCalibrationCapture();
+          skipCalibration();
+        }
+      }, 15000);
+    } catch (e) {
+      console.warn('Calibration analyser failed:', e);
+      stopCalibrationCapture();
+      setTimeout(skipCalibration, 1500);
+    }
+  }).catch(function() {
+    console.warn('Mic denied during calibration');
+    setTimeout(skipCalibration, 2000);
+  });
+}
+
+function handleCalibrationSuccess() {
+  stopCalibrationCapture();
+
+  const statusEl = document.getElementById('calibratorStatus');
+  const iconEl = document.getElementById('calibratorIcon');
+  const waveEl = document.getElementById('calibratorWave');
+  
+  if (statusEl) statusEl.innerHTML = '<span style="color:var(--green); font-weight:bold;">' + t('Calibration Complete! Accuracy: 98%') + '</span>';
+  if (iconEl) {
+    iconEl.className = 'fas fa-check text-2xl text-[var(--green)]';
+    iconEl.parentElement.style.background = 'rgba(56, 169, 106, 0.1)';
+    iconEl.parentElement.style.borderColor = 'rgba(56, 169, 106, 0.2)';
+    iconEl.parentElement.classList.remove('onboarding-mic-glow');
+  }
+  if (waveEl) waveEl.style.display = 'none';
+
+  setTimeout(() => {
+    document.getElementById('onboardingStepCalibration').style.display = 'none';
+    showOnboardingPlanSummary();
+  }, 1500);
+}
+
+window.skipCalibration = function() {
+  stopCalibrationCapture();
+  document.getElementById('onboardingStepCalibration').style.display = 'none';
+  showOnboardingPlanSummary();
+};
+
+function showOnboardingPlanSummary() {
+  document.getElementById('onboardingStep4').classList.remove('active');
+  document.getElementById('onboardingStep5').classList.add('active');
+  
+  let summaryText = "";
+  if (onboardingHSKLevel === 1) {
+    summaryText = t("We've designed a custom HSK 1 plan for you. You will master 200+ characters starting today, practicing for {goal} minutes a day. Claim your free 7-day trial to start!").replace('{goal}', onboardingGoal);
+  } else if (onboardingHSKLevel === 2) {
+    summaryText = t("We've designed a custom HSK 2 plan for you. You will master 400+ characters starting today, practicing for {goal} minutes a day. Claim your free 7-day trial to start!").replace('{goal}', onboardingGoal);
+  } else if (onboardingHSKLevel === 4) {
+    summaryText = t("We've designed a custom HSK 4 plan for you. You will master 1200+ characters starting today, practicing for {goal} minutes a day. Claim your free 7-day trial to start!").replace('{goal}', onboardingGoal);
+  } else {
+    summaryText = t("We've designed a custom HSK 6 plan for you. You will master 2300+ characters starting today, practicing for {goal} minutes a day. Claim your free 7-day trial to start!").replace('{goal}', onboardingGoal);
+  }
+  
+  // Set starting HSK level inside state/localStorage
+  localStorage.setItem('hsk_level_onboarding', onboardingHSKLevel);
+  if (typeof changeLevel === 'function') {
+    changeLevel(onboardingHSKLevel);
+  }
+  
+  document.getElementById('onboardingSummaryText').textContent = summaryText;
+}
+
+window.startOnboardingSignup = function() {
+  localStorage.setItem('onboarding_completed', 'true');
+  document.getElementById('onboardingModal').style.display = 'none';
+  if (typeof openAuthModal === 'function') openAuthModal();
+  if (typeof showSignUp === 'function') showSignUp(); // Toggle to sign up mode
+};
+
+window.startOnboardingSignin = function() {
+  localStorage.setItem('onboarding_completed', 'true');
+  document.getElementById('onboardingModal').style.display = 'none';
+  if (typeof openAuthModal === 'function') openAuthModal();
+  if (typeof showSignIn === 'function') showSignIn(); // Toggle to sign in mode
+};
+
+window.skipOnboarding = function() {
+  localStorage.setItem('onboarding_completed', 'true');
+  document.getElementById('onboardingModal').style.display = 'none';
+};
+
+window.initOnboarding = function() {
+  if (localStorage.getItem('onboarding_completed') === 'true') return;
+  
+  // Only show if not logged in
+  if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+    supabaseClient.auth.getSession().then(function({ data: { session } }) {
+      if (!session) {
+        document.getElementById('onboardingModal').style.display = 'flex';
+      }
+    });
+  } else {
+    document.getElementById('onboardingModal').style.display = 'flex';
+  }
+};
+
+// ===== AUTH OVERRIDES FOR PASSWORD RESET & VISIBILITY TOGGLES =====
+if (typeof showSignUp !== 'undefined') {
+  const originalShowSignUp = showSignUp;
+  showSignUp = function() {
+    originalShowSignUp();
+    const fp = document.getElementById('forgotPasswordWrap');
+    if (fp) fp.style.display = 'none';
+  };
+}
+
+if (typeof showSignIn !== 'undefined') {
+  const originalShowSignIn = showSignIn;
+  showSignIn = function() {
+    originalShowSignIn();
+    const fp = document.getElementById('forgotPasswordWrap');
+    if (fp) fp.style.display = 'block';
+  };
+}
+
+if (typeof resetPassword !== 'undefined') {
+  resetPassword = async function() {
+    if (!supabaseClient) return toast('Supabase not initialized', 'var(--accent)');
+    const email = document.getElementById('authEmail').value.trim();
+    if (!email) return toast(t('Enter your email address first'), 'var(--gold)');
+    closeAuthModal();
+    toast(t('Sending password reset email...'), 'var(--gold)');
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin
+    });
+    if (error) {
+      if (error.message && error.message.toLowerCase().includes('rate')) {
+        return toast(t('Rate limited — please wait 1 minute before trying again'), 'var(--gold)');
+      }
+      return toast(error.message, 'var(--accent)');
+    }
+    toast(t('Password reset email sent! Check your inbox.'), 'var(--green)');
+  };
+}

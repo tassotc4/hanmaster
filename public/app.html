@@ -16,8 +16,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=53" as="style">
-<link rel="preload" href="/js/app.js?v=53" as="script"> 
+<link rel="preload" href="/css/app.css?v=70" as="style">
+<link rel="preload" href="/js/app.js?v=70" as="script"> 
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -201,7 +201,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=53">
+<link rel="stylesheet" href="/css/app.css?v=70">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -221,7 +221,6 @@
 <div id="toast" class="tst"></div>
 <nav class="nb"><div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
 <a href="#" class="flex items-center gap-2.5"><div class="w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden" style="background:var(--accent)"><img src="/icon-192.png?v=37" alt="MandarinCourse" style="width:100%;height:100%;object-fit:cover"></div><span class="font-bold text-base tracking-tight" data-tr="MandarinCourse">MandarinCourse</span></a>
-<button id="sidebarToggle" onclick="toggleSidebar()" class="sd-toggle w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] cursor-pointer" style="background:var(--card2);color:var(--fg2);outline:none;" aria-label="Menu" title="Menu" data-tr="Menu"><i class="fas fa-bars text-sm"></i></button>
 
   <!-- Language & Theme selectors Group (always visible) -->
   <div class="flex items-center gap-2.5">
@@ -256,6 +255,9 @@
         <button onclick="event.stopPropagation(); changeAppLanguage('ru')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Русский</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('vi')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Tiếng Việt</button>
         <button onclick="event.stopPropagation(); changeAppLanguage('th')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">ไทย (Thai)</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('id')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Bahasa Indonesia</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('ar')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">العربية (Arabic)</button>
+        <button onclick="event.stopPropagation(); changeAppLanguage('tr')" class="w-full text-left px-3 py-1.5 text-xs hover:bg-[var(--card2)] border-none flex items-center gap-2 cursor-pointer transition-colors" style="background:none;border:none;color:var(--fg);font-weight:500;">Türkçe (Turkish)</button>
       </div>
     </div>
 
@@ -272,6 +274,8 @@
       <button onclick="changeTheme('light')" class="w-full text-left px-3 py-1.5 text-xs text-white hover:bg-[var(--card2)] border-none bg-none flex items-center gap-2 cursor-pointer" style="background:none;border:none;"><span class="w-2.5 h-2.5 rounded-full" style="background:#FFF8F5;border:1px solid var(--border);"></span>Light</button>
     </div>
   </div>
+    <!-- Sidebar Toggle -->
+    <button id="sidebarToggle" onclick="toggleSidebar()" class="sd-toggle w-8 h-8 rounded-full flex items-center justify-center border border-[var(--border)] cursor-pointer" style="background:var(--card2);color:var(--fg2);outline:none;" aria-label="Menu" title="Menu" data-tr="Menu"><i class="fas fa-bars text-sm"></i></button>
 </div></div></nav>
 
 <!-- ===== APP SIDEBAR (ChatGPT-style left panel) ===== -->
@@ -665,7 +669,9 @@
     <div class="flex items-center gap-1.5 flex-shrink-0">
       <span class="w-2 h-2 rounded-full" style="background:var(--green)"></span>
       <span style="font-size:12px;color:var(--muted)" id="tutStatus" data-tr="Select a lesson to begin">Select a lesson to begin</span>
+      <span id="tutorLimitBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:rgba(212,166,79,.12);color:var(--gold);display:none;"></span>
       <div id="tutVoiceWave" class="voice-wave-container" style="display:none;"><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div><div class="voice-wave-bar"></div></div>
+      <canvas id="tutVoiceCanvas" width="80" height="24"></canvas>
     </div>
   </div>
   <div class="tutor-header-right">
@@ -676,10 +682,12 @@
     <button id="tutLiveBtn" class="tutor-tool-btn live-btn" onclick="startLiveTutor()" title="Chat live with the AI teacher" data-tr="AI Tutor"><i class="fas fa-robot"></i><span class="btn-text" data-tr="AI Tutor">AI Tutor</span></button>
     <button id="tutRoleplayBtn" class="tutor-tool-btn" onclick="toggleRoleplayMode()" title="Toggle Dialogue Roleplay Mode" data-tr="Study"><i class="fas fa-user-friends"></i><span class="btn-text" data-tr="Study">Study</span></button>
     <button id="tutVoiceModeBtn" class="tutor-tool-btn" onclick="toggleVoiceMode()" title="Toggle auto-listen voice loop"><i class="fas fa-headset"></i><span id="tutVoiceModeLabel" class="btn-text" data-tr="Voice">Voice</span></button>
+    <button id="tutPinyinToggleBtn" class="tutor-tool-btn" onclick="togglePinyinDisplay()" title="Toggle Pinyin display" data-tr="Pinyin"><i class="fas fa-font"></i><span class="btn-text">Pinyin</span></button>
     <button id="tutSpeedBtn" class="tutor-tool-btn speed-btn" onclick="cycleSpeechRate()" title="AI Speaking Speed">1.0x</button>
     <button id="tutTimedBtn" class="tutor-tool-btn" onclick="openTimedClassModal()" title="Structured timed class" data-tr="Class"><i class="fas fa-clock"></i><span class="btn-text" data-tr="Class">Class</span></button>
     <button class="tutor-tool-btn icon-only" onclick="toggleSettingsModal()" title="Settings" aria-label="Settings"><i class="fas fa-cog"></i></button>
     <button class="tutor-tool-btn icon-only" onclick="resetTutor()" title="Restart" aria-label="Restart"><i class="fas fa-rotate-right"></i></button>
+    <button class="tutor-tool-btn icon-only" onclick="restartPlacementInterview()" title="Re-test my level (placement chat)" aria-label="Re-test level"><i class="fas fa-bullseye"></i></button>
   </div>
 </div>
 <div id="tutLiveBanner" class="px-3 py-2 flex-shrink-0" style="border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(42,212,184,.14),rgba(var(--st),.05))">
@@ -1244,13 +1252,66 @@
         </div>
       </div>
       
+      <!-- Tier Selector Cards -->
+      <div class="grid grid-cols-1 gap-3 mb-5 text-left">
+        <!-- Monthly -->
+        <div onclick="selectPremiumTier('monthly')" id="tierCardMonthly" class="cd p-3.5 cursor-pointer flex items-center justify-between border-[1.5px] border-[var(--border)] bg-transparent hover:border-[var(--gold)] transition-all" style="border-radius:12px;">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--gold)]/10 text-[var(--gold)]">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+              <div class="font-bold text-xs text-white" data-tr="Monthly Subscription">Monthly Subscription</div>
+              <div class="text-[10px] text-muted" data-tr="Billed monthly. Cancel anytime.">Billed monthly. Cancel anytime.</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-black text-xs text-white" data-tr="$9.00 / mo">$9.00 / mo</div>
+          </div>
+        </div>
+
+        <!-- Annual -->
+        <div onclick="selectPremiumTier('annual')" id="tierCardAnnual" class="cd p-3.5 cursor-pointer flex items-center justify-between border-[1.5px] border-[var(--gold)] bg-[var(--gold)]/5 hover:border-[var(--gold)] transition-all relative" style="border-radius:12px;">
+          <div class="absolute -top-2.5 right-3 bg-[var(--gold)] text-black text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider" data-tr="Best Value - Save 45%">Best Value - Save 45%</div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--gold)]/20 text-[var(--gold)]">
+              <i class="fas fa-crown"></i>
+            </div>
+            <div>
+              <div class="font-bold text-xs text-white" data-tr="Annual Subscription">Annual Subscription</div>
+              <div class="text-[10px] text-[var(--gold)]" data-tr="Just $4.91 / month, billed yearly.">Just $4.91 / month, billed yearly.</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-black text-xs text-white" data-tr="$59.00 / yr">$59.00 / yr</div>
+          </div>
+        </div>
+
+        <!-- Lifetime -->
+        <div onclick="selectPremiumTier('lifetime')" id="tierCardLifetime" class="cd p-3.5 cursor-pointer flex items-center justify-between border-[1.5px] border-[var(--border)] bg-transparent hover:border-[var(--gold)] transition-all relative" style="border-radius:12px;">
+          <div class="absolute -top-2.5 right-3 bg-[var(--accent)] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider" data-tr="Early Bird Special">Early Bird Special</div>
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full flex items-center justify-center bg-[var(--accent)]/10 text-[var(--accent)]">
+              <i class="fas fa-gem"></i>
+            </div>
+            <div>
+              <div class="font-bold text-xs text-white" data-tr="Lifetime Access">Lifetime Access</div>
+              <div class="text-[10px] text-muted" data-tr="One-time payment. Forever yours.">One-time payment. Forever yours.</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-black text-xs text-white" data-tr="$129.00">$129.00</div>
+          </div>
+        </div>
+      </div>
+      
       <div class="flex items-center gap-2 mb-3">
         <input id="promoCodeInput" placeholder="Have a promo code?" autocomplete="off" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none;text-align:center">
         <button onclick="applyPromoCodeFromUI()" style="padding:10px 16px;border-radius:10px;border:none;background:var(--green);color:#fff;cursor:pointer;font-size:13px;font-weight:600;outline:none">Apply</button>
       </div>
       
       <div id="paypalButtonContainer" class="mb-3"></div>
-      <div class="text-[11px] text-muted mb-4" data-tr="$9/month after trial — Cancel anytime — Secure via PayPal">$9/month after trial — Cancel anytime — Secure via PayPal</div>
+      <div class="text-[11px] text-muted mb-4" id="premiumBillingNote" data-tr="$59.00/year after trial — Cancel anytime — Secure via PayPal">$59.00/year after trial — Cancel anytime — Secure via PayPal</div>
       <button onclick="togglePremiumModal()" class="text-xs font-medium py-2 px-4 rounded-lg w-full" style="background:var(--card2);color:var(--fg);border:1px solid var(--border);cursor:pointer" data-tr="No thanks, continue with HSK 1 free">No thanks, continue with HSK 1 free</button>
     </div>
   </div>
@@ -1265,9 +1326,6 @@
   <div id="debugEnv" style="margin-bottom:8px; color:var(--gold); border-bottom:1px solid #333; padding-bottom:8px; line-height:1.4"></div>
   <div id="debugLogs" style="max-height:160px; overflow-y:auto; word-break:break-all; line-height:1.3"></div>
 </div>
-<button onclick="toggleDebugConsole()" style="position:fixed; bottom:80px; left:15px; z-index:9998; width:36px; height:36px; border-radius:50%; background:var(--accent); border:none; color:#fff; display:none; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(var(--st),0.4);" id="debugBtn">
-  <i class="fas fa-bug text-sm"></i>
-</button>
 
 <!-- SETTINGS MODAL -->
 <div id="geminiModal" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" style="display:none">
@@ -1301,7 +1359,8 @@
     <div class="mb-4">
       <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="TTS Engine">TTS Engine</label>
       <select id="ttsModeSelect" class="tut-input w-full" style="background-image:none; background: var(--card2);" onchange="localStorage.setItem('tts_mode',this.value)">
-        <option value="api" data-tr="Google TTS API (always)">Google TTS API (always)</option>
+        <option value="api" data-tr="TTS API (Fish Audio when configured, else Google)">TTS API (best voice)</option>
+        <option value="fish" data-tr="Fish Audio Neural Voice (Premium)">Fish Audio Neural Voice</option>
         <option value="auto" data-tr="Auto (Browser + API fallback)">Auto (Browser + API fallback)</option>
       </select>
     </div>
@@ -1408,6 +1467,141 @@
   </div>
 </div>
 
+<!-- ONBOARDING MODAL -->
+<div id="onboardingModal" class="fixed inset-0 z-[1200] flex items-center justify-center p-4 bg-black/95" style="display:none">
+  <div class="onboarding-card">
+    <div class="onboarding-progress-bar">
+      <div id="onboardingProgressFill" class="onboarding-progress-fill" style="width: 25%"></div>
+    </div>
+    
+    <!-- Step 1: Language -->
+    <div class="onboarding-step active" id="onboardingStep1">
+      <h3 class="font-bold text-lg text-white mb-2" data-tr="Select Your Language">Select Your Language</h3>
+      <p class="text-xs text-muted mb-4" data-tr="We will translate the course content to your native language.">We will translate the course content to your native language.</p>
+      <div class="grid grid-cols-2 gap-3">
+        <button onclick="selectOnboardingLang('en')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇺🇸</span> English</button>
+        <button onclick="selectOnboardingLang('es')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇪🇸</span> Español</button>
+        <button onclick="selectOnboardingLang('fr')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇫🇷</span> Français</button>
+        <button onclick="selectOnboardingLang('de')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇩🇪</span> Deutsch</button>
+        <button onclick="selectOnboardingLang('pt')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇵🇹</span> Português</button>
+        <button onclick="selectOnboardingLang('it')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇮🇹</span> Italiano</button>
+        <button onclick="selectOnboardingLang('ru')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇷🇺</span> Русский</button>
+        <button onclick="selectOnboardingLang('vi')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇻🇳</span> Tiếng Việt</button>
+        <button onclick="selectOnboardingLang('ja')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇯🇵</span> 日本語</button>
+        <button onclick="selectOnboardingLang('ko')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇰🇷</span> 한국어</button>
+        <button onclick="selectOnboardingLang('th')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇹🇭</span> ไทย (Thai)</button>
+        <button onclick="selectOnboardingLang('id')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇮🇩</span> Bahasa Indonesia</button>
+        <button onclick="selectOnboardingLang('ar')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇸🇦</span> العربية (Arabic)</button>
+        <button onclick="selectOnboardingLang('tr')" class="onboarding-option-card w-full text-left" style="background:var(--card2);border:1.5px solid var(--border);color:var(--fg);"><span class="text-base">🇹🇷</span> Türkçe (Turkish)</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Level -->
+    <div class="onboarding-step" id="onboardingStep2">
+      <h3 class="font-bold text-lg text-white mb-2" data-tr="Describe Your Chinese Level">Describe Your Chinese Level</h3>
+      <p class="text-xs text-muted mb-4" data-tr="Pick the one that fits your current vocabulary and speaking skills.">Pick the one that fits your current vocabulary and speaking skills.</p>
+      <div class="space-y-3">
+        <div onclick="selectOnboardingLevel('beginner', 1)" class="onboarding-option-card">
+          <span class="text-xl">🌱</span>
+          <div class="text-left">
+            <div class="text-sm font-bold text-white" data-tr="Absolute Beginner">Absolute Beginner</div>
+            <div class="text-[11px] text-muted" data-tr="Master L1-L2 (200-400 words) • Pinyin & simple words">Master L1-L2 (200-400 words) • Pinyin & simple words</div>
+          </div>
+        </div>
+        <div onclick="selectOnboardingLevel('intermediate', 2)" class="onboarding-option-card">
+          <span class="text-xl">💬</span>
+          <div class="text-left">
+            <div class="text-sm font-bold text-white" data-tr="Simple Conversations">Simple Conversations</div>
+            <div class="text-[11px] text-muted" data-tr="Master L3-L4 (600-800 words) • Simple daily phrases">Master L3-L4 (600-800 words) • Simple daily phrases</div>
+          </div>
+        </div>
+        <div onclick="selectOnboardingLevel('conversational', 4)" class="onboarding-option-card">
+          <span class="text-xl">🤝</span>
+          <div class="text-left">
+            <div class="text-sm font-bold text-white" data-tr="Everyday Conversations">Everyday Conversations</div>
+            <div class="text-[11px] text-muted" data-tr="Master L5-L6 (1100-1400 words) • Solid speaking skills">Master L5-L6 (1100-1400 words) • Solid speaking skills</div>
+          </div>
+        </div>
+        <div onclick="selectOnboardingLevel('advanced', 6)" class="onboarding-option-card">
+          <span class="text-xl">🚀</span>
+          <div class="text-left">
+            <div class="text-sm font-bold text-white" data-tr="Advanced Fluency">Advanced Fluency</div>
+            <div class="text-[11px] text-muted" data-tr="Master L7-L8 (1800-2300+ words) • Complex deep topics">Master L7-L8 (1800-2300+ words) • Complex deep topics</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2.5: Placement Quiz -->
+    <div class="onboarding-step" id="onboardingStepQuiz" style="display:none">
+      <h3 class="font-bold text-lg text-white mb-2" data-tr="Placement Mini-Quiz">Placement Mini-Quiz</h3>
+      <p class="text-xs text-muted mb-4" id="quizSubtitle" data-tr="Question 1 of 3: Translate 'Nǐ hǎo' (你好)">Question 1 of 3: Translate "Nǐ hǎo" (你好)</p>
+      <div id="quizQuestionBox" class="space-y-3"></div>
+    </div>
+
+    <!-- Step 3: Goal -->
+    <div class="onboarding-step" id="onboardingStep3">
+      <h3 class="font-bold text-lg text-white mb-2" data-tr="Set Your Daily Goal">Set Your Daily Goal</h3>
+      <p class="text-xs text-muted mb-4" data-tr="Choose how much time you are planning to study daily.">Choose how much time you are planning to study daily.</p>
+      <div class="space-y-3">
+        <div onclick="selectOnboardingGoal('5')" class="onboarding-option-card justify-between">
+          <span class="text-sm font-bold text-white" data-tr="☕ Casual">☕ Casual</span>
+          <span class="text-xs text-muted">5 min / day</span>
+        </div>
+        <div onclick="selectOnboardingGoal('15')" class="onboarding-option-card justify-between">
+          <span class="text-sm font-bold text-white" data-tr="🧠 Regular">🧠 Regular</span>
+          <span class="text-xs text-muted">15 min / day</span>
+        </div>
+        <div onclick="selectOnboardingGoal('30')" class="onboarding-option-card justify-between">
+          <span class="text-sm font-bold text-white" data-tr="🔥 Serious">🔥 Serious</span>
+          <span class="text-xs text-muted">30 min / day</span>
+        </div>
+        <div onclick="selectOnboardingGoal('60')" class="onboarding-option-card justify-between">
+          <span class="text-sm font-bold text-white" data-tr="🏆 Intense">🏆 Intense</span>
+          <span class="text-xs text-muted">60 min / day</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Scanning/Loader -->
+    <div class="onboarding-step text-center py-6" id="onboardingStep4">
+      <div class="td mb-4" id="onboardingLoaderWave" style="display:inline-flex;">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p class="text-sm font-bold text-white" id="onboardingStatusText" data-tr="Analyzing your level & goals...">Analyzing your level & goals...</p>
+    </div>
+
+    <!-- Step 4.5: Voice Calibrator -->
+    <div class="onboarding-step text-center py-6" id="onboardingStepCalibration" style="display:none">
+      <div class="w-16 h-16 rounded-full flex items-center justify-center bg-[var(--accent)]/10 text-[var(--accent)] mx-auto mb-4 border border-[var(--accent)]/20 onboarding-mic-glow" style="transition:all 0.3s">
+        <i class="fas fa-microphone text-2xl" id="calibratorIcon"></i>
+      </div>
+      <h3 class="font-bold text-lg text-white mb-2" data-tr="AI Voice Calibration">AI Voice Calibration</h3>
+      <p class="text-xs text-muted mb-6 leading-relaxed" id="calibratorStatus" data-tr="Speak 'Nǐ hǎo' (Hello) out loud to calibrate your mic.">Speak "Nǐ hǎo" (Hello) out loud to calibrate your mic.</p>
+      <div class="flex justify-center gap-1.5 mb-6" id="calibratorWave">
+        <span class="w-1 h-4 bg-[var(--accent)] rounded-full animate-bounce" style="animation-delay:0.1s"></span>
+        <span class="w-1 h-6 bg-[var(--accent)] rounded-full animate-bounce" style="animation-delay:0.3s"></span>
+        <span class="w-1 h-4 bg-[var(--accent)] rounded-full animate-bounce" style="animation-delay:0.5s"></span>
+      </div>
+      <button onclick="skipCalibration()" class="text-xs text-muted hover:text-white" style="background:none;border:none;cursor:pointer" data-tr="Skip Calibration">Skip Calibration</button>
+    </div>
+
+    <!-- Step 5: Final Custom Plan -->
+    <div class="onboarding-step text-center" id="onboardingStep5">
+      <div class="w-16 h-16 rounded-full flex items-center justify-center bg-green-500/10 text-[var(--green)] mx-auto mb-4 border border-[var(--green)]/20">
+        <i class="fas fa-check text-2xl"></i>
+      </div>
+      <h3 class="font-bold text-lg text-white mb-2" data-tr="Your Custom Plan is Ready!">Your Custom Plan is Ready!</h3>
+      <p class="text-xs text-muted mb-6 leading-relaxed" id="onboardingSummaryText"></p>
+      
+      <button onclick="startOnboardingSignup()" class="bp w-full mb-3 py-3" data-tr="Sign Up with Email to Claim Trial">Sign Up with Email to Claim Trial</button>
+      <button onclick="startOnboardingSignin()" class="bo w-full mb-4 py-2.5" data-tr="I already have an account">I already have an account</button>
+      
+      <a href="#" onclick="skipOnboarding()" class="text-xs text-muted hover:text-white" style="text-decoration:none" data-tr="Skip and explore first">Skip and explore first</a>
+    </div>
+  </div>
+</div>
+
 <!-- AUTH MODAL -->
 <div id="authModal" class="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-sm bg-[var(--card)]" style="border:1px solid var(--border);">
@@ -1423,7 +1617,7 @@
       <label class="block text-xs font-semibold uppercase tracking-wider mb-1.5 text-muted" data-tr="Password">Password</label>
       <input type="password" id="authPassword" class="tut-input w-full" placeholder="Min 6 characters" data-tr="Min 6 characters">
     </div>
-    <div class="mb-4 text-right">
+    <div class="mb-4 text-right" id="forgotPasswordWrap">
       <a href="#" onclick="resetPassword()" style="color:var(--gold);font-size:12px;text-decoration:none" data-tr="Forgot password?">Forgot password?</a>
     </div>
     <button id="authSubmitBtn" class="bp w-full mb-3" data-tr="Sign In">Sign In</button>
@@ -1638,7 +1832,7 @@
 <!-- CHINESE LEVEL MODAL -->
 <div id="levelModal" style="display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,0.72);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--card);border-radius:16px;padding:32px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.5)">
-    <div style="font-size:40px;margin-bottom:8px">🗣ï¸</div>
+    <div style="font-size:40px;margin-bottom:8px">🗣️</div>
     <h2 style="margin:0 0 4px;font-size:20px;color:var(--fg)" data-tr="How long have you studied Chinese?">How long have you studied Chinese?</h2>
     <p style="margin:0 0 20px;font-size:13px;color:var(--muted);line-height:1.5" data-tr="This helps the AI tutor speak at the right level for you. You can change this anytime in Settings.">This helps the AI tutor speak at the right level for you. You can change this anytime in Settings.</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
@@ -1665,7 +1859,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=53"></script> 
+<script defer src="/js/app.js?v=70"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [
