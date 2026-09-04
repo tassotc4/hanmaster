@@ -17741,24 +17741,41 @@ function sendToGemini(userText) {
                                 .replace(/\s{2,}/g, ' ')
                                 .trim();
     
-    // The model is instructed to output Chinese first, then its own label line
-    // (e.g. "English: <translation>"). Find that block split so the two are never
-    // mixed together. Recognise the tutor language name plus common translation tags.
+    // The model is instructed to output Chinese segments, each followed by its
+    // translation under a label line (e.g. "English: <translation>"). Replies may
+    // contain MULTIPLE Chinese sentences each with its own English block, so we
+    // must collect EVERY Chinese run — splitting at the first label would silently
+    // drop all later Chinese (the reported bug: spoken/displayed Chinese truncated
+    // while the English translation stayed complete). Recognise the tutor language
+    // name plus common translation tags.
     const tutorLabel = langName === 'Auto-detect' ? '' : langName;
     const labelCands = [tutorLabel, 'English', 'Translation', '翻译', 'traduzione', 'traducción', 'traduction', 'Übersetzung', 'перевод', 'dịch', 'dịch thuật'].filter(Boolean);
     const escaped = labelCands.map(l => l.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-    const labelRe = new RegExp('(?:^|\\n)\\s*(?:' + escaped + ')\\s*(?:\\s*translation)?\\s*[:：]', 'i');
-    const li = pre.search(labelRe);
-    if (li >= 0) {
-      cleanReply = stripPinyin(pre.slice(0, li));
-      englishTranslation = stripPinyin(pre.slice(li).replace(labelRe, ' '));
-    } else {
-      // No explicit label: keep the whole cleaned reply as the displayed text and
-      // let the AI-translate fallback below build the translation.
-      cleanReply = stripPinyin(pre);
-      englishTranslation = '';
+    const labelRe = new RegExp('(?:^|\\n)\\s*(?:' + escaped + ')\\s*(?:\\s*translation)?\\s*[:：]\\s*', 'gi');
+    // Indexes of every CJK character so we can tell where an English block ends and
+    // the next Chinese sentence begins (English never contains CJK).
+    const cjkIndexes = [];
+    { const cjkPosRe = /[\u4e00-\u9fa5]/g; let m2; while ((m2 = cjkPosRe.exec(pre)) !== null) cjkIndexes.push(m2.index); }
+    const nextCjk = (from) => { let lo = 0, hi = cjkIndexes.length; while (lo < hi) { const mid = (lo + hi) >> 1; if (cjkIndexes[mid] < from) lo = mid + 1; else hi = mid; } return lo < cjkIndexes.length ? cjkIndexes[lo] : -1; };
+    const cnParts = [], enParts = [];
+    let scanPos = 0;
+    labelRe.lastIndex = 0;
+    let lm;
+    while ((lm = labelRe.exec(pre)) !== null) {
+      if (lm.index > scanPos) cnParts.push(pre.slice(scanPos, lm.index));
+      const blockFrom = labelRe.lastIndex;
+      labelRe.lastIndex = blockFrom;
+      const nxt = labelRe.exec(pre);
+      labelRe.lastIndex = blockFrom;
+      const cjkIdx = nextCjk(blockFrom);
+      const enEnd = (cjkIdx !== -1 && (!nxt || cjkIdx < nxt.index)) ? cjkIdx : (nxt ? nxt.index : pre.length);
+      enParts.push(pre.slice(blockFrom, enEnd));
+      scanPos = enEnd;
     }
-    
+    if (scanPos < pre.length) cnParts.push(pre.slice(scanPos));
+    cleanReply = stripPinyin(cnParts.join(' ').trim());
+    englishTranslation = enParts.map(s => stripPinyin(s)).filter(Boolean).join(' ');
+
     if (!cleanReply) cleanReply = pre;
     
     // Speak & pronunciation target use ONLY the Chinese characters (never pinyin or English)
