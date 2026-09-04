@@ -15067,7 +15067,9 @@ function startAudioRecording(btn, ic) {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.onstop = () => {
         console.log("MediaRecorder onstop fired, chunks:", audioChunks.length);
-        if (window._recLevelIv) { clearInterval(window._recLevelIv); window._recLevelIv = null; }
+  if (window._recLevelIv) { clearInterval(window._recLevelIv); window._recLevelIv = null; }
+  window._recAnalyser = null;
+  window._recAudioCtxSampleRate = null;
         const peak = window._recPeak || 0;
         const ctxState = window._recAudioContextState || 'suspended';
         console.log("Recording peak level:", peak, "AudioContext state:", ctxState);
@@ -15158,6 +15160,13 @@ function startAudioRecording(btn, ic) {
         const an2 = ctx2.createAnalyser();
         an2.fftSize = 1024;
         src2.connect(an2);
+        // Expose the working level-meter analyser so the tutor tone curve can reuse
+        // the SAME AudioContext/AnalyserNode instead of creating a second one. On
+        // Windows a duplicate AudioContext from the same mic stream can stay
+        // suspended/silent, which kills pitch detection (autoCorrelate sees
+        // silence) even though the level meter keeps working.
+        window._recAnalyser = an2;
+        window._recAudioCtxSampleRate = ctx2.sampleRate || 44100;
         try { startVoiceWaveAnimation(an2); } catch(e) {}
         const rdata = new Uint8Array(an2.fftSize);
         window._recLevelIv = setInterval(() => {
@@ -19746,15 +19755,24 @@ function drawTutorToneCurve(py) {
 function startTutorPitchTrack(stream) {
   stopTutorPitchTrack();
   if (!stream || !stream.active) return;
-  try {
-    tutorAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (tutorAudioCtx.state === 'suspended') tutorAudioCtx.resume();
-    var source = tutorAudioCtx.createMediaStreamSource(stream);
-    tutorAnalyser = tutorAudioCtx.createAnalyser();
-    tutorAnalyser.fftSize = 2048;
-    source.connect(tutorAnalyser);
-    try { startVoiceWaveAnimation(tutorAnalyser); } catch(e) {}
-  } catch(e) { console.error('tutor pitch track init error:', e); return; }
+  // Prefer the already-working level-meter analyser (shares the recording path's
+  // AudioContext). On Windows creating a SECOND AudioContext from the same mic
+  // stream can leave it suspended/silent, so autoCorrelate sees silence and the
+  // curve never moves even though the level meter works. Reusing avoids that.
+  tutorAnalyser = window._recAnalyser || null;
+  var tutorSampleRate = window._recAudioCtxSampleRate || 44100;
+  if (!tutorAnalyser) {
+    try {
+      tutorAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (tutorAudioCtx.state === 'suspended') tutorAudioCtx.resume().catch(function(){});
+      var source = tutorAudioCtx.createMediaStreamSource(stream);
+      tutorAnalyser = tutorAudioCtx.createAnalyser();
+      tutorAnalyser.fftSize = 2048;
+      source.connect(tutorAnalyser);
+      tutorSampleRate = tutorAudioCtx.sampleRate || 44100;
+    } catch(e) { console.error('tutor pitch track init error:', e); return; }
+  }
+  try { startVoiceWaveAnimation(tutorAnalyser); } catch(e) {}
 
   var svg = document.querySelector('.tone-curve-wrap svg');
   if (!svg) return;
@@ -19775,9 +19793,9 @@ function startTutorPitchTrack(stream) {
 
   function tick() {
     if (!tutorAnalyser || tutorPitchTrackId === null) return;
-    var buffer = new Float32Array(tutorAnalyser.fftSize);
+    var buffer = new Float32Array(tutorAnalyser.fftSize || 2048);
     tutorAnalyser.getFloatTimeDomainData(buffer);
-    var pitch = autoCorrelate(buffer, tutorAudioCtx.sampleRate);
+    var pitch = autoCorrelate(buffer, tutorSampleRate);
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
       tutorPitchHistory.push(pitch);
       if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
