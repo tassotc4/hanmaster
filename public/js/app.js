@@ -19565,72 +19565,7 @@ function podClose() {
   podStop();
   hidePodcastPlayer();
 }
-// ===== FLOATING DIAGNOSTICS CONSOLE LOGGING =====
-const logs = [];
 
-function logToDebug(msg, type = 'info') {
-  const color = type === 'error' ? 'var(--accent2)' : type === 'warn' ? 'var(--gold)' : '#fff';
-  logs.push(`<div style="color:${color};margin-bottom:3px;border-bottom:1px solid #1a1a1a;padding-bottom:2px;">[${new Date().toLocaleTimeString()}] ${msg}</div>`);
-  if (logs.length > 40) logs.shift();
-  const debugLogs = document.getElementById('debugLogs');
-  if (debugLogs) {
-    debugLogs.innerHTML = logs.join('');
-    debugLogs.scrollTop = debugLogs.scrollHeight;
-  }
-}
-
-const _log = console.log;
-const _error = console.error;
-const _warn = console.warn;
-
-console.log = function(...args) {
-  _log.apply(console, args);
-  logToDebug(args.join(' '), 'info');
-};
-console.error = function(...args) {
-  _error.apply(console, args);
-  logToDebug(args.join(' '), 'error');
-};
-console.warn = function(...args) {
-  _warn.apply(console, args);
-  logToDebug(args.join(' '), 'warn');
-};
-
-window.onerror = function(message, source, lineno, colno, error) {
-  console.error(`${message} at ${source}:${lineno}:${colno}`);
-  return false;
-};
-
-function toggleDebugConsole() {
-  const con = document.getElementById('debugConsole');
-  if (!con) return;
-  const isHidden = con.style.display === 'none';
-  con.style.display = isHidden ? 'block' : 'none';
-  
-  if (isHidden) {
-    const hasAPI = ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
-    const hasTTS = ('speechSynthesis' in window);
-    const debugEnv = document.getElementById('debugEnv');
-    if (debugEnv) {
-      debugEnv.innerHTML = `
-        <b>URL:</b> ${window.location.href.split('?')[0]}<br>
-        <b>Secure Context:</b> ${window.isSecureContext}<br>
-        <b>STT API (Microphone):</b> ${hasAPI}<br>
-        <b>TTS API (Speaker):</b> ${hasTTS}<br>
-        <b>MicAvailable Var:</b> ${micAvailable}
-      `;
-    }
-  }
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
-    e.preventDefault();
-    const btn = document.getElementById('debugBtn');
-    if (btn) btn.style.display = 'flex';
-    toggleDebugConsole();
-  }
-});
 
 // ===== USER VOICE RECORDING & PLAYBACK =====
 

@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=72" as="style">
-<link rel="preload" href="/js/app.js?v=72" as="script"> 
+<link rel="preload" href="/css/app.css?v=73" as="style">
+<link rel="preload" href="/js/app.js?v=73" as="script"> 
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=72">
+<link rel="stylesheet" href="/css/app.css?v=73">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -1319,16 +1319,6 @@
   </div>
 </div>
 
-<!-- DIAGNOSTICS CONSOLE OVERLAY -->
-<div id="debugConsole" style="position:fixed; bottom:80px; left:10px; z-index:9999; background:rgba(10,10,10,0.96); border:2px solid var(--accent); padding:12px; border-radius:12px; max-width:90%; width:320px; display:none; color:#fff; font-family:monospace; font-size:10px; box-shadow:0 8px 32px rgba(0,0,0,0.6)">
-  <div style="display:flex; justify-content:space-between; margin-bottom:5px; border-bottom:1px solid #333; padding-bottom:5px; font-weight:bold;">
-    <span style="color:var(--accent)"><i class="fas fa-bug mr-1"></i> Diagnostics Console</span>
-    <button onclick="toggleDebugConsole()" aria-label="Close debug console" style="background:none; border:none; color:var(--accent); cursor:pointer; font-weight:bold; font-size:12px;">?</button>
-  </div>
-  <div id="debugEnv" style="margin-bottom:8px; color:var(--gold); border-bottom:1px solid #333; padding-bottom:8px; line-height:1.4"></div>
-  <div id="debugLogs" style="max-height:160px; overflow-y:auto; word-break:break-all; line-height:1.3"></div>
-</div>
-
 <!-- SETTINGS MODAL -->
 <div id="geminiModal" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card); max-height:85vh; overflow-y:auto;">
@@ -1858,7 +1848,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=72"></script> 
+<script defer src="/js/app.js?v=73"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [
