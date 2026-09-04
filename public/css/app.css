@@ -618,6 +618,46 @@ html:has(.spatial-theme-tutor) {
 .tutor-tool-btn.live-btn:hover { background: linear-gradient(135deg, #2ad4b8, var(--neon-cyan)); color: #000; }
 .tutor-tool-btn.live-btn:disabled { opacity: .6; cursor: not-allowed; box-shadow: none; }
 
+/* --- Tutor: Hamburger menu dropdown --- */
+.tutor-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 500;
+  min-width: 230px;
+  max-width: calc(100vw - 20px);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0,0,0,.45);
+  padding: 6px;
+  margin-top: 4px;
+  animation: menuSlideIn .18s ease-out;
+}
+@keyframes menuSlideIn {
+  0% { opacity: 0; transform: translateY(-8px) scale(.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tutor-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  color: var(--fg);
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: background .15s, color .15s;
+}
+.tutor-menu-item:hover { background: var(--card2); color: var(--fg); }
+.tutor-menu-item i { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.tutor-menu-divider { height: 1px; background: var(--border); margin: 4px 8px; }
+
 /* --- Tutor: Big control buttons --- */
 .tutor-controls {
   display: flex;

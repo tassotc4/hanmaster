@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=73" as="style">
-<link rel="preload" href="/js/app.js?v=73" as="script"> 
+<link rel="preload" href="/css/app.css?v=74" as="style">
+<link rel="preload" href="/js/app.js?v=74" as="script"> 
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=73">
+<link rel="stylesheet" href="/css/app.css?v=74">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -676,26 +676,21 @@
       <canvas id="tutVoiceCanvas" width="80" height="24"></canvas>
     </div>
   </div>
-  <div class="tutor-header-right">
-    <div class="score-box">
-      <div class="score-label" data-tr="Avg">Avg</div>
-      <div class="score-value ph-loading" id="tutTotal">--</div>
-    </div>
-    <button id="tutLiveBtn" class="tutor-tool-btn live-btn" onclick="startLiveTutor()" title="Chat live with the AI teacher" data-tr="AI Tutor"><i class="fas fa-robot"></i><span class="btn-text" data-tr="AI Tutor">AI Tutor</span></button>
-    <button id="tutRoleplayBtn" class="tutor-tool-btn" onclick="toggleRoleplayMode()" title="Toggle Dialogue Roleplay Mode" data-tr="Study"><i class="fas fa-user-friends"></i><span class="btn-text" data-tr="Study">Study</span></button>
-    <button id="tutVoiceModeBtn" class="tutor-tool-btn" onclick="toggleVoiceMode()" title="Toggle auto-listen voice loop"><i class="fas fa-headset"></i><span id="tutVoiceModeLabel" class="btn-text" data-tr="Voice">Voice</span></button>
-    <button id="tutPinyinToggleBtn" class="tutor-tool-btn" onclick="togglePinyinDisplay()" title="Toggle Pinyin display" data-tr="Pinyin"><i class="fas fa-font"></i><span class="btn-text">Pinyin</span></button>
-    <button id="tutSpeedBtn" class="tutor-tool-btn speed-btn" onclick="cycleSpeechRate()" title="AI Speaking Speed">1.0x</button>
-    <button id="tutTimedBtn" class="tutor-tool-btn" onclick="openTimedClassModal()" title="Structured timed class" data-tr="Class"><i class="fas fa-clock"></i><span class="btn-text" data-tr="Class">Class</span></button>
-    <button class="tutor-tool-btn icon-only" onclick="toggleSettingsModal()" title="Settings" aria-label="Settings"><i class="fas fa-cog"></i></button>
-    <button class="tutor-tool-btn icon-only" onclick="resetTutor()" title="Restart" aria-label="Restart"><i class="fas fa-rotate-right"></i></button>
-    <button class="tutor-tool-btn icon-only" onclick="restartPlacementInterview()" title="Re-test my level (placement chat)" aria-label="Re-test level"><i class="fas fa-bullseye"></i></button>
+  <div class="tutor-header-right" style="position:relative">
+    <button id="tutMenuBtn" class="tutor-tool-btn icon-only" onclick="toggleTutorMenu()" title="Menu" aria-label="Menu" style="width:38px;height:38px;font-size:16px"><i class="fas fa-bars"></i></button>
   </div>
 </div>
-<div id="tutLiveBanner" class="px-3 py-2 flex-shrink-0" style="border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(42,212,184,.14),rgba(var(--st),.05))">
-  <button onclick="startLiveTutor()" class="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm" style="background:linear-gradient(135deg,var(--neon-cyan),#2ad4b8);color:#000;border:none;cursor:pointer;box-shadow:0 0 18px rgba(42,212,184,.45);transition:transform .15s" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='translateY(0)'">
-    <i class="fas fa-robot"></i> <span data-tr="Chat Live with AI Tutor">Chat Live with AI Tutor</span> <i class="fas fa-arrow-right"></i>
-  </button>
+<div id="tutMenuDropdown" class="tutor-menu-dropdown" style="display:none">
+  <button class="tutor-menu-item" onclick="startLiveTutor();closeTutorMenu()"><i class="fas fa-robot" style="color:var(--neon-cyan)"></i><span data-tr="Chat Live with AI Tutor">Chat Live with AI Tutor</span></button>
+  <button class="tutor-menu-item" id="tutRoleplayMenuItem" onclick="toggleRoleplayMode();closeTutorMenu()"><i class="fas fa-user-friends" style="color:var(--blue)"></i><span data-tr="Study">Study</span></button>
+  <button class="tutor-menu-item" id="tutVoiceModeMenuItem" onclick="toggleVoiceMode();closeTutorMenu()"><i class="fas fa-headset" style="color:var(--green)"></i><span data-tr="Voice Mode">Voice Mode</span></button>
+  <button class="tutor-menu-item" id="tutPinyinMenuItem" onclick="togglePinyinDisplay();closeTutorMenu()"><i class="fas fa-font" style="color:var(--purple)"></i><span data-tr="Pinyin">Pinyin</span></button>
+  <button class="tutor-menu-item" id="tutSpeedMenuItem" onclick="cycleSpeechRate();closeTutorMenu()"><i class="fas fa-bolt" style="color:var(--gold)"></i><span id="tutSpeedMenuLabel">Speed: 1.0x</span></button>
+  <button class="tutor-menu-item" onclick="openTimedClassModal();closeTutorMenu()"><i class="fas fa-clock" style="color:var(--gold)"></i><span data-tr="Timed Class">Timed Class</span></button>
+  <div class="tutor-menu-divider"></div>
+  <button class="tutor-menu-item" onclick="toggleSettingsModal();closeTutorMenu()"><i class="fas fa-cog" style="color:var(--muted)"></i><span data-tr="Settings">Settings</span></button>
+  <button class="tutor-menu-item" onclick="resetTutor();closeTutorMenu()"><i class="fas fa-rotate-right" style="color:var(--muted)"></i><span data-tr="Restart">Restart</span></button>
+  <button class="tutor-menu-item" onclick="restartPlacementInterview();closeTutorMenu()"><i class="fas fa-bullseye" style="color:var(--accent)"></i><span data-tr="Re-test Level">Re-test Level</span></button>
 </div>
 <div id="timedClassBar" class="px-4 py-2 flex items-center gap-3 flex-shrink-0" style="display:none;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(212,166,79,.08),rgba(var(--st),.05))">
   <i class="fas fa-chalkboard-teacher" style="color:var(--gold)"></i>
@@ -718,6 +713,9 @@
 </div>
 <div class="wave-visualizer" style="display:none;height:30px;align-items:center;justify-content:center;gap:4px;padding:8px 0 0" id="tutWaveVisual">
   <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+</div>
+<div class="tone-curve-wrap w-full h-[68px] rounded-xl flex-shrink-0" id="tutToneCurve" style="margin:0 12px 8px;background:rgba(7,9,15,.45);border:1px solid rgba(0,240,255,.1)">
+  <svg class="w-full h-full"></svg>
 </div>
 <div class="flex-shrink-0 px-5 pt-4 pb-4" style="border-top:1px solid var(--border)">
 <div class="tutor-controls">
@@ -768,14 +766,6 @@
       <div style="font-size:11px;text-align:center;margin-top:6px;padding:4px 10px;border-radius:6px;background:rgba(212,166,79,.08);color:var(--gold);display:none" id="tutTip"></div>
     </div>
 
-    <!-- Tone Curves -->
-    <div class="w-full">
-      <div class="board-section-label" data-tr="Pitch & Tone Curves">Pitch & Tone Curves</div>
-      <div class="tone-curve-wrap w-full h-[68px] rounded-xl border border-[rgba(0,240,255,0.1)] relative overflow-hidden" style="background:rgba(7, 9, 15, 0.45)">
-        <svg class="w-full h-full"></svg>
-      </div>
-    </div>
-
     <!-- Stroke Order -->
     <div class="w-full board-section">
       <div class="flex items-center justify-between mb-2">
@@ -790,16 +780,9 @@
       </div>
     </div>
 
-    <!-- Feedback / Score -->
+    <!-- Feedback -->
     <div class="w-full flex items-center justify-between">
       <div style="font-size:13px;color:var(--muted)" id="tutHint" data-tr="Waiting...">Waiting...</div>
-      <div class="relative" id="scoreWrap" style="display:none">
-        <svg class="w-11 h-11" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="42" fill="none" stroke="var(--border)" stroke-width="8"/>
-          <circle cx="50" cy="50" r="42" fill="none" stroke-width="8" stroke-linecap="round" class="score-ring" id="scoreRing" stroke-dasharray="264" stroke-dashoffset="264" transform="rotate(-90 50 50)"/>
-        </svg>
-        <div class="absolute inset-0 flex items-center justify-center"><span style="font-size:12px;font-weight:900;color:var(--neon-cyan)" class="ph-loading" id="tutSc">--</span></div>
-      </div>
     </div>
 
   </div>
@@ -1848,7 +1831,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=73"></script> 
+<script defer src="/js/app.js?v=74"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [

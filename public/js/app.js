@@ -15027,7 +15027,7 @@ function advanceTutor(){
   const tutTipEl = document.getElementById('tutTip');
   if (t(line.en) === line.en) ensureTutorTranslation(line.en, [tutWmEl]);
   if (w && t(w.tip) === w.tip) ensureTutorTranslation(w.tip, [tutTipEl]);
-  document.getElementById('scoreWrap').style.display='none';
+  var scoreWrapEl=document.getElementById('scoreWrap');if(scoreWrapEl)scoreWrapEl.style.display='none';
   if(line.who==='bot'){
     document.getElementById('tutHint').textContent=t('Type your response in the box below');
     document.getElementById('tutHint').style.color='var(--accent)';
@@ -15600,14 +15600,10 @@ function processScore(text,sc,target,turnId){
   tutScores.push(sc);
   const avg=Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length);
   var totalEl=document.getElementById('tutTotal');
-  totalEl.textContent=avg;
-  totalEl.classList.remove('ph-loading');
-  totalEl.style.background='none';
-  const ring=document.getElementById('scoreRing');ring.setAttribute('stroke-dashoffset',264-(264*sc/100));
-  ring.setAttribute('stroke',sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--accent)');
-  document.getElementById('tutSc').textContent=sc;
-  document.getElementById('tutSc').style.color=sc>=80?'var(--green2)':sc>=50?'var(--gold)':'var(--accent2)';
-  document.getElementById('scoreWrap').style.display='block';
+  if(totalEl){totalEl.textContent=avg;totalEl.classList.remove('ph-loading');totalEl.style.background='none';}
+  const ring=document.getElementById('scoreRing');if(ring){ring.setAttribute('stroke-dashoffset',264-(264*sc/100));ring.setAttribute('stroke',sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--accent)');}
+  const tutScEl=document.getElementById('tutSc');if(tutScEl){tutScEl.textContent=sc;tutScEl.style.color=sc>=80?'var(--green2)':sc>=50?'var(--gold)':'var(--accent2)';}
+  const scoreWrapEl=document.getElementById('scoreWrap');if(scoreWrapEl)scoreWrapEl.style.display='block';
   let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> '+t('Great!')+'</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> '+t('Getting there')+'</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> '+t('Keep practicing')+'</span>';
   document.getElementById('tutHint').innerHTML=fb;
   addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">'+t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
@@ -15746,7 +15742,7 @@ function finishTutor(){
   }
   
   document.getElementById('tutWd').textContent='--';document.getElementById('tutWp').textContent='--';document.getElementById('tutWm').textContent='--';
-  document.getElementById('scoreWrap').style.display='none';document.getElementById('tutTip').style.display='none';
+  var scoreWrapEl2=document.getElementById('scoreWrap');if(scoreWrapEl2)scoreWrapEl2.style.display='none';document.getElementById('tutTip').style.display='none';
   
   setBtns(true);
   tutLesson = null;
@@ -15760,6 +15756,9 @@ function finishTutor(){
 }
 
 function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
+function toggleTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(!m)return;m.style.display=m.style.display==='none'?'block':'none'}
+function closeTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(m)m.style.display='none'}
+document.addEventListener('click',function(e){const m=document.getElementById('tutMenuDropdown'),b=document.getElementById('tutMenuBtn');if(m&&m.style.display==='block'&&b&&!b.contains(e.target)&&!m.contains(e.target))m.style.display='none'});
 function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);requestAnimationFrame(()=>{document.getElementById('tutChat').scrollTop=9999});return d}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
 function updateMicUI(state){
@@ -18023,8 +18022,6 @@ function startTimedClass() {
   timedClassActive = true;
   const bar = document.getElementById('timedClassBar');
   if (bar) bar.style.display = 'flex';
-  const banner = document.getElementById('tutLiveBanner');
-  if (banner) banner.style.display = 'none';
   const lvEl = document.getElementById('timedClassLv');
   if (lvEl) lvEl.textContent = agenda.levelName;
   updateTimedPhaseLabel();
@@ -18114,8 +18111,6 @@ function endTimedClass() {
 
   const bar = document.getElementById('timedClassBar');
   if (bar) setTimeout(() => { bar.style.display = 'none'; }, 5000);
-  const banner = document.getElementById('tutLiveBanner');
-  if (banner) setTimeout(() => { banner.style.display = ''; }, 5000);
   toast('🎓 ' + t('Class complete! +') + (Math.max(5, Math.round(minutes * 2))) + ' XP', 'var(--gold)', 4000);
 }
 
@@ -18428,13 +18423,16 @@ function toggleVoiceMode() {
   localStorage.setItem('voice_mode', voiceModeActive ? 'on' : 'off');
   const btn = document.getElementById('tutVoiceModeBtn');
   const label = document.getElementById('tutVoiceModeLabel');
+  const mItem = document.getElementById('tutVoiceModeMenuItem');
   if (voiceModeActive) {
     if (btn) { btn.style.background = 'var(--green)'; btn.style.color = '#fff'; }
     if (label) label.textContent = t('On');
+    if (mItem) mItem.style.background = 'rgba(56,169,106,0.15)';
     toast(t('Voice Mode ON — AI will auto-listen after each response'), 'var(--green)');
   } else {
     if (btn) { btn.style.background = 'var(--card2)'; btn.style.color = 'var(--muted)'; }
     if (label) label.textContent = t('Voice');
+    if (mItem) mItem.style.background = 'none';
     toast(t('Voice Mode OFF'), 'var(--gold)');
   }
 }
@@ -18511,6 +18509,7 @@ function toggleRoleplayMode() {
   
   const btn = document.getElementById('tutRoleplayBtn');
   const modeSelect = document.getElementById('tutorModeSelect');
+  const mItem = document.getElementById('tutRoleplayMenuItem');
   if (modeSelect) modeSelect.value = mode;
 
   if (mode === 'live') {
@@ -18519,6 +18518,7 @@ function toggleRoleplayMode() {
       btn.style.color = '#000';
       btn.innerHTML = '<i class="fas fa-robot mr-1"></i>Live AI';
     }
+    if (mItem) { mItem.style.background = 'rgba(0,240,255,0.12)'; }
     toast(t('Live AI Tutor mode activated!'), 'var(--green)');
   } else {
     if (btn) { 
@@ -18526,6 +18526,7 @@ function toggleRoleplayMode() {
       btn.style.color = 'var(--muted)';
       btn.innerHTML = '<i class="fas fa-user-friends mr-1"></i>Study';
     }
+    if (mItem) mItem.style.background = 'none';
     toast(t('Structured Lesson mode activated!'), 'var(--gold)');
   }
   
@@ -18852,6 +18853,8 @@ function openTopicLesson(topicName, lvIdx) {
 function updateSpeechRateDisplay(rate) {
   const btn = document.getElementById('tutSpeedBtn');
   if (btn) btn.textContent = rate + "x";
+  const menuLabel = document.getElementById('tutSpeedMenuLabel');
+  if (menuLabel) menuLabel.textContent = t('Speed: ') + rate + 'x';
   const select = document.getElementById('speechRateSelect');
   if (select) select.value = rate.toString();
 }
