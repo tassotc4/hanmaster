@@ -579,7 +579,9 @@ html:has(.spatial-theme-tutor) {
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
+  position: relative;
 }
+.tutor-menu-dropdown { z-index: 1200; }
 .tutor-header-right .score-box {
   text-align: right;
   padding-right: 8px;
