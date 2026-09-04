@@ -261,7 +261,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       // noisy Mandarin clips (e.g. "Wishwan her Yenna Nai Caffey"). Always force
       // the mic's selected language (including zh) instead of letting it guess.
       const forceLang = sourceLang === 'auto' || !sourceLang ? undefined : sourceLang;
-      const basePrompt = 'The audio is a student speaking a short phrase or sentence during a Mandarin Chinese lesson. Transcribe exactly what is spoken in the speaker\'s own language (Chinese characters if Mandarin, otherwise the spoken language). Do not add, translate, guess, or repeat any words.';
+      const basePrompt = 'The audio is a student speaking during a Mandarin Chinese lesson. They may mix Chinese with English words or names (e.g. Michael, David, John, Sarah). Transcribe Chinese words as Chinese characters, and keep any English words or names in English letters — do NOT transliterate English names into Chinese characters. Return only the transcription with no extra words.';
 
       async function runWhisper(lang, prompt) {
         const fm = new FormData();
@@ -288,7 +288,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       if (forceLang === 'zh' && transcribed && !/[\u4e00-\u9fa5]/.test(transcribed) && !isEnglish) {
         console.warn("zh transcript has no CJK (<" + transcribed + ">) and is not English, retrying with forced Chinese...");
         try {
-          const retryText = await runWhisper('zh', 'The speaker is definitely speaking Mandarin Chinese. Transcribe the Chinese characters exactly.');
+          const retryText = await runWhisper('zh', 'The speaker is speaking Mandarin Chinese, possibly with English names. Transcribe Chinese as characters and keep English names (e.g. Michael, David) in English letters.');
           if (retryText && /[\u4e00-\u9fa5]/.test(retryText)) {
             transcribed = retryText;
           }
