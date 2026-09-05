@@ -296,15 +296,20 @@ let currentAudio = null;
 function toneMark(syl, tone) {
   const marks = {a:{1:'ā',2:'á',3:'ǎ',4:'à'},e:{1:'ē',2:'é',3:'ě',4:'è'},i:{1:'ī',2:'í',3:'ǐ',4:'ì'},o:{1:'ō',2:'ó',3:'ǒ',4:'ò'},u:{1:'ū',2:'ú',3:'ǔ',4:'ù'},ü:{1:'ǖ',2:'ǘ',3:'ǚ',4:'ǜ'}};
   if (tone === 5) return syl;
-  // Find which vowel gets the mark
-  const order = ['a','e','o','i','u','ü'];
-  for (const v of order) {
-    const idx = syl.indexOf(v);
-    if (idx !== -1) {
-      const m = marks[v];
-      if (m && m[tone]) return syl.slice(0, idx) + m[tone] + syl.slice(idx + 1);
-    }
+  // Standard rule: mark the first strong vowel a/e/o; if there is none
+  // (ui/iu/iou/ué groups), mark the LAST of the remaining vowels: hui→huī,
+  // liu→liù, never hūi / liū (v78).
+  let idx = -1, v = '';
+  for (const cand of ['a', 'e', 'o']) {
+    const i = syl.indexOf(cand);
+    if (i !== -1) { idx = i; v = cand; break; }
   }
+  if (idx === -1) {
+    const tailIdx = Math.max(syl.lastIndexOf('i'), syl.lastIndexOf('u'), syl.lastIndexOf('ü'));
+    if (tailIdx >= 0) { idx = tailIdx; v = syl.charAt(tailIdx); }
+  }
+  const m = marks[v];
+  if (idx >= 0 && m && m[tone]) return syl.slice(0, idx) + m[tone] + syl.slice(idx + 1);
   return syl;
 }
 

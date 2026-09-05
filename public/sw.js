@@ -1,4 +1,4 @@
-const CACHE = 'mandarincourse-v77';
+const CACHE = 'mandarincourse-v78';
 const urlsToCache = ['/', '/app', '/manifest.json', '/pinyin-chart', '/js/config.js', '/js/supabase.js', '/js/paypal.js', '/js/vocab-data.js', '/js/vocab-extra-data.js', '/js/extra-content.js', '/js/translate.js', '/js/tutor-data.js', '/js/tutor-data-more.js', '/js/app.js', '/css/tailwind.css', '/css/app.css', '/audio/podcast-ep1.mp3', '/audio/podcast-ep2.mp3', '/audio/podcast-ep3.mp3', '/audio/podcast-ep4.mp3', '/audio/podcast-ep5.mp3', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
@@ -47,7 +47,10 @@ self.addEventListener('fetch', e => {
       }
       return response;
     }).catch(function() {
-      return caches.match(e.request).then(function(res) {
+      // ignoreSearch makes the unversioned precached copies (/js/app.js) usable
+      // for the query-versioned URLs (/js/app.js?v=78) — otherwise the first
+      // offline open after a cache bump would miss and hard-fail (v78).
+      return caches.match(e.request, { ignoreSearch: true }).then(function(res) {
         if (res) return res;
         // SPA route fallback: serve the cached app shell for any navigation
         if (e.request.mode === 'navigate') {

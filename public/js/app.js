@@ -14829,7 +14829,9 @@ function primeTtsAudioGesture() {
 
 // Try to play through the boosted WebAudio GainNode. Returns true on success,
 // false if unavailable/undecodable (caller then falls back to the <audio> element).
-function tryPlayBoosted(src, rate) {
+// onFail is invoked if the async decode+schedule fails AFTER this returned true,
+// so the caller can unpin the TTS flags and switch to the <audio> fallback.
+function tryPlayBoosted(src, rate, onFail) {
   let ctx;
   try { ctx = getTtsContext(); } catch (e) { ctx = null; }
   if (!ctx || !_ttsGain) return false;
@@ -14860,8 +14862,11 @@ function tryPlayBoosted(src, rate) {
         _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; _ttsCtx = null; _ttsGain = null; stopSpeakingAnimation();
       }
     }).catch(function () {
-      // decode failed — fall back to the <audio> element path
-      _apiTtsPending = false;
+      // decode failed — unpin the mic-blocking flags and fall back to the
+      // <audio> element path so the reply is actually heard (v78).
+      _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null;
+      stopSpeakingAnimation();
+      if (typeof onFail === 'function') onFail();
     });
     return true;
   } catch (e) { return false; }
@@ -14871,17 +14876,24 @@ function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
   const cacheKey = lang + '|' + text;
   stopApiTts();
   const playFrom = (src) => {
+    // <audio> element fallback (persistent on iOS so it's gesture-blessed).
+    // Used when the boosted path is unavailable OR async decode fails. Every
+    // exit clears _apiTtsPending too — leaving it pinned makes isTtsPlaying()
+    // return true forever and the auto-listen mic never reopens (v78).
+    const playViaAudio = () => {
+      const audio = (isMobileDevice && _ttsPersistAudio) ? _ttsPersistAudio : new Audio();
+      _apiTtsAudio = audio;
+      try { audio.src = src; } catch (e) {}
+      audio.playbackRate = rate;
+      audio.onplay = () => { _apiTtsPending = false; _apiTtsActive = true; startSpeakingAnimation(); };
+      audio.onended = () => { _apiTtsActive = false; _apiTtsPending = false; _apiTtsAudio = null; stopSpeakingAnimation(); };
+      audio.onerror = () => { _apiTtsActive = false; _apiTtsPending = false; _apiTtsAudio = null; stopSpeakingAnimation(); };
+      audio.play().catch(() => { _apiTtsActive = false; _apiTtsPending = false; _apiTtsAudio = null; stopSpeakingAnimation(); });
+    };
     // Preferred: boosted WebAudio path (fixes the very quiet Google TTS).
     // Fallback: <audio> element (persistent on iOS so it's gesture-blessed).
-    if (tryPlayBoosted(src, rate)) return;
-    const audio = (isMobileDevice && _ttsPersistAudio) ? _ttsPersistAudio : new Audio();
-    _apiTtsAudio = audio;
-    try { audio.src = src; } catch (e) {}
-    audio.playbackRate = rate;
-    audio.onplay = () => { _apiTtsPending = false; _apiTtsActive = true; startSpeakingAnimation(); };
-    audio.onended = () => { _apiTtsActive = false; _apiTtsAudio = null; stopSpeakingAnimation(); };
-    audio.onerror = () => { _apiTtsActive = false; _apiTtsAudio = null; stopSpeakingAnimation(); };
-    audio.play().catch(() => { _apiTtsActive = false; _apiTtsAudio = null; stopSpeakingAnimation(); });
+    if (tryPlayBoosted(src, rate, playViaAudio)) return;
+    playViaAudio();
   };
   // Prefer a cached data: URL. Unlike a revocable blob: URL, a data: URL never
   // becomes invalid, so replaying the same text (lesson lines, replay buttons)
@@ -15079,6 +15091,12 @@ function startAudioRecording(btn, ic) {
         // Only trigger silence warning if mic delivered near-zero amplitude AND audio bytes are negligible
         if (peak < 0.02 && ctxState === 'running' && totalBytes < 1000) {
           console.warn("Mic appears silent (peak " + peak.toFixed(3) + ", bytes " + totalBytes + "), skipping transcription");
+          // Release the mic tracks before returning — this path otherwise leaks
+          // the stream (LED stays on, old stream reused by later recordings) (v78).
+          if (activeMicStream) {
+            try { activeMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            activeMicStream = null;
+          }
           document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> ' + t('No sound detected from your microphone.') + '</span>';
           toast(t('Mic seems silent — check device and speak again.'), 'var(--gold)', 2500);
           setTimeout(() => {
@@ -15284,6 +15302,7 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     }
     if (transcript && transcript !== '(No response)' && !/no audio|no speech|没有音频|unable to transcribe|therefore no|no transcription/i.test(transcript)) {
       console.log("Transcription result:", transcript);
+      window._noSpeechRetries = 0;
       document.getElementById('tutStatus').textContent = t('Heard: ') + transcript;
       // Live AI mode: send the transcript straight to the AI — no extra taps needed
       if (localStorage.getItem('tutor_mode') === 'live') {
@@ -15305,7 +15324,15 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       document.getElementById('tutHint').innerHTML='<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> '+t('No speech heard — check that your microphone is the correct input device and not muted in Windows settings, then tap mic and speak clearly.')+'</span>';
       document.getElementById('tutStatus').textContent = t('No speech detected');
       if ((typeof voiceModeActive !== 'undefined' && voiceModeActive) || localStorage.getItem('tutor_mode') === 'live') {
-        setTimeout(() => { if (!srOn && !isTtsPlaying()) tutSpeak(); }, 1500);
+        // Cap consecutive no-speech auto-retries: without a limit the mic would
+        // reopen every ~1.5s forever while the tutor sits silent ("keeps asking").
+        window._noSpeechRetries = (window._noSpeechRetries || 0) + 1;
+        if (window._noSpeechRetries <= 3) {
+          const backoff = 1500 + window._noSpeechRetries * 1200;
+          setTimeout(() => { if (!srOn && !isTtsPlaying()) tutSpeak(); }, backoff);
+        } else {
+          document.getElementById('tutHint').innerHTML='<span style="color:var(--gold)"><i class="fas fa-microphone"></i> '+t('Tap the mic to try again')+'</span>';
+        }
       }
     }
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
@@ -15339,6 +15366,7 @@ function rejectTranscript(confirmId, loaderId) {
 }
 
 function tutSpeak(){
+  window._noSpeechRetries = 0;
   const isLive = localStorage.getItem('tutor_mode') === 'live';
   if(!isLive) {
     if(!tutLesson||tutStep>=tutLesson.dialogue.length)return;
@@ -16173,14 +16201,14 @@ function buildTutorTabs(){
 
 // ===== LESSONS =====
 function buildLvTabs(){const c=document.getElementById('lvTabs');if(!c)return;c.innerHTML='';LV.forEach((l,i)=>{const b=document.createElement('button');b.className='tb'+(i===0?' on':'');b.textContent=t(l.n);b.onclick=()=>{
-      curLv=i;
-      c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
-      b.classList.add('on');
       const isPremium = hasPremiumAccess();
       if (i >= 1 && !isPremium) {
         showPremiumPaywall('HSK ' + (i + 1));
         return;
       }
+      curLv=i;
+      c.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
       if (lessonsMode === 'topics') buildTopics();
       else if (lessonsMode === 'podcast') buildPodcastTopics();
       else buildFlashcards();
@@ -16192,7 +16220,7 @@ function buildTopics(){
   const lv=LV[curLv];
   lv.tp.forEach(topicName=>{
     const ls=TD[topicName]||['L1','L2','L3'];
-    const done=lv.dn?ls.length:Math.floor(ls.length*lv.pc/100);
+    const done=lv.dn?ls.length:Math.min(ls.length,Math.max(0,Math.ceil(ls.length*lv.pc/100)));
     const d=document.createElement('div');
     d.className='cd p-5 cursor-pointer';
     d.onclick=()=>openTopicLesson(topicName);
@@ -16658,12 +16686,14 @@ function startDailyChallenge() {
         fb.innerHTML = '<span style="color:var(--green);font-weight:600">✓ ' + t('Correct! +15 XP bonus') + '</span>';
         addXP(15, 'Daily challenge');
         dailyChallengeDone = true;
+        // Streak resets unless the previous completion was YESTERDAY (v78).
+        const prevDate = localStorage.getItem('daily_challenge_date');
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+        let streak = parseInt(localStorage.getItem('daily_challenge_streak') || '0');
+        streak = (prevDate === yesterday) ? streak + 1 : 1;
+        localStorage.setItem('daily_challenge_streak', streak.toString());
         localStorage.setItem('daily_challenge_date', new Date().toDateString());
         localStorage.setItem('daily_challenge_done', 'true');
-        // Track daily challenge streak
-        let streak = parseInt(localStorage.getItem('daily_challenge_streak') || '0');
-        streak++;
-        localStorage.setItem('daily_challenge_streak', streak.toString());
         toast('🔥 ' + streak + '-' + t('day daily challenge streak!'), 'var(--gold)', 2500);
       } else {
         b.classList.add('no');
@@ -16972,6 +17002,23 @@ function toggleWriteOutline() {
 }
 
 // ===== FLASHCARDS SRS SCHEDULER =====
+// learned_words is stored as an OBJECT keyed by hanzi (learnedWords[word.cn] = true).
+// Older versions of rateFlashcard wrote an ARRAY, which crashes .includes() callers
+// and makes updateProgress()/markFlashcardLearned() see zero learned words (resetting
+// every topic badge to 0/5). getLearnedWords() normalizes/migrates on every read.
+function getLearnedWords() {
+  let lw = JSON.parse(localStorage.getItem('learned_words') || '{}');
+  if (Array.isArray(lw)) {
+    const obj = {};
+    lw.forEach(function (c) { if (typeof c === 'string' && c) obj[c] = true; });
+    lw = obj;
+    localStorage.setItem('learned_words', JSON.stringify(lw));
+  }
+  return lw;
+}
+function setLearnedWords(lw) {
+  localStorage.setItem('learned_words', JSON.stringify(lw));
+}
 function rateFlashcard(score) {
   if (flashcardList.length === 0) return;
   const word = flashcardList[curFcIdx];
@@ -16988,11 +17035,9 @@ function rateFlashcard(score) {
   localStorage.setItem('hsk_srs_state', JSON.stringify(srsState));
   
   if (score >= 3) {
-    const learnedWords = JSON.parse(localStorage.getItem('learned_words') || '[]');
-    if (!learnedWords.includes(word.cn)) {
-      learnedWords.push(word.cn);
-      localStorage.setItem('learned_words', JSON.stringify(learnedWords));
-    }
+    const learnedWords = getLearnedWords();
+    learnedWords[word.cn] = true;
+    setLearnedWords(learnedWords);
   }
   
   const rates = ["", t("Again (1m)"), t("Hard (12h)"), t("Good (1d)"), t("Easy (4d)")];
@@ -17599,6 +17644,8 @@ function sendToGemini(userText) {
     
     // Ignore placement initialization or internal notes
     const isInternal = userText.startsWith('（课堂开始）') || 
+                       userText.startsWith('（阶段提示：') || 
+                       userText.startsWith('（时间到！') || 
                        userText.startsWith('__PLACEMENT_START__') || 
                        userText.startsWith('(System note:') || 
                        userText.includes('__PLACEMENT_START__');
@@ -18125,9 +18172,9 @@ function endTimedClass() {
   try {
     trackDaily('lessons');
     addXP(Math.max(5, Math.round(minutes * 2)), 'timed_class');
-    const learned = JSON.parse(localStorage.getItem('learned_words') || '{}');
+    const learned = getLearnedWords();
     collectTimedVocab(levelIdx).forEach(w => { learned[w.cn] = true; });
-    localStorage.setItem('learned_words', JSON.stringify(learned));
+    setLearnedWords(learned);
     if (typeof updateProgress === 'function') updateProgress();
   } catch (e) {}
 
@@ -18177,7 +18224,13 @@ let grammarExIdx = 0, grammarExScore = 0;
 // Shuffle multiple-choice options and remap the correct-answer index so the
 // right answer is never always the same letter/position.
 function randomizeOptions(oArr, correctIndex) {
-  const shuffled = [...oArr].sort(() => Math.random() - 0.5);
+  const shuffled = [...oArr];
+  // Fisher–Yates (uniform) — the old .sort(() => Math.random()-0.5) was biased
+  // and over-represented the original answer position (v78).
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = shuffled[i]; shuffled[i] = shuffled[j]; shuffled[j] = tmp;
+  }
   return { shuffled: shuffled, a: shuffled.indexOf(oArr[correctIndex]) };
 }
 
@@ -18903,6 +18956,7 @@ let curFcIdx = 0;
 let lessonsMode = 'topics';
 
 function buildFlashcards() {
+  if (curLv >= 1 && !hasPremiumAccess()) { showPremiumPaywall(LV[curLv].n); return; }
   const levelName = LV[curLv].n;
   flashcardList = [];
   
@@ -19029,14 +19083,14 @@ function speakFlashcard() {
 function markFlashcardLearned() {
   if (flashcardList.length === 0) return;
   const word = flashcardList[curFcIdx];
-  const learnedWords = JSON.parse(localStorage.getItem('learned_words') || '{}');
+  const learnedWords = getLearnedWords();
   
   if (learnedWords[word.cn]) {
     delete learnedWords[word.cn];
   } else {
     learnedWords[word.cn] = true;
   }
-  localStorage.setItem('learned_words', JSON.stringify(learnedWords));
+  setLearnedWords(learnedWords);
   
   updateProgress();
   showFlashcard();
@@ -19058,7 +19112,7 @@ function nextFlashcard() {
 }
 
 function updateProgress() {
-  const learnedWords = JSON.parse(localStorage.getItem('learned_words') || '{}');
+  const learnedWords = getLearnedWords();
   
   LV.forEach((l, li) => {
     let totalWords = 0;
@@ -19087,6 +19141,13 @@ function updateProgress() {
 let recommendedLvIdx = 0;
 
 function applyRecommendedLevel() {
+  // Never drop a free user onto a premium level's decks from the assessment —
+  // the level tabs already gate, but this path set curLv with no check (v78).
+  if (recommendedLvIdx >= 1 && !hasPremiumAccess()) {
+    showPremiumPaywall(LV[recommendedLvIdx] ? LV[recommendedLvIdx].n : 'HSK ' + (recommendedLvIdx + 1));
+    toast(t('Unlock Premium to start at that level'), 'var(--accent)', 4500);
+    return;
+  }
   curLv = recommendedLvIdx;
   
   // Update level selector tabs
@@ -19346,6 +19407,7 @@ let podSpeedRate = 1.0;
 let podTimer = null;
 
 function podcastTopic(topicName) {
+  if (curLv >= 1 && !hasPremiumAccess()) { showPremiumPaywall(LV[curLv].n); return; }
   var lessons = getLessonsForLevel(curLv);
   if (lessons.length === 0) return toast(t('No lesson data found'), 'var(--accent2)');
   podQueue = lessons;
@@ -19357,6 +19419,7 @@ function podcastTopic(topicName) {
 }
 
 function buildPodcastTopics() {
+  if (curLv >= 1 && !hasPremiumAccess()) { showPremiumPaywall(LV[curLv].n); return; }
   const g = document.getElementById('tpGrid');
   if (!g) return;
   g.innerHTML = '';
@@ -20978,6 +21041,9 @@ let storyIdx = 0, storyScore = 0, storyAnswers = [];
 
 function switchLessonsMode(mode) {
   lessonsMode = mode;
+  // Leaving Podcast mode must stop the player — otherwise the fixed bottom bar
+  // keeps talking over Flashcards/Topics and the bottom nav stays pushed up (v78).
+  if (mode !== 'podcast' && typeof hidePodcastPlayer === 'function') hidePodcastPlayer();
   const topicsCon = document.getElementById('tpGrid');
   const flashcardsCon = document.getElementById('flashcardsCon');
   const radicalsCon = document.getElementById('radicalsCon');
@@ -21111,7 +21177,7 @@ function answerStoryQuestion(qi, oi, btn) {
 }
 
 // ===== HSK EXAM SIMULATION =====
-let examQuestions = [], examIdx = 0, examScore = 0, examTimer = null, examTimeLeft = 0;
+let examQuestions = [], examIdx = 0, examScore = 0, examTotal = 0, examTimer = null, examTimeLeft = 0;
 
 // ===== ENHANCED HSK EXAM (level-specific with sections) =====
 let examSection = 'listening', examSectionIdx = 0, examSectionScore = 0;
@@ -21123,7 +21189,7 @@ function startHSKExam() {
   const pool = QZ.filter(q => q.l === lv);
   if (pool.length < 3) { toast(t('Not enough questions for HSK')+' '+lv, 'var(--gold)', 2000); return; }
   examQuestions = [...pool].sort(() => Math.random() - 0.5);
-  examIdx = 0; examScore = 0; examSectionIdx = 0; examSectionScore = 0;
+  examIdx = 0; examScore = 0; examTotal = 0; examSectionIdx = 0; examSectionScore = 0;
   examSection = 'listening';
   examTimeLeft = EXAM_TIMES[examSection];
   const overlay = document.getElementById('listenQuizOverlay');
@@ -21147,6 +21213,10 @@ function startExamSection() {
   const start = examSectionIdx * perSection;
   const end = Math.min(start + perSection, examQuestions.length);
   examSectionPool = examQuestions.slice(start, end);
+  // Only the questions actually asked this exam count toward the percentage —
+  // previously every score was divided by the FULL pool, capping HSK2+ results
+  // far below the passing thresholds (v78).
+  examTotal += examSectionPool.length * 10;
   examIdx = 0; examSectionScore = 0;
   examTimeLeft = EXAM_TIMES[examSection];
   showExamQuestion();
@@ -21219,11 +21289,11 @@ function finishExamSection() {
 }
 
 function showExamResult() {
-  const pct = Math.round((examScore / (examQuestions.length * 10)) * 100);
+  const pct = Math.round((examScore / (examTotal || (examQuestions.length * 10))) * 100);
   const content = document.getElementById('listenQuizContent');
   content.innerHTML = '<div style="font-size:40px;text-align:center;margin-bottom:12px">' + (pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '💪') + '</div>'
     + '<h3 style="text-align:center;margin:0 0 6px;font-size:18px;color:var(--fg)">' + t('HSK Exam Complete') + '</h3>'
-    + '<p style="text-align:center;margin:0 0 4px;font-size:14px;color:var(--muted)">' + t('Score:') + ' ' + examScore + '/' + (examQuestions.length * 10) + ' (' + pct + '%)</p>'
+    + '<p style="text-align:center;margin:0 0 4px;font-size:14px;color:var(--muted)">' + t('Score:') + ' ' + examScore + '/' + (examTotal || (examQuestions.length * 10)) + ' (' + pct + '%)</p>'
     + '<p style="text-align:center;margin:0 0 20px;font-size:12px;color:var(--fg2)">' + t('3 sections completed') + '</p>'
     + '<div style="text-align:center"><button onclick="closeListenQuiz()" class="bp px-8 py-2.5 text-xs font-bold">' + t('Done') + '</button></div>';
   addXP(Math.round(examScore / 2), 'HSK Exam');

@@ -642,7 +642,7 @@ function generateAIContent() {
   fetch('/api/social/generate-viral-content', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topic, tone, style })
+    body: JSON.stringify({ topic, tone, style, key: adminKey })
   })
   .then(res => res.json())
   .then(data => {

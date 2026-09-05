@@ -124,7 +124,11 @@ async function sendEmailViaMailgun(to, subject, html) {
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(staticDir, { index: false }));
 
-// In-memory rate limiter: 20 requests per minute per IP
+// Behind Railway/Vercel proxies req.ip is the proxy socket unless trust proxy
+// is set, which collapses every visitor into ONE rate-limit bucket (global 429s).
+app.set('trust proxy', 1);
+
+// In-memory rate limiter: 40 requests per minute per IP
 const rateLimitStore = {};
 function apiLimiter(req, res, next) {
   const ip = req.ip || req.connection.remoteAddress;
@@ -480,6 +484,8 @@ app.post('/api/test-smtp', async (req, res) => {
 app.post('/api/send-reminder', async (req, res) => {
   const { email } = req.body || {};
   if (!email) return res.status(400).json({ error: 'Email required' });
+  const key = (req.body && req.body.key) || req.query.key;
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
   const html = '<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;background:#0D0A08;color:#F5EDE6"><div style="text-align:center;margin-bottom:24px"><div style="width:48px;height:48px;border-radius:12px;background:#C83525;color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 8px">汉</div><h2 style="margin:0;font-size:20px">MandarinCourse</h2></div><p style="font-size:14px;line-height:1.6">Time for your daily Chinese practice! Open the app and continue your learning journey.</p><a href="https://mandarincourse.app/app" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,#C83525,#E04535);color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px;margin:16px 0">Start Learning</a><p style="font-size:12px;color:#7A6B5D;margin-top:24px">You received this because you set up study reminders on MandarinCourse.</p></div>';
   
   // Try Mailgun API first (always works, uses HTTPS port 443)
@@ -785,7 +791,7 @@ app.get('/api/podcast-download/:id', (req, res) => {
 });
 
 // ===== DOCUMENT UPLOAD & AI PROCESSING =====
-app.post('/api/upload-document', upload.single('document'), async (req, res) => {
+app.post('/api/upload-document', apiLimiter, upload.single('document'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
     const action = req.body.action || 'summarize';
@@ -925,6 +931,7 @@ const HEYGEN_API_KEY = process.env.HEYGEN_API_KEY || '';
 // 1. Endpoint: Securely fetch temporary session token
 app.post('/api/heygen/token', async (req, res) => {
   try {
+    if (!isAdmin((req.body && req.body.key) || req.query.key)) return res.status(401).json({ error: 'Unauthorized' });
     if (!HEYGEN_API_KEY) {
       return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server. Running in Simulation Mode.' });
     }
@@ -951,6 +958,7 @@ app.post('/api/heygen/token', async (req, res) => {
 app.post('/api/heygen/new', async (req, res) => {
   const { quality, avatar_name, voice, token } = req.body || {};
   try {
+    if (!isAdmin((req.body && req.body.key) || req.query.key)) return res.status(401).json({ error: 'Unauthorized' });
     if (!HEYGEN_API_KEY) {
       return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server. Running in Simulation Mode.' });
     }
@@ -978,6 +986,7 @@ app.post('/api/heygen/new', async (req, res) => {
 app.post('/api/heygen/start', async (req, res) => {
   const { session_id, sdp, token } = req.body || {};
   try {
+    if (!isAdmin((req.body && req.body.key) || req.query.key)) return res.status(401).json({ error: 'Unauthorized' });
     if (!HEYGEN_API_KEY) {
       return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
     }
@@ -1001,6 +1010,7 @@ app.post('/api/heygen/start', async (req, res) => {
 app.post('/api/heygen/ice', async (req, res) => {
   const { session_id, candidate, token } = req.body || {};
   try {
+    if (!isAdmin((req.body && req.body.key) || req.query.key)) return res.status(401).json({ error: 'Unauthorized' });
     if (!HEYGEN_API_KEY) {
       return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
     }
@@ -1024,6 +1034,7 @@ app.post('/api/heygen/ice', async (req, res) => {
 app.post('/api/heygen/task', async (req, res) => {
   const { session_id, text, token } = req.body || {};
   try {
+    if (!isAdmin((req.body && req.body.key) || req.query.key)) return res.status(401).json({ error: 'Unauthorized' });
     if (!HEYGEN_API_KEY) {
       return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
     }
@@ -1047,6 +1058,7 @@ app.post('/api/heygen/task', async (req, res) => {
 app.post('/api/heygen/stop', async (req, res) => {
   const { session_id, token } = req.body || {};
   try {
+    if (!isAdmin((req.body && req.body.key) || req.query.key)) return res.status(401).json({ error: 'Unauthorized' });
     if (!HEYGEN_API_KEY) {
       return res.status(503).json({ error: 'HEYGEN_API_KEY is not configured on the server.' });
     }
@@ -1385,6 +1397,8 @@ app.post('/api/buffer/post', async (req, res) => {
 app.post('/api/social/generate-viral-content', async (req, res) => {
   const { topic, tone, style } = req.body || {};
   if (!topic) return res.status(400).json({ error: 'Missing topic' });
+  const key = (req.body && req.body.key) || req.query.key;
+  if (!isAdmin(key)) return res.status(401).json({ error: 'Unauthorized' });
 
   const messages = [
     {

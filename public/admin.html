@@ -127,7 +127,7 @@ function login() {
 function sendTestReminder() {
   var email = document.getElementById('testEmail').value;
   if (!email) return;
-  fetch('/api/send-reminder', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:email}) })
+  fetch('/api/send-reminder', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email:email, key:adminKey}) })
   .then(function(r) { return r.json(); })
   .then(function(d) { document.getElementById('testResult').textContent = d.ok ? 'Sent!' : 'Error: ' + d.error; })
   .catch(function(e) { document.getElementById('testResult').textContent = 'Error: ' + e.message; });
