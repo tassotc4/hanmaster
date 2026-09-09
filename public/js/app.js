@@ -14699,6 +14699,12 @@ let _apiTtsActive = false;
 let _apiTtsPending = false;
 let _apiTtsAudio = null;
 let _apiTtsSource = null; // active BufferSource from the boosted WebAudio TTS path
+// True while a browser SpeechSynthesis utterance from the tutor voice is audibly
+// playing (tts_mode='auto' or the tryFallbackTTS emergency). speechSynthesis.speaking
+// alone is unreliable (it can flip false mid-utterance), so isTtsPlaying() also
+// consults this flag to keep the auto-listen mic shut during every TC's voice and
+// to stop a browser voice ringing over/under the API voice (v90).
+let _browserTtsActive = false;
 // Monotonic play-generation token: EVERY new speak request bumps it, and each
 // as-yet-unstarted async play (fetch reply / WebAudio decode) captures the value
 // it was issued under, aborting itself if a newer speak took over first. Without
@@ -14708,6 +14714,7 @@ let _apiTtsSource = null; // active BufferSource from the boosted WebAudio TTS p
 let _ttsPlayToken = 0;
 function isTtsPlaying() {
   try { if (window.speechSynthesis && window.speechSynthesis.speaking) return true; } catch(e) {}
+  if (_browserTtsActive) return true;
   if (_apiTtsPending || _apiTtsActive) return true;
   // A created-but-not-yet-playing API audio must also block the mic: there is a
   // brief gap between new Audio(...) and its onplay firing where _apiTtsActive is
@@ -14721,6 +14728,7 @@ function stopApiTts() {
   _apiTtsPending = false;
   _apiTtsActive = false;
   try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e) {}
+  _browserTtsActive = false;
   if (_apiTtsAudio) {
     try { _apiTtsAudio.pause(); _apiTtsAudio.currentTime = 0; } catch(e) {}
     _apiTtsAudio = null;
@@ -15000,9 +15008,9 @@ function tryFallbackTTS(text, lang, rate) {
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = rate || 1.0;
-    u.onstart = () => startSpeakingAnimation();
-    u.onend = () => stopSpeakingAnimation();
-    u.onerror = () => stopSpeakingAnimation();
+    u.onstart = () => { _browserTtsActive = true; startSpeakingAnimation(); };
+    u.onend = () => { _browserTtsActive = false; stopSpeakingAnimation(); };
+    u.onerror = () => { _browserTtsActive = false; stopSpeakingAnimation(); };
     const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(lang.split('-')[0]));
     if (voices.length > 0) u.voice = voices[voices.length - 1];
     speechSynthesis.speak(u);
@@ -15028,9 +15036,9 @@ function speak(t, rate){
     if (!hasGoodVoice || localStorage.getItem('tts_mode') !== 'auto') { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
     if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
     const u = new SpeechSynthesisUtterance(t); u.lang = 'zh-CN'; u.rate = rate || getEffectiveSpeechRate();
-    u.onstart = () => startSpeakingAnimation();
-    u.onend = () => stopSpeakingAnimation();
-    u.onerror = () => stopSpeakingAnimation();
+    u.onstart = () => { _browserTtsActive = true; startSpeakingAnimation(); };
+    u.onend = () => { _browserTtsActive = false; stopSpeakingAnimation(); };
+    u.onerror = () => { _browserTtsActive = false; stopSpeakingAnimation(); };
     const voice = getChineseVoice(); if (voice) u.voice = voice;
     if (isMobileDevice) { try { speechSynthesis.speak(u); } catch(err) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); } }
     else {

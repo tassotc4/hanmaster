@@ -48,6 +48,11 @@ function edgeVoiceForLang(lang) {
   const s = String(lang || '').toLowerCase();
   if (s.indexOf('zh-tw') === 0) return 'zh-TW-HsiaoChenNeural';
   if (s.indexOf('zh-hk') === 0) return 'zh-HK-HiuGaaiNeural';
+  // Any other zh (zh-CN, zh, zh-cmn-*) gets a native Mandarin neural voice. Before
+  // this, zh-CN fell through to en-US-AriaNeural, so the AI tutor's Chinese was read
+  // by an English voice — a garbled sounding hybrid the user heard as "two voices"
+  // that was also never the chosen native language (v90).
+  if (/^zh/i.test(s)) return 'zh-CN-XiaoxiaoNeural';
   if (/^en-gb/i.test(s)) return 'en-GB-SoniaNeural';
   if (/^en-au/i.test(s)) return 'en-AU-NatashaNeural';
   if (/^en/i.test(s)) return 'en-US-AriaNeural';
@@ -64,6 +69,19 @@ function edgeVoiceForLang(lang) {
   if (/^id/i.test(s)) return 'id-ID-GadisNeural';
   if (/^ar/i.test(s)) return 'ar-SA-ZariyahNeural';
   if (/^tr/i.test(s)) return 'tr-TR-EmelNeural';
+  // Unknown locale: pick from the primary subtag so a non-English locale never gets
+  // an English voice (the tutor always speaks the user's chosen language).
+  const primary = (s.split(/[_-]/)[0] || '').toLowerCase();
+  const byPrimary = {
+    es: 'es-ES-ElviraNeural', fr: 'fr-FR-DeniseNeural', ja: 'ja-JP-NanamiNeural',
+    ko: 'ko-KR-SunHiNeural', de: 'de-DE-KatjaNeural', pt: 'pt-BR-FranciscaNeural',
+    it: 'it-IT-ElsaNeural', ru: 'ru-RU-SvetlanaNeural', vi: 'vi-VN-HoaiMyNeural',
+    th: 'th-TH-PremwadeeNeural', id: 'id-ID-GadisNeural', ar: 'ar-SA-ZariyahNeural',
+    tr: 'tr-TR-EmelNeural', nl: 'nl-NL-ColetteNeural', pl: 'pl-PL-ZofiaNeural',
+    sv: 'sv-SE-SofieNeural', uk: 'uk-UA-PolinaNeural', cs: 'cs-CZ-VlastaNeural',
+    zh: 'zh-CN-XiaoxiaoNeural'
+  };
+  if (byPrimary[primary]) return byPrimary[primary];
   return 'en-US-AriaNeural';
 }
 function edgeWssUrl() {
