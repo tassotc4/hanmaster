@@ -19793,8 +19793,10 @@ function drawTutorToneCurve(py) {
   if (!g) { g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); svg.appendChild(g); }
   // Draw grid if not present
   if (!g.querySelector('.tone-curve-grid')) drawToneCurveGrid(svg, w, h);
-  // Clear old tutor/student paths
-  var oldPaths = g.querySelectorAll('.tone-curve-tutor, .tone-curve-student');
+  // Clear old tutor path only. The live student path must survive re-draws of the
+  // tutor curve — startTutorPitchTrack's RAF loop keeps writing to it, so removing
+  // it here leaves a frozen/flashing curve while the loop runs on a detached node (v80).
+  var oldPaths = g.querySelectorAll('.tone-curve-tutor');
   for (var i = 0; i < oldPaths.length; i++) oldPaths[i].remove();
 
   var tones = parseTonesFromPinyin(py);
@@ -19870,9 +19872,19 @@ function startTutorPitchTrack(stream) {
       tutorPitchHistory.push(pitch);
       if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
     }
-    // Draw student curve (only if we have data)
+    // Re-resolve the student path every frame: other UI (drawTutorToneCurve) can
+    // rebuild the <g> and drop our node, which previously froze the curve while the
+    // RAF loop kept writing to a detached element (v80). Self-heal by recreating it.
+    var svg = document.querySelector('.tone-curve-wrap svg');
+    var g = svg ? svg.querySelector('g') : null;
+    var sp = g ? g.querySelector('.tone-curve-student') : null;
+    if (!sp && g) {
+      sp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      sp.setAttribute('class', 'tone-curve-student');
+      g.appendChild(sp);
+    }
     var d = '';
-    if (tutorPitchHistory.length > 1) {
+    if (sp && tutorPitchHistory.length > 1) {
       for (var i = 0; i < tutorPitchHistory.length; i++) {
         var x = (i / maxPoints) * w * 0.9 + w * 0.05;
         var pct = (tutorPitchHistory[i] - minPitch) / (maxPitch - minPitch);
@@ -19881,7 +19893,7 @@ function startTutorPitchTrack(stream) {
         d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
       }
     }
-    studentPath.setAttribute('d', d);
+    if (sp) sp.setAttribute('d', d);
     tutorPitchTrackId = requestAnimationFrame(tick);
   }
   tutorPitchTrackId = requestAnimationFrame(tick);
