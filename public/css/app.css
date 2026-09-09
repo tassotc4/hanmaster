@@ -299,12 +299,14 @@ body.hide-pinyin ruby {
 }
 .tone-curve-tutor { fill: none; stroke: var(--neon-cyan); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(0,240,255,.5)); transition: filter 0.3s ease; }
 .tone-curve-student { fill: none; stroke: var(--neon-green); stroke-width: 2; stroke-dasharray: 6 4; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(57,255,20,.4)); transition: filter 0.3s ease; }
+.tone-curve-ai { fill: none; stroke: var(--gold); stroke-width: 2.5; stroke-linecap: round; filter: drop-shadow(0 0 6px rgba(212,166,79,.5)); transition: filter 0.3s ease; }
 .tone-curve-grid { stroke: rgba(0,240,255,.08); stroke-width: 1; }
 /* Active speaking state — pulsing tone curves */
 .tone-curve-wrap.active { border-color: var(--neon-cyan); box-shadow: 0 0 25px rgba(0,240,255,.2); }
 .tone-curve-wrap.active svg { animation: curveBreathe 1s ease-in-out infinite alternate; }
 .tone-curve-wrap.active .tone-curve-tutor { stroke: #66f0ff; filter: drop-shadow(0 0 18px rgba(0,240,255,.9)); animation: curvePulse 0.6s ease-in-out infinite alternate; }
 .tone-curve-wrap.active .tone-curve-student { stroke: #66ff66; filter: drop-shadow(0 0 18px rgba(57,255,20,.8)); animation: curvePulse 0.4s ease-in-out infinite alternate-reverse; }
+.tone-curve-wrap.active .tone-curve-ai { stroke: var(--gold); filter: drop-shadow(0 0 18px rgba(212,166,79,.9)); animation: curvePulse 0.45s ease-in-out infinite alternate; }
 @keyframes curveBreathe {
   0% { transform: scaleY(1) translateY(0); }
   100% { transform: scaleY(1.06) translateY(-2px); }

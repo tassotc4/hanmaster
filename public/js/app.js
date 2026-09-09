@@ -14722,6 +14722,7 @@ function stopApiTts() {
     _apiTtsSource = null;
   }
   stopSpeakingAnimation();
+  stopTutorAiVisualizer();
 }
 
 
@@ -14734,6 +14735,7 @@ function startSpeakingAnimation() {
   // Draw the tutor's tone curve from available pinyin
   var py = getCurrentPinyin();
   drawTutorToneCurve(py);
+  sweepTutorCurve();
 }
 
 function getCurrentPinyin() {
@@ -14765,6 +14767,43 @@ function stopSpeakingAnimation() {
   if (el) el.classList.remove('speaking');
   var tc = document.querySelector('.tone-curve-wrap');
   if (tc) tc.classList.remove('active');
+  clearTutorSweep();
+}
+
+// Make the tutor's tone contour visibly "draw itself" while the AI speaks. Used by
+// engines we cannot tap for real audio (browser SpeechSynthesis, plain <audio>),
+// so the visualizer still moves on every device. Skipped when the live analyser
+// path (_aiVisualActive) is already animating real pitch from the TTS audio (v82).
+function sweepTutorCurve() {
+  if (window._aiVisualActive) return;
+  var svg = document.querySelector('.tone-curve-wrap svg');
+  if (!svg) return;
+  var g = svg.querySelector('g');
+  if (!g) return;
+  var path = g.querySelector('.tone-curve-tutor');
+  if (!path) return;
+  try {
+    var len = path.getTotalLength() || 260;
+    var ms = Math.max(600, Math.min(6000, (path.getAttribute('d') || '').length * 8));
+    path.style.strokeDasharray = len + 'px';
+    path.style.strokeDashoffset = len + 'px';
+    path.style.transition = 'stroke-dashoffset ' + ms + 'ms linear';
+    requestAnimationFrame(function() {
+      requestAnimationFrame(function() {
+        path.style.strokeDashoffset = '0px';
+      });
+    });
+  } catch(e) {}
+}
+
+function clearTutorSweep() {
+  var g = document.querySelector('.tone-curve-wrap svg g');
+  if (!g) return;
+  var path = g.querySelector('.tone-curve-tutor');
+  if (!path) return;
+  path.style.strokeDasharray = '';
+  path.style.strokeDashoffset = '';
+  path.style.transition = '';
 }
 
 function blobToDataUrl(blob) {
@@ -14854,18 +14893,29 @@ function tryPlayBoosted(src, rate, onFail) {
         s.playbackRate = rate || 1.0;
         _apiTtsSource = s;
         _apiTtsActive = true;
+        // Tap the actual playback audio with a parallel analyser (analysis only —
+        // output is untouched) so the tone curve + header wave can animate to the
+        // tutor's real voice as it speaks (v82).
+        var aiAn = null;
+        try {
+          aiAn = ctx.createAnalyser();
+          aiAn.fftSize = 2048;
+          s.connect(aiAn);
+        } catch (eAi) { aiAn = null; }
+        if (aiAn) startTutorAiVisualizer(aiAn, ctx.sampleRate || 44100);
         startSpeakingAnimation();
-        s.onended = () => { _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; stopSpeakingAnimation(); };
+        s.onended = () => { _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; stopTutorAiVisualizer(); stopSpeakingAnimation(); };
         s.connect(_ttsGain);
         try { if (ctx.state === 'suspended') ctx.resume(); } catch (e2) {}
         s.start();
       } catch (e) {
-        _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; _ttsCtx = null; _ttsGain = null; stopSpeakingAnimation();
+        _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null; _ttsCtx = null; _ttsGain = null; stopTutorAiVisualizer(); stopSpeakingAnimation();
       }
     }).catch(function () {
       // decode failed — unpin the mic-blocking flags and fall back to the
       // <audio> element path so the reply is actually heard (v78).
       _apiTtsActive = false; _apiTtsPending = false; _apiTtsSource = null;
+      stopTutorAiVisualizer();
       stopSpeakingAnimation();
       if (typeof onFail === 'function') onFail();
     });
@@ -19741,6 +19791,10 @@ function playRecordedVoice(url) {
 
 // Spatial UI — Tone Curve: actual pitch tracking + pinyin tones
 var tutorPitchHistory = [];
+var aiPitchHistory = [];
+var aiPitchTrackId = null;
+var aiPitchAnalyser = null;
+var aiWaveAnimId = null;
 var tutorPitchTrackId = null;
 var tutorAnalyser = null;
 var tutorAudioCtx = null;
@@ -19931,6 +19985,122 @@ function stopTutorPitchTrack() {
       if (old) old.remove();
     }
   }
+}
+
+// ===== AI TUTOR SPEECH VISUALIZER (v82) =====
+// During playback of the tutor's TTS voice, animate the tone curve and the header
+// wave to the REAL pitch of the spoken audio. The analyser is tapped in parallel in
+// tryPlayBoosted (analysis only — the audible output is untouched) and the loop
+// self-heals its path like the student loop (see startTutorPitchTrack, v80).
+
+function startTutorAiVisualizer(analyser, sampleRate) {
+  stopTutorAiVisualizer();
+  if (!analyser) return;
+  window._aiVisualActive = true;
+  aiPitchAnalyser = analyser;
+  var aiSampleRate = sampleRate || 44100;
+  var maxPoints = 60, minPitch = 80, maxPitch = 350;
+  aiPitchHistory = [];
+  function tick() {
+    if (!aiPitchAnalyser || aiPitchTrackId === null) return;
+    var buffer = new Float32Array(aiPitchAnalyser.fftSize || 2048);
+    aiPitchAnalyser.getFloatTimeDomainData(buffer);
+    var pitch = autoCorrelate(buffer, aiSampleRate);
+    if (pitch !== -1 && pitch > 70 && pitch < 500) {
+      aiPitchHistory.push(pitch);
+      if (aiPitchHistory.length > maxPoints) aiPitchHistory.shift();
+    }
+    var svg = document.querySelector('.tone-curve-wrap svg');
+    var g = svg ? svg.querySelector('g') : null;
+    var p = g ? g.querySelector('.tone-curve-ai') : null;
+    if (!p && g) {
+      p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('class', 'tone-curve-ai');
+      g.appendChild(p);
+    }
+    var d = '';
+    if (p && aiPitchHistory.length > 1) {
+      var w = svg.clientWidth || 280, h = svg.clientHeight || 60;
+      for (var i = 0; i < aiPitchHistory.length; i++) {
+        var x = (i / maxPoints) * w * 0.9 + w * 0.05;
+        var pct = (aiPitchHistory[i] - minPitch) / (maxPitch - minPitch);
+        pct = Math.max(0.05, Math.min(0.95, pct));
+        var y = h - pct * h;
+        d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+      }
+    }
+    if (p) p.setAttribute('d', d);
+    aiPitchTrackId = requestAnimationFrame(tick);
+  }
+  aiPitchTrackId = requestAnimationFrame(tick);
+  try { startAiVoiceWave(analyser); } catch(e) {}
+}
+
+function stopTutorAiVisualizer() {
+  if (aiPitchTrackId) { cancelAnimationFrame(aiPitchTrackId); aiPitchTrackId = null; }
+  aiPitchAnalyser = null;
+  aiPitchHistory = [];
+  window._aiVisualActive = false;
+  var svg = document.querySelector('.tone-curve-wrap svg');
+  if (svg) {
+    var g = svg.querySelector('g');
+    if (g) {
+      var old = g.querySelector('.tone-curve-ai');
+      if (old) old.remove();
+    }
+  }
+  stopAiVoiceWave();
+}
+
+// Header voice wave driven by the tutor's TTS audio (parallel to the mic wave).
+function startAiVoiceWave(analyser) {
+  if (aiWaveAnimId) cancelAnimationFrame(aiWaveAnimId);
+  const canvas = document.getElementById('tutVoiceCanvas');
+  if (!canvas) return;
+  const cssWave = document.getElementById('tutVoiceWave');
+  if (cssWave) cssWave.style.display = 'none';
+  canvas.style.display = 'inline-block';
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const bufferLength = analyser.fftSize || 2048;
+  const dataArray = new Float32Array(bufferLength);
+  function draw() {
+    if (!aiPitchAnalyser) {
+      canvas.style.display = 'none';
+      if (aiWaveAnimId) cancelAnimationFrame(aiWaveAnimId);
+      return;
+    }
+    aiWaveAnimId = requestAnimationFrame(draw);
+    analyser.getFloatTimeDomainData(dataArray);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    const colors = ['rgba(212,166,79,0.9)', 'rgba(0,240,255,0.5)', 'rgba(245,158,11,0.35)'];
+    ctx.lineWidth = 1.8;
+    for (let waveIdx = 0; waveIdx < 3; waveIdx++) {
+      ctx.strokeStyle = colors[waveIdx];
+      ctx.beginPath();
+      const sliceWidth = rect.width / bufferLength;
+      let x = 0;
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i];
+        const envelope = Math.sin((i / bufferLength) * Math.PI);
+        const amp = v * (rect.height / 2) * 2.2 * envelope;
+        const y = (rect.height / 2) + amp;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      ctx.stroke();
+    }
+  }
+  draw();
+}
+
+function stopAiVoiceWave() {
+  if (aiWaveAnimId) { cancelAnimationFrame(aiWaveAnimId); aiWaveAnimId = null; }
 }
 
 // Init grid on load
@@ -22068,6 +22238,8 @@ function initPinyinDisplay() {
 let voiceWaveAnimId = null;
 function startVoiceWaveAnimation(analyser) {
   if (voiceWaveAnimId) cancelAnimationFrame(voiceWaveAnimId);
+  // The AI-driven wave owns the same canvas during tutor speech; hand it over.
+  if (aiWaveAnimId) cancelAnimationFrame(aiWaveAnimId);
   const canvas = document.getElementById('tutVoiceCanvas');
   if (!canvas) return;
   const cssWave = document.getElementById('tutVoiceWave');
