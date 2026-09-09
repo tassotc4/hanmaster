@@ -101,7 +101,7 @@ function edgeTts(text, lang, spd) {
     const timer = setTimeout(() => settle(new Error('Edge TTS timeout')), 25000);
     ws.on('open', () => {
       ws.send('Content-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"false"},"outputFormat":"' + EDGE_OUTPUT_FORMAT + '"}}}}');
-      const reqId = 'xxxxxxxxxxxxxxxx'.replace(/x/g, () => Math.floor(Math.random() * 16).toString(16));
+      const reqId = crypto.randomBytes(16).toString('hex');
       const ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="' + voiceLang + '"><voice name="' + voice + '"><prosody pitch="+0Hz" rate="' + rate + '" volume="100">' + input + '</prosody></voice></speak>';
       ws.send('X-RequestId:' + reqId + '\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n' + ssml);
     });

@@ -14953,7 +14953,7 @@ function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
   if (ttsCache[cacheKey]) { playFrom(ttsCache[cacheKey]); return; }
   _apiTtsPending = true;
   const engine = localStorage.getItem('tts_mode') === 'fish' ? '&engine=fish' : '';
-  fetch('/api/tts?text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang) + engine)
+  fetch('/api/tts?v=9&text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang) + engine)
     .then(r => r.blob())
     .then(blob => blobToDataUrl(blob))
     .then(dataUrl => {
