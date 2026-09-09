@@ -14397,6 +14397,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   
   // Init theme
   initTheme();
+  initTranscriptConfirmToggle();
   
   // Init daily challenge status
   checkDailyChallenge();
@@ -15309,15 +15310,23 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
         addLiveUserMsg(transcript);
         setTimeout(() => sendToGemini(transcript), 300);
       } else {
-        // Show confirmation before sending to AI (study mode), then auto-send
-        // after ~2s so the tutor always responds even if the user doesn't tap ✓.
-        const confirmId = 'confirm-' + Date.now();
-        const safeTr = transcript.replace(/'/g, "\\'");
-        addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + safeTr + '\',\'' + loaderId + '\',\'' + confirmId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
-        setTimeout(function() {
-          const el = document.getElementById(confirmId);
-          if (el && el.dataset.done !== '1') confirmTranscript(transcript, loaderId, confirmId);
-        }, 2000);
+        // Voice transcript confirm: when the user turned it off in Settings
+        // (skip_transcript_confirm !== '0'), send the transcript automatically
+        // like Live AI mode does — no ✓/✕ tap required (v81).
+        if (localStorage.getItem('skip_transcript_confirm') !== '0') {
+          addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div>');
+          confirmTranscript(transcript, loaderId, null);
+        } else {
+          // Show confirmation before sending to AI (study mode), then auto-send
+          // after ~2s so the tutor always responds even if the user doesn't tap ✓.
+          const confirmId = 'confirm-' + Date.now();
+          const safeTr = transcript.replace(/'/g, "\\'");
+          addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div><div id="' + confirmId + '" style="margin-top:6px;display:flex;gap:8px;"><button onclick="confirmTranscript(\'' + safeTr + '\',\'' + loaderId + '\',\'' + confirmId + '\')" style="background:var(--green);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✓ '+t('Use')+'</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 16px;border-radius:4px;cursor:pointer;font-size:13px">✕ '+t('Cancel')+'</button></div>');
+          setTimeout(function() {
+            const el = document.getElementById(confirmId);
+            if (el && el.dataset.done !== '1') confirmTranscript(transcript, loaderId, confirmId);
+          }, 2000);
+        }
       }
     } else {
       console.warn("Empty or no-speech transcription");
@@ -15363,6 +15372,15 @@ function rejectTranscript(confirmId, loaderId) {
   const el = document.getElementById(confirmId);
   if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px">'+t('Cancelled — tap mic to try again')+'</span>';
   document.getElementById('tutHint').textContent = t('Cancelled. Tap mic to speak again.');
+}
+
+function toggleTranscriptConfirm(ask) {
+  localStorage.setItem('skip_transcript_confirm', ask ? '0' : '1');
+}
+
+function initTranscriptConfirmToggle() {
+  const toggle = document.getElementById('transcriptConfirmToggle');
+  if (toggle) toggle.checked = localStorage.getItem('skip_transcript_confirm') === '0';
 }
 
 function tutSpeak(){
