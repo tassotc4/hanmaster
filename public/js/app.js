@@ -15477,17 +15477,23 @@ function tutSpeak(){
         navigator.mediaDevices.getUserMedia(getMicAudioConstraints())
           .then(stream => {
             activeMicStream = stream;
-            let trackStream = stream;
+            // Feed the RAW mic stream into a shared analyser exactly like the recording
+            // fallback does. Do NOT mirror it through a Web Audio gain/dest graph — on
+            // Windows a suspended/silent AudioContext graph leaves autoCorrelate seeing
+            // only silence, so the tone curve never moves even though speech is heard (v79).
+            window._recAnalyser = null;
+            window._recAudioCtxSampleRate = null;
             try {
               const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              if (audioCtx.state === 'suspended') audioCtx.resume().catch(function(){});
               const source = audioCtx.createMediaStreamSource(stream);
-              const gain = audioCtx.createGain();
-              gain.gain.value = 2.5;
-              const dest = audioCtx.createMediaStreamDestination();
-              source.connect(gain).connect(dest);
-              trackStream = dest.stream;
+              const an = audioCtx.createAnalyser();
+              an.fftSize = 1024;
+              source.connect(an);
+              window._recAnalyser = an;
+              window._recAudioCtxSampleRate = audioCtx.sampleRate || 44100;
             } catch(e) {}
-            startTutorPitchTrack(trackStream);
+            startTutorPitchTrack(stream);
           })
           .catch(e => { console.warn("Pitch track stream failed in SpeechRecognition:", e); });
       }
@@ -17089,6 +17095,7 @@ function startToneCapture() {
     .then(stream => {
       toneMicStream = stream;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(function(){});
       const source = audioCtx.createMediaStreamSource(stream);
       toneAnalyser = audioCtx.createAnalyser();
       toneAnalyser.fftSize = 2048;
