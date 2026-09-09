@@ -17628,6 +17628,53 @@ function ensureTutorTranslation(text, els) {
   }).catch(() => {});
 }
 
+// Batch AI translation of several UI strings in a single request. Returns a
+// map { sourceString: translation }. Used by the onboarding flow.
+async function aiTranslateBatch(keys) {
+  if (!keys || !keys.length) return {};
+  const targetLang = getTutorLangName();
+  const list = keys.map((k, i) => (i + 1) + '. ' + k).join('\n');
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: list }] }], systemInstruction: 'You are a professional translator, 100% fluent in ' + targetLang + ' at native-speaker level. Translate each UI string below into natural, idiomatic ' + targetLang + ' — never literal, never add explanations. Output EXACTLY ONE translation per line, in the same order as the numbered input, WITHOUT the numbers, without quotes, and without any extra text.' })
+  });
+  const data = await res.json();
+  let reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const lines = reply.split('\n').map(l => l.replace(/^\s*\d+[.)]\s*/, '').replace(/^["']|["']$/g, '').trim());
+  const out = {};
+  keys.forEach((k, i) => { if (lines[i]) out[k] = lines[i]; });
+  return out;
+}
+
+// Translate any [data-tr] elements under `root` that the offline dictionary
+// could not translate, using the yes `ensureTutorTranslation` AI fallback
+// (cached per string in localStorage). Covers the onboarding modal etc.
+function translateUIFallback(root) {
+  if (!root || currentAppLang === 'en') return;
+  const cache = loadAiTrCache();
+  const elsByKey = {};
+  Array.from(root.querySelectorAll('[data-tr]')).forEach(el => {
+    const k = el.getAttribute('data-tr');
+    if (k && t(k) === k) (elsByKey[k] = elsByKey[k] || []).push(el);
+  });
+  const keys = Object.keys(elsByKey);
+  if (!keys.length) return;
+  const pending = [];
+  keys.forEach(k => {
+    if (cache[k]) { (elsByKey[k] || []).forEach(el => { if (el) el.textContent = cache[k]; }); }
+    else pending.push(k);
+  });
+  if (!pending.length) return;
+  aiTranslateBatch(pending).then(map => {
+    Object.keys(map).forEach(k => {
+      cache[k] = map[k];
+      (elsByKey[k] || []).forEach(el => { if (el) el.textContent = map[k]; });
+    });
+    saveAiTrCache();
+  }).catch(() => {});
+}
+
 // Show the user's Chinese reply in the chat, then append its English translation
 function addLiveUserMsg(text) {
   const trId = 'utr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
@@ -22343,18 +22390,21 @@ function renderQuizQuestion() {
   if (!subtitleEl || !boxEl) return;
 
   const qData = quizQuestions[currentQuizQuestion];
-  subtitleEl.textContent = t('Question {num} of 3: {txt}')
+  const subtitleText = t('Question {num} of 3: {txt}')
     .replace('{num}', currentQuizQuestion + 1)
     .replace('{txt}', t(qData.q));
+  subtitleEl.setAttribute('data-tr', subtitleText);
+  subtitleEl.textContent = subtitleText;
 
   boxEl.innerHTML = '';
   qData.options.forEach((opt, idx) => {
     const btn = document.createElement('div');
     btn.className = 'onboarding-option-card justify-between cursor-pointer';
-    btn.innerHTML = `<span class="text-xs text-white font-bold">${t(opt)}</span><i class="fas fa-chevron-right text-muted text-[10px]"></i>`;
+    btn.innerHTML = `<span class="text-xs text-white font-bold" data-tr="${opt.replace(/"/g, '&quot;')}">${t(opt)}</span><i class="fas fa-chevron-right text-muted text-[10px]"></i>`;
     btn.onclick = () => handleQuizAnswer(idx);
     boxEl.appendChild(btn);
   });
+  translateUIFallback(document.getElementById('onboardingStepQuiz'));
 }
 
 function handleQuizAnswer(selectedIdx) {
@@ -22383,6 +22433,7 @@ function handleQuizAnswer(selectedIdx) {
 window.selectOnboardingLang = function(lang) {
   onboardingLang = lang;
   if (typeof changeAppLanguage === 'function') changeAppLanguage(lang);
+  translateUIFallback(document.getElementById('onboardingModal'));
   
   // Advance to Step 2
   document.getElementById('onboardingStep1').classList.remove('active');
@@ -22654,10 +22705,12 @@ window.initOnboarding = function() {
     supabaseClient.auth.getSession().then(function({ data: { session } }) {
       if (!session) {
         document.getElementById('onboardingModal').style.display = 'flex';
+        translateUIFallback(document.getElementById('onboardingModal'));
       }
     });
   } else {
     document.getElementById('onboardingModal').style.display = 'flex';
+    translateUIFallback(document.getElementById('onboardingModal'));
   }
 };
 
