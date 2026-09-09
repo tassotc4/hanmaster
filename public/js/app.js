@@ -14699,6 +14699,13 @@ let _apiTtsActive = false;
 let _apiTtsPending = false;
 let _apiTtsAudio = null;
 let _apiTtsSource = null; // active BufferSource from the boosted WebAudio TTS path
+// Monotonic play-generation token: EVERY new speak request bumps it, and each
+// as-yet-unstarted async play (fetch reply / WebAudio decode) captures the value
+// it was issued under, aborting itself if a newer speak took over first. Without
+// this, two overlapping play attempts both schedule audio (e.g. a rapid double
+// trigger of speakViaAPI), the first BufferSource is never stopped, and the user
+// hears the same phrase TWICE in two voices -> "double voice" (all languages).
+let _ttsPlayToken = 0;
 function isTtsPlaying() {
   try { if (window.speechSynthesis && window.speechSynthesis.speaking) return true; } catch(e) {}
   if (_apiTtsPending || _apiTtsActive) return true;
@@ -14710,6 +14717,7 @@ function isTtsPlaying() {
   return false;
 }
 function stopApiTts() {
+  _ttsPlayToken++;
   _apiTtsPending = false;
   _apiTtsActive = false;
   try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch(e) {}
@@ -14872,7 +14880,7 @@ function primeTtsAudioGesture() {
 // false if unavailable/undecodable (caller then falls back to the <audio> element).
 // onFail is invoked if the async decode+schedule fails AFTER this returned true,
 // so the caller can unpin the TTS flags and switch to the <audio> fallback.
-function tryPlayBoosted(src, rate, onFail) {
+function tryPlayBoosted(src, rate, onFail, token) {
   let ctx;
   try { ctx = getTtsContext(); } catch (e) { ctx = null; }
   if (!ctx || !_ttsGain) return false;
@@ -14888,10 +14896,19 @@ function tryPlayBoosted(src, rate, onFail) {
     _apiTtsActive = true;
     // resolved promise => schedule the boosted playback
     decoded.then(function (aud) {
+      // A newer speak request bumped the token while we were decoding — abandon
+      // silently (its stopApiTts already cleared the flags) so the old phrase can
+      // never start on top of the new one (double-voice fix).
+      if (token !== _ttsPlayToken) return;
       try {
         const s = ctx.createBufferSource();
         s.buffer = aud;
         s.playbackRate = rate || 1.0;
+        // Never leave an older BufferSource ringing out behind this one.
+        if (_apiTtsSource && _apiTtsSource !== s) {
+          try { _apiTtsSource.disconnect(); } catch (e) {}
+          try { _apiTtsSource.stop(); } catch (e) {}
+        }
         _apiTtsSource = s;
         _apiTtsActive = true;
         // Tap the actual playback audio with a parallel analyser (analysis only —
@@ -14927,12 +14944,18 @@ function tryPlayBoosted(src, rate, onFail) {
 function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
   const cacheKey = lang + '|' + text;
   stopApiTts();
+  // Generation capture: any newer speakViaAPI/speak() that runs stopApiTts after
+  // this line makes myToken stale, so this request's pending fetch/decode/play
+  // must abort instead of layering a second voice over the new one.
+  const myToken = _ttsPlayToken;
   const playFrom = (src) => {
+    if (myToken !== _ttsPlayToken) return;
     // <audio> element fallback (persistent on iOS so it's gesture-blessed).
     // Used when the boosted path is unavailable OR async decode fails. Every
     // exit clears _apiTtsPending too — leaving it pinned makes isTtsPlaying()
     // return true forever and the auto-listen mic never reopens (v78).
     const playViaAudio = () => {
+      if (myToken !== _ttsPlayToken) return;
       const audio = (isMobileDevice && _ttsPersistAudio) ? _ttsPersistAudio : new Audio();
       _apiTtsAudio = audio;
       try { audio.src = src; } catch (e) {}
@@ -14944,7 +14967,8 @@ function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
     };
     // Preferred: boosted WebAudio path (fixes the very quiet Google TTS).
     // Fallback: <audio> element (persistent on iOS so it's gesture-blessed).
-    if (tryPlayBoosted(src, rate, playViaAudio)) return;
+    if (tryPlayBoosted(src, rate, playViaAudio, myToken)) return;
+    if (myToken !== _ttsPlayToken) return;
     playViaAudio();
   };
   // Prefer a cached data: URL. Unlike a revocable blob: URL, a data: URL never
@@ -14961,6 +14985,9 @@ function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
       playFrom(dataUrl);
     })
     .catch(() => {
+      // A newer speak request superseded this one — never let the browser-voice
+      // fallback ring out over the new playback (double-voice fix).
+      if (myToken !== _ttsPlayToken) return;
       _apiTtsPending = false;
       // Absolute fallback: try browser TTS
       tryFallbackTTS(text, lang, rate);
