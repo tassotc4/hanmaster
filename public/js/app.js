@@ -21099,7 +21099,7 @@ function getInterviewLangName(){
   const tl = getTutorLangName();
   if (tl && tl !== 'Auto-detect' && tl !== 'Chinese (Mandarin)') return tl;
   const bl = getBrowserLangCode().split('-')[0];
-  return ({es:'Spanish',fr:'French',ja:'Japanese',ko:'Korean',de:'German',pt:'Portuguese',it:'Italian',ru:'Russian',vi:'Vietnamese',th:'Thai'})[bl] || 'English';
+  return ({es:'Spanish',fr:'French',ja:'Japanese',ko:'Korean',de:'German',pt:'Portuguese',it:'Italian',ru:'Russian',vi:'Vietnamese',th:'Thai',id:'Indonesian',ar:'Arabic',tr:'Turkish',nl:'Dutch',pl:'Polish',sv:'Swedish',uk:'Ukrainian',cs:'Czech'})[bl] || 'English';
 }
 function getInterviewLangCode(){
   const c = localStorage.getItem('speech_lang');
@@ -21108,7 +21108,7 @@ function getInterviewLangCode(){
     if (f) return c;
   }
   const bl = getBrowserLangCode().split('-')[0];
-  return ({es:'es-ES',fr:'fr-FR',ja:'ja-JP',ko:'ko-KR',de:'de-DE',pt:'pt-BR',it:'it-IT',ru:'ru-RU',vi:'vi-VN',th:'th-TH'})[bl] || 'en-US';
+  return ({es:'es-ES',fr:'fr-FR',ja:'ja-JP',ko:'ko-KR',de:'de-DE',pt:'pt-BR',it:'it-IT',ru:'ru-RU',vi:'vi-VN',th:'th-TH',id:'id-ID',ar:'ar-SA',tr:'tr-TR',nl:'nl-NL',pl:'pl-PL',sv:'sv-SE',uk:'uk-UA',cs:'cs-CZ'})[bl] || 'en-US';
 }
 function applyLevelSetting(lvl){
   localStorage.setItem('chinese_level', lvl);
