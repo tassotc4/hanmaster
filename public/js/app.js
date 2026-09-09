@@ -15867,7 +15867,7 @@ function finishTutor(){
 }
 
 function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
-function toggleTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(!m)return;m.style.display=m.style.display==='none'?'block':'none'}
+function toggleTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(!m)return;const open=m.style.display!=='block';m.style.display=open?'block':'none';if(open){const b=document.getElementById('tutMenuBtn');if(b){const r=b.getBoundingClientRect();m.style.position='fixed';m.style.top=Math.round(r.bottom+6)+'px';m.style.right=Math.round(window.innerWidth-r.right)+'px';m.style.left='auto';}}}
 function closeTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(m)m.style.display='none'}
 document.addEventListener('click',function(e){const m=document.getElementById('tutMenuDropdown'),b=document.getElementById('tutMenuBtn');if(m&&m.style.display==='block'&&b&&!b.contains(e.target)&&!m.contains(e.target))m.style.display='none'});
 function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);requestAnimationFrame(()=>{document.getElementById('tutChat').scrollTop=9999});return d}
