@@ -19920,6 +19920,58 @@ function drawToneCurveGrid(svg, w, h) {
   }
 }
 
+// Smooth a polyline into a flowing organic curve (Catmull-Rom → cubic Bézier).
+// Raw pitch samples jump between frames; straight L-segments read as a robotic
+// zigzag, real speech pitch is continuous (v89).
+function curvePathFromPoints(pts) {
+  if (!pts || pts.length < 2) return '';
+  if (pts.length === 2) return 'M' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1) + ' L' + pts[1].x.toFixed(1) + ' ' + pts[1].y.toFixed(1);
+  var d = 'M' + pts[0].x.toFixed(1) + ' ' + pts[0].y.toFixed(1);
+  for (var i = 1; i < pts.length; i++) {
+    var p0 = pts[Math.max(0, i - 2)];
+    var p1 = pts[i - 1];
+    var p2 = pts[i];
+    var p3 = pts[Math.min(pts.length - 1, i + 1)];
+    var c1x = p1.x + (p2.x - p0.x) / 6;
+    var c1y = p1.y + (p2.y - p0.y) / 6;
+    var c2x = p2.x - (p3.x - p1.x) / 6;
+    var c2y = p2.y - (p3.y - p1.y) / 6;
+    d += 'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2.x.toFixed(1) + ' ' + p2.y.toFixed(1);
+  }
+  return d;
+}
+
+// Low-pass median filter for live pitch: a rolling 5-sample window stops a single
+// noisy frame or octave jump from yanking the line like a machine (v89).
+function filteredPitch(sample, win) {
+  win.push(sample);
+  if (win.length > 5) win.shift();
+  var sorted = win.slice().sort(function(a, b) { return a - b; });
+  return sorted[Math.floor(sorted.length / 2)];
+}
+
+// Add soft "living" gradient strokes so the live pitch traces fade like a real
+// oscilloscope trace instead of ending abruptly (v89).
+function ensureToneCurveGradients(svg) {
+  if (!svg || svg.querySelector('#studentGrad, #aiGrad')) return;
+  var defs = svg.querySelector('defs');
+  if (!defs) { defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs'); svg.insertBefore(defs, svg.firstChild); }
+  function grad(id, color) {
+    var g = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    g.setAttribute('id', id); g.setAttribute('x1', '0'); g.setAttribute('y1', '0'); g.setAttribute('x2', '1'); g.setAttribute('y2', '0');
+    var s = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    s.setAttribute('offset', '0%'); s.setAttribute('stop-color', color); s.setAttribute('stop-opacity', '0.04');
+    var m = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    m.setAttribute('offset', '55%'); m.setAttribute('stop-color', color); m.setAttribute('stop-opacity', '0.35');
+    var e = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
+    e.setAttribute('offset', '100%'); e.setAttribute('stop-color', color); e.setAttribute('stop-opacity', '1');
+    g.appendChild(s); g.appendChild(m); g.appendChild(e);
+    defs.appendChild(g);
+  }
+  grad('studentGrad', '#3aff5c');
+  grad('aiGrad', '#e8c26a');
+}
+
 // Parse tone numbers from pinyin string (e.g. "nǐ hǎo" → [3,3])
 function parseTonesFromPinyin(py) {
   if (!py || py === '--') return [];
@@ -19957,6 +20009,7 @@ function drawTutorToneCurve(py) {
   if (!g) { g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); svg.appendChild(g); }
   // Draw grid if not present
   if (!g.querySelector('.tone-curve-grid')) drawToneCurveGrid(svg, w, h);
+  ensureToneCurveGradients(svg);
   // Clear old tutor path only. The live student path must survive re-draws of the
   // tutor curve — startTutorPitchTrack's RAF loop keeps writing to it, so removing
   // it here leaves a frozen/flashing curve while the loop runs on a detached node (v80).
@@ -20024,6 +20077,7 @@ function startTutorPitchTrack(stream) {
   g.appendChild(studentPath);
 
   tutorPitchHistory = [];
+  var pitchWin = [];
   var maxPoints = 60;
   var minPitch = 80, maxPitch = 350;
 
@@ -20033,7 +20087,7 @@ function startTutorPitchTrack(stream) {
     tutorAnalyser.getFloatTimeDomainData(buffer);
     var pitch = autoCorrelate(buffer, tutorSampleRate);
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
-      tutorPitchHistory.push(pitch);
+      tutorPitchHistory.push(filteredPitch(pitch, pitchWin));
       if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
     }
     // Re-resolve the student path every frame: other UI (drawTutorToneCurve) can
@@ -20049,13 +20103,15 @@ function startTutorPitchTrack(stream) {
     }
     var d = '';
     if (sp && tutorPitchHistory.length > 1) {
+      ensureToneCurveGradients(svg);
+      var pts = [];
       for (var i = 0; i < tutorPitchHistory.length; i++) {
         var x = (i / maxPoints) * w * 0.9 + w * 0.05;
         var pct = (tutorPitchHistory[i] - minPitch) / (maxPitch - minPitch);
         pct = Math.max(0.05, Math.min(0.95, pct));
-        var y = h - pct * h;
-        d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+        pts.push({ x: x, y: h - pct * h });
       }
+      d = curvePathFromPoints(pts);
     }
     if (sp) sp.setAttribute('d', d);
     tutorPitchTrackId = requestAnimationFrame(tick);
@@ -20093,13 +20149,14 @@ function startTutorAiVisualizer(analyser, sampleRate) {
   var aiSampleRate = sampleRate || 44100;
   var maxPoints = 60, minPitch = 80, maxPitch = 350;
   aiPitchHistory = [];
+  var aiPitchWin = [];
   function tick() {
     if (!aiPitchAnalyser || aiPitchTrackId === null) return;
     var buffer = new Float32Array(aiPitchAnalyser.fftSize || 2048);
     aiPitchAnalyser.getFloatTimeDomainData(buffer);
     var pitch = autoCorrelate(buffer, aiSampleRate);
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
-      aiPitchHistory.push(pitch);
+      aiPitchHistory.push(filteredPitch(pitch, aiPitchWin));
       if (aiPitchHistory.length > maxPoints) aiPitchHistory.shift();
     }
     var svg = document.querySelector('.tone-curve-wrap svg');
@@ -20113,13 +20170,15 @@ function startTutorAiVisualizer(analyser, sampleRate) {
     var d = '';
     if (p && aiPitchHistory.length > 1) {
       var w = svg.clientWidth || 280, h = svg.clientHeight || 60;
+      ensureToneCurveGradients(svg);
+      var pts = [];
       for (var i = 0; i < aiPitchHistory.length; i++) {
         var x = (i / maxPoints) * w * 0.9 + w * 0.05;
         var pct = (aiPitchHistory[i] - minPitch) / (maxPitch - minPitch);
         pct = Math.max(0.05, Math.min(0.95, pct));
-        var y = h - pct * h;
-        d += (d === '' ? 'M' : 'L') + x.toFixed(1) + ' ' + y.toFixed(1);
+        pts.push({ x: x, y: h - pct * h });
       }
+      d = curvePathFromPoints(pts);
     }
     if (p) p.setAttribute('d', d);
     aiPitchTrackId = requestAnimationFrame(tick);
