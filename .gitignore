@@ -10,7 +10,6 @@ screenshot.png
 android/
 ios/
 *.log
-public/css/tailwind.css
 public/uploads/
 scratch/
 
