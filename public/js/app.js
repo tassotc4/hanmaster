@@ -20063,8 +20063,8 @@ function startAiVoiceWave(analyser) {
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  canvas.width = Math.max(1, Math.min(Math.round(rect.width * dpr), 320));
+  canvas.height = Math.max(1, Math.min(Math.round(rect.height * dpr), 96));
   ctx.scale(dpr, dpr);
   const bufferLength = analyser.fftSize || 2048;
   const dataArray = new Float32Array(bufferLength);
@@ -22249,8 +22249,8 @@ function startVoiceWaveAnimation(analyser) {
   const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  canvas.width = Math.max(1, Math.min(Math.round(rect.width * dpr), 320));
+  canvas.height = Math.max(1, Math.min(Math.round(rect.height * dpr), 96));
   ctx.scale(dpr, dpr);
   
   const bufferLength = analyser.frequencyBinCount;

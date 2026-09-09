@@ -110,6 +110,8 @@ html{scrollbar-width:auto;scrollbar-color:var(--border) var(--bg2)}
 /* Canvas Visualizer styling */
 #tutVoiceCanvas {
   display: none;
+  width: 80px;
+  height: 24px;
   vertical-align: middle;
   margin-left: 8px;
   background: transparent;
