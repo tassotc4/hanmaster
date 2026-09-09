@@ -14398,6 +14398,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Init theme
   initTheme();
   initTranscriptConfirmToggle();
+  initGreetingVoiceToggle();
   
   // Init daily challenge status
   checkDailyChallenge();
@@ -15431,6 +15432,19 @@ function toggleTranscriptConfirm(ask) {
 function initTranscriptConfirmToggle() {
   const toggle = document.getElementById('transcriptConfirmToggle');
   if (toggle) toggle.checked = localStorage.getItem('skip_transcript_confirm') === '0';
+}
+
+// Greeting voice: off by default. When off, the AI tutor's greeting/intro turn
+// is shown as text but NOT spoken.
+function greetingVoiceOn() {
+  return localStorage.getItem('greet_voice') === '1';
+}
+function toggleGreetingVoice(on) {
+  localStorage.setItem('greet_voice', on ? '1' : '0');
+}
+function initGreetingVoiceToggle() {
+  const toggle = document.getElementById('greetingVoiceToggle');
+  if (toggle) toggle.checked = greetingVoiceOn();
 }
 
 function tutSpeak(){
@@ -17743,6 +17757,7 @@ function isAutoIntroText(text) {
 
 function sendToGemini(userText) {
   _introTurnForSpeech = isAutoIntroText(userText);
+  _introGreetingTurn = _introTurnForSpeech && userText.indexOf('__PLACEMENT_START__') === -1 && userText.indexOf('（课堂开始）') === -1 && userText.indexOf('（时间到！') === -1;
   const statusText = document.getElementById('tutStatus');
   
   if (!navigator.onLine) {
@@ -18013,14 +18028,17 @@ function sendToGemini(userText) {
       });
     }
     const isIntroReply = _introTurnForSpeech;
+    const isGreetingSilent = _introGreetingTurn && !greetingVoiceOn();
     _introTurnForSpeech = false;
+    _introGreetingTurn = false;
 
-    // Always speak the reply (so the AI tutor is never silently "typing only").
-    // For auto-generated intro/greeting turns we still speak, but we do NOT
-    // auto-open the mic afterwards — that waiting-for-speech was the echo source,
-    // and the mic should only open on explicit user interaction.
-    if (speechText) setTimeout(() => speak(speechText), 1100);
-    else if (_interviewActive && cleanReply) setTimeout(() => speakViaAPI(cleanReply, getInterviewLangCode(), 1.0), 1100);
+    // Always speak non-greeting replies (so the AI tutor is never silently
+    // "typing only"). For auto-generated intro/greeting turns we still speak,
+    // unless the user disabled greeting voice — then the greeting stays text
+    // only. Greeting turns never auto-open the mic after speaking (echo source).
+    const _speakTurn = !isGreetingSilent;
+    if (_speakTurn && speechText) setTimeout(() => speak(speechText), 1100);
+    else if (_speakTurn && _interviewActive && cleanReply) setTimeout(() => speakViaAPI(cleanReply, getInterviewLangCode(), 1.0), 1100);
 
     // Auto-listen in Voice Mode or Live AI Mode — but never for an auto-intro
     // turn (the greeting), so the mic doesn't open into the tutor's reply (echo).
@@ -20972,6 +20990,7 @@ function getChineseLevel() {
 
 let _pendingLiveGreeting = false;
 let _introTurnForSpeech = false;
+let _introGreetingTurn = false;
 
 // ===== PLACEMENT INTERVIEW & LEVEL PROGRESSION =====
 const LEVEL_ORDER = ['never','beginner','intermediate','advanced'];
