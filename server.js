@@ -37,6 +37,89 @@ async function fishTts(text, speed = 1.0) {
   }
   return Buffer.from(await resp.arrayBuffer());
 }
+const crypto = require('crypto');
+const WebSocket = require('ws');
+const EDGE_TRUSTED_CLIENT_TOKEN = '6A5AA1D4EAFF4E9FB37E23D68491D6F4';
+const EDGE_WSS_URL = 'wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1';
+const EDGE_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0';
+const EDGE_ORIGIN = 'chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold';
+const EDGE_OUTPUT_FORMAT = 'audio-24khz-96kbitrate-mono-mp3';
+function edgeVoiceForLang(lang) {
+  const s = String(lang || '').toLowerCase();
+  if (s.indexOf('zh-tw') === 0) return 'zh-TW-HsiaoChenNeural';
+  if (s.indexOf('zh-hk') === 0) return 'zh-HK-HiuGaaiNeural';
+  if (/^en-gb/i.test(s)) return 'en-GB-SoniaNeural';
+  if (/^en-au/i.test(s)) return 'en-AU-NatashaNeural';
+  if (/^en/i.test(s)) return 'en-US-AriaNeural';
+  if (/^es/i.test(s)) return /^es-mx/i.test(s) ? 'es-MX-DaliaNeural' : 'es-ES-ElviraNeural';
+  if (/^fr/i.test(s)) return 'fr-FR-DeniseNeural';
+  if (/^ja/i.test(s)) return 'ja-JP-NanamiNeural';
+  if (/^ko/i.test(s)) return 'ko-KR-SunHiNeural';
+  if (/^de/i.test(s)) return 'de-DE-KatjaNeural';
+  if (/^pt/i.test(s)) return /^pt-pt/i.test(s) ? 'pt-PT-RaquelNeural' : 'pt-BR-FranciscaNeural';
+  if (/^it/i.test(s)) return 'it-IT-ElsaNeural';
+  if (/^ru/i.test(s)) return 'ru-RU-SvetlanaNeural';
+  if (/^vi/i.test(s)) return 'vi-VN-HoaiMyNeural';
+  if (/^th/i.test(s)) return 'th-TH-PremwadeeNeural';
+  if (/^id/i.test(s)) return 'id-ID-GadisNeural';
+  if (/^ar/i.test(s)) return 'ar-SA-ZariyahNeural';
+  if (/^tr/i.test(s)) return 'tr-TR-EmelNeural';
+  return 'en-US-AriaNeural';
+}
+function edgeWssUrl() {
+  const ticks = Math.floor(Date.now() / 1000) + 11644473600;
+  const rounded = ticks - (ticks % 300);
+  const windowsTicks = rounded * 10000000;
+  const secMsGec = crypto.createHash('sha256').update(String(windowsTicks) + EDGE_TRUSTED_CLIENT_TOKEN).digest('hex').toUpperCase();
+  const connId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+  return EDGE_WSS_URL + '?TrustedClientToken=' + EDGE_TRUSTED_CLIENT_TOKEN + '&Sec-MS-GEC=' + secMsGec + '&Sec-MS-GEC-Version=1-143.0.3650.96&ConnectionId=' + connId;
+}
+function escapeXml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+}
+function edgeTts(text, lang, spd) {
+  return new Promise((resolve, reject) => {
+    const rate = Math.min(2.0, Math.max(0.5, parseFloat(spd) || 1.0));
+    const input = escapeXml(String(text).trim().substring(0, 500));
+    const voice = edgeVoiceForLang(lang || 'zh-CN');
+    const voiceLang = (voice.match(/^\w{2}-\w{2}/) || ['en-US'])[0];
+    const ws = new WebSocket(edgeWssUrl(), { headers: { 'User-Agent': EDGE_USER_AGENT, 'Origin': EDGE_ORIGIN } });
+    const chunks = [];
+    let done = false;
+    const settle = (err, buf) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) ws.close(); } catch (e) {}
+      if (!err && (!buf || buf.length === 0)) err = new Error('Edge TTS returned no audio');
+      if (err) reject(err); else resolve(buf);
+    };
+    const timer = setTimeout(() => settle(new Error('Edge TTS timeout')), 25000);
+    ws.on('open', () => {
+      ws.send('Content-Type:application/json; charset=utf-8\r\nPath:speech.config\r\n\r\n{"context":{"synthesis":{"audio":{"metadataoptions":{"sentenceBoundaryEnabled":"false","wordBoundaryEnabled":"false"},"outputFormat":"' + EDGE_OUTPUT_FORMAT + '"}}}}');
+      const reqId = 'xxxxxxxxxxxxxxxx'.replace(/x/g, () => Math.floor(Math.random() * 16).toString(16));
+      const ssml = '<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="' + voiceLang + '"><voice name="' + voice + '"><prosody pitch="+0Hz" rate="' + rate + '" volume="100">' + input + '</prosody></voice></speak>';
+      ws.send('X-RequestId:' + reqId + '\r\nContent-Type:application/ssml+xml\r\nPath:ssml\r\n\r\n' + ssml);
+    });
+    ws.on('message', (m) => {
+      const buf = Buffer.from(m);
+      const msgStr = buf.toString('utf8');
+      if (msgStr.indexOf('Path:turn.end') >= 0) {
+        settle(null, Buffer.concat(chunks));
+        return;
+      }
+      const header = 'Path:audio\r\n';
+      const idx = buf.indexOf(header);
+      if (idx >= 0) chunks.push(buf.subarray(idx + header.length));
+    });
+    ws.on('error', (e) => settle(new Error('Edge TTS error: ' + ((e && e.message) || e))));
+    ws.on('close', () => settle(new Error('Edge TTS closed before synthesis completed')));
+  });
+}
 const nodemailer = require('nodemailer');
 const webpush = require('web-push');
 const multer = require('multer');
@@ -381,20 +464,30 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
 });
 
 app.get('/api/tts', apiLimiter, async (req, res) => {
-  const text = req.query.text;
+  const text = (req.query.text || '').trim();
   const lang = req.query.lang || 'zh-CN';
   const engine = req.query.engine || 'auto';
   if (!text || text.length > 500) return res.status(400).json({ error: 'Missing or too long text' });
-  const useFish = engine !== 'google' && FISH_AUDIO_KEY && /^zh/i.test(lang || '');
   try {
-    if (useFish) {
+    const isZh = /^zh/i.test(lang || '');
+    if (engine !== 'google') {
+      if (engine === 'fish' || (isZh && FISH_AUDIO_KEY)) {
+        try {
+          const buf = await fishTts(text, 1.0);
+          res.set('Content-Type', 'audio/mpeg');
+          res.set('Cache-Control', 'public, max-age=86400');
+          return res.send(buf);
+        } catch (e) {
+          console.warn('Fish TTS failed, falling back:', e.message);
+        }
+      }
       try {
-        const buf = await fishTts(text);
+        const buf = await edgeTts(text, lang, 1.0);
         res.set('Content-Type', 'audio/mpeg');
         res.set('Cache-Control', 'public, max-age=86400');
         return res.send(buf);
       } catch (e) {
-        console.warn('Fish TTS failed, falling back to Google:', e.message);
+        console.warn('Edge TTS failed, falling back to Google:', e.message);
       }
     }
     const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=gtx&q=${encodeURIComponent(text)}`;
@@ -414,14 +507,23 @@ app.post('/api/tts', apiLimiter, async (req, res) => {
   if (!text || !lang) return res.status(400).json({ error: 'Missing text or lang' });
   try {
     const spd = Math.min(2.0, Math.max(0.5, parseFloat(speed) || 1.0));
-    const useFish = engine !== 'google' && FISH_AUDIO_KEY && /^zh/i.test(lang || '');
-    if (useFish) {
+    const isZh = /^zh/i.test(lang || '');
+    if (engine !== 'google') {
+      if (engine === 'fish' || (isZh && FISH_AUDIO_KEY)) {
+        try {
+          const buf = await fishTts(text, spd);
+          res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buf.byteLength, 'Cache-Control': 'public, max-age=86400' });
+          return res.send(buf);
+        } catch (e) {
+          console.warn('Fish TTS failed, falling back:', e.message);
+        }
+      }
       try {
-        const buf = await fishTts(text, spd);
+        const buf = await edgeTts(text, lang, spd);
         res.set({ 'Content-Type': 'audio/mpeg', 'Content-Length': buf.byteLength, 'Cache-Control': 'public, max-age=86400' });
         return res.send(buf);
       } catch (e) {
-        console.warn('Fish TTS failed, falling back to Google:', e.message);
+        console.warn('Edge TTS failed, falling back to Google:', e.message);
       }
     }
     const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=${encodeURIComponent(lang)}&client=gtx&q=${encodeURIComponent(text.substring(0,200))}&ttsspeed=${spd}`;

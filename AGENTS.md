@@ -40,3 +40,8 @@ Two input paths — a Web Speech API path and a recording-fallback path:
 - Light theme: `.theme-light` overrides in `public/css/app.css` (~L83-95); `pinyin-chart.html` reads `hsk_theme` from localStorage and applies `.theme-light` via a storage listener.
 - Wider scrollbars (11px thumb) on `.app-sidebar`, main, and list panes (CSS top + Firefox `scrollbar-*`).
 - Static checks: `node --check public/js/app.js` after editing (always used; app.js must stay BOM-free UTF-8 without a trailing comma on the last object/array element).
+
+## TTS voices (server /api/tts, v87)
+- **Robotic-voice fix (v87)**: `/api/tts` GET+POST no longer default to the robotic Google `translate_tts?client=gtx` for non-Chinese. New order: **Edge TTS (Microsoft neural voices)** → Fish (zh only, when `FISH_AUDIO_KEY` set or `engine=fish`) → gtx last-resort. `engine=google` still forces gtx directly.
+- Edge TTS is implemented lean in `server.js` (requires `ws`, NOT the `msedge-tts` npm pkg — that one has `preinstall: npx only-allow pnpm` which **breaks Railway npm install**): `edgeTts()` ~L84 builds `edgeWssUrl()` (Sec-MS-GEC = SHA-256 hex of `${windowsTicks(300s-rounded)}${EDGE_TRUSTED_CLIENT_TOKEN}`), opens `wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1` with the Edge UA + `chrome-extension://jdiccldimpdaibmpdkjnbmckianbfold` Origin, sends `speech.config` then `Path:ssml` frames; collects `Path:audio` binary frames until `Path:turn.end` (25s timeout; error/close reject).
+- Voice map `edgeVoiceForLang()` (~L47) covers en/es/fr/ja/ko/de/pt/it/ru/vi/th/id/ar/tr + zh-TW/zh-HK; unknown → `en-US-AriaNeural`. Output `audio-24khz-96kbitrate-mono-mp3`; rate = 0.5–2.0 passed straight to the `<prosody rate>` multiplier. Text is `escapeXml`'d, capped 500 chars.
