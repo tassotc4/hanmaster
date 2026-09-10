@@ -106,8 +106,14 @@ function speakWithLang(text, lang) {
   try {
     if (window.speechSynthesis) {
       if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+      // Never let the default (English) browser voice read a foreign language —
+      // pick a voice matching the language, and stay silent if none exists.
+      const primary = String(lang || '').split('-')[0].toLowerCase();
+      const voices = primary ? speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith(primary)) : [];
+      if (voices.length === 0) return;
       const u = new SpeechSynthesisUtterance(text);
       u.lang = lang;
+      u.voice = voices.find(v => /neural|natural|online|premium/i.test(v.name)) || voices[voices.length - 1];
       u.rate = parseFloat(localStorage.getItem('speech_rate')) || 1.0;
       window.speechSynthesis.speak(u);
     }

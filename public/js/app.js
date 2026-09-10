@@ -15005,14 +15005,20 @@ function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
 function tryFallbackTTS(text, lang, rate) {
   if (!window.speechSynthesis) return;
   try {
+    const primary = String(lang || '').split('-')[0].toLowerCase();
+    const voices = primary ? speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith(primary)) : [];
+    // Only ever speak if a browser voice actually matches the requested language.
+    // When none exists (e.g. no vi voice on this Windows machine) Chrome's default
+    // voice would read it instead — an American-accented take on Vietnamese that
+    // users hear as "an American girl speaking" (v92). Silent beats wrong-language.
+    if (voices.length === 0) return;
     const u = new SpeechSynthesisUtterance(text);
     u.lang = lang;
     u.rate = rate || 1.0;
+    u.voice = voices.find(v => /neural|natural|online|premium/i.test(v.name)) || voices[voices.length - 1];
     u.onstart = () => { _browserTtsActive = true; startSpeakingAnimation(); };
     u.onend = () => { _browserTtsActive = false; stopSpeakingAnimation(); };
     u.onerror = () => { _browserTtsActive = false; stopSpeakingAnimation(); };
-    const voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith(lang.split('-')[0]));
-    if (voices.length > 0) u.voice = voices[voices.length - 1];
     speechSynthesis.speak(u);
   } catch(e) {}
 }
@@ -15158,6 +15164,7 @@ function tutListen(text){
 let _recAudioMode = false;
 
 function startAudioRecording(btn, ic) {
+  if (window._relistenT) { clearTimeout(window._relistenT); window._relistenT = null; }
   if (_recAudioMode) {
     console.log("Stopping audio recording...");
     clearTimeout(window._recAutoStopTimer);
@@ -15174,26 +15181,40 @@ function startAudioRecording(btn, ic) {
         console.log("Recording peak level:", peak, "AudioContext state:", ctxState);
         const totalBytes = audioChunks.reduce((a, c) => a + (c ? c.size : 0), 0);
         console.log("Recording total bytes:", totalBytes);
-        // Web-Audio analyser is the reliable signal: if the peak stays near
-        // Only trigger silence warning if mic delivered near-zero amplitude AND audio bytes are negligible
-        if (peak < 0.02 && ctxState === 'running' && totalBytes < 1000) {
-          console.warn("Mic appears silent (peak " + peak.toFixed(3) + ", bytes " + totalBytes + "), skipping transcription");
+        // The level-meter peak is the reliable silence signal. Byte size is NOT —
+        // AAC encodes silence as data too — and on Windows the meter AudioContext
+        // can report 'suspended' mid-recording, so neither alone is trustworthy.
+        // If the clip never rose above the speech threshold it is real silence,
+        // and silence must never reach Whisper (it hallucinates, and the AI would
+        // then keep talking on its own in live mode with no user input) (v94).
+        if (peak < 0.05) {
+          console.warn("Mic appears silent (peak " + peak.toFixed(3) + "), skipping transcription");
           // Release the mic tracks before returning — this path otherwise leaks
           // the stream (LED stays on, old stream reused by later recordings) (v78).
           if (activeMicStream) {
             try { activeMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
             activeMicStream = null;
           }
-          document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent)"><i class="fas fa-exclamation-triangle"></i> ' + t('No sound detected from your microphone.') + '</span>';
-          toast(t('Mic seems silent — check device and speak again.'), 'var(--gold)', 2500);
-          setTimeout(() => {
-            autoDetectMic().then(found => {
-              if (found) { toast(t('Microphone switched to: ') + found + '. ' + t('Tap mic and speak again.'), 'var(--green)', 4500); }
-              else { toast(t('No working mic found. Check Windows: Settings > Privacy & security > Microphone > allow desktop apps.'), 'var(--accent)', 7000); }
-            });
-          }, 400);
+          document.getElementById('tutHint').innerHTML = '<span style="color:var(--muted)"><i class="fas fa-headphones"></i> ' + t('Listening...') + '</span>';
+          if (localStorage.getItem('tutor_mode') === 'live') {
+            // Live AI: silence is not a turn. Keep waiting hands-free — re-open the
+            // mic on a graduated delay so the tutor only talks again once the user
+            // actually responds (no Whisper round-trip, no self-generated replies).
+            scheduleLiveReListen();
+          } else {
+            toast(t('Mic seems silent — check device and speak again.'), 'var(--gold)', 2500);
+            setTimeout(() => {
+              autoDetectMic().then(found => {
+                if (found) { toast(t('Microphone switched to: ') + found + '. ' + t('Tap mic and speak again.'), 'var(--green)', 4500); }
+                else { toast(t('No working mic found. Check Windows: Settings > Privacy & security > Microphone > allow desktop apps.'), 'var(--accent)', 7000); }
+              });
+            }, 400);
+          }
           return;
         }
+        // Real speech captured — clear the wait state so the next bot reply continues normally.
+        window._recSilentAuto = 0;
+        if (window._relistenT) { clearTimeout(window._relistenT); window._relistenT = null; }
         if (activeMicStream) {
           try { activeMicStream.getTracks().forEach(t => t.stop()); } catch(e) {}
           activeMicStream = null;
@@ -15349,9 +15370,32 @@ function startAudioRecording(btn, ic) {
   }
 }
 
+// Live AI hands-free wait (v94): after a silent clip, re-open the mic on a
+// graduated delay so the tutor simply WAITS for the user — it must never
+// transcribe silence (Whisper hallucinates) or generate its own turns.
+function scheduleLiveReListen() {
+  if (window._relistenT) { clearTimeout(window._relistenT); window._relistenT = null; }
+  if (window._transcribing) return;
+  if (document.hidden) return;
+  if (localStorage.getItem('tutor_mode') !== 'live') return;
+  const n = (window._recSilentAuto || 0) + 1;
+  window._recSilentAuto = n;
+  const delays = [1500, 2200, 3200, 4500];
+  const d = delays[Math.min(n - 1, delays.length - 1)];
+  window._relistenT = setTimeout(() => {
+    window._relistenT = null;
+    if (srOn || _recAudioMode) return;
+    if (document.hidden) return;
+    if (isTtsPlaying()) { scheduleLiveReListen(); return; }
+    if (localStorage.getItem('tutor_mode') !== 'live') return;
+    tutSpeak();
+  }, d);
+}
+
 function sendAudioToGemini(base64Audio, retries, mimeType) {
   if (retries === undefined) retries = 3;
   if (!mimeType) mimeType = window._audioMime || 'audio/mp4';
+  window._transcribing = true;
   console.log("Sending audio to Gemini, length:", base64Audio.length, "mime:", mimeType, "retries left:", retries);
   const payload = {
     contents: [{ role: "user", parts: [{ inlineData: { mimeType: mimeType, data: base64Audio } }] }],
@@ -15393,6 +15437,7 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       document.getElementById('tutStatus').textContent = t('Heard: ') + transcript;
       // Live AI mode: send the transcript straight to the AI — no extra taps needed
       if (localStorage.getItem('tutor_mode') === 'live') {
+        window._lastUserInputSource = 'voice';
         addLiveUserMsg(transcript);
         setTimeout(() => sendToGemini(transcript), 300);
       } else {
@@ -15431,8 +15476,10 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       }
     }
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
+    window._transcribing = false;
   }).catch(err => {
     console.error("Audio transcription failed:", err);
+    window._transcribing = false;
     document.getElementById('tutHint').textContent = t('Transcription error: ') + err.message;
     document.getElementById('tutStatus').textContent = t('Error:') + ' ' + err.message;
     if (loaderId) { const el = document.getElementById(loaderId); if (el) el.remove(); }
@@ -15743,6 +15790,7 @@ function tutTypeSubmit(){
   // Live AI mode: bypass scoring, direct AI conversation
   if (localStorage.getItem('tutor_mode') === 'live') {
     input.value = '';
+    window._lastUserInputSource = 'type';
     addLiveUserMsg(text);
     setTimeout(() => sendToGemini(text), 300);
     return;
@@ -18077,10 +18125,14 @@ function sendToGemini(userText) {
 
     // Auto-listen in Voice Mode or Live AI Mode — but never for an auto-intro
     // turn (the greeting), so the mic doesn't open into the tutor's reply (echo).
-    if (!isIntroReply && (voiceModeActive || localStorage.getItem('tutor_mode') === 'live')) {
+    const _liveModeNow = localStorage.getItem('tutor_mode') === 'live';
+    // Auto-listen only continues a hands-free (voice) conversation: if the last
+    // input came from the keyboard, do NOT open the mic — and never let a silent
+    // clip become a turn. Voice input sets _lastUserInputSource='voice' (v94).
+    if (!isIntroReply && (voiceModeActive || (_liveModeNow && window._lastUserInputSource === 'voice'))) {
       setTimeout(() => {
         const waitAndListen = () => {
-          if ((voiceModeActive || localStorage.getItem('tutor_mode') === 'live') && !srOn) {
+          if ((voiceModeActive || (_liveModeNow && window._lastUserInputSource === 'voice')) && !srOn) {
             if (isTtsPlaying()) {
               setTimeout(waitAndListen, 500);
             } else {
@@ -18723,6 +18775,11 @@ function startLiveTutor() {
   isLiveAIActive = true;
   tutStep = 0;
   tutLesson = TL[0];
+  // Start a clean typing-chat session: no voice state carries over, and any
+  // pending hands-free re-listen wait from a previous session is cancelled.
+  window._lastUserInputSource = null;
+  window._recSilentAuto = 0;
+  if (window._relistenT) { clearTimeout(window._relistenT); window._relistenT = null; }
   // Start in clean typing-chat mode — disable voice auto-listen so it doesn't loop on no-mic setups
   if (typeof voiceModeActive !== 'undefined' && voiceModeActive) {
     voiceModeActive = false;

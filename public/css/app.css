@@ -547,16 +547,6 @@ html:has(.spatial-theme-tutor) {
   flex: 1;
   min-width: 0;
 }
-.tutor-header-left .tutor-icon {
-  width: 44px; height: 44px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: linear-gradient(135deg, var(--blue), var(--purple));
-}
-.tutor-header-left .tutor-icon i { font-size: 18px; color: #fff; }
 .tutor-header-left .tutor-selects { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .tutor-header-left .tutor-selects select {
   font-size: 13px;
@@ -578,22 +568,7 @@ html:has(.spatial-theme-tutor) {
 .tutor-header-left .tutor-selects select:hover { border-color: var(--accent); }
 .tutor-header-left .tutor-selects select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--st), 0.15); }
 
-.tutor-header-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  position: relative;
-}
 .tutor-menu-dropdown { z-index: 1200; }
-.tutor-header-right .score-box {
-  text-align: right;
-  padding-right: 8px;
-  border-right: 1px solid var(--border);
-  margin-right: 4px;
-}
-.tutor-header-right .score-box .score-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-.tutor-header-right .score-box .score-value { font-size: 20px; font-weight: 900; color: var(--gold); }
 
 .tutor-tool-btn {
   display: flex;
@@ -671,8 +646,8 @@ html:has(.spatial-theme-tutor) {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  margin-bottom: 14px;
+  gap: 18px;
+  margin-bottom: 8px;
 }
 .tutor-control-btn {
   display: flex;
@@ -688,14 +663,14 @@ html:has(.spatial-theme-tutor) {
 }
 .tutor-control-btn:hover { transform: translateY(-2px); }
 .tutor-control-btn .btn-circle {
-  width: 72px; height: 72px;
+  width: 58px; height: 58px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
 }
-.tutor-control-btn .btn-circle i { font-size: 22px; }
+.tutor-control-btn .btn-circle i { font-size: 18px; }
 .tutor-control-btn .btn-label {
   font-size: 12px;
   font-weight: 700;
@@ -876,7 +851,6 @@ html:has(.spatial-theme-tutor) {
     flex-wrap: wrap !important;
     row-gap: 8px !important;
   }
-  .tutor-header-right { margin-left: auto; }
   .tutor-controls { gap: 18px; margin-bottom: 10px; }
   .tutor-control-btn .btn-circle { width: 56px; height: 56px; }
   .tutor-control-btn .btn-circle i { font-size: 18px; }
@@ -886,7 +860,6 @@ html:has(.spatial-theme-tutor) {
 
 /* Very small phones */
 @media (max-width: 380px) {
-  .tutor-header-left .tutor-icon { display: none; }
   .tutor-header-left .tutor-selects select { min-width: 70px; }
   .tutor-tool-btn { padding: 4px 8px; }
   .tutor-control-btn .btn-circle { width: 50px; height: 50px; }
