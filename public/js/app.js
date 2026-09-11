@@ -17879,7 +17879,7 @@ function sendToGemini(userText) {
 
     if (!isInternal) {
       if (count >= 5) {
-        showPremiumPaywall(t('Live AI Tutor'));
+        showTutorUpgradeAsk();
         toast(t('Daily free speaking limit reached. Upgrade to Premium for unlimited tutor time.'), 'var(--accent)', 6000);
         if (statusText) statusText.textContent = t('Limit Reached');
         return;
@@ -19500,6 +19500,23 @@ function showPremiumPaywall(levelName) {
   const modal = document.getElementById('premiumModal');
   if (modal) modal.style.display = 'flex';
   if (typeof paypal !== 'undefined') renderPayPalButtons();
+}
+
+// Dedicated ask before dumping the user into the full pricing modal: after the
+// free daily limit is hit in the AI tutor, offer the $9.00/month upgrade first.
+function showTutorUpgradeAsk() {
+  const modal = document.getElementById('tutorUpgradeAsk');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeTutorUpgradeAsk() {
+  const modal = document.getElementById('tutorUpgradeAsk');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmTutorUpgrade() {
+  closeTutorUpgradeAsk();
+  showPremiumPaywall(t('Live AI Tutor'));
 }
 
 function initCapacitorPurchases() {

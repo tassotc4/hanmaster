@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=105" as="style">
-<link rel="preload" href="/js/app.js?v=105" as="script"> 
+<link rel="preload" href="/css/app.css?v=107" as="style">
+    <link rel="preload" href="/js/app.js?v=107" as="script">
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=105">
+<link rel="stylesheet" href="/css/app.css?v=107">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -211,11 +211,11 @@
 <script defer src="/js/config.js"></script>
 <script defer src="/js/supabase.js"></script>
 <script defer src="/js/paypal.js"></script>
-<script defer src="/js/shop.js?v=105"></script>
+<script defer src="/js/shop.js?v=107"></script>
 <script defer src="/js/vocab-data.js"></script>
 <script defer src="/js/vocab-extra-data.js"></script>
 <script defer src="/js/extra-content.js"></script>
-<script defer src="/js/translate.js?v=105"></script>
+<script defer src="/js/translate.js?v=107"></script>
 <script defer src="/js/tutor-data.js"></script>
 <script defer src="/js/tutor-data-more.js"></script>
 </head>
@@ -1360,6 +1360,27 @@
   </div>
 </div>
 
+<!-- TUTOR UPGRADE ASK MODAL -->
+<div id="tutorUpgradeAsk" class="fixed inset-0 z-[2001] flex items-center justify-center p-4 bg-black/80" style="display:none">
+  <div class="cd p-6 w-full max-w-sm bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card); border-radius:16px;">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg text-white"><i class="fas fa-crown mr-2 text-[var(--gold)]"></i> <span data-tr="Upgrade to Premium">Upgrade to Premium</span></h3>
+      <button onclick="closeTutorUpgradeAsk()" aria-label="Close" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--fg);padding:4px 8px;border-radius:8px" class="hover:bg-[var(--card2)] transition"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="text-center py-2">
+      <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(212,166,79,.1)">
+        <i class="fas fa-gem text-3xl" style="color:var(--gold)"></i>
+      </div>
+      <h4 class="font-black text-xl text-white mb-2" data-tr="Keep chatting with Li Laoshi?">Keep chatting with Li Laoshi?</h4>
+      <p class="text-sm text-muted mb-4" data-tr="You've used your free daily AI tutor conversations. Upgrade to Premium for just $9.00/month (after your free trial) for unlimited conversations, full HSK 1-9 access, and more. Or come back tomorrow for another 5 free messages.">You've used your free daily AI tutor conversations. Upgrade to Premium for just <b>$9.00/month</b> (after your free trial) for unlimited conversations, full HSK 1-9 access, and more. <b>Or come back tomorrow for another 5 free messages.</b></p>
+      <div class="flex flex-col gap-2">
+        <button onclick="confirmTutorUpgrade()" class="py-3 rounded-xl font-bold text-sm w-full cursor-pointer border-none" style="background:linear-gradient(135deg,var(--gold),var(--accent));color:#fff" data-tr="Upgrade to $9.00/month">Upgrade to $9.00/month</button>
+        <button onclick="closeTutorUpgradeAsk()" class="py-2.5 rounded-xl text-sm w-full cursor-pointer" style="background:var(--card2);color:var(--fg);border:1px solid var(--border)" data-tr="Not now">Not now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SETTINGS MODAL -->
 <div id="geminiModal" class="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80" style="display:none">
   <div class="cd p-6 w-full max-w-md bg-[var(--card)]" style="border:1px solid var(--border); background: var(--card); max-height:85vh; overflow-y:auto;">
@@ -1914,7 +1935,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=105"></script> 
+<script defer src="/js/app.js?v=107"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [
