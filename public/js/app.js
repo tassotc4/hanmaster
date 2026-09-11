@@ -15411,8 +15411,6 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
   };
   document.getElementById('tutStatus').textContent = t('Transcribing...');
   const loaderId = 'loader-' + Date.now();
-  const _tl = addTutMsg('bot', '<div id="' + loaderId + '" class="animate-pulse">'+t('Transcribing audio...')+'</div>');
-  if (_tl) _tl.style.animation = 'none';
   fetch('/api/chat', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
