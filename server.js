@@ -366,14 +366,22 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       // noisy Mandarin clips (e.g. "Wishwan her Yenna Nai Caffey"). Always force
       // the mic's selected language (including zh) instead of letting it guess.
       const forceLang = sourceLang === 'auto' || !sourceLang ? undefined : sourceLang;
-      const basePrompt = 'The audio is a student speaking during a Mandarin Chinese lesson. They may mix Chinese with English words or names (e.g. Michael, David, John, Sarah). Transcribe Chinese words as Chinese characters, and keep any English words or names in English letters — do NOT transliterate English names into Chinese characters. Return only the transcription with no extra words.';
+      // The main accuracy lever for this app: whisper-large-v3-turbo is fine for
+      // other languages but measurably worse on short Mandarin utterances over a
+      // laptop mic — it turns 我喜欢喝可乐 into phonetically plausible nonsense
+      // (e.g. 我崇拜我的心颜色). Use the full whisper-large-v3 for Chinese.
+      const primaryModel = (forceLang === 'zh') ? 'whisper-large-v3' : 'whisper-large-v3-turbo';
+      const zhPrompt = '这里是普通话听写。说话的人在老师的带领下说简单的中文口语。请只输出简体汉字（不输出拼音，不翻译，不加解释）。英语人名或外来词保留英文。常见词参考：你、我、他、她、喜欢、爱、喝、吃、可乐、咖啡、茶、水、米饭、苹果、老师、今天、明天。';
+      const basePrompt = forceLang === 'zh'
+        ? zhPrompt
+        : 'The audio is a student speaking during a Mandarin Chinese lesson. They may mix Chinese with English words or names (e.g. Michael, David, John, Sarah). Transcribe Chinese words as Chinese characters, and keep any English words or names in English letters — do NOT transliterate English names into Chinese characters. Return only the transcription with no extra words.';
 
-      async function runWhisper(lang, prompt) {
+      async function runWhisper(lang, prompt, model) {
         const fm = new FormData();
         const blob = new Blob([buf], { type: mimeType });
         const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('mp4') ? 'mp4' : mimeType.includes('mpeg') ? 'mpeg' : mimeType.includes('ogg') ? 'ogg' : mimeType.includes('opus') ? 'opus' : mimeType.includes('wav') ? 'wav' : 'webm';
         fm.append('file', blob, `audio.${ext}`);
-        fm.append('model', 'whisper-large-v3-turbo');
+        fm.append('model', model || 'whisper-large-v3-turbo');
         fm.append('response_format', 'json');
         fm.append('temperature', '0');
         fm.append('prompt', prompt);
@@ -386,14 +394,22 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
         return j.text || '';
       }
 
-      let transcribed = await runWhisper(forceLang, basePrompt);
+      let transcribed;
+      try {
+        transcribed = await runWhisper(forceLang, basePrompt, primaryModel);
+      } catch (e) {
+        console.warn("Whisper primary model failed (" + primaryModel + "), retrying with turbo:", e.message);
+        transcribed = await runWhisper(forceLang, basePrompt, 'whisper-large-v3-turbo');
+      }
+      console.log("Whisper transcript (model " + primaryModel + ", lang " + (forceLang || 'auto') + "):", JSON.stringify(transcribed));
 
-      // If the user explicitly selected Chinese, but spoke pinyin/gibberish (not natural conversational English), retry once forcing Chinese:
+      // If the user explicitly selected Chinese, but the transcript has no Chinese
+      // (pinyin/gibberish/hallucinated English), retry once with the accurate model:
       const isEnglish = /\b(my|name|is|i|i'm|im|you|what|how|why|when|where|who|hello|hi|hey|please|thank|thanks|yes|no|can|could|do|does|did|not|from|am|are|student|teacher|speak|learn|chinese|mandarin|english|help)\b/i.test(transcribed);
       if (forceLang === 'zh' && transcribed && !/[\u4e00-\u9fa5]/.test(transcribed) && !isEnglish) {
         console.warn("zh transcript has no CJK (<" + transcribed + ">) and is not English, retrying with forced Chinese...");
         try {
-          const retryText = await runWhisper('zh', 'The speaker is speaking Mandarin Chinese, possibly with English names. Transcribe Chinese as characters and keep English names (e.g. Michael, David) in English letters.');
+          const retryText = await runWhisper('zh', zhPrompt, 'whisper-large-v3');
           if (retryText && /[\u4e00-\u9fa5]/.test(retryText)) {
             transcribed = retryText;
           }
@@ -423,7 +439,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       // Whisper sometimes echoes the prompt above back when the audio is near-silent
       // (e.g. "Transcribe exactly what is spoken in the language."). Treat those echoes
       // as no-speech; otherwise each one spams the live tutor with a fake turn.
-      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe/i.test(transcribed)) {
+      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe|这里是普通话听写/.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       const userMsg = textParts.length > 0
