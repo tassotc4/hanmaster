@@ -839,6 +839,140 @@ async function getPayPalAccessToken() {
   }
 }
 
+// ===== SHOP (digital products + merch, v103) =====
+let SHOP_CATALOG = { merchStoreUrl: '', products: [] };
+try { SHOP_CATALOG = require('./shop/products.json'); } catch (e) { console.error('Shop catalog missing:', e.message); }
+
+function shopProductFor(id) {
+  if (!id || typeof id !== 'string') return null;
+  return (SHOP_CATALOG.products || []).find(function(p) { return p.id === id; });
+}
+function shopSigningKey() {
+  return process.env.SHOP_SIGNING_KEY || process.env.PAYPAL_CLIENT_SECRET || 'mandarincourse-shop-local-dev';
+}
+// Stateless HMAC-signed download grant. No DB needed: the capture endpoint
+// mints {productId|expiry}.HMAC and the download endpoint verifies it.
+function shopToken(productId, expiresInSec) {
+  const exp = Math.floor(Date.now() / 1000) + expiresInSec;
+  const payload = productId + '|' + exp;
+  const sig = crypto.createHmac('sha256', shopSigningKey()).update(payload).digest('base64url');
+  return { token: sig + '.' + Buffer.from(payload, 'utf8').toString('base64url'), exp: exp, expiresInSec: expiresInSec };
+}
+function shopVerify(token) {
+  try {
+    const parts = String(token || '').split('.');
+    if (parts.length !== 2) return null;
+    const payload = Buffer.from(parts[1], 'base64url').toString('utf8');
+    const m = /^(.+)\|(\d+)$/.exec(payload);
+    if (!m) return null;
+    const expected = crypto.createHmac('sha256', shopSigningKey()).update(payload).digest('base64url');
+    const a = Buffer.from(parts[0], 'base64url');
+    const b = Buffer.from(expected, 'base64url');
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) return null;
+    if (parseInt(m[2], 10) < Math.floor(Date.now() / 1000)) return null;
+    return { productId: m[1] };
+  } catch (e) { return null; }
+}
+
+app.get('/api/shop/products', (req, res) => {
+  res.json({
+    merchStoreUrl: SHOP_CATALOG.merchStoreUrl || '',
+    products: (SHOP_CATALOG.products || []).map(function(p) {
+      return { id: p.id, type: p.type, name: p.name, desc: p.desc, price: p.price, size: p.size || '', image: p.image || '' };
+    })
+  });
+});
+
+app.post('/api/shop/create-order', apiLimiter, async (req, res) => {
+  const prod = shopProductFor(req.body && req.body.productId);
+  if (!prod) return res.status(404).json({ error: 'Product not found' });
+  const accessToken = await getPayPalAccessToken();
+  if (!accessToken) return res.status(500).json({ error: 'Failed to get PayPal token' });
+  try {
+    const resp = await fetch(
+      PAYPAL_API + '/v2/checkout/orders',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        // Price comes from the server-side catalog only — never from the client.
+        body: JSON.stringify({
+          intent: 'CAPTURE',
+          purchase_units: [{
+            description: prod.name + ' — MandarinCourse',
+            amount: { currency_code: 'USD', value: String(prod.price) }
+          }]
+        })
+      }
+    );
+    const data = await resp.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/shop/capture-order', apiLimiter, async (req, res) => {
+  const { orderId, productId } = req.body || {};
+  if (!orderId || typeof orderId !== 'string') return res.status(400).json({ error: 'Missing orderId' });
+  const prod = shopProductFor(productId);
+  if (!prod) return res.status(404).json({ error: 'Product not found' });
+  const accessToken = await getPayPalAccessToken();
+  if (!accessToken) return res.status(500).json({ error: 'Failed to get PayPal token' });
+  try {
+    const resp = await fetch(
+      PAYPAL_API + `/v2/checkout/orders/${orderId}/capture`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    const data = await resp.json();
+    const pu = data && data.purchase_units && data.purchase_units[0];
+    const cap = pu && pu.payments && pu.payments.captures && pu.payments.captures[0];
+    // Server-side check: real PayPal completion AND captured amount matches catalog.
+    if (!cap || cap.status !== 'COMPLETED' || Number(cap.amount && cap.amount.value) !== Number(prod.price)) {
+      return res.status(400).json({ error: 'Payment not completed or amount mismatch' });
+    }
+    let download = null;
+    if (prod.type === 'digital') {
+      const t = shopToken(prod.id, 7 * 24 * 3600);
+      download = {
+        url: '/api/shop/download/' + encodeURIComponent(prod.id) + '?t=' + encodeURIComponent(t.token) + '&e=' + t.exp,
+        expiresInSec: t.expiresInSec
+      };
+    }
+    res.json({ status: 'COMPLETED', type: prod.type, productId: prod.id, download: download });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/shop/download/:slug', (req, res) => {
+  const auth = shopVerify(req.query.t);
+  if (!auth || auth.productId !== req.params.slug) {
+    return res.status(403).json({ error: 'Invalid or expired download link' });
+  }
+  const prod = shopProductFor(req.params.slug);
+  if (!prod || prod.type !== 'digital' || !prod.file) {
+    return res.status(404).json({ error: 'Product not found' });
+  }
+  const filePath = path.resolve(__dirname, prod.file);
+  if (!filePath.startsWith(path.resolve(__dirname, 'shop'))) {
+    return res.status(400).json({ error: 'Bad path' });
+  }
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'This file is not ready yet. Please check back soon.' });
+  }
+  const ext = path.extname(filePath) || '.pdf';
+  res.download(filePath, prod.downloadName || (prod.id + ext));
+});
+
 // ===== PUSH NOTIFICATIONS =====
 app.get('/api/vapid-public-key', (req, res) => {
   res.json({ publicKey: vapidPublicKey });

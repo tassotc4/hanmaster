@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=102" as="style">
-<link rel="preload" href="/js/app.js?v=102" as="script"> 
+<link rel="preload" href="/css/app.css?v=103" as="style">
+<link rel="preload" href="/js/app.js?v=103" as="script"> 
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=102">
+<link rel="stylesheet" href="/css/app.css?v=103">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -211,10 +211,11 @@
 <script defer src="/js/config.js"></script>
 <script defer src="/js/supabase.js"></script>
 <script defer src="/js/paypal.js"></script>
+<script defer src="/js/shop.js?v=103"></script>
 <script defer src="/js/vocab-data.js"></script>
 <script defer src="/js/vocab-extra-data.js"></script>
 <script defer src="/js/extra-content.js"></script>
-<script defer src="/js/translate.js?v=102"></script>
+<script defer src="/js/translate.js?v=103"></script>
 <script defer src="/js/tutor-data.js"></script>
 <script defer src="/js/tutor-data-more.js"></script>
 </head>
@@ -292,6 +293,7 @@
     <button class="sbn" data-route="/app/translate" onclick="navTo('/app/translate', this);closeSidebar()"><i class="fas fa-language"></i><span data-tr="Translate">Translate</span></button>
     <button class="sbn" data-route="/app/grammar-check" onclick="navTo('/app/grammar-check', this);closeSidebar()"><i class="fas fa-check-double"></i><span data-tr="Grammar Check">Grammar Check</span></button>
     <button class="sbn" data-route="/app/document-ai" onclick="navTo('/app/document-ai', this);closeSidebar()"><i class="fas fa-file-upload"></i><span data-tr="Document AI">Document AI</span></button>
+    <button class="sbn" data-route="/app/shop" onclick="navTo('/app/shop', this);closeSidebar()"><i class="fas fa-store"></i><span data-tr="Shop">Shop</span></button>
     <button class="sbn" data-route="/app/progress" onclick="navTo('/app/progress', this);closeSidebar()"><i class="fas fa-chart-line"></i><span data-tr="Progress">Progress</span></button>
     <button class="sbn" data-route="/pinyin-chart" onclick="navTo('/pinyin-chart', this);closeSidebar()"><i class="fas fa-music"></i><span data-tr="Pinyin Chart">Pinyin Chart</span></button>
   </div>
@@ -1166,6 +1168,20 @@
 </div></div>
 </section>
 
+<!-- ========== SHOP ========== -->
+<section id="shop" data-route="/app/shop" class="py-20 px-5" style="background:var(--bg2)">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-10 fu">
+      <div class="sl"><i class="fas fa-store mr-1"></i> <span data-tr="Shop">Shop</span></div>
+      <h2 class="fc font-bold text-2xl md:text-3xl mb-3" data-tr="Support MandarinCourse">Support MandarinCourse</h2>
+      <p class="text-sm md:text-base mb-1" style="color:var(--fg2)" data-tr="Downloadable study packs delivered instantly after payment, plus merch printed and shipped by Printify.">Downloadable study packs delivered instantly after payment, plus merch printed and shipped by Printify.</p>
+    </div>
+    <div id="shopStatus" class="text-center py-10" style="color:var(--muted)"><i class="fas fa-spinner fa-spin mr-2"></i><span data-tr="Loading shop...">Loading shop...</span></div>
+    <div id="shopDigitalGrid" class="grid gap-4 mb-10" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))"></div>
+    <div id="shopMerchCard"></div>
+  </div>
+</section>
+
 <!-- ========== PINYIN CHART ========== -->
 <section id="pinyinChart" data-route="/pinyin-chart" class="py-20 px-5" style="background:var(--bg)">
   <div class="max-w-4xl mx-auto">
@@ -1202,6 +1218,33 @@
         <button class="bp flex-1" onclick="checkGrammarPractice()" data-tr="Check">Check</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- SHOP CHECKOUT MODAL -->
+<div id="shopModal" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80" style="display:none">
+  <div class="cd p-6 w-full max-w-md" style="border:1px solid var(--border);background:var(--card);border-radius:16px;">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-bold text-lg" style="color:var(--fg)"><i class="fas fa-cart-shopping mr-2" style="color:var(--gold)"></i><span data-tr="Checkout">Checkout</span></h3>
+      <button onclick="closeShopModal()" aria-label="Close checkout" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--fg);padding:4px 8px;border-radius:8px"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="shopModalProduct" class="flex items-center gap-3 mb-4"></div>
+    <div id="shopPaypalContainer" class="mb-3"></div>
+    <div id="shopPayError" class="text-xs mb-3" style="color:var(--accent);display:none"></div>
+    <button onclick="closeShopModal()" class="text-xs font-medium py-2 px-4 rounded-lg w-full" style="background:var(--card2);color:var(--fg);border:1px solid var(--border);cursor:pointer" data-tr="Cancel">Cancel</button>
+  </div>
+</div>
+
+<!-- SHOP SUCCESS MODAL -->
+<div id="shopSuccessModal" class="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-black/80" style="display:none">
+  <div class="cd p-6 w-full max-w-md" style="border:1px solid var(--border);background:var(--card);border-radius:16px;text-align:center;">
+    <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(58,255,92,.1)">
+      <i class="fas fa-check text-3xl" style="color:var(--green)"></i>
+    </div>
+    <h4 class="font-black text-lg mb-2" style="color:var(--fg)" data-tr="Thank you!">Thank you!</h4>
+    <p class="text-sm mb-5" style="color:var(--fg2)" id="shopSuccessMsg"></p>
+    <a id="shopDownloadBtn" class="bp block text-center mb-3" style="text-decoration:none;display:none" target="_blank" rel="noopener"><i class="fas fa-download mr-2"></i><span data-tr="Download Now">Download Now</span></a>
+    <button onclick="closeShopSuccessModal()" class="text-xs font-medium py-2 px-4 rounded-lg w-full" style="background:var(--card2);color:var(--fg);border:1px solid var(--border);cursor:pointer" data-tr="Close">Close</button>
   </div>
 </div>
 
@@ -1708,6 +1751,7 @@
 <button class="mnb-sm" data-tr="Trans" onclick="navTo('#translate', this);toggleMobileMore()"><i class="fas fa-language"></i>Trans</button>
 <button class="mnb-sm" data-tr="Check" onclick="navTo('#grammarCheck', this);toggleMobileMore()"><i class="fas fa-check-double"></i>Check</button>
 <button class="mnb-sm" data-tr="Doc" onclick="navTo('#docUpload', this);toggleMobileMore()"><i class="fas fa-file-upload"></i>Doc</button>
+<button class="mnb-sm" data-tr="Shop" onclick="navTo('#shop', this);toggleMobileMore()"><i class="fas fa-store"></i>Shop</button>
 <button class="mnb-sm" data-tr="Progress" onclick="navTo('#progress', this);toggleMobileMore()"><i class="fas fa-chart-line"></i>Progress</button>
 <button class="mnb-sm" data-tr="Tones" onclick="window.location.href='/pinyin-chart';toggleMobileMore()"><i class="fas fa-music"></i>Tones</button>
 <button class="mnb-sm" data-tr="Rank" onclick="showLeaderboard();toggleMobileMore()"><i class="fas fa-trophy"></i>Rank</button>
@@ -1852,7 +1896,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=102"></script> 
+<script defer src="/js/app.js?v=103"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [

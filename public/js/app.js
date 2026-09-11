@@ -14476,6 +14476,7 @@ var APP_ROUTES = {
   '/app/translate': 'translate',
   '/app/grammar-check': 'grammarCheck',
   '/app/document-ai': 'docUpload',
+  '/app/shop': 'shop',
   '/pinyin-chart': 'pinyinChart'
 };
 var ROUTE_META = {
@@ -14488,6 +14489,7 @@ var ROUTE_META = {
   '/app/translate': { title: 'Chinese Translator - MandarinCourse', desc: 'Translate between Chinese and 10 languages. AI-powered translation with pinyin and example sentences.' },
   '/app/grammar-check': { title: 'AI Grammar Check - MandarinCourse', desc: 'Check your Chinese grammar with AI. Get corrections, explanations, and improved versions of your sentences.' },
   '/app/document-ai': { title: 'Document AI - MandarinCourse', desc: 'Upload and process Chinese documents with AI. Summarize, fix errors, or translate PDFs, images, and text files.' },
+  '/app/shop': { title: 'Shop - MandarinCourse', desc: 'Buy MandarinCourse study packs and merch. Downloadable PDFs delivered instantly after payment, secure checkout via PayPal.' },
   '/pinyin-chart': { title: 'Interactive Pinyin Chart - MandarinCourse', desc: 'Free interactive Pinyin chart with audio. Click any syllable to hear it pronounced in all four tones.' }
 };
 var routeSectionMap = {};

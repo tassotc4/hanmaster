@@ -1,0 +1,38 @@
+{
+  "merchStoreUrl": "",
+  "products": [
+    {
+      "id": "hsk1-2-flashcards",
+      "type": "digital",
+      "name": "HSK 1-2 Flashcard Pack (Printable PDF)",
+      "desc": "Printable flashcards for every HSK 1-2 word with pinyin, tones, and an example sentence on each card.",
+      "price": 4.99,
+      "size": "~6 MB PDF",
+      "image": "/shop/img/flashcards.svg",
+      "file": "shop/files/hsk1-2-flashcards.pdf",
+      "downloadName": "HSK1-2-Flashcards.pdf"
+    },
+    {
+      "id": "tone-practice-guide",
+      "type": "digital",
+      "name": "Mandarin Tone Practice Guide",
+      "desc": "A focused guide with tone-pair drills, contrast pairs, and 60 practice sentences with pinyin and audio-friendly charts.",
+      "price": 2.99,
+      "size": "~1 MB PDF",
+      "image": "/shop/img/flashcards.svg",
+      "file": "shop/files/tone-practice-guide.pdf",
+      "downloadName": "Mandarin-Tone-Practice-Guide.pdf"
+    },
+    {
+      "id": "hsk1-grammar-cheatsheet",
+      "type": "digital",
+      "name": "HSK 1 Grammar Cheat Sheet",
+      "desc": "Every HSK 1 grammar pattern on one page: structure, example, and English gloss. Print it and stick it on your wall.",
+      "price": 1.99,
+      "size": "~0.5 MB PDF",
+      "image": "/shop/img/flashcards.svg",
+      "file": "shop/files/hsk1-grammar-cheatsheet.pdf",
+      "downloadName": "HSK1-Grammar-Cheatsheet.pdf"
+    }
+  ]
+}
