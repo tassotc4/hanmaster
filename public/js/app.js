@@ -15442,11 +15442,35 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
       console.log("Transcription result:", transcript);
       window._noSpeechRetries = 0;
       document.getElementById('tutStatus').textContent = t('Heard: ') + transcript;
-      // Live AI mode: send the transcript straight to the AI — no extra taps needed
+      // Live AI mode: send the transcript straight to the AI — no extra taps needed (v81).
+      // BUT Whisper can mishear short Mandarin over a laptop mic, and a wrong phrase
+      // would otherwise reach the tutor and derail the lesson ("I like cola" heard as
+      // "I worship my heart color"). Show the transcript with a ✓/✕ row that
+      // AUTO-CONFIRMS after 2.5s: hands-free when the transcription is correct, but
+      // the user can cancel a misheard one and re-speak before it hits the tutor (v99).
       if (localStorage.getItem('tutor_mode') === 'live') {
         window._lastUserInputSource = 'voice';
         addLiveUserMsg(transcript);
-        setTimeout(() => sendToGemini(transcript), 300);
+        if (localStorage.getItem('skip_transcript_confirm') !== '1') {
+          const confirmId = 'confirm-' + Date.now();
+          const safeTr = transcript.replace(/'/g, "\\'");
+          const last = document.getElementById('tutChat').lastElementChild;
+          if (last) {
+            const row = document.createElement('div');
+            row.id = confirmId;
+            row.style.cssText = 'margin-top:8px;display:flex;gap:8px;align-items:center';
+            row.innerHTML = '<button onclick="confirmTranscript(\'' + safeTr + '\',\'' + loaderId + '\',\'' + confirmId + '\')" style="background:var(--green);color:#fff;border:none;padding:4px 14px;border-radius:4px;cursor:pointer;font-size:13px">✓ ' + t('Use') + '</button><button onclick="rejectTranscript(\'' + confirmId + '\',\'' + loaderId + '\')" style="background:var(--accent);color:#fff;border:none;padding:4px 14px;border-radius:4px;cursor:pointer;font-size:13px">✕ ' + t('Wrong') + '</button>';
+            last.appendChild(row);
+            setTimeout(function() {
+              const el = document.getElementById(confirmId);
+              if (el && el.dataset.done !== '1') confirmTranscript(transcript, loaderId, confirmId);
+            }, 2500);
+          } else {
+            setTimeout(() => sendToGemini(transcript), 300);
+          }
+        } else {
+          setTimeout(() => sendToGemini(transcript), 300);
+        }
       } else {
         // Voice transcript confirm: when the user turned it off in Settings
         // (skip_transcript_confirm !== '0'), send the transcript automatically
