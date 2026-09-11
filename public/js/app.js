@@ -20013,13 +20013,23 @@ function curvePathFromPoints(pts) {
   return d;
 }
 
-// Low-pass median filter for live pitch: a rolling 5-sample window stops a single
-// noisy frame or octave jump from yanking the line like a machine (v89).
+// Low-pass the live pitch so the curve GLIDES instead of snapping (v102). The
+// median alone is a step function — it plates and jumps when samples enter/leave
+// the window, and autocorrelation can flicker to octave-doubled/halved frames.
+// Stack: 7-sample median (kills single-frame spikes) → exponential moving average
+// (blends residual frame-to-frame steps) → per-frame step clamp (caps octave snaps).
+var PITCH_EMA = 0.78;      // fraction of each new median applied per frame (1=raw)
+var PITCH_MAX_STEP = 70;   // max Hz a curve point may move in a single frame
 function filteredPitch(sample, win) {
   win.push(sample);
-  if (win.length > 5) win.shift();
+  if (win.length > 7) win.shift();
   var sorted = win.slice().sort(function(a, b) { return a - b; });
-  return sorted[Math.floor(sorted.length / 2)];
+  var median = sorted[Math.floor(sorted.length / 2)];
+  if (win.ema === undefined) win.ema = median;
+  var step = median - win.ema;
+  if (Math.abs(step) > PITCH_MAX_STEP) step = step > 0 ? PITCH_MAX_STEP : -PITCH_MAX_STEP;
+  win.ema += PITCH_EMA * step;
+  return win.ema;
 }
 
 // Add soft "living" gradient strokes so the live pitch traces fade like a real
@@ -20161,6 +20171,11 @@ function startTutorPitchTrack(stream) {
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
       tutorPitchHistory.push(filteredPitch(pitch, pitchWin));
       if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
+      pitchWin.retract = 0;
+    } else if (tutorPitchHistory.length > 0 && (pitchWin.retract = (pitchWin.retract || 0) + 1) % 3 === 0) {
+      // Unvoiced/quiet frame: retract the tail slowly instead of parking a stale
+      // point, so a pause deflates the curve smoothly instead of freezing (v102).
+      tutorPitchHistory.shift();
     }
     // Re-resolve the student path every frame: other UI (drawTutorToneCurve) can
     // rebuild the <g> and drop our node, which previously froze the curve while the
@@ -20230,6 +20245,9 @@ function startTutorAiVisualizer(analyser, sampleRate) {
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
       aiPitchHistory.push(filteredPitch(pitch, aiPitchWin));
       if (aiPitchHistory.length > maxPoints) aiPitchHistory.shift();
+      aiPitchWin.retract = 0;
+    } else if (aiPitchHistory.length > 0 && (aiPitchWin.retract = (aiPitchWin.retract || 0) + 1) % 3 === 0) {
+      aiPitchHistory.shift();
     }
     var svg = document.querySelector('.tone-curve-wrap svg');
     var g = svg ? svg.querySelector('g') : null;
