@@ -1,6 +1,7 @@
-// ===== MandarinCourse Shop (v104) =====
-// Digital study packs bought via PayPal; free products use a separate
-// /api/shop/free-download path that mints a signed token with no payment.
+// ===== MandarinCourse Shop (v105) =====
+// Digital study packs bought via PayPal; free products are email-gated: an
+// email modal opens first, /api/shop/free-download stores the lead in
+// Supabase (leads table) and mints a signed token with no payment.
 // Merch links out to the Printify storefront.
 (function() {
   var shopCatalog = null;
@@ -125,20 +126,87 @@
     ensurePayPal(function() { renderShopButton(prod); });
   };
 
-  window.freeShopDownload = function(productId) {
+  var leadProd = null;
+
+  window.closeShopLeadModal = function() { closeModal('shopLeadModal'); };
+
+  function leadSource() {
+    try {
+      var u = new URLSearchParams(window.location.search);
+      return u.get('utm_source') || u.get('utm_medium') || 'direct';
+    } catch (e) { return 'direct'; }
+  }
+
+  function openLeadModal(prod) {
+    leadProd = prod;
+    var m = $('shopLeadModal');
+    if (!m) return;
+    var box = $('shopLeadProduct');
+    if (box) {
+      box.innerHTML =
+        '<div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(212,166,79,.12)"><i class="fas fa-file-pdf" style="color:var(--gold)"></i></div>' +
+        '<div class="min-w-0">' +
+          '<div class="text-sm font-bold truncate" style="color:var(--fg)">' + esc(prod.name) + '</div>' +
+          '<div class="text-xs" style="color:var(--gold)">' + money(prod.price) + '</div>' +
+        '</div>';
+    }
+    var err = $('shopLeadErr');
+    if (err) err.style.display = 'none';
+    var emailInput = $('shopLeadEmail');
+    if (emailInput) {
+      emailInput.value = (() => { try { return localStorage.getItem('mc_lead_email') || ''; } catch (e) { return ''; } })();
+      emailInput.removeAttribute('disabled');
+      var sub = $('shopLeadSubmit');
+      if (sub) {
+        sub.disabled = false;
+        sub.innerHTML = '<i class="fas fa-download mr-2"></i><span data-tr="Get My Download">Get My Download</span>';
+      }
+    }
+    m.style.display = 'flex';
+    setTimeout(function() { if (emailInput && !emailInput.value) emailInput.focus(); }, 60);
+  }
+
+  window.submitShopLead = function() {
+    var emailInput = $('shopLeadEmail');
+    var errBox = $('shopLeadErr');
+    var sub = $('shopLeadSubmit');
+    var email = (emailInput && emailInput.value || '').trim().toLowerCase();
+    var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(email)) {
+      if (errBox) { errBox.textContent = 'Please enter a valid email address.'; errBox.style.display = 'block'; }
+      return;
+    }
+    if (!leadProd) { closeModal('shopLeadModal'); return; }
+    if (emailInput) emailInput.setAttribute('disabled', 'disabled');
+    if (sub) { sub.disabled = true; sub.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Fetching your download&hellip;'; }
     fetch('/api/shop/free-download', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId: productId })
+      body: JSON.stringify({ productId: leadProd.id, email: email, source: leadSource() })
     })
       .then(function(res) { return res.json().then(function(d) { if (!res.ok) throw new Error(d.error || 'Download failed'); return d; }); })
       .then(function(d) {
         if (!d.download || !d.download.url) throw new Error('Download failed');
+        try { localStorage.setItem('mc_lead_email', email); } catch (e) {}
+        closeModal('shopLeadModal');
         window.location.href = d.download.url;
       })
       .catch(function(err) {
-        if (typeof toast === 'function') toast(err.message || 'Download failed', 'var(--accent)');
+        if (emailInput) emailInput.removeAttribute('disabled');
+        if (sub) { sub.disabled = false; sub.innerHTML = '<i class="fas fa-download mr-2"></i><span data-tr="Get My Download">Get My Download</span>'; }
+        if (errBox) { errBox.textContent = err.message || 'Download failed. Please try again.'; errBox.style.display = 'block'; }
+        else if (typeof toast === 'function') toast(err.message || 'Download failed', 'var(--accent)');
       });
+  };
+
+  window.freeShopDownload = function(productId) {
+    if (!shopCatalog || !shopCatalog.products) return;
+    var prod = null;
+    for (var i = 0; i < shopCatalog.products.length; i++) {
+      if (shopCatalog.products[i].id === productId) { prod = shopCatalog.products[i]; break; }
+    }
+    if (!prod) { if (typeof toast === 'function') toast('Product not found.', 'var(--accent)'); return; }
+    openLeadModal(prod);
   };
 
   function renderDigitalGrid(grid) {
@@ -152,7 +220,7 @@
       var p = digital[i];
       var isFree = Number(p.price) === 0;
       var buyBtn = isFree
-        ? '<button class="bp shop-free" data-pid="' + esc(p.id) + '" style="padding:9px 16px;font-size:13px"><i class="fas fa-download mr-1.5"></i>Free download</button>'
+        ? '<button class="bp shop-free" data-pid="' + esc(p.id) + '" style="padding:9px 16px;font-size:13px"><i class="fas fa-download mr-1.5"></i>Get Free Download</button>'
         : '<button class="bp shop-buy" data-pid="' + esc(p.id) + '" style="padding:9px 16px;font-size:13px"><i class="fas fa-cart-plus mr-1.5"></i>Buy ' + money(p.price) + '</button>';
       html += '<div class="cd overflow-hidden flex flex-col" style="border:1px solid var(--border);border-radius:14px">' +
         (p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy" style="width:100%;height:150px;object-fit:cover;display:block">' : '<div style="height:150px;display:flex;align-items:center;justify-content:center;background:var(--card2)"><i class="fas fa-file-pdf fa-2x" style="color:var(--accent)"></i></div>') +

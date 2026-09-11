@@ -953,16 +953,43 @@ app.post('/api/shop/capture-order', apiLimiter, async (req, res) => {
   }
 });
 
-app.post('/api/shop/free-download', apiLimiter, (req, res) => {
+app.post('/api/shop/free-download', apiLimiter, async (req, res) => {
   const prod = shopProductFor(req.body && req.body.productId);
   if (!prod || prod.type !== 'digital' || Number(prod.price) !== 0) {
     return res.status(400).json({ error: 'This product is not free' });
+  }
+  const email = String((req.body && req.body.email) || '').trim().toLowerCase();
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRe.test(email) || email.length > 254) {
+    return res.status(400).json({ error: 'A valid email is required for the free download' });
+  }
+  const source = String((req.body && req.body.source) || 'direct').slice(0, 100);
+  // Store the lead in Supabase (insert + dedupe on unique email). Fail-open: a
+  // Supabase outage must not block the download, but the loss is logged.
+  let leadStored = false;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (serviceKey) {
+    try {
+      const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
+      const leadRes = await fetch(sbUrl + '/rest/v1/leads?on_conflict=email', {
+        method: 'POST',
+        headers: { 'apikey': serviceKey, 'Authorization': 'Bearer ' + serviceKey, 'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates,return=minimal' },
+        body: JSON.stringify([{ email, product_id: prod.id, source }])
+      });
+      if (leadRes.ok) leadStored = true;
+      else console.error('Lead insert failed:', leadRes.status, (await leadRes.text()).slice(0, 200));
+    } catch (e) {
+      console.error('Lead insert error:', e.message);
+    }
+  } else {
+    console.error('Lead NOT stored: SUPABASE_SERVICE_ROLE_KEY is not set');
   }
   const t = shopToken(prod.id, 7 * 24 * 3600);
   res.json({
     status: 'COMPLETED',
     type: prod.type,
     productId: prod.id,
+    leadStored,
     download: { url: '/api/shop/download/' + encodeURIComponent(prod.id) + '?t=' + encodeURIComponent(t.token) + '&e=' + t.exp, expiresInSec: t.expiresInSec }
   });
 });

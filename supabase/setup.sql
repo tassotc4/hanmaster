@@ -92,3 +92,22 @@ $$;
 
 grant execute on function public.add_activity_seconds(uuid, bigint) to authenticated;
 grant select, insert, update on public.user_activity to authenticated;
+
+-- ================= leads (email capture from Shop free downloads) =================
+-- Written by the server using the service_role key (PostgREST REST API), so no
+-- RLS policy is needed — service_role bypasses RLS. Emails are unique (a
+-- returning visitor just gets the download again, no duplicate row).
+create table if not exists public.leads (
+  id          uuid primary key default gen_random_uuid(),
+  email       text not null,
+  product_id  text,
+  source      text,
+  created_at  timestamptz default now()
+);
+alter table public.leads add column if not exists email text not null default '';
+alter table public.leads add column if not exists product_id text;
+alter table public.leads add column if not exists source text;
+alter table public.leads add column if not exists created_at timestamptz default now();
+alter table public.leads enable row level security;
+
+create unique index if not exists leads_email_key on public.leads (email);
