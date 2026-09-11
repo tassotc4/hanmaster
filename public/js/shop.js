@@ -1,9 +1,7 @@
-// ===== MandarinCourse Shop (v103) =====
-// Digital study packs bought via the existing PayPal integration; merch links
-// out to the Printify storefront. All pricing is server-authoritative (the order
-// endpoints re-read products.json server-side), and downloads are served by
-// /api/shop/download/:slug with a time-limited HMAC-signed token minted only
-// after a COMPLETED PayPal capture.
+// ===== MandarinCourse Shop (v104) =====
+// Digital study packs bought via PayPal; free products use a separate
+// /api/shop/free-download path that mints a signed token with no payment.
+// Merch links out to the Printify storefront.
 (function() {
   var shopCatalog = null;
   var activeButtons = null;
@@ -13,7 +11,7 @@
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
   }
-  function money(n) { return '$' + Number(n).toFixed(2); }
+  function money(n) { return n === 0 ? 'Free' : '$' + Number(n).toFixed(2); }
   function $(id) { return document.getElementById(id); }
 
   function ensurePayPal(cb) {
@@ -127,6 +125,22 @@
     ensurePayPal(function() { renderShopButton(prod); });
   };
 
+  window.freeShopDownload = function(productId) {
+    fetch('/api/shop/free-download', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productId: productId })
+    })
+      .then(function(res) { return res.json().then(function(d) { if (!res.ok) throw new Error(d.error || 'Download failed'); return d; }); })
+      .then(function(d) {
+        if (!d.download || !d.download.url) throw new Error('Download failed');
+        window.location.href = d.download.url;
+      })
+      .catch(function(err) {
+        if (typeof toast === 'function') toast(err.message || 'Download failed', 'var(--accent)');
+      });
+  };
+
   function renderDigitalGrid(grid) {
     var digital = (shopCatalog.products || []).filter(function(p) { return p.type === 'digital'; });
     if (!digital.length) {
@@ -136,6 +150,10 @@
     var html = '';
     for (var i = 0; i < digital.length; i++) {
       var p = digital[i];
+      var isFree = Number(p.price) === 0;
+      var buyBtn = isFree
+        ? '<button class="bp shop-free" data-pid="' + esc(p.id) + '" style="padding:9px 16px;font-size:13px"><i class="fas fa-download mr-1.5"></i>Free download</button>'
+        : '<button class="bp shop-buy" data-pid="' + esc(p.id) + '" style="padding:9px 16px;font-size:13px"><i class="fas fa-cart-plus mr-1.5"></i>Buy ' + money(p.price) + '</button>';
       html += '<div class="cd overflow-hidden flex flex-col" style="border:1px solid var(--border);border-radius:14px">' +
         (p.image ? '<img src="' + esc(p.image) + '" alt="' + esc(p.name) + '" loading="lazy" style="width:100%;height:150px;object-fit:cover;display:block">' : '<div style="height:150px;display:flex;align-items:center;justify-content:center;background:var(--card2)"><i class="fas fa-file-pdf fa-2x" style="color:var(--accent)"></i></div>') +
         '<div style="padding:14px;display:flex;flex-direction:column;flex:1">' +
@@ -144,7 +162,7 @@
           (p.size ? '<div class="text-[11px] mb-2" style="color:var(--muted)">' + esc(p.size) + '</div>' : '') +
           '<div class="flex items-center justify-between mt-auto">' +
             '<span class="font-bold" style="color:var(--gold);font-size:15px">' + money(p.price) + '</span>' +
-            '<button class="bp shop-buy" data-pid="' + esc(p.id) + '" style="padding:9px 16px;font-size:13px"><i class="fas fa-cart-plus mr-1.5"></i>Buy</button>' +
+            buyBtn +
           '</div>' +
         '</div>' +
       '</div>';
@@ -153,8 +171,14 @@
     var btns = grid.querySelectorAll('.shop-buy');
     for (var b = 0; b < btns.length; b++) {
       (function(btn) {
-        btn.onclick = function() { buyShopProduct(btn.getAttribute('data-pid')); };
+        btn.onclick = function() { window.buyShopProduct(btn.getAttribute('data-pid')); };
       })(btns[b]);
+    }
+    var freeBtns = grid.querySelectorAll('.shop-free');
+    for (var f = 0; f < freeBtns.length; f++) {
+      (function(btn) {
+        btn.onclick = function() { window.freeShopDownload(btn.getAttribute('data-pid')); };
+      })(freeBtns[f]);
     }
   }
 
@@ -200,8 +224,6 @@
         if (rb) rb.onclick = loadShop;
       });
   }
-
-  window.initShop = loadShop;
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', loadShop);

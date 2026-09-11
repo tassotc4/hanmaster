@@ -953,6 +953,20 @@ app.post('/api/shop/capture-order', apiLimiter, async (req, res) => {
   }
 });
 
+app.post('/api/shop/free-download', apiLimiter, (req, res) => {
+  const prod = shopProductFor(req.body && req.body.productId);
+  if (!prod || prod.type !== 'digital' || Number(prod.price) !== 0) {
+    return res.status(400).json({ error: 'This product is not free' });
+  }
+  const t = shopToken(prod.id, 7 * 24 * 3600);
+  res.json({
+    status: 'COMPLETED',
+    type: prod.type,
+    productId: prod.id,
+    download: { url: '/api/shop/download/' + encodeURIComponent(prod.id) + '?t=' + encodeURIComponent(t.token) + '&e=' + t.exp, expiresInSec: t.expiresInSec }
+  });
+});
+
 app.get('/api/shop/download/:slug', (req, res) => {
   const auth = shopVerify(req.query.t);
   if (!auth || auth.productId !== req.params.slug) {
