@@ -402,13 +402,28 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
         }
       }
 
+      // Whisper's classic hallucination on near-silent/noisy Mandarin clips is a
+      // short English filler phrase ("Thank you.", "The.", "Subtitles.", "By the
+      // speaker."). Under forced zh these survive BOTH the CJK gate above (no CJK)
+      // and the isEnglish gate (they contain "thank"/"you"), so they used to reach
+      // the tutor as a fake "user said thank you" turn. Drop them as no-speech —
+      // a real answer like "yes"/"no"/"ok"/"good" never matches this word set.
+      const HALF_WORDS = /^(thank|thanks|you|the|a|an|and|by|for|to|of|on|in|me|it|this|that|there|with|from|so|subtitles|watching|speaker|amara|captions)$/i;
+      if (transcribed && !/[\u4e00-\u9fa5]/.test(transcribed)) {
+        const words = transcribed.trim().split(/\s+/).filter(Boolean);
+        if (words.length >= 1 && words.length <= 2 && words.every(w => HALF_WORDS.test(w))) {
+          console.warn("Dropping Whisper hallucination as no-speech:", JSON.stringify(transcribed));
+          return res.status(400).json({ error: 'No speech detected in audio' });
+        }
+      }
+
       if (!transcribed.trim() || /no audio|no speech|没有音频|unable to transcribe/i.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       // Whisper sometimes echoes the prompt above back when the audio is near-silent
       // (e.g. "Transcribe exactly what is spoken in the language."). Treat those echoes
       // as no-speech; otherwise each one spams the live tutor with a fake turn.
-      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate/i.test(transcribed)) {
+      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe/i.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       const userMsg = textParts.length > 0
