@@ -15111,8 +15111,8 @@ function startTutor(idx){
   if (isLiveAIActive) {
     addTutMsg('sys', '<i class="fas fa-robot mr-1"></i> <b>'+t('Live AI Tutor')+'</b> — '+t('Chat freely with the AI tutor'));
   }
-  let vh='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-top:8px">';
-    tutLesson.words.forEach(w=>{vh+='<div style="background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
+  let vh='<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px">';
+    tutLesson.words.forEach(w=>{vh+='<div style="flex:0 0 110px;background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
   vh+='</div>';
   addTutMsg('sys',vh);
   window._tutTO = setTimeout(()=>advanceTutor(),600);
