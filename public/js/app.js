@@ -20062,6 +20062,10 @@ function curvePathFromPoints(pts) {
 // (blends residual frame-to-frame steps) → per-frame step clamp (caps octave snaps).
 var PITCH_EMA = 0.78;      // fraction of each new median applied per frame (1=raw)
 var PITCH_MAX_STEP = 70;   // max Hz a curve point may move in a single frame
+// Motion decimation: advance the scrolling history at most once per cadence so
+// the sweep scrolls at a constant organic speed on any refresh rate (60-144Hz)
+// instead of one large ~10px step per animation frame (v110).
+var TONE_CURVE_CADENCE_MS = 33; // ≈30 Hz history rate → ~2s of trace on screen
 function filteredPitch(sample, win) {
   win.push(sample);
   if (win.length > 7) win.shift();
@@ -20204,19 +20208,24 @@ function startTutorPitchTrack(stream) {
   var pitchWin = [];
   var maxPoints = 60;
   var minPitch = 80, maxPitch = 350;
+  var lastAdvance = performance.now();
 
   function tick() {
     if (!tutorAnalyser || tutorPitchTrackId === null) return;
     var buffer = new Float32Array(tutorAnalyser.fftSize || 2048);
     tutorAnalyser.getFloatTimeDomainData(buffer);
     var pitch = autoCorrelate(buffer, tutorSampleRate);
+    var now = performance.now();
+    var due = now - lastAdvance >= TONE_CURVE_CADENCE_MS;
+    if (due) lastAdvance = now;
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
-      tutorPitchHistory.push(filteredPitch(pitch, pitchWin));
-      if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
-      pitchWin.retract = 0;
-    } else if (tutorPitchHistory.length > 0 && (pitchWin.retract = (pitchWin.retract || 0) + 1) % 3 === 0) {
-      // Unvoiced/quiet frame: retract the tail slowly instead of parking a stale
-      // point, so a pause deflates the curve smoothly instead of freezing (v102).
+      if (due) {
+        tutorPitchHistory.push(filteredPitch(pitch, pitchWin));
+        if (tutorPitchHistory.length > maxPoints) tutorPitchHistory.shift();
+      }
+    } else if (tutorPitchHistory.length > 0 && due) {
+      // Unvoiced/quiet frame: retract at the same cadence as pushes so a pause
+      // deflates the curve at constant speed instead of lurching (v110).
       tutorPitchHistory.shift();
     }
     // Re-resolve the student path every frame: other UI (drawTutorToneCurve) can
@@ -20279,16 +20288,21 @@ function startTutorAiVisualizer(analyser, sampleRate) {
   var maxPoints = 60, minPitch = 80, maxPitch = 350;
   aiPitchHistory = [];
   var aiPitchWin = [];
+  var lastAdvance = performance.now();
   function tick() {
     if (!aiPitchAnalyser || aiPitchTrackId === null) return;
     var buffer = new Float32Array(aiPitchAnalyser.fftSize || 2048);
     aiPitchAnalyser.getFloatTimeDomainData(buffer);
     var pitch = autoCorrelate(buffer, aiSampleRate);
+    var now = performance.now();
+    var due = now - lastAdvance >= TONE_CURVE_CADENCE_MS;
+    if (due) lastAdvance = now;
     if (pitch !== -1 && pitch > 70 && pitch < 500) {
-      aiPitchHistory.push(filteredPitch(pitch, aiPitchWin));
-      if (aiPitchHistory.length > maxPoints) aiPitchHistory.shift();
-      aiPitchWin.retract = 0;
-    } else if (aiPitchHistory.length > 0 && (aiPitchWin.retract = (aiPitchWin.retract || 0) + 1) % 3 === 0) {
+      if (due) {
+        aiPitchHistory.push(filteredPitch(pitch, aiPitchWin));
+        if (aiPitchHistory.length > maxPoints) aiPitchHistory.shift();
+      }
+    } else if (aiPitchHistory.length > 0 && due) {
       aiPitchHistory.shift();
     }
     var svg = document.querySelector('.tone-curve-wrap svg');
