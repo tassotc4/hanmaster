@@ -14374,6 +14374,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   };
   // Must register before any init calls in case one throws
   window.openTutorTopic = function(topic, levelIdx) {
+    updateTutLessonTitle(topic);
     openTopicLesson(topic, levelIdx);
   };
   buildTutorTabs();buildHero();buildLvTabs();buildTopics();buildPyTabs();buildPy(0);buildGrLvTabs();buildGr();buildQzLvTabs();resetQuiz();buildHSK();initCv();updateDailyStats();translateUI();
@@ -15105,6 +15106,7 @@ function startTutor(idx){
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   resetTutorTotal();
   document.getElementById('tutChat').innerHTML='';
+  window._tutCurBotCard=null;
     addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+t(tutLesson.title)+'</b> — '+tutLesson.level);
   if (isLiveAIActive) {
     addTutMsg('sys', '<i class="fas fa-robot mr-1"></i> <b>'+t('Live AI Tutor')+'</b> — '+t('Chat freely with the AI tutor'));
@@ -15137,15 +15139,15 @@ function advanceTutor(){
   var scoreWrapEl=document.getElementById('scoreWrap');if(scoreWrapEl)scoreWrapEl.style.display='none';
   if(line.who==='bot'){
     document.getElementById('tutHint').textContent=t('Type your response in the box below');
-    document.getElementById('tutHint').style.color='var(--accent)';
+    document.getElementById('tutHint').style.color='var(--blue)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
     const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    window._tutCurBotCard=addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
     if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
     setTimeout(()=>tutListen(line.cn),500);
   } else {
     document.getElementById('tutHint').textContent=t('Type Chinese below or press mic');
-    document.getElementById('tutHint').style.color='var(--accent)';
+    document.getElementById('tutHint').style.color='var(--blue)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
   }
 }
@@ -15816,12 +15818,16 @@ function processScore(text,sc,target,turnId){
   const avg=Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length);
   var totalEl=document.getElementById('tutTotal');
   if(totalEl){totalEl.textContent=avg;totalEl.classList.remove('ph-loading');totalEl.style.background='none';}
-  const ring=document.getElementById('scoreRing');if(ring){ring.setAttribute('stroke-dashoffset',264-(264*sc/100));ring.setAttribute('stroke',sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--accent)');}
-  const tutScEl=document.getElementById('tutSc');if(tutScEl){tutScEl.textContent=sc;tutScEl.style.color=sc>=80?'var(--green2)':sc>=50?'var(--gold)':'var(--accent2)';}
+  const ring=document.getElementById('scoreRing');if(ring){ring.setAttribute('stroke-dashoffset',264-(264*sc/100));ring.setAttribute('stroke',sc>=80?'var(--green)':sc>=50?'var(--gold)':'var(--amber)');}
+  const tutScEl=document.getElementById('tutSc');if(tutScEl){tutScEl.textContent=sc;tutScEl.style.color=sc>=80?'var(--green2)':sc>=50?'var(--gold)':'var(--amber)';}
   const scoreWrapEl=document.getElementById('scoreWrap');if(scoreWrapEl)scoreWrapEl.style.display='block';
-  let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> '+t('Great!')+'</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> '+t('Getting there')+'</span>':'<span style="color:var(--accent2)"><i class="fas fa-rotate-left"></i> '+t('Keep practicing')+'</span>';
+  let fb=sc>=80?'<span style="color:var(--green2)"><i class="fas fa-check-circle"></i> '+t('Great!')+'</span>':sc>=50?'<span style="color:var(--gold)"><i class="fas fa-star-half-stroke"></i> '+t('Getting there')+'</span>':'<span style="color:var(--amber)"><i class="fas fa-rotate-left"></i> '+t('Keep practicing')+'</span>';
   document.getElementById('tutHint').innerHTML=fb;
-  addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text)+'</div><div style="font-size:13px;color:var(--muted)">'+t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  const hasAttempt = text && text.trim().length>0;
+  const scoreLine = hasAttempt
+    ? t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')
+    : t('No score yet — tap the mic and try again');
+  addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text||'')+'</div><div style="font-size:13px;color:var(--muted)">'+scoreLine+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
   // Gamification: XP per spoken line
   addXP(2, 'Phrase spoken'); trackDaily('spoken');
   if (sc === 100) {
@@ -15867,14 +15873,19 @@ function coachPronunciation(target) {
       if (w) tip = w.tip;
     }
   }
-  var html = '<div style="padding:6px 0">'
+  var sec = '<div class="coach-sec" style="border-top:1px dashed var(--border);margin-top:8px;padding:8px 0 2px">'
     + '<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px"><i class="fas fa-ear-listen"></i> ' + t('Listen again, then repeat:') + '</div>'
-    + '<div style="font-size:20px;font-weight:700;letter-spacing:1px;margin-bottom:4px">' + formatChineseTextWithRuby(target) + '</div>'
     + (py ? '<div style="font-size:14px;color:var(--neon-cyan);margin-bottom:4px;letter-spacing:1px">' + py + '</div>' : '')
     + (meaning ? '<div style="font-size:12px;color:var(--muted)">' + t('Meaning:') + ' <span id="coachMeaning-' + Date.now() + '">' + t(meaning) + '</span></div>' : '')
     + (tip ? '<div style="font-size:12px;color:var(--fg2);margin-top:4px"><i class="fas fa-lightbulb"></i> ' + t('Tip:') + ' <span id="coachTip-' + Date.now() + '">' + t(tip) + '</span></div>' : '')
     + '</div>';
-  addTutMsg('bot', html);
+  var host = window._tutCurBotCard && window._tutCurBotCard.isConnected ? window._tutCurBotCard : null;
+  if (host) {
+    var prior = host.querySelector('.coach-sec');
+    if (prior) prior.outerHTML = sec; else host.insertAdjacentHTML('beforeend', sec);
+  } else {
+    addTutMsg('bot', '<div style="padding:6px 0">' + sec + '</div>');
+  }
   if (meaning) {
     const me = document.querySelector('[id^="coachMeaning-"]');
     if (me && t(meaning) === meaning) ensureTutorTranslation(meaning, [me]);
@@ -15905,6 +15916,7 @@ function laoshiWelcome() {
   window._renderedStep = -1;
   resetTutorTotal();
   document.getElementById('tutChat').innerHTML = '';
+  window._tutCurBotCard = null;
   document.getElementById('tutWd').textContent = '你好';
   document.getElementById('tutWp').textContent = 'nǐ hǎo';
   document.getElementById('tutWm').textContent = 'Hello';
@@ -16344,6 +16356,14 @@ function escapeHtml(text) {
   const d = document.createElement('div');
   d.textContent = text;
   return d.innerHTML;
+}
+
+function updateTutLessonTitle(label){
+  const el=document.getElementById('tutLessonTitle');
+  if(!el)return;
+  if(!label){el.style.display='none';el.textContent='';return;}
+  el.textContent=t(String(label)).replace(/\s+-\s+/g,' \u00B7 ');
+  el.style.display='block';
 }
 
 function buildTutorTabs(){
@@ -18312,6 +18332,7 @@ function startTimedClass() {
   suggestedUserTarget = '';
   const chat = document.getElementById('tutChat');
   if (chat) chat.innerHTML = '<div class="csys"><i class="fas fa-info-circle mr-1"></i> ' + t('Live AI Mode:') + ' ' + t('Timed class in progress.') + '</div>';
+  window._tutCurBotCard = null;
   resetTutorTotal();
 
   // Ensure Live AI mode is active
@@ -18801,6 +18822,7 @@ function startLiveTutor() {
   geminiHistory = [];
   const chat = document.getElementById('tutChat');
   if (chat) chat.innerHTML = '';
+  window._tutCurBotCard = null;
   setBtns(true);
   toast(t('Live AI Tutor mode activated!'), 'var(--green)');
   _levelupOffered = false;
@@ -19123,6 +19145,7 @@ function openTopicLesson(topicName, lvIdx) {
     
     const chat = document.getElementById('tutChat');
     if (chat) chat.innerHTML = '';
+    window._tutCurBotCard = null;
     
     let activePrompt = "今天的对话主题是：" + topicName + "。请用中文打招呼，然后问一个关于这个话题的简单问题。";
     addTutMsg('sys', '🤖 <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
@@ -20520,6 +20543,7 @@ function toggleLiveAITutor() {
     _levelupOffered = false;
     const chat = document.getElementById('tutChat');
     if (chat) chat.innerHTML = '';
+    window._tutCurBotCard = null;
     
     // Clear history and start fresh conversation
     geminiHistory = [];
@@ -21232,6 +21256,7 @@ function startPlacementInterview(){
   suggestedUserTarget = '';
   const chat = document.getElementById('tutChat');
   if (chat) chat.innerHTML = '';
+  window._tutCurBotCard = null;
   addTutMsg('sys', '🎯 <b>'+t('Placement chat')+'</b> — '+t("Li Laoshi will ask you a few quick questions in your own language to find your level. Answer naturally, by voice or text."));
   sendToGemini("__PLACEMENT_START__ Please begin now.");
 }
@@ -22461,11 +22486,7 @@ function formatChineseTextWithRuby(text) {
   const tokens = getPinyinForChineseText(text);
   let html = '';
   for (const t of tokens) {
-    if (t.py) {
-      html += `<ruby style="ruby-position: over; margin: 0 1px;">${t.cn}<rt class="pinyin-text" style="font-size: 11px; color: var(--muted); user-select: none;">${t.py}</rt></ruby>`;
-    } else {
-      html += `<span style="font-size: 20px; margin: 0 1px; vertical-align: bottom;">${t.cn}</span>`;
-    }
+    html += `<ruby style="ruby-position: over; margin: 0 1px;">${t.cn}<rt class="pinyin-text" style="font-size: 11px; color: var(--muted); user-select: none;">${t.py || ''}</rt></ruby>`;
   }
   return html;
 }
