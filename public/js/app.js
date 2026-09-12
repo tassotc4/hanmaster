@@ -15102,6 +15102,7 @@ function startTutor(idx){
     }
   }
   window._renderedStep = -1;
+  window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
   if (window._tutTO) clearTimeout(window._tutTO);
   tutLesson=TL[idx];tutStep=0;tutScores=[];
   resetTutorTotal();
@@ -15124,6 +15125,11 @@ function advanceTutor(){
   // Render each step exactly once, but NEVER drop a new step
   if (window._renderedStep === tutStep) return;
   window._renderedStep = tutStep;
+  // v111: each newly rendered step starts with a fresh retry counter and no
+  // skip nudge (covers the >=80 advance, tutSkip, and session starters that
+  // funnel through here).
+  window._stepAttempts = 0;
+  hideSkipHint();
   if(!tutLesson||tutStep>=tutLesson.dialogue.length){finishTutor();return}
   const line=tutLesson.dialogue[tutStep];
   const w=tutLesson.words.find(w=>line.cn.includes(w.cn));
@@ -15454,7 +15460,8 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
         // (skip_transcript_confirm !== '0'), send the transcript automatically
         // like Live AI mode does — no ✓/✕ tap required (v81).
         if (localStorage.getItem('skip_transcript_confirm') !== '0') {
-          addTutMsg('user', '<div class="fc font-bold" style="font-size:18px;margin-bottom:4px;letter-spacing:1px">' + transcript + '</div><div style="font-size:13px;color:var(--muted)">(voice input)</div>');
+          // Auto path: no echo preview needed — processScore renders the single
+          // scored card (transcript shown, colored, + score line) (v111).
           confirmTranscript(transcript, loaderId, null);
         } else {
           // Show confirmation before sending to AI (study mode), then auto-send
@@ -15502,7 +15509,15 @@ function confirmTranscript(transcript, loaderId, confirmId) {
   if (tMode !== 'live' && tutLesson && tutStep < tutLesson.dialogue.length) {
     var target = tutLesson.dialogue[tutStep].cn;
     var score = Math.round(sim(transcript, target) * 100);
-    processScore(transcript, score, target, 'voice-' + Date.now());
+    // v111: in the opt-in ✓/✕ path the transcript preview card stays visible
+    // until the user confirms — the scored card then REPLACES that preview card
+    // in place so a voice attempt is one card, and rejection is never scored.
+    var previewCard = null;
+    if (confirmId) {
+      const btnRow = document.getElementById(confirmId);
+      previewCard = btnRow ? btnRow.closest('.cb.cus') : null;
+    }
+    processScore(transcript, score, target, 'voice-' + Date.now(), previewCard);
   } else {
     sendToGemini(transcript);
   }
@@ -15813,7 +15828,7 @@ function tutTypeSubmit(){
   processScore(text,sc);input.value='';
 }
 
-function processScore(text,sc,target,turnId){
+function processScore(text,sc,target,turnId,replaceCard){
   tutScores.push(sc);
   const avg=Math.round(tutScores.reduce((a,b)=>a+b,0)/tutScores.length);
   var totalEl=document.getElementById('tutTotal');
@@ -15827,7 +15842,11 @@ function processScore(text,sc,target,turnId){
   const scoreLine = hasAttempt
     ? t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')
     : t('No score yet — tap the mic and try again');
-  addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text||'')+'</div><div style="font-size:13px;color:var(--muted)">'+scoreLine+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  const scoreCard = addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text||'')+'</div><div style="font-size:13px;color:var(--muted)">'+scoreLine+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  // v111: single card per attempt — a confirmed voice-transcript preview card
+  // (opt-in ✓/✕ path) is swapped for the scored card instead of stacking a
+  // second duplicate bubble.
+  if (replaceCard && replaceCard.isConnected) { try { replaceCard.replaceWith(scoreCard); } catch(e){} }
   // Gamification: XP per spoken line
   addXP(2, 'Phrase spoken'); trackDaily('spoken');
   if (sc === 100) {
@@ -15845,18 +15864,56 @@ function processScore(text,sc,target,turnId){
     }, 1200);
   } else {
     if (sc < 80) {
-      // Pronunciation coaching: replay, teach, and let the student retry
+      // Pronunciation coaching: replay, teach, and let the student retry.
+      // v111: per-step attempt counter feeds the escalation (attempt 2+ stats,
+      // attempt 3+ skip nudge). Pass the attempt number + this transcript.
+      const attempt = (window._stepAttempts = (window._stepAttempts || 0) + 1);
       setTimeout(() => {
-        coachPronunciation(target);
+        coachPronunciation(target, attempt, text);
       }, 1600);
     } else {
+      // Mastery gate passed -> step advances; advanceTutor resets the counter
+      // and hides any skip nudge on the new render.
+      window._stepAttempts = 0;
       setTimeout(()=>{tutStep++;advanceTutor()},1200);
     }
   }
 }
 
-// Replay the sentence, teach correct pronunciation, and let the student retry
-function coachPronunciation(target) {
+// v111: one-line attempt-stats summary from the shared analysis (no HTML dup)
+function attemptStatsFor(target, spoken) {
+  const verdicts = analyzePronunciation(target, spoken);
+  if (!verdicts.length) return '';
+  const correct = verdicts.filter(v => v.status === 'correct').length;
+  const tones = verdicts.filter(v => v.status === 'tone');
+  let s = '<div style="font-size:12px;color:var(--muted);margin-top:4px"><b style="color:var(--green2);font-size:13px">' + correct + '</b>/' + verdicts.length + ' ' + t('characters correct') + '</div>';
+  if (tones.length) {
+    s += '<div style="font-size:12px;color:var(--fg2);margin-top:2px;line-height:1.5">' + t('Tone slips:') + ' ' + tones.map(v => v.char + ' (' + (v.expectedPy || '?') + ' → ' + (v.saidPy || '?') + ')').join(' · ') + '</div>';
+  }
+  return s;
+}
+
+function showSkipHint() {
+  const el = document.getElementById('tutSkipHint');
+  if (el) {
+    el.innerHTML = '<i class="fas fa-lightbulb mr-1"></i>' + t('Still stuck? You can') + ' <b>' + t('Skip') + '</b> ' + t('this line and come back later');
+    el.style.display = 'block';
+  }
+  const sb = document.getElementById('tutSkipBtn');
+  if (sb) sb.classList.add('skip-pulse');
+}
+
+function hideSkipHint() {
+  const el = document.getElementById('tutSkipHint');
+  if (el) el.style.display = 'none';
+  const sb = document.getElementById('tutSkipBtn');
+  if (sb) sb.classList.remove('skip-pulse');
+}
+
+// Replay the sentence, teach correct pronunciation, and let the student retry.
+// attempt (per-step counter) and spokenText (this attempt's transcript) are
+// the v111 escalation inputs.
+function coachPronunciation(target, attempt, spokenText) {
   if (!target) return;
   // Replay the sentence for the student
   speak(target);
@@ -15873,11 +15930,20 @@ function coachPronunciation(target) {
       if (w) tip = w.tip;
     }
   }
+  // v111 escalation: attempt 2+ gets an "Attempt N" line + a stats summary
+  // built from the SAME structured analysis that drives the color-coded card.
+  var escLine = '';
+  if (attempt && attempt >= 2) {
+    escLine += '<div style="font-size:11px;color:var(--blue);font-weight:700;margin-top:6px">' + t('Attempt') + ' ' + attempt + '</div>';
+    var stats = attemptStatsFor(target, spokenText || '');
+    if (stats) escLine += stats;
+  }
   var sec = '<div class="coach-sec" style="border-top:1px dashed var(--border);margin-top:8px;padding:8px 0 2px">'
     + '<div style="font-size:13px;color:var(--gold);font-weight:700;margin-bottom:6px"><i class="fas fa-ear-listen"></i> ' + t('Listen again, then repeat:') + '</div>'
     + (py ? '<div style="font-size:14px;color:var(--neon-cyan);margin-bottom:4px;letter-spacing:1px">' + py + '</div>' : '')
     + (meaning ? '<div style="font-size:12px;color:var(--muted)">' + t('Meaning:') + ' <span id="coachMeaning-' + Date.now() + '">' + t(meaning) + '</span></div>' : '')
     + (tip ? '<div style="font-size:12px;color:var(--fg2);margin-top:4px"><i class="fas fa-lightbulb"></i> ' + t('Tip:') + ' <span id="coachTip-' + Date.now() + '">' + t(tip) + '</span></div>' : '')
+    + escLine
     + '</div>';
   var host = window._tutCurBotCard && window._tutCurBotCard.isConnected ? window._tutCurBotCard : null;
   if (host) {
@@ -15896,6 +15962,8 @@ function coachPronunciation(target) {
   }
   document.getElementById('tutHint').innerHTML = '<span style="color:var(--gold);font-weight:700"><i class="fas fa-microphone"></i> ' + t('Try again — press the mic and repeat the sentence') + '</span>';
   document.getElementById('tutStatus').textContent = t('Practice');
+  // v111: from the 3rd miss, surface the Skip escape hatch + pulse the button
+  if (attempt && attempt >= 3) showSkipHint(); else hideSkipHint();
 }
 
 function tutSkip(){if(!tutLesson)return;tutStep++;advanceTutor()}
@@ -15914,6 +15982,7 @@ function laoshiWelcome() {
   tutStep = 0;
   tutScores = [];
   window._renderedStep = -1;
+  window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
   resetTutorTotal();
   document.getElementById('tutChat').innerHTML = '';
   window._tutCurBotCard = null;
@@ -18333,6 +18402,7 @@ function startTimedClass() {
   const chat = document.getElementById('tutChat');
   if (chat) chat.innerHTML = '<div class="csys"><i class="fas fa-info-circle mr-1"></i> ' + t('Live AI Mode:') + ' ' + t('Timed class in progress.') + '</div>';
   window._tutCurBotCard = null;
+  window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
   resetTutorTotal();
 
   // Ensure Live AI mode is active
@@ -18805,6 +18875,7 @@ function startLiveTutor() {
   isLiveAIActive = true;
   tutStep = 0;
   tutLesson = TL[0];
+  window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
   // Start a clean typing-chat session: no voice state carries over, and any
   // pending hands-free re-listen wait from a previous session is cancelled.
   window._lastUserInputSource = null;
@@ -19146,6 +19217,7 @@ function openTopicLesson(topicName, lvIdx) {
     const chat = document.getElementById('tutChat');
     if (chat) chat.innerHTML = '';
     window._tutCurBotCard = null;
+    window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
     
     let activePrompt = "今天的对话主题是：" + topicName + "。请用中文打招呼，然后问一个关于这个话题的简单问题。";
     addTutMsg('sys', '🤖 <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
@@ -19436,78 +19508,98 @@ function applyRecommendedLevel() {
   toast(t("Loaded HSK ") + (curLv + 1) + t(" lessons for you!"), "var(--green)");
 }
 
+// ===== CHARACTER-BY-CHARACTER PRONUNCIATION ANALYSIS =====
+// Single source of truth (v111): returns a structured verdict per target
+// character, consumed by BOTH the color-coded HTML builder below and the
+// coach's attempt-stats summary (attempt >= 2 in coachPronunciation).
+function analyzePronunciation(target, spoken) {
+  const results = [];
+  if (!target) return results;
+  spoken = spoken || ''; // undefined/null/empty transcript must never throw
+
+  const cleanSpoken = spoken.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
+  const cleanTarget = target.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
+  const targetPinyin = getPinyinForChineseText(cleanTarget);
+  const spokenPinyin = getPinyinForChineseText(cleanSpoken);
+  let spokenIdx = 0;
+
+  for (let i = 0; i < target.length; i++) {
+    const char = target[i];
+    if (/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/.test(char)) continue;
+
+    const targetToken = targetPinyin.find(t => t.cn.includes(char)) || { cn: char, py: '' };
+    let matchedChar = false;
+    let toneMistake = false;
+    let spokenTonePy = '';
+    let foundIdx = -1;
+
+    const lookAheadRange = 3;
+    for (let offset = -lookAheadRange; offset <= lookAheadRange; offset++) {
+      const idx = spokenIdx + offset;
+      if (idx >= 0 && idx < cleanSpoken.length && cleanSpoken[idx] === char) {
+        foundIdx = idx;
+        matchedChar = true;
+        break;
+      }
+    }
+
+    if (matchedChar) {
+      results.push({ char, status: 'correct', expectedPy: targetToken.py, saidPy: targetToken.py });
+      spokenIdx = foundIdx + 1;
+      continue;
+    }
+
+    let foundToneIdx = -1;
+    const targetBase = getBaseSyllable(targetToken.py);
+    if (targetBase) {
+      for (let offset = -1; offset <= 2; offset++) {
+        const idx = spokenIdx + offset;
+        if (idx >= 0 && idx < cleanSpoken.length) {
+          const spokenChar = cleanSpoken[idx];
+          const spokenToken = spokenPinyin.find(t => t.cn.includes(spokenChar)) || { cn: spokenChar, py: '' };
+          const spokenBase = getBaseSyllable(spokenToken.py);
+          if (spokenBase === targetBase && spokenToken.py !== targetToken.py) {
+            foundToneIdx = idx;
+            toneMistake = true;
+            spokenTonePy = spokenToken.py;
+            break;
+          }
+        }
+      }
+    }
+
+    if (toneMistake) {
+      results.push({ char, status: 'tone', expectedPy: targetToken.py, saidPy: spokenTonePy });
+      spokenIdx = foundToneIdx + 1;
+    } else {
+      results.push({ char, status: 'wrong', expectedPy: targetToken.py, saidPy: '' });
+    }
+  }
+
+  return results;
+}
+
 // ===== CHARACTER-BY-CHARACTER COLOR-CODED PRONUNCIATION FEEDBACK =====
 function colorCodePronunciation(target, spoken) {
   if (!target) return spoken;
-  
-  const cleanSpoken = spoken.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
-  const cleanTarget = target.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/g, "");
-  
-  const targetPinyin = getPinyinForChineseText(cleanTarget);
-  const spokenPinyin = getPinyinForChineseText(cleanSpoken);
-  
+  const verdicts = analyzePronunciation(target, spoken);
   let html = "";
-  let spokenIdx = 0;
-  
+  let vi = 0;
   for (let i = 0; i < target.length; i++) {
     const char = target[i];
     if (/[.,\/#!$%\^&\*;:{}=\-_`~()？。，！；：\s]/.test(char)) {
       html += char;
       continue;
     }
-    
-    const targetToken = targetPinyin.find(t => t.cn.includes(char)) || { cn: char, py: '' };
-    
-    let matchedChar = false;
-    let toneMistake = false;
-    let spokenTonePy = '';
-    
-    let lookAheadRange = 3;
-    let foundIdx = -1;
-    for (let offset = -lookAheadRange; offset <= lookAheadRange; offset++) {
-      const idx = spokenIdx + offset;
-      if (idx >= 0 && idx < cleanSpoken.length) {
-        if (cleanSpoken[idx] === char) {
-          foundIdx = idx;
-          matchedChar = true;
-          break;
-        }
-      }
-    }
-    
-    if (matchedChar) {
+    const v = verdicts[vi++];
+    if (v.status === 'correct') {
       html += '<span style="color:#4ade80; font-weight:bold;" title="' + t('Correct!') + '">' + char + '</span>';
-      spokenIdx = foundIdx + 1;
+    } else if (v.status === 'tone') {
+      html += '<span class="tone-mistake" style="color:#fb923c; font-weight:bold; border-bottom:1px dashed #fb923c; cursor:help;" title="' + t('Tone Mistake! Expected: ') + v.expectedPy + ', ' + t('Said: ') + v.saidPy + '">' + char + '</span>';
     } else {
-      let foundToneIdx = -1;
-      const targetBase = getBaseSyllable(targetToken.py);
-      
-      if (targetBase) {
-        for (let offset = -1; offset <= 2; offset++) {
-          const idx = spokenIdx + offset;
-          if (idx >= 0 && idx < cleanSpoken.length) {
-            const spokenChar = cleanSpoken[idx];
-            const spokenToken = spokenPinyin.find(t => t.cn.includes(spokenChar)) || { cn: spokenChar, py: '' };
-            const spokenBase = getBaseSyllable(spokenToken.py);
-            if (spokenBase === targetBase && spokenToken.py !== targetToken.py) {
-              foundToneIdx = idx;
-              toneMistake = true;
-              spokenTonePy = spokenToken.py;
-              break;
-            }
-          }
-        }
-      }
-      
-      if (toneMistake) {
-        html += '<span class="tone-mistake" style="color:#fb923c; font-weight:bold; border-bottom:1px dashed #fb923c; cursor:help;" title="' + t('Tone Mistake! Expected: ') + targetToken.py + ', ' + t('Said: ') + spokenTonePy + '">' + char + '</span>';
-        spokenIdx = foundToneIdx + 1;
-      } else {
-        html += '<span style="color:#f87171; font-weight:bold;" title="' + t('Incorrect or missed') + '">' + char + '</span>';
-      }
+      html += '<span style="color:#f87171; font-weight:bold;" title="' + t('Incorrect or missed') + '">' + char + '</span>';
     }
   }
-  
   return html;
 }
 
@@ -20558,6 +20650,7 @@ function toggleLiveAITutor() {
     const chat = document.getElementById('tutChat');
     if (chat) chat.innerHTML = '';
     window._tutCurBotCard = null;
+    window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
     
     // Clear history and start fresh conversation
     geminiHistory = [];
@@ -21271,6 +21364,7 @@ function startPlacementInterview(){
   const chat = document.getElementById('tutChat');
   if (chat) chat.innerHTML = '';
   window._tutCurBotCard = null;
+  window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
   addTutMsg('sys', '🎯 <b>'+t('Placement chat')+'</b> — '+t("Li Laoshi will ask you a few quick questions in your own language to find your level. Answer naturally, by voice or text."));
   sendToGemini("__PLACEMENT_START__ Please begin now.");
 }
