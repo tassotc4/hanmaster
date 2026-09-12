@@ -18095,7 +18095,6 @@ function sendToGemini(userText) {
     if (upMarkerM) reply = reply.replace(upMarkerM[0], '').trim();
 
     // Parse Chinese and English from the response into separate display text
-    let cleanReply = reply;
     let englishTranslation = "";
     
     // Clean the reply: strip stray markdown bold, empty placeholders, empty quotes
@@ -18103,8 +18102,8 @@ function sendToGemini(userText) {
       .replace(/\*\*\s*\*\*/g, ' ')
       .replace(/\*\*/g, '')
       .replace(/^\s*-\s*/, '')
-      .replace(/“\s*”/g, ' ')
-      .replace(/""/g, ' ')
+      .replace(/\\"/g, ' ')
+      .replace(/["“”]/g, ' ')
       .trim();
     
     // Remove parenthetical pinyin annotations like (nǐ hǎo) from the whole reply
@@ -18147,13 +18146,34 @@ function sendToGemini(userText) {
       scanPos = enEnd;
     }
     if (scanPos < pre.length) cnParts.push(pre.slice(scanPos));
-    cleanReply = stripPinyin(cnParts.join(' ').trim());
     englishTranslation = enParts.map(s => stripPinyin(s)).filter(Boolean).join(' ');
 
-    if (!cleanReply) cleanReply = pre;
+    // Run-based classifier (interleaved CJK/English safety): split the Chinese-side
+    // region into runs — a 'cjk' run contains CJK-class chars, a 'mute' run is the
+    // rest (English coaching, praise, stray ASCII). CJK runs concatenate into the
+    // phrase line (bold + ruby); non-CJK runs concatenate into ONE muted escaped line.
+    // CJK class = ideographs (\u4e00-\u9fa5) + CJK punctuation (\u3000-\u303f: 。、…)
+    // + fullwidth forms (\uff00-\uffef: ，！？). Regex is per-char non-global so a
+    // stale .lastIndex can never flip classifications.
+    const stripPinyinParens = (s) => s.replace(/[\(（][^\)）]*[A-Za-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü][^\)）]*[\)）]/g, '');
+    const cjkScan = (region) => {
+      const cjkChar = /[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/;
+      const runs = [];
+      let cur = null;
+      for (let i = 0; i < region.length; i++) {
+        const cls = cjkChar.test(region[i]) ? 'cjk' : 'mute';
+        if (!cur || cur.t !== cls) { cur = { t: cls, s: region[i] }; runs.push(cur); }
+        else cur.s += region[i];
+      }
+      return runs;
+    };
+    const cjkRegion = cnParts.map(s => stripPinyinParens(s)).filter(Boolean).join(' ');
+    const runs = cjkScan(cjkRegion);
+    const phrase = runs.filter(r => r.t === 'cjk').map(r => r.s).join('').trim();
+    const muteLine = runs.filter(r => r.t === 'mute').map(r => r.s).join(' ').replace(/\s{2,}/g, ' ').trim();
     
     // Speak & pronunciation target use ONLY the Chinese characters (never pinyin or English)
-    const speechText = (cleanReply.match(/[\u4e00-\u9fa5]+/g) || []).join(' ');
+    const speechText = (phrase.match(/[\u4e00-\u9fa5]+/g) || []).join(' ');
     
     let suggestedAnswer = speechText ? speechText.split(/[？！。.\n]/).filter(s => s.trim().length > 0)[0] || speechText : '';
     
@@ -18165,9 +18185,9 @@ function sendToGemini(userText) {
     if (!_interviewActive) {
       document.getElementById('tutWd').textContent = speechText;
       document.getElementById('tutWp').textContent = suggestedAnswer;
-      document.getElementById('tutWm').textContent = englishTranslation || cleanReply;
+      document.getElementById('tutWm').textContent = englishTranslation || muteLine || phrase;
     } else {
-      document.getElementById('tutWm').textContent = cleanReply;
+      document.getElementById('tutWm').textContent = phrase;
     }
 
     // Show the hint button with the suggested answer so beginners always know what to say
@@ -18186,10 +18206,23 @@ function sendToGemini(userText) {
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
     
     // Add message to chat, then pause briefly before speaking so the user is done talking
-    const hasCn = /[\u4e00-\u9fa5]/.test(cleanReply);
+    const hasPhrase = /[\u4e00-\u9fa5]/.test(phrase);
+    const hasMuted = /\S/.test(muteLine);
     const botTrId = 'botTr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    const initialTr = (englishTranslation && englishTranslation.length >= cleanReply.length * 0.6) ? englishTranslation : '<i class="fas fa-language"></i> ' + t('Translating...');
-    const botHtml = '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + formatChineseTextWithRuby(cleanReply) + '</div>' + (hasCn ? '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + initialTr + '</div>' : '') + (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : '');
+    const initialTr = (englishTranslation && englishTranslation.length >= phrase.length * 0.6) ? englishTranslation : '<i class="fas fa-language"></i> ' + t('Translating...');
+    let botHtml = '';
+    if (hasPhrase) {
+      botHtml += '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + formatChineseTextWithRuby(phrase) + '</div>';
+    } else if (hasMuted) {
+      botHtml += '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + escapeHtml(muteLine) + '</div>';
+    } else {
+      botHtml += '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + (escapeHtml(pre) || '…') + '</div>';
+    }
+    if (hasPhrase) {
+      botHtml += '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + initialTr + '</div>';
+      if (hasMuted) botHtml += '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + escapeHtml(muteLine) + '</div>';
+    }
+    botHtml += (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : '');
     if (loaderCapsule) {
       loaderCapsule.innerHTML = botHtml;
       loaderCapsule.style.animation = 'bi .3s ease-out';
@@ -18197,8 +18230,8 @@ function sendToGemini(userText) {
       addTutMsg('bot', botHtml);
     }
     // If the model's reply has Chinese but no English translation was embedded, fetch one now
-    if (hasCn && (!englishTranslation || englishTranslation.length < cleanReply.length * 0.6)) {
-      translateToEnglish(cleanReply).then(function(en) {
+    if (hasPhrase && (!englishTranslation || englishTranslation.length < phrase.length * 0.6)) {
+      translateToEnglish(phrase).then(function(en) {
         const el = document.getElementById(botTrId);
         if (el) el.textContent = en || t('(translation unavailable)');
         const wm = document.getElementById('tutWm');
@@ -18219,7 +18252,7 @@ function sendToGemini(userText) {
     // only. Greeting turns never auto-open the mic after speaking (echo source).
     const _speakTurn = !isGreetingSilent;
     if (_speakTurn && speechText) setTimeout(() => speak(speechText), 1100);
-    else if (_speakTurn && _interviewActive && cleanReply) setTimeout(() => speakViaAPI(cleanReply, getInterviewLangCode(), 1.0), 1100);
+    else if (_speakTurn && _interviewActive && phrase) setTimeout(() => speakViaAPI(phrase, getInterviewLangCode(), 1.0), 1100);
 
     // Auto-listen in Voice Mode or Live AI Mode — but never for an auto-intro
     // turn (the greeting), so the mic doesn't open into the tutor's reply (echo).
