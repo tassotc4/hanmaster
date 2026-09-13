@@ -17934,6 +17934,24 @@ function isAutoIntroText(text) {
          text.indexOf("Hello! I am a complete beginner learning Chinese") === 0;
 }
 
+// Canned video-closing / promotional drift guard. Free-tier chat models
+// occasionally end a turn with a YouTube-style "thank you for watching, please
+// subscribe / like / share / tip" sign-off despite the system prompt — the same
+// failure class the audio path already defends with 3 layers. Catch it here
+// (English + Chinese) and swap the WHOLE reply for an in-frame tutoring nudge.
+// Full-reply replacement (not sentence stripping): the v112 renderer derives
+// phrase/muteLine/translation/speechText all from the single upstream `reply`
+// string, so swapping reply reuses the whole pipeline with no special-casing;
+// sentence-stripping would need a mixed-script splitter plus an all-promo
+// remainder case. Patterns avoid bare 订阅/点赞/分享 so legit media-topic
+// vocab lessons (News & Current Events) don't false-trigger.
+var PROMO_SPAM_RE = /(thanks?\s+(you\s+)?for\s+watching)|(please\s+(like|subscribe|share|comment|tip|support|hit)\b)|(don'?t\s+forget\s+(to\s+)?(like|subscribe|share|comment|follow)\b)|((hit|press|smash)\s+(that|the)?\s*(like|subscribe|bell)\s*(button)?)|(ring\s+the\s+bell)|((turn|enable)\s+on\s+(notifications|the\s+notification\s+bell))|(subscribe\s+to\s+(my|our|the)?\s*(channel|youtube))|(like\s+and\s+(subscribe|share))|(share\s+(this|the|your)\s*video)|((like|subscribe|share|comment|follow)\s+(below|down\s+below))|((tip|support)\s+(me|us)\b)|(buy\s+me\s+a\s+coffee)|(patreon)|(stay\s+tuned)|(watch\s+(my|our|the)\s+next)|(see\s+you\s+(in|on)\s+the\s+next)|(follow\s+(me|us)\s+on\s+\w)|(click\s+the\s+(like|subscribe|bell))|(感谢(您)?(收看|观看|支持|观看)|谢谢观看|感謝觀看)|((请|记得|別忘|別忘了|欢迎)(订阅|点赞|关注|分享|打赏|投币))|(一键三连|素质三连)|(投币|打赏)|((关注(我的)?(频道|账号|主页|公众号))|关注我们|关注不迷路)|(小铃铛|铃铛)|(下期|下一期)(再见|视频)|(请在(下方|下面)?(评论|留言)区)|(转发(给|到)?(朋友|朋友圈|更多人))|(双击(屏幕)?)/i;
+function isPromoSpam(text) { return PROMO_SPAM_RE.test(text); }
+function promoFallbackReply(level) {
+  if (level === 'never') return '继续学吗？\n\nEnglish: Should we keep studying?';
+  return '我们继续聊天吧。你今天想聊什么？\n\nEnglish: Let\'s keep chatting. What would you like to talk about today?';
+}
+
 function sendToGemini(userText) {
   _introTurnForSpeech = isAutoIntroText(userText);
   _introGreetingTurn = _introTurnForSpeech && userText.indexOf('__PLACEMENT_START__') === -1 && userText.indexOf('（课堂开始）') === -1 && userText.indexOf('（时间到！') === -1;
@@ -18014,7 +18032,8 @@ function sendToGemini(userText) {
     "11. NEVER write these drill strings: '你会说 X 吗？', '你可以说 X', 'Can you say X?', 'You can say:', 'Now you try', '你试试说'. Teach new Chinese by using it naturally inside a real sentence, not by ordering the student to repeat it.\n" +
     "12. ALWAYS end your Chinese teaching with a real, natural question that continues the conversation — never a 'repeat after me' command.\n" +
     "13. CONFUSION ESCAPE HATCH: at ANY moment, if the student says they don't understand, asks something in their own language, or clearly struggles, switch FULLY to " + langName + " immediately — explain everything in " + langName + " until they are comfortable again, then gently return to Chinese. Never leave the student stuck.\n" +
-    "14. SILENT LEVEL ASSESSMENT: every turn, quietly judge the student's OWN Chinese production (never count messages they wrote in their native language): do they understand your Chinese without asking for repeats or translations, how wide is their vocabulary and grammar compared to their level band, how frequent are significant errors. ONLY when ALL of these have been clearly true across several recent exchanges — (a) they understand your Chinese unprompted, (b) they produce their own multi-word Chinese sentences with few significant errors, (c) they comfortably use words/patterns beyond their band, (d) you have not offered a level change yet in this conversation — end that reply with EXACTLY ONE marker [LEVELUP: beginner] or [LEVELUP: intermediate] or [LEVELUP: advanced] (one step above the student's current level), and warmly tell them in " + langName + " that they are ready for more challenging Chinese. Never write the word 'LEVELUP' anywhere else; never downgrade silently — if they seem over-leveled, simplify your Chinese instead; never use the marker more than once per conversation.\n";
+    "14. SILENT LEVEL ASSESSMENT: every turn, quietly judge the student's OWN Chinese production (never count messages they wrote in their native language): do they understand your Chinese without asking for repeats or translations, how wide is their vocabulary and grammar compared to their level band, how frequent are significant errors. ONLY when ALL of these have been clearly true across several recent exchanges — (a) they understand your Chinese unprompted, (b) they produce their own multi-word Chinese sentences with few significant errors, (c) they comfortably use words/patterns beyond their band, (d) you have not offered a level change yet in this conversation — end that reply with EXACTLY ONE marker [LEVELUP: beginner] or [LEVELUP: intermediate] or [LEVELUP: advanced] (one step above the student's current level), and warmly tell them in " + langName + " that they are ready for more challenging Chinese. Never write the word 'LEVELUP' anywhere else; never downgrade silently — if they seem over-leveled, simplify your Chinese instead; never use the marker more than once per conversation.\n" +
+    "15. NEVER use promotional or creator-signoff language. This is a one-on-one tutor chat, NOT a video: never say 'thank you for watching', 'please subscribe / like / share / tip', 'hit the like button', 'follow me on social media', or their Chinese equivalents (感谢观看 / 订阅 / 点赞 / 关注 / 分享 / 打赏 / 一键三连). Never end a turn with a sign-off, sponsor plug, or channel promo of any kind.\n";
 
   let systemInstruction;
   if (_interviewActive) {
@@ -18093,6 +18112,14 @@ function sendToGemini(userText) {
     const upMarkerM = reply.match(/\[LEVELUP:\s*(beginner|intermediate|advanced)\s*\]/i);
     if (lvlMarkerM) reply = reply.replace(lvlMarkerM[0], '').trim();
     if (upMarkerM) reply = reply.replace(upMarkerM[0], '').trim();
+
+    // Promotional-spam guard: free-tier models occasionally sign off like a
+    // video creator; replace the whole reply with an in-frame nudge so it never
+    // reaches the bubble, TTS, or geminiHistory (full fallback, see isPromoSpam).
+    if (isPromoSpam(reply)) {
+      console.warn('Live tutor reply replaced by promotional-spam guard:', JSON.stringify(reply.slice(0, 240)));
+      reply = promoFallbackReply(chineseLevel);
+    }
 
     // Parse Chinese and English from the response into separate display text
     let englishTranslation = "";
@@ -18367,7 +18394,8 @@ function buildTimedSystemInstruction(agenda) {
     "5. Praise genuine effort warmly.\n" +
     "6. When you receive an internal cue that starts with （阶段提示：...）, immediately switch to that phase and continue teaching — do not mention the cue.\n" +
     "7. If the student wants to go faster or slower, respect their pace but still try to complete the class plan.\n" +
-    "8. If the student writes in Chinese, respond in Chinese and give a fluent " + langName + " translation.";
+    "8. If the student writes in Chinese, respond in Chinese and give a fluent " + langName + " translation.\n" +
+    "9. NEVER use promotional or creator-signoff language: this is a live one-on-one class, not a video. No 'thank you for watching', no 'please subscribe / like / share / tip', no 'hit the like button', and no Chinese equivalents (感谢观看 / 订阅 / 点赞 / 关注 / 分享 / 打赏 / 一键三连). Sign-offs, sponsor plugs, and channel promo are forbidden.";
 }
 
 function openTimedClassModal() {

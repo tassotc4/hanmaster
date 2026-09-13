@@ -337,6 +337,19 @@ app.post('/api/test', (req, res) => {
   res.json({ ok: true, body: req.body });
 });
 
+// Rotating log of served /api/chat text turns — the only diagnostic for repeat
+// hallucinations without persisting chat history. Per-entry capped (400 chars),
+// in-memory ring capped (200 entries), each line streamed to the platform
+// console (Railway/Vercel).
+const CHAT_LOG_MAX = 200;
+const recentChatReplies = [];
+function logChatReply(provider, reply) {
+  const entry = { ts: new Date().toISOString(), provider: provider || 'n/a', reply: String(reply || '').slice(0, 400) };
+  recentChatReplies.push(entry);
+  if (recentChatReplies.length > CHAT_LOG_MAX) recentChatReplies.splice(0, recentChatReplies.length - CHAT_LOG_MAX);
+  console.log('[/api/chat]', JSON.stringify(entry));
+}
+
 app.post('/api/chat', apiLimiter, async (req, res) => {
   if (!req.body || !Array.isArray(req.body.contents)) {
     return res.status(400).json({ error: 'Missing or invalid contents array' });
@@ -492,20 +505,23 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
   }
 
   try {
-    let text = '', errMsg = '';
+    let text = '', errMsg = '', servedModel = '';
     // Sequential priority: use the strongest model first for the best conversation
     // quality, only failing down to weaker/free models when the strong ones error.
     const ordered = PROVIDERS.slice().sort((a, b) => a.priority - b.priority);
     for (const p of ordered) {
       try {
         text = await tryProvider(p);
-        if (text && text.trim()) break;
+        if (text && text.trim()) { servedModel = p.model; break; }
       } catch (e) {
         errMsg = (errMsg ? errMsg + ' | ' : '') + (e.message || String(e));
         console.warn('Provider skipped (' + p.model + '):', e.message);
       }
     }
-    if (text) return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
+    if (text) {
+      logChatReply(servedModel, text);
+      return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
+    }
     res.status(503).json({ error: 'AI service busy, please try again.', details: errMsg });
   } catch (err) {
     res.status(500).json({ error: err.message });
