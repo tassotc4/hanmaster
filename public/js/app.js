@@ -15949,6 +15949,7 @@ function coachPronunciation(target, attempt, spokenText) {
   if (host) {
     var prior = host.querySelector('.coach-sec');
     if (prior) prior.outerHTML = sec; else host.insertAdjacentHTML('beforeend', sec);
+    scrollTutToBottom();
   } else {
     addTutMsg('bot', '<div style="padding:6px 0">' + sec + '</div>');
   }
@@ -16055,7 +16056,8 @@ function resetTutor(){if(tutLesson)startTutor(TL.indexOf(tutLesson))}
 function toggleTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(!m)return;const open=m.style.display!=='block';m.style.display=open?'block':'none';if(open){const b=document.getElementById('tutMenuBtn');if(b){const r=b.getBoundingClientRect();m.style.position='fixed';m.style.top=Math.round(r.bottom+6)+'px';let left=Math.round(r.left);const mw=m.offsetWidth||230;if(left+mw>window.innerWidth-8)left=window.innerWidth-mw-8;if(left<8)left=8;m.style.left=left+'px';m.style.right='auto';}}}
 function closeTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(m)m.style.display='none'}
 document.addEventListener('click',function(e){const m=document.getElementById('tutMenuDropdown'),b=document.getElementById('tutMenuBtn');if(m&&m.style.display==='block'&&b&&!b.contains(e.target)&&!m.contains(e.target))m.style.display='none'});
-function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);requestAnimationFrame(()=>{document.getElementById('tutChat').scrollTop=9999});return d}
+function scrollTutToBottom(){const c=document.getElementById('tutChat');if(!c)return;requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight;requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight})});if(typeof document.fonts!=='undefined'&&document.fonts.status==='loading'){document.fonts.ready.then(()=>{requestAnimationFrame(()=>c.scrollTop=c.scrollHeight)})}}
+function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);scrollTutToBottom();return d}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
 function updateMicUI(state){
   const ic=document.getElementById('tutMicIc'),lb=document.getElementById('tutMicLabel'),btn=document.getElementById('tutMic');
@@ -18253,6 +18255,7 @@ function sendToGemini(userText) {
     if (loaderCapsule) {
       loaderCapsule.innerHTML = botHtml;
       loaderCapsule.style.animation = 'bi .3s ease-out';
+      scrollTutToBottom();
     } else {
       addTutMsg('bot', botHtml);
     }
