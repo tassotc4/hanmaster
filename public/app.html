@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=119" as="style">
-    <link rel="preload" href="/js/app.js?v=119" as="script">
+<link rel="preload" href="/css/app.css?v=120" as="style">
+    <link rel="preload" href="/js/app.js?v=120" as="script">
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=119">
+<link rel="stylesheet" href="/css/app.css?v=120">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -211,11 +211,11 @@
 <script defer src="/js/config.js"></script>
 <script defer src="/js/supabase.js"></script>
 <script defer src="/js/paypal.js"></script>
-<script defer src="/js/shop.js?v=119"></script>
+<script defer src="/js/shop.js?v=120"></script>
 <script defer src="/js/vocab-data.js"></script>
 <script defer src="/js/vocab-extra-data.js"></script>
 <script defer src="/js/extra-content.js"></script>
-<script defer src="/js/translate.js?v=119"></script>
+<script defer src="/js/translate.js?v=120"></script>
 <script defer src="/js/tutor-data.js"></script>
 <script defer src="/js/tutor-data-more.js"></script>
 </head>
@@ -668,10 +668,11 @@
     <button id="tutMenuBtn" class="tutor-tool-btn icon-only" onclick="toggleTutorMenu()" title="Menu" aria-label="Menu" style="width:38px;height:38px;font-size:16px;flex-shrink:0"><i class="fas fa-bars"></i></button>
     <div class="tutor-selects">
       <div id="tutLessonTitle" style="display:none;"></div>
-      <div class="ghost-wrap"><span class="ghost-label" data-tr="Level">Level</span><div id="tutLvTabs" style="display:inline-block;"></div></div>
+      <div class="ghost-wrap"><span class="ghost-label" data-tr="Topics">Topics</span><div id="tutLvTabs" style="display:inline-block;"></div></div>
       <div class="ghost-wrap"><span class="ghost-label" data-tr="Lesson">Lesson</span><div id="tutTopicBtns" style="display:inline-block;"></div></div>
     </div>
     <div class="flex items-center gap-1.5 flex-shrink-0">
+      <span id="tutAiLevel" class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:rgba(0,200,200,.1);color:var(--neon-cyan);display:none;"></span>
       <span class="w-2 h-2 rounded-full" style="background:var(--green)"></span>
       <span style="font-size:12px;color:var(--muted)" id="tutStatus" data-tr="Select a lesson to begin">Select a lesson to begin</span>
       <span id="tutorLimitBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background:rgba(212,166,79,.12);color:var(--gold);display:none;"></span>
@@ -1942,7 +1943,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=119"></script> 
+<script defer src="/js/app.js?v=120"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [

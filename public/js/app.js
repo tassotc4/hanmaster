@@ -16466,6 +16466,7 @@ function buildTutorTabs(){
   };
   c.appendChild(sel);
   sel.dispatchEvent(new Event('change'));
+  updateAiLevelBadge();
 }
 
 // ===== LESSONS =====
@@ -21413,9 +21414,21 @@ function applyLevelSetting(lvl){
   localStorage.setItem('beginner_mode', bm ? 'true' : 'false');
   const bmToggle = document.getElementById('beginnerModeToggle');
   if (bmToggle) bmToggle.checked = bm;
+  updateAiLevelBadge();
 }
 function levelDisplayName(lvl){
   return lvl === 'never' ? 'HSK 0 (from zero)' : lvl === 'beginner' ? 'HSK 1-2' : lvl === 'intermediate' ? 'HSK 3-4' : 'HSK 5+';
+}
+function aiLevelName(lvl){
+  return lvl === 'never' ? t('New Learner') : lvl === 'beginner' ? t('Beginner') : lvl === 'intermediate' ? t('Intermediate') : t('Advanced');
+}
+function updateAiLevelBadge(){
+  const el = document.getElementById('tutAiLevel');
+  if (!el) return;
+  const lvl = getChineseLevel();
+  if (!lvl) { el.style.display = 'none'; return; }
+  el.textContent = 'AI: ' + aiLevelName(lvl);
+  el.style.display = '';
 }
 function startPlacementInterview(){
   _interviewActive = true;
@@ -21510,6 +21523,7 @@ function setChineseLevel(lvl) {
   if (o) o.style.display = 'none';
   const bmToggle = document.getElementById('beginnerModeToggle');
   if (bmToggle) bmToggle.checked = isBeginnerMode;
+  updateAiLevelBadge();
   const label = lvl === 'never' ? t("Perfect! I'll teach you from zero, very slowly.") :
     lvl === 'beginner' ? t("Great! I'll use simple Chinese and guide you step by step.") :
     lvl === 'intermediate' ? t("Nice! I'll speak natural Chinese at a moderate pace with pinyin.") :
