@@ -15148,7 +15148,7 @@ function advanceTutor(){
     document.getElementById('tutHint').style.color='var(--blue)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
     const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    window._tutCurBotCard=addTutMsg('bot','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" style="font-size:14px;color:var(--muted);margin-bottom:6px">'+t(line.en)+'</div><span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    window._tutCurBotCard=addTutMsg('bot','<div class="phrase">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" class="tr">'+t(line.en)+'</div><span class="replay" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
     if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
     setTimeout(()=>tutListen(line.cn),500);
   } else {
@@ -18241,17 +18241,17 @@ function sendToGemini(userText) {
     const initialTr = (englishTranslation && englishTranslation.length >= phrase.length * 0.6) ? englishTranslation : '<i class="fas fa-language"></i> ' + t('Translating...');
     let botHtml = '';
     if (hasPhrase) {
-      botHtml += '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + formatChineseTextWithRuby(phrase) + '</div>';
+      botHtml += '<div class="phrase">' + formatChineseTextWithRuby(phrase) + '</div>';
     } else if (hasMuted) {
       botHtml += '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + escapeHtml(muteLine) + '</div>';
     } else {
       botHtml += '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + (escapeHtml(pre) || '…') + '</div>';
     }
     if (hasPhrase) {
-      botHtml += '<div id="' + botTrId + '" style="font-size:14px;color:var(--muted);margin-bottom:8px;line-height:1.4">' + initialTr + '</div>';
+      botHtml += '<div id="' + botTrId + '" class="tr">' + initialTr + '</div>';
       if (hasMuted) botHtml += '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + escapeHtml(muteLine) + '</div>';
     }
-    botHtml += (speechText ? '<span style="font-size:11px;color:var(--blue);cursor:pointer" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : '');
+    botHtml += (speechText ? '<span class="replay" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : '');
     if (loaderCapsule) {
       loaderCapsule.innerHTML = botHtml;
       loaderCapsule.style.animation = 'bi .3s ease-out';
@@ -22658,7 +22658,7 @@ function formatChineseTextWithRuby(text) {
   const tokens = getPinyinForChineseText(text);
   let html = '';
   for (const t of tokens) {
-    html += `<ruby style="ruby-position: over; margin: 0 1px;">${t.cn}<rt class="pinyin-text" style="font-size: 11px; color: var(--muted); user-select: none;">${t.py || ''}</rt></ruby>`;
+    html += `<ruby>${t.cn}<rt class="pinyin-text">${t.py || ''}</rt></ruby>`;
   }
   return html;
 }

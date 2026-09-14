@@ -30,7 +30,14 @@ html{scrollbar-width:auto;scrollbar-color:var(--border) var(--bg2)}
 .flip.on .fi{transform:rotateY(180deg)}.ff,.fb{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;padding:20px}
 .ff{background:var(--card);border:1px solid var(--border)}.fb{background:var(--card2);border:1px solid var(--gold);transform:rotateY(180deg)}
 .cb{width:98%;max-width:98%;padding:14px 20px;border-radius:14px;font-size:15px;line-height:1.7;animation:bi .3s ease-out;margin:4px auto}
-.cai{background:var(--card2);border:1px solid var(--border);border-bottom-left-radius:4px;align-self:center}
+.cai{background:transparent;border:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0;padding:20px 4px 18px;align-self:center}
+.cai .phrase{font-family:'Noto Serif SC',serif;font-size:26px;font-weight:700;line-height:2.05;letter-spacing:3px}
+.cai .phrase ruby{ruby-position:over;margin:0 1px}
+.cai .phrase rt{font-size:12px;color:var(--fg2);font-weight:600;letter-spacing:.8px;font-family:'DM Sans',sans-serif;opacity:.75;user-select:none}
+.cai .tr{font-size:14px;font-style:italic;color:var(--fg2);font-weight:500;margin:2px 0 6px;line-height:1.4}
+.cai .replay{display:inline-block;margin-top:10px;font-size:11.5px;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);cursor:pointer;font-weight:800}
+.cai .replay:hover{text-decoration:underline}
+@media(max-width:560px){.cai{padding:18px 4px 16px}.cai .phrase{font-size:22px;letter-spacing:2px}}
 .cus{background:var(--card2);color:var(--fg);border:1px solid var(--border);border-bottom-right-radius:4px;align-self:center}
 .csys{background:rgba(72,152,213,.08);border:1px solid rgba(72,152,213,.25);border-radius:14px;align-self:center;text-align:center;padding:12px 20px;font-size:13px;color:var(--blue);animation:bi .3s ease-out;max-width:90%}
 .csys-line{background:transparent;border:none;box-shadow:none;padding:2px 14px;font-size:12.5px;letter-spacing:.4px;color:var(--muted);font-weight:600;max-width:98%}
