@@ -15108,9 +15108,9 @@ function startTutor(idx){
   resetTutorTotal();
   document.getElementById('tutChat').innerHTML='';
   window._tutCurBotCard=null;
-    addTutMsg('sys','<i class="fas fa-graduation-cap mr-1"></i> <b>'+t(tutLesson.title)+'</b> — '+tutLesson.level);
+    addTutMsg('sysline','<span class="ai-tag">AI</span> <b>'+t(tutLesson.title)+'</b> — '+tutLesson.level);
   if (isLiveAIActive) {
-    addTutMsg('sys', '<i class="fas fa-robot mr-1"></i> <b>'+t('Live AI Tutor')+'</b> — '+t('Chat freely with the AI tutor'));
+    addTutMsg('sysline', '<span class="ai-tag">AI</span> <b>'+t('Live AI Tutor')+'</b> — '+t('Chat freely with the AI tutor'));
   }
   let vh='<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px">';
     tutLesson.words.forEach(w=>{vh+='<div style="flex:0 0 110px;background:var(--card2);padding:8px 10px;border-radius:10px;text-align:center"><div class="fc font-bold" style="font-size:18px">'+w.cn+'</div><div style="font-size:12px;color:var(--muted)">'+w.py+'</div><div style="font-size:12px;color:var(--fg2)">'+t(w.en)+'</div></div>'});
@@ -15991,7 +15991,7 @@ function laoshiWelcome() {
   document.getElementById('tutWp').textContent = 'nǐ hǎo';
   document.getElementById('tutWm').textContent = 'Hello';
   
-  addTutMsg('sys', '<i class="fas fa-robot mr-1"></i> <b>' + t('Li Laoshi') + '</b> — ' + t('AI Chinese Teacher'));
+  addTutMsg('sysline', '<span class="ai-tag">AI</span> <b>' + t('Li Laoshi') + '</b> — ' + t('AI Chinese Teacher'));
   
   const msg = '<div style="padding:10px">'
     + '<p style="font-size:15px;margin-bottom:8px"><b>' + t('Welcome to Class!') + '</b> 🌟</p>'
@@ -16057,7 +16057,7 @@ function toggleTutorMenu(){const m=document.getElementById('tutMenuDropdown');if
 function closeTutorMenu(){const m=document.getElementById('tutMenuDropdown');if(m)m.style.display='none'}
 document.addEventListener('click',function(e){const m=document.getElementById('tutMenuDropdown'),b=document.getElementById('tutMenuBtn');if(m&&m.style.display==='block'&&b&&!b.contains(e.target)&&!m.contains(e.target))m.style.display='none'});
 function scrollTutToBottom(){const c=document.getElementById('tutChat');if(!c)return;requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight;requestAnimationFrame(()=>{c.scrollTop=c.scrollHeight})});if(typeof document.fonts!=='undefined'&&document.fonts.status==='loading'){document.fonts.ready.then(()=>{requestAnimationFrame(()=>c.scrollTop=c.scrollHeight)})}}
-function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);scrollTutToBottom();return d}
+function addTutMsg(type,html){const d=document.createElement('div');d.className='cb '+(type==='bot'?'cai':type==='user'?'cus':type==='warn'?'cwarn':type==='sysline'?'csys csys-line':'csys');d.innerHTML=html;document.getElementById('tutChat').appendChild(d);scrollTutToBottom();return d}
 function setBtns(on){['tutPlayBtn','tutMic','tutSkipBtn','tutTypeInput','tutSubmitBtn','tutInputMic'].forEach(id=>document.getElementById(id).disabled=!on)}
 function updateMicUI(state){
   const ic=document.getElementById('tutMicIc'),lb=document.getElementById('tutMicLabel'),btn=document.getElementById('tutMic');
@@ -18464,7 +18464,7 @@ function startTimedClass() {
   currentLiveTarget = '';
   suggestedUserTarget = '';
   const chat = document.getElementById('tutChat');
-  if (chat) chat.innerHTML = '<div class="csys"><i class="fas fa-info-circle mr-1"></i> ' + t('Live AI Mode:') + ' ' + t('Timed class in progress.') + '</div>';
+  if (chat) chat.innerHTML = '<div class="csys csys-line"><span class="ai-tag">AI</span> ' + t('Live AI Mode:') + ' ' + t('Timed class in progress.') + '</div>';
   window._tutCurBotCard = null;
   window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
   resetTutorTotal();
@@ -19284,7 +19284,7 @@ function openTopicLesson(topicName, lvIdx) {
     window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
     
     let activePrompt = "今天的对话主题是：" + topicName + "。请用中文打招呼，然后问一个关于这个话题的简单问题。";
-    addTutMsg('sys', '🤖 <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
+    addTutMsg('sysline', '<span class="ai-tag">AI</span> <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
     
     sendToGemini(activePrompt);
     setBtns(true);
@@ -21429,7 +21429,7 @@ function startPlacementInterview(){
   if (chat) chat.innerHTML = '';
   window._tutCurBotCard = null;
   window._stepAttempts = 0; hideSkipHint(); // v111: fresh session resets the retry counter
-  addTutMsg('sys', '🎯 <b>'+t('Placement chat')+'</b> — '+t("Li Laoshi will ask you a few quick questions in your own language to find your level. Answer naturally, by voice or text."));
+  addTutMsg('sysline', '<span class="ai-tag">AI</span> <b>'+t('Placement chat')+'</b> — '+t("Li Laoshi will ask you a few quick questions in your own language to find your level. Answer naturally, by voice or text."));
   sendToGemini("__PLACEMENT_START__ Please begin now.");
 }
 function buildInterviewInstruction(interviewLang){
