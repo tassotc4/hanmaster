@@ -18226,6 +18226,7 @@ function sendToGemini(userText) {
     if (hintWrapper && hintText) {
       if (suggestedAnswer && suggestedAnswer.length <= 12) {
         hintText.textContent = suggestedAnswer;
+        hintText.classList.remove('ph-loading');
         hintWrapper.style.display = 'block';
       } else {
         hintWrapper.style.display = 'none';
