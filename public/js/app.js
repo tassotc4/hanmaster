@@ -15842,7 +15842,17 @@ function processScore(text,sc,target,turnId,replaceCard){
   const scoreLine = hasAttempt
     ? t('Matched transcript:')+' "'+text+'" • '+t('Score:')+' '+sc+t('/100')
     : t('No score yet — tap the mic and try again');
-  const scoreCard = addTutMsg('user','<div class="fc font-bold" style="font-size:20px;margin-bottom:4px;letter-spacing:1px">'+colorCodePronunciation(target, text||'')+'</div><div style="font-size:13px;color:var(--muted)">'+scoreLine+'</div><div id="'+turnId+'" style="margin-top:6px;"></div>');
+  const verdicts = hasAttempt ? analyzePronunciation(target, text||'') : [];
+  const cardStats = hasAttempt ? attemptCardStats(verdicts) : { statsHtml:'', chipHtml:'' };
+  const bandClass = sc>=80 ? 'sc-ok' : sc>=50 ? 'sc-mid' : 'sc-low';
+  const safeText = (text||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const scoreCard = addTutMsg('user','<div class="user-label">'+t('Your attempt')+'</div>'
+    + '<div class="phrase-u">'+colorCodePronunciation(target, text||'')+'</div>'
+    + (hasAttempt ? '<div class="usay">'+t('Matched transcript:')+' "'+safeText+'"</div>' : '<div class="usay">'+scoreLine+'</div>')
+    + (hasAttempt ? '<div class="score-line"><span class="sc '+bandClass+'">'+sc+t('/100')+'</span><span class="stats">'+cardStats.statsHtml+'</span></div>' : '')
+    + (cardStats.chipHtml ? '<div class="miss-row">'+cardStats.chipHtml+'</div>' : '')
+    + '<div id="'+turnId+'" class="att-slot"></div>');
+  scoreCard.classList.add('att');
   // v111: single card per attempt — a confirmed voice-transcript preview card
   // (opt-in ✓/✕ path) is swapped for the scored card instead of stacking a
   // second duplicate bubble.
@@ -15891,6 +15901,21 @@ function attemptStatsFor(target, spoken) {
     s += '<div style="font-size:12px;color:var(--fg2);margin-top:2px;line-height:1.5">' + t('Tone slips:') + ' ' + tones.map(v => v.char + ' (' + (v.expectedPy || '?') + ' → ' + (v.saidPy || '?') + ')').join(' · ') + '</div>';
   }
   return s;
+}
+
+// v123: attempt-card stats + chips from the same shared analysis (counts match
+// attemptStatsFor exactly — same (target, spoken) inputs, same verdicts).
+function attemptCardStats(verdicts) {
+  if (!verdicts.length) return { statsHtml: '', chipHtml: '' };
+  const correct = verdicts.filter(v => v.status === 'correct').length;
+  const tones = verdicts.filter(v => v.status === 'tone').length;
+  const missed = verdicts.filter(v => v.status === 'wrong').length;
+  let statsHtml = correct + '/' + verdicts.length + ' ' + t('characters correct');
+  if (tones) statsHtml += ' • ' + tones + ' ' + t('Tone slips:');
+  let chipHtml = '';
+  if (tones) chipHtml += '<span class="chip ton">' + t('Tone') + ' · ' + tones + '</span>';
+  if (missed) chipHtml += '<span class="chip mss">' + t('Missed') + ' · ' + missed + '</span>';
+  return { statsHtml, chipHtml };
 }
 
 function showSkipHint() {
@@ -19659,11 +19684,11 @@ function colorCodePronunciation(target, spoken) {
     }
     const v = verdicts[vi++];
     if (v.status === 'correct') {
-      html += '<span style="color:#4ade80; font-weight:bold;" title="' + t('Correct!') + '">' + char + '</span>';
+      html += '<span class="verdict-correct" title="' + t('Correct!') + '">' + char + '</span>';
     } else if (v.status === 'tone') {
-      html += '<span class="tone-mistake" style="color:#fb923c; font-weight:bold; border-bottom:1px dashed #fb923c; cursor:help;" title="' + t('Tone Mistake! Expected: ') + v.expectedPy + ', ' + t('Said: ') + v.saidPy + '">' + char + '</span>';
+      html += '<span class="verdict-tone tone-mistake" style="cursor:help;" title="' + t('Tone Mistake! Expected: ') + v.expectedPy + ', ' + t('Said: ') + v.saidPy + '">' + char + '</span>';
     } else {
-      html += '<span style="color:#f87171; font-weight:bold;" title="' + t('Incorrect or missed') + '">' + char + '</span>';
+      html += '<span class="verdict-wrong" title="' + t('Incorrect or missed') + '">' + char + '</span>';
     }
   }
   return html;
