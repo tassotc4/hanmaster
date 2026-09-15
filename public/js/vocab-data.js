@@ -36,6 +36,7 @@ const HSK_WORDS = [
   {l:1,c:'吃',p:'chī',e:'to eat'},
   {l:1,c:'几',p:'jǐ',e:'how many'},
   {l:1,c:'茶',p:'chá',e:'tea'},
+  {l:1,c:'咖啡',p:'kā fēi',e:'coffee'},
   {l:1,c:'喝',p:'hē',e:'to drink'},
   {l:1,c:'看',p:'kàn',e:'to see, watch'},
   {l:1,c:'呢',p:'ne',e:'question particle'},

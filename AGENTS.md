@@ -50,6 +50,7 @@ Two input paths — a Web Speech API path and a recording-fallback path:
 - Light theme: `.theme-light` overrides in `public/css/app.css` (~L83-95); `pinyin-chart.html` reads `hsk_theme` from localStorage and applies `.theme-light` via a storage listener.
 - Wider scrollbars (11px thumb) on `.app-sidebar`, main, and list panes (CSS top + Firefox `scrollbar-*`).
 - Static checks: `node --check public/js/app.js` after editing (always used; app.js must stay BOM-free UTF-8 without a trailing comma on the last object/array element).
+- Regression checks: the historical smoke suite does NOT exist anymore (not in repo or temp; the old "26/26 smoke" script is gone). Rely on the Puppeteer probes in `C:\Users\HP\AppData\Local\Temp\opencode\pptrtest\` (e.g. `b7-badge-test.cjs`, `b7-hint-fix-test.cjs`) as the regression standard — they need the local server on 127.0.0.1:8080 and Chrome — until/unless a durable suite is rebuilt somewhere stable (Temp gets wiped).
 
 ## TTS voices (server /api/tts, v87)
 - **Robotic-voice fix (v87)**: `/api/tts` GET+POST no longer default to the robotic Google `translate_tts?client=gtx` for non-Chinese. New order: **Edge TTS (Microsoft neural voices)** → Fish (zh only, when `FISH_AUDIO_KEY` set or `engine=fish`) → gtx last-resort. `engine=google` still forces gtx directly.
