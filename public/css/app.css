@@ -625,8 +625,9 @@ html:has(.spatial-theme-tutor) {
 /* Display-only current-lesson title above the header selects */
 #tutLessonTitle {
   flex-basis: 100%;
-  font-size: 17px;
-  font-weight: 800;
+  font-family: 'Noto Serif SC', 'Songti SC', serif;
+  font-size: 19px;
+  font-weight: 700;
   letter-spacing: 0.4px;
   color: var(--fg);
   line-height: 1.35;
