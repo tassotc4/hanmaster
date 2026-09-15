@@ -15825,7 +15825,7 @@ function tutTypeSubmit(){
   }
   const target=localStorage.getItem('tutor_mode') === 'live' ? currentLiveTarget : tutLesson.dialogue[tutStep].cn;
   const sc=Math.round(sim(text,target)*100);
-  processScore(text,sc);input.value='';
+  processScore(text,sc,target,'type-'+Date.now());input.value='';
 }
 
 function processScore(text,sc,target,turnId,replaceCard){
