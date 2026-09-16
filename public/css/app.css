@@ -108,7 +108,7 @@ html{scrollbar-width:auto;scrollbar-color:var(--border) var(--bg2)}
 .theme-jade { --accent: #2e8b57 !important; --accent2: #3cb371 !important; }
 .theme-sapphire { --accent: #1e90ff !important; --accent2: #00bfff !important; }
 .theme-amber { --accent: #ff8c00 !important; --accent2: #ffa500 !important; }
-.theme-light { --bg: #F8F6F3 !important; --bg2: #EEEAE3 !important; --card: #FFFFFF !important; --card2: #E4DFD7 !important; --border: #B5AEA2 !important; --fg: #131110 !important; --fg2: #4A423A !important; --muted: #5A5248 !important; --accent: #0B676B !important; --accent2: #0E7C81 !important; --gold: #92620C !important; --green: #1E7A45 !important; --green2: #1B6B3C !important; --blue: #2C6FA8 !important; --purple: #7A4FC7 !important; --st: 11,103,107 !important; --ok: #1B6B3C !important; --tone: #7C530E !important; --wrong: #B91C1C !important; }
+.theme-light { --bg: #F8F6F3 !important; --bg2: #EEEAE3 !important; --card: #FFFFFF !important; --card2: #E4DFD7 !important; --border: #B5AEA2 !important; --fg: #131110 !important; --fg2: #4A423A !important; --muted: #5A5248 !important; --accent: #0B676B !important; --accent2: #0B666A !important; --gold: #7E540A !important; --green: #1A693B !important; --green2: #1B6B3C !important; --blue: #265F90 !important; --purple: #6D46B1 !important; --st: 11,103,107 !important; --ok: #1B6B3C !important; --tone: #7C530E !important; --wrong: #B91C1C !important; }
 .theme-light #langDropdown button,
 .theme-light #themeDropdown button { color: var(--fg) !important; }
 .theme-light #langDropdown button:hover,
