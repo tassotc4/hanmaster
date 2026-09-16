@@ -12,6 +12,7 @@ ios/
 *.log
 public/uploads/
 scratch/
+tests/scratch/
 
 
 .vercel
