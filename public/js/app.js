@@ -15173,6 +15173,37 @@ function tutListen(text){
 
 let _recAudioMode = false;
 
+// Live mode keeps ONE mic stream open across turns (v131). A fresh
+// getUserMedia every turn costs ~74ms–1s and previously the "speak now" hint
+// rendered before capture actually started, clipping the first syllables of
+// the user's reply (head truncation -> Whisper garbage). Released on mode
+// exit, mic change, or page unload.
+let liveMicStream = null;
+function releaseLiveMicStream() {
+  if (liveMicStream) {
+    try { liveMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    liveMicStream = null;
+  }
+}
+window.addEventListener('beforeunload', releaseLiveMicStream);
+// Level-aware capture limits (v131, flat values): longer sentences at higher
+// levels need longer mid-sentence pauses before the silence auto-stop fires,
+// and longer total utterances before the hard cap cuts the clip.
+function liveSilenceMs() {
+  const lvl = getChineseLevel();
+  return lvl === 'advanced' ? 2400 : lvl === 'intermediate' ? 2000 : 1700;
+}
+function liveCapMs() {
+  return getChineseLevel() === 'advanced' ? 15000 : 10000;
+}
+// Stop the active mic stream unless it is the stream live mode wants to keep.
+function maybeStopActiveMic() {
+  if (!activeMicStream) return;
+  const keep = window._keepLiveMic && activeMicStream === liveMicStream;
+  if (!keep) { try { activeMicStream.getTracks().forEach(t => t.stop()); } catch (e) {} }
+  activeMicStream = null;
+}
+
 function startAudioRecording(btn, ic) {
   if (window._relistenT) { clearTimeout(window._relistenT); window._relistenT = null; }
   if (_recAudioMode) {
@@ -15207,10 +15238,9 @@ function startAudioRecording(btn, ic) {
           console.warn("Mic clip rejected (" + why + ", peak " + peak.toFixed(3) + ", voiced " + voicedMs + "ms), skipping transcription");
           // Release the mic tracks before returning — this path otherwise leaks
           // the stream (LED stays on, old stream reused by later recordings) (v78).
-          if (activeMicStream) {
-            try { activeMicStream.getTracks().forEach(t => t.stop()); } catch (e) {}
-            activeMicStream = null;
-          }
+          // In live mode the shared stream survives (v131) — maybeStopActiveMic
+          // keeps it; outside live mode it still stops exactly as before.
+          maybeStopActiveMic();
           document.getElementById('tutHint').innerHTML = '<span style="color:var(--muted)"><i class="fas fa-headphones"></i> ' + t('Listening...') + '</span>';
           if (localStorage.getItem('tutor_mode') === 'live') {
             // Live AI: silence is not a turn. Keep waiting hands-free — re-open the
@@ -15232,10 +15262,7 @@ function startAudioRecording(btn, ic) {
         window._recSilentAuto = 0;
         window._recSoundMs = 0;
         if (window._relistenT) { clearTimeout(window._relistenT); window._relistenT = null; }
-        if (activeMicStream) {
-          try { activeMicStream.getTracks().forEach(t => t.stop()); } catch(e) {}
-          activeMicStream = null;
-        }
+        maybeStopActiveMic();
         const chunks = audioChunks;
         audioChunks = [];
         if (chunks.length === 0) {
@@ -15273,13 +15300,20 @@ function startAudioRecording(btn, ic) {
   // mic opens while playback is still ringing out -> audible echo/feedback.
   if (!isMobileDevice) { try { speechSynthesis.cancel(); } catch(e) {} }
   stopApiTts();
-  document.getElementById('tutHint').textContent = t('Recording... speak now (auto-stops when you pause)');
-  const wave = document.getElementById('tutVoiceWave');
-  if (wave) wave.style.display = 'inline-flex';
+  // Capture is NOT open yet — do not invite speech until recorder.start().
+  // (The old "speak now" hint here rendered before getUserMedia resolved,
+  // clipping the first syllables of the user's reply.)
+  document.getElementById('tutHint').textContent = t('Listening...');
   document.getElementById('tutHint').style.color = 'var(--green)';
   currentTurnId = 'voice-' + Date.now();
+  const keepLiveMic = localStorage.getItem('tutor_mode') === 'live';
+  window._keepLiveMic = keepLiveMic;
   if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    navigator.mediaDevices.getUserMedia(getMicAudioConstraints()).then(stream => {
+    const acq = (keepLiveMic && liveMicStream && liveMicStream.active)
+      ? Promise.resolve(liveMicStream)
+      : navigator.mediaDevices.getUserMedia(getMicAudioConstraints());
+    acq.then(stream => {
+      if (keepLiveMic) liveMicStream = stream;
       console.log("getUserMedia succeeded for recording fallback");
       // Record the RAW stream directly. Do NOT route it through a Web Audio
       // graph — a suspended/failed AudioContext can silently output silence even
@@ -15322,8 +15356,8 @@ function startAudioRecording(btn, ic) {
           if (p >= soundThreshold) {
             window._recLastSound = now;
             window._recSoundMs = (window._recSoundMs || 0) + 120;
-          } else if (_recAudioMode && window._recLastSound && window._recStartedAt && (now - window._recLastSound) > 1700 && (now - window._recStartedAt) > 2000) {
-            console.log("Silence detected (1.7s), auto-stopping recording");
+          } else if (_recAudioMode && window._recLastSound && window._recStartedAt && (now - window._recLastSound) > liveSilenceMs() && (now - window._recStartedAt) > 2000) {
+            console.log("Silence detected (" + liveSilenceMs() + "ms), auto-stopping recording");
             window._recLastSound = 0;
             clearTimeout(window._recAutoStopTimer);
             const b = document.getElementById('tutMic'), i = document.getElementById('tutMicIc');
@@ -15355,6 +15389,10 @@ function startAudioRecording(btn, ic) {
       };
       try {
         mediaRecorder.start();
+        // Capture is open NOW — only here is it honest to say "speak now" (v131)
+        document.getElementById('tutHint').textContent = t('Recording... speak now (auto-stops when you pause)');
+        const waveEl = document.getElementById('tutVoiceWave');
+        if (waveEl) waveEl.style.display = 'inline-flex';
       } catch(e) {
         console.error("MediaRecorder start failed:", e);
         _recAudioMode = false;
@@ -15365,14 +15403,16 @@ function startAudioRecording(btn, ic) {
         document.getElementById('tutHint').textContent = t('Recording not supported on this device');
         return;
       }
-      // Auto-stop after 10s so the user never has to tap again
+      // Hard cap on clip length so the user never has to tap again.
+      // Advanced levels get 15s — full HSK-5+ sentences with natural pauses
+      // don't fit in 10s (v131).
       clearTimeout(window._recAutoStopTimer);
       window._recAutoStopTimer = setTimeout(() => {
         if (_recAudioMode) {
           const b = document.getElementById('tutMic'), i = document.getElementById('tutMicIc');
           startAudioRecording(b, i);
         }
-      }, 10000);
+      }, liveCapMs());
     }).catch(err => {
       console.error("Audio recording fallback failed:", err);
       _recAudioMode = false;
@@ -16131,6 +16171,7 @@ function selectMicDevice(id) {
   selectedMicId = id || '';
   if (id) localStorage.setItem('mic_device_id', id);
   else localStorage.removeItem('mic_device_id');
+  releaseLiveMicStream(); // re-acquire with the newly chosen device next turn
   // User explicitly picked a mic — reset the "SpeechRecognition unreliable"
   // flag so we give it a fresh chance with the new device.
   window._useAudioFallback = false;
@@ -17737,7 +17778,8 @@ function saveGeminiSettings() {
   
   localStorage.setItem('tutor_mode', mode);
   localStorage.setItem('speech_rate', rate);
-  
+  if (mode !== 'live') releaseLiveMicStream();
+
   // Hands-free by default in Live AI mode
   if (mode === 'live') enableVoiceModeAuto();
   else if (voiceModeActive) toggleVoiceMode();
@@ -20143,16 +20185,17 @@ function stopMediaRecorder() {
       console.error("Error stopping MediaRecorder:", e);
     }
   }
-  // Force stop all microphone tracks immediately
-  if (activeMicStream) {
+  // Force stop microphone tracks — except the stream live mode deliberately
+  // keeps open across turns (v131); releaseLiveMicStream() owns its lifetime.
+  if (activeMicStream && !(window._keepLiveMic && activeMicStream === liveMicStream)) {
     try {
       activeMicStream.getTracks().forEach(track => track.stop());
       console.log("Microphone stream tracks stopped successfully.");
     } catch(e) {
       console.error("Error stopping activeMicStream tracks:", e);
     }
-    activeMicStream = null;
   }
+  activeMicStream = null;
 }
 
 function playRecordedVoice(url) {
