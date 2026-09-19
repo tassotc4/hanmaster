@@ -44,15 +44,31 @@ const { launch, buildPreload, BASE, waitFor, SCRATCH, LAUNCH_ARGS } = require('.
 
   // --- Turn 1 -------------------------------------------------------------
   const gumBefore = await page.evaluate(() => window.__gumCalls);
-  const hintImmediately = await page.evaluate(() => {
+  const stateAtTap = await page.evaluate(() => {
     startAudioRecording(document.getElementById('tutMic'), document.getElementById('tutMicIc'));
-    return document.getElementById('tutHint').textContent;
+    return {
+      hint: document.getElementById('tutHint').textContent,
+      micLabel: document.getElementById('tutMicLabel').textContent,
+      micIcon: document.getElementById('tutMicIc').className,
+      wave: document.getElementById('tutVoiceWave').style.display
+    };
   });
   check('hint is honest before capture opens (not "speak now")',
-    !/speak now/i.test(hintImmediately), JSON.stringify(hintImmediately).slice(0, 60));
+    !/speak now/i.test(stateAtTap.hint), JSON.stringify(stateAtTap.hint).slice(0, 60));
+  check('button still idle at tap time (v132: no Stop flip before capture)',
+    stateAtTap.micLabel === 'Speak' && /fa-microphone/.test(stateAtTap.micIcon) && stateAtTap.wave === 'none',
+    'label=' + stateAtTap.micLabel + ' icon=' + stateAtTap.micIcon + ' wave=' + stateAtTap.wave);
 
   const recOpened = await waitFor(page, () => /Recording.*speak now/i.test(document.getElementById('tutHint').textContent), 15000);
   check('turn 1: recorder opened and hint switched to "speak now"', recOpened);
+  const stateAtOpen = await page.evaluate(() => ({
+    micLabel: document.getElementById('tutMicLabel').textContent,
+    micIcon: document.getElementById('tutMicIc').className,
+    wave: document.getElementById('tutVoiceWave').style.display
+  }));
+  check('button flipped to recording only at capture-open',
+    stateAtOpen.micLabel === 'Stop' && /fa-stop/.test(stateAtOpen.micIcon) && stateAtOpen.wave === 'inline-flex',
+    'label=' + stateAtOpen.micLabel + ' icon=' + stateAtOpen.micIcon + ' wave=' + stateAtOpen.wave);
   check('turn 1: live stream stored and active', await page.evaluate(() => !!(liveMicStream && liveMicStream.active)));
 
   // Screenshot of the honest hint while capture is actually open.

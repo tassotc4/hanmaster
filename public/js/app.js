@@ -15292,7 +15292,13 @@ function startAudioRecording(btn, ic) {
   window._recStartedAt = Date.now();
   window._recLastSound = Date.now();
   srOn = true;
-  updateMicUI('recording');
+  // (v132) Do NOT flip the mic button to its recording state here — capture is
+  // NOT open yet (getUserMedia + MediaRecorder.start are still pending, which
+  // took 74ms–1s on this machine). The button is the visually dominant
+  // "safe to speak" signal; flipping it at tap time invited speech during
+  // device warm-up and clipped first syllables. It now flips in the .then()
+  // after mediaRecorder.start() succeeds, same as the wave bars and hint.
+  // srOn stays true from here as the re-entry guard.
   // Stop any TTS playback immediately to prevent feedback loop.
   // Both the browser SpeechSynthesis AND the API-based TTS audio element must
   // be stopped — the Google/Fish audio engine plays through an <audio> element
@@ -15389,7 +15395,9 @@ function startAudioRecording(btn, ic) {
       };
       try {
         mediaRecorder.start();
-        // Capture is open NOW — only here is it honest to say "speak now" (v131)
+        // Capture is open NOW — flip the button, show the wave, invite speech
+        // (v131 hint/wave + v132 button: nothing says "recording" before this).
+        updateMicUI('recording');
         document.getElementById('tutHint').textContent = t('Recording... speak now (auto-stops when you pause)');
         const waveEl = document.getElementById('tutVoiceWave');
         if (waveEl) waveEl.style.display = 'inline-flex';
