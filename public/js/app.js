@@ -21020,7 +21020,13 @@ function createFloatingCharacters() {
 // Translations moved to top
 
 function translateUI() {
-  document.querySelectorAll('[data-tr]').forEach(el => {
+  // data-tr-aria-label: translate accessibility-only labels the same way as
+  // visible text (v133). The English aria-label stays in the markup as the
+  // no-JS / first-paint fallback; this overwrites it with the translation.
+  document.querySelectorAll('[data-tr],[data-tr-aria-label]').forEach(el => {
+    if (el.hasAttribute('data-tr-aria-label')) {
+      el.setAttribute('aria-label', t(el.getAttribute('data-tr-aria-label')));
+    }
     const key = el.getAttribute('data-tr');
     if (!key) return;
     const tr = t(key);
