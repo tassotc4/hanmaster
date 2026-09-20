@@ -17839,9 +17839,28 @@ function loadGeminiSettings() {
 }
 
 // Translate Chinese to the user's selected language for live AI user bubbles
-let _liveTrCache = {};
+// (v134) Persisted to localStorage under 'tutor_live_tr_cache' — same pattern
+// as tutor_ai_tr_cache, plus a language stamp so switching tutor language never
+// serves stale translations from another language.
+let _liveTrCache = null;
+function loadLiveTrCache() {
+  const lang = getTutorLangName();
+  // Stamp check BEFORE the memoized return: a mid-session tutor-language
+  // switch must discard the cache immediately, not just on next page load.
+  if (_liveTrCache && _liveTrCache.lang === lang) return _liveTrCache;
+  try { _liveTrCache = JSON.parse(localStorage.getItem('tutor_live_tr_cache') || 'null'); } catch(e) { _liveTrCache = null; }
+  if (!_liveTrCache || _liveTrCache.lang !== lang) _liveTrCache = { lang: lang, map: {} };
+  return _liveTrCache;
+}
+function saveLiveTrCache() {
+  try { localStorage.setItem('tutor_live_tr_cache', JSON.stringify(_liveTrCache)); } catch(e) {}
+}
 async function translateToEnglish(text) {
-  if (_liveTrCache[text]) return _liveTrCache[text];
+  const cache = loadLiveTrCache();
+  if (cache.map[text]) return cache.map[text];
+  // Punctuation/whitespace-tolerant hit: "我很好！" matches a seeded "我很好"
+  const bare = text.replace(/[\s\u3000-\u303f\uff00-\uffef。！？!?，,、]/g, '');
+  if (bare !== text && cache.map[bare]) return cache.map[bare];
   const targetLang = getTutorLangName();
   let instruction = 'You are a professional translator, 100% fluent in ' + targetLang + ' at native-speaker level. Translate the Chinese text into natural, idiomatic ' + targetLang + ' — never literal. Reply with ONLY the ' + targetLang + ' translation and nothing else.';
   if (targetLang === 'Auto-detect') {
@@ -17855,7 +17874,7 @@ async function translateToEnglish(text) {
   const data = await res.json();
   let reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
   reply = reply.replace(/^["']|["']$/g, '').trim();
-  if (reply) _liveTrCache[text] = reply;
+  if (reply) { cache.map[text] = reply; saveLiveTrCache(); }
   return reply;
 }
 
@@ -18337,16 +18356,29 @@ function sendToGemini(userText) {
       addTutMsg('bot', botHtml);
     }
     // If the model's reply has Chinese but no English translation was embedded, fetch one now
+    // (v134) Whenever this bubble's translation is known, seed the live cache:
+    // a student echoing the tutor's phrase (typed suggestion or spoken repeat,
+    // punctuation-tolerant) then makes NO second API call — same cache, same
+    // lookup path as translateToEnglish's dedup. Single-sentence phrases only:
+    // a whole-phrase translation must never masquerade as a sub-sentence's.
+    const seedEchoTr = function(tr) {
+      if (!tr || !speechText || speechText !== suggestedAnswer) return;
+      const c = loadLiveTrCache();
+      if (!c.map[speechText]) { c.map[speechText] = tr; saveLiveTrCache(); }
+    };
     if (hasPhrase && (!englishTranslation || englishTranslation.length < phrase.length * 0.6)) {
       translateToEnglish(phrase).then(function(en) {
         const el = document.getElementById(botTrId);
         if (el) el.textContent = en || t('(translation unavailable)');
         const wm = document.getElementById('tutWm');
         if (wm && en) wm.textContent = en;
+        seedEchoTr(en);
       }).catch(function() {
         const el = document.getElementById(botTrId);
         if (el) el.textContent = t('(translation unavailable)');
       });
+    } else if (hasPhrase) {
+      seedEchoTr(englishTranslation);
     }
     const isIntroReply = _introTurnForSpeech;
     const isGreetingSilent = _introGreetingTurn && !greetingVoiceOn();
