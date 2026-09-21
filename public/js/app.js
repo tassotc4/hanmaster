@@ -14567,6 +14567,8 @@ async function routeApp(path, btn) {
     if (!tutLesson && typeof laoshiWelcome === 'function') {
       setTimeout(laoshiWelcome, 200);
     }
+    // v135: silent resume of the signed-in user's last live conversation
+    if (typeof maybeRestoreLiveChat === 'function') maybeRestoreLiveChat();
   } else if (sectionId) {
     document.body.style.background = "var(--bg)";
     document.body.classList.add('spatial-theme');
@@ -18329,7 +18331,10 @@ function sendToGemini(userText) {
     
     // Append response to history (store the original full reply)
     geminiHistory.push({ role: "model", parts: [{ text: reply }] });
-    
+    // v135: persist the latest conversation snapshot for signed-in users
+    // (fail-soft; no-op when supabase.js isn't loaded or user is signed out)
+    if (typeof saveChatSnapshot === 'function') saveChatSnapshot();
+
     // Add message to chat, then pause briefly before speaking so the user is done talking
     const hasPhrase = /[\u4e00-\u9fa5]/.test(phrase);
     const hasMuted = /\S/.test(muteLine);
@@ -19371,6 +19376,26 @@ function openTopicLesson(topicName, lvIdx) {
   const isLive = localStorage.getItem('tutor_mode') === 'live';
   
   if (isLive) {
+    // v135: a conversation-snapshot restore may be in flight (supabase.js
+    // arms _chatRestoreSettled at script load — it evaluates before app.js).
+    // Wait for the verdict: a successful restore replaces this fresh topic
+    // greeting; a failed restore re-runs this function and starts the topic
+    // normally. The 3s safety timer releases the gate if the restore never
+    // settles (e.g. supabase unreachable) so a signed-out boot still greets.
+    if (window._chatRestoreSettled === false) {
+      (window._chatRestoreSettledWaiters = window._chatRestoreSettledWaiters || []).push(function () {
+        if (!window._chatRestored) openTopicLesson(topicName, lvIdx);
+      });
+      setTimeout(function () {
+        if (window._chatRestoreSettled === false) {
+          window._chatRestoreSettled = true;
+          var w = window._chatRestoreSettledWaiters || [];
+          window._chatRestoreSettledWaiters = null;
+          w.forEach(function (f) { try { f(); } catch (e) {} });
+        }
+      }, 3000);
+      return;
+    }
     // First-ever live session: run the placement interview before any topic
     if (!isTutorOnboarded()) {
       tutLesson = TL[0];

@@ -34,6 +34,9 @@ async function checkSession() {
   if (!supabaseClient) return;
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) {
+    // v135: a fresh sign-in re-arms the restore attempt (guarded in-flight)
+    if (!_chatRestoring) _chatRestoreDone = false;
+    maybeRestoreLiveChat();
     document.getElementById('userEmailDisplay').textContent = session.user.email;
     document.getElementById('authButtons').style.display = 'none';
     document.getElementById('userInfo').style.display = 'flex';
@@ -138,6 +141,7 @@ async function signOutUser() {
   if (!supabaseClient) return;
   const { data: { session } } = await supabaseClient.auth.getSession();
   if (session) await saveProgressToCloud(session.user.id);
+  await saveChatSnapshot(); // v135: final state of the conversation before signing out
   await supabaseClient.auth.signOut();
   document.getElementById('authButtons').style.display = 'flex';
   document.getElementById('userInfo').style.display = 'none';
@@ -177,6 +181,110 @@ async function syncProgressFromCloud(userId) {
     toast('Progress synced from cloud!', 'var(--green)');
   }
 }
+
+// ===== Live-AI conversation snapshot (v135) =====
+// Latest live-AI conversation per signed-in user — one upserted row in
+// user_chats, the same latest-snapshot philosophy as user_progress (NOT an
+// archival log). Written and read only by the browser client with the anon
+// key; RLS keeps rows private; account deletion cascades. Fail-soft
+// everywhere: a Supabase outage (or the table not being created yet) must
+// never interrupt the chat.
+const CHAT_SNAPSHOT_MAX_TURNS = 40;
+// Bump this whenever the bubble GENERATOR markup changes in a way old saved
+// chatHtml should no longer be re-inserted as-is (class restyling is safe —
+// classes resolve at render time; frozen parts are generator inline styles,
+// ruby pinyin computed at save time, and inline onclick="speak(...)").
+// On mismatch, restore degrades to context-only (history loads, chat panel
+// renders a fresh note instead of stale markup).
+const CHAT_RENDER_VERSION = 1;
+// Verdict handshake (armed at script load, BEFORE app.js runs): boot-time
+// live session starters (openTopicLesson's live branch auto-fires at boot
+// via the lesson-tab UI) must wait for the restore verdict before starting a
+// fresh topic session — a successful restore replaces it. Settled in
+// maybeRestoreLiveChat's finally (or by app.js's 3s safety timer).
+window._chatRestoreSettled = false;
+
+async function saveChatSnapshot() {
+  if (!supabaseClient) return;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return; // signed-in only — parity with progress sync
+    if (typeof geminiHistory === 'undefined' || !geminiHistory || !geminiHistory.length) return;
+    const hist = geminiHistory.slice(-CHAT_SNAPSHOT_MAX_TURNS);
+    if (!hist.length) return;
+    // Serialize the RENDERED chat (a clone, soft-capped — never mutate live
+    // DOM). Internal system notes are excluded by construction: they are
+    // pushed to geminiHistory as model context but never rendered as bubbles.
+    let chatHtml = '';
+    const chat = document.getElementById('tutChat');
+    if (chat) {
+      const clone = chat.cloneNode(true);
+      while (clone.children.length > 80) clone.removeChild(clone.firstChild);
+      chatHtml = clone.innerHTML;
+    }
+    await supabaseClient.from('user_chats').upsert({
+      user_id: session.user.id,
+      chat: JSON.stringify({
+        v: 1,
+        rv: CHAT_RENDER_VERSION,
+        mode: localStorage.getItem('tutor_mode'),
+        level: (typeof getChineseLevel === 'function' ? getChineseLevel() : ''),
+        history: hist,
+        chatHtml: chatHtml
+      }),
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+  } catch (e) { /* fail-soft: snapshot must never break the chat */ }
+}
+
+// Silent resume. Runs at most once per page load (re-armed on sign-in), only
+// when the current mode is live, the stored session was live, and no session
+// is active. Restores the literal saved chatHtml (no re-render) unless the
+// snapshot's render version is stale, in which case only the model context
+// (geminiHistory) is restored plus a visible note.
+let _chatRestoreDone = false, _chatRestoring = false;
+async function maybeRestoreLiveChat() {
+  if (_chatRestoreDone || _chatRestoring || !supabaseClient) return;
+  _chatRestoring = true;
+  try {
+    if (localStorage.getItem('tutor_mode') !== 'live') return;
+    if (typeof geminiHistory === 'undefined' || geminiHistory.length) return; // active session — never clobber
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return;
+    const r = await supabaseClient.from('user_chats').select('chat').eq('user_id', session.user.id).single();
+    if (!r || r.error || !r.data || !r.data.chat) return;
+    let snap;
+    try { snap = JSON.parse(r.data.chat); } catch (e) { return; }
+    if (!snap || snap.v !== 1 || snap.mode !== 'live' || !Array.isArray(snap.history) || !snap.history.length) return;
+    // Mirror startLiveTutor's session state so typing/mic work immediately.
+    geminiHistory = snap.history;
+    if (typeof TL !== 'undefined' && TL.length) tutLesson = TL[0];
+    if (typeof isLiveAIActive !== 'undefined') isLiveAIActive = true;
+    const chat = document.getElementById('tutChat');
+    if (snap.rv === CHAT_RENDER_VERSION && chat && snap.chatHtml) {
+      chat.innerHTML = snap.chatHtml;
+      if (typeof scrollTutToBottom === 'function') scrollTutToBottom();
+    } else if (chat && typeof addTutMsg === 'function') {
+      // Stale render version (or missing chatHtml): context-only restore.
+      addTutMsg('sysline', '<i class="fas fa-history"></i> ' + t('Your tutor remembers your last conversation — keep chatting where you left off.'));
+      scrollTutToBottom();
+    }
+    if (typeof setBtns === 'function') setBtns(true);
+    if (typeof toast === 'function') toast(t('Conversation restored from your account'), 'var(--green)', 3500);
+    window._chatRestored = true;
+  } catch (e) { /* fail-soft */ }
+  finally {
+    _chatRestoreDone = true;
+    _chatRestoring = false;
+    // v135 verdict handshake: release the gate and notify any waiting
+    // session-starters (app.js openTopicLesson).
+    window._chatRestoreSettled = true;
+    const waiters = window._chatRestoreSettledWaiters || [];
+    window._chatRestoreSettledWaiters = null;
+    waiters.forEach(function (f) { try { f(); } catch (e2) {} });
+  }
+}
+window.addEventListener('beforeunload', function() { saveChatSnapshot(); });
 
 let _activityUid = null, _activityAccum = 0, _activityLast = 0, _activityTimer = null;
 

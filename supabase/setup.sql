@@ -111,3 +111,24 @@ alter table public.leads add column if not exists created_at timestamptz default
 alter table public.leads enable row level security;
 
 create unique index if not exists leads_email_key on public.leads (email);
+
+-- ================= user_chats (v135: live-AI conversation snapshot) =================
+-- Latest live-AI conversation per user — a single upserted snapshot, the same
+-- latest-snapshot philosophy as user_progress (NOT an archival log). Written
+-- and read only by the browser client with the anon key; RLS keeps rows
+-- private; account deletion cascades. Idempotent like everything above.
+create table if not exists public.user_chats (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  chat       text,
+  updated_at timestamptz default now()
+);
+alter table public.user_chats enable row level security;
+
+drop policy if exists "user_chats_own" on public.user_chats;
+create policy "user_chats_own"
+  on public.user_chats
+  for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+grant select, insert, update on public.user_chats to authenticated;
