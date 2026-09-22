@@ -18435,6 +18435,18 @@ function sendToGemini(userText) {
     const _speakTurn = !isGreetingSilent;
     if (_speakTurn && speechText) setTimeout(() => speak(speechText), 1100);
     else if (_speakTurn && _interviewActive && phrase) setTimeout(() => speakViaAPI(phrase, getInterviewLangCode(), 1.0), 1100);
+    else if (_speakTurn && !speechText && localStorage.getItem('tutor_mode') === 'live') {
+      // v138: auto-voice the tutor's native-language (rule 13 escape-hatch)
+      // explanation — these replies were completely SILENT before (no Chinese
+      // → no speechText → nothing played). Same +1100ms single-clip slot the
+      // Chinese phrase uses; the existing auto-listen watcher's isTtsPlaying()
+      // gate covers it with ZERO new timing machinery — no chained-clip code,
+      // no watcher changes, the interview and Chinese branches untouched.
+      // Live mode only (v138 scope decision); escape-hatch replies only fire
+      // when the tutor switched to the user's language (rare by design).
+      const voiceText = (englishTranslation || muteLine || '').trim();
+      if (voiceText.replace(/\s/g, '').length >= 4) setTimeout(() => speakViaAPI(voiceText, getTtsLangCode(), 1.0), 1100);
+    }
 
     // Auto-listen in Voice Mode or Live AI Mode — but never for an auto-intro
     // turn (the greeting), so the mic doesn't open into the tutor's reply (echo).
