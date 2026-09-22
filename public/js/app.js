@@ -15037,12 +15037,19 @@ function getEffectiveSpeechRate() {
   return 1.0;
 }
 
-function speak(t, rate){
+function speak(t, rate, lang){
   try {
     if (recognition) { try { recognition.onend = null; recognition.onerror = null; recognition.abort(); } catch(e) {} }
     srOn = false;
     updateMicUI('idle');
     stopApiTts();
+    // v136: only NEW voice surfaces (translation-line replay) pass a lang;
+    // every existing call site omits it and keeps today's Chinese behavior
+    // byte-for-byte (browser-voice path, caching, guards all unchanged).
+    if (lang && lang !== 'zh-CN') {
+      speakViaAPI(t, lang, rate || getEffectiveSpeechRate());
+      return;
+    }
     const hasGoodVoice = window.speechSynthesis && getChineseVoice() !== null;
     if (!hasGoodVoice || localStorage.getItem('tts_mode') !== 'auto') { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
     if (!window.speechSynthesis) { speakViaAPI(t, 'zh-CN', rate || getEffectiveSpeechRate()); return; }
@@ -15150,7 +15157,7 @@ function advanceTutor(){
     document.getElementById('tutHint').style.color='var(--blue)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
     const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    window._tutCurBotCard=addTutMsg('bot','<div class="phrase">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" class="tr">'+t(line.en)+'</div><span class="replay" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    window._tutCurBotCard=addTutMsg('bot','<div class="phrase">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" class="tr">'+t(line.en)+'</div><span class="replay" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span><span class="replay" onclick="speakTr(\''+msgEnId+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
     if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
     setTimeout(()=>tutListen(line.cn),500);
   } else {
@@ -18010,6 +18017,37 @@ function getSpeechSrcLang() {
   const f = SPEECH_LANGS.find(x => x.code === getSpeechLang());
   return f ? f.src : 'zh';
 }
+// v136: BCP-47 code matching the language the tutor's translation text is
+// actually written in (getTutorLangName drove that text), so the translation
+// replay always voices what the line says. Auto-detect falls back to the
+// UI language as the best guess.
+function getTtsLangCode() {
+  const nameMap = {
+    English: 'en-US', Spanish: 'es-ES', French: 'fr-FR', Japanese: 'ja-JP',
+    Korean: 'ko-KR', German: 'de-DE', Portuguese: 'pt-BR', Italian: 'it-IT',
+    Russian: 'ru-RU', Vietnamese: 'vi-VN', Thai: 'th-TH', Indonesian: 'id-ID'
+  };
+  const uiMap = {
+    en: 'en-US', es: 'es-ES', fr: 'fr-FR', ja: 'ja-JP', ko: 'ko-KR', de: 'de-DE',
+    pt: 'pt-BR', it: 'it-IT', ru: 'ru-RU', vi: 'vi-VN', th: 'th-TH', id: 'id-ID'
+  };
+  const n = getTutorLangName();
+  if (nameMap[n]) return nameMap[n];
+  return uiMap[currentAppLang] || 'en-US';
+}
+// v136: replay the tutor's translation/explanation line natively. Reads the
+// slot's CURRENT text at click time (translations routinely contain
+// apostrophes/quotes — never inline them into onclick attributes). Skips
+// BOTH placeholder states (pending + failed) by exact match against the
+// localized t() outputs — no regex, so genuine content can never match.
+function speakTr(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const txt = (el.innerText || '').trim();
+  if (!txt || txt.length < 2) return;
+  if (txt === t('Translating...') || txt === t('(translation unavailable)')) return;
+  speak(txt, 1.0, getTtsLangCode());
+}
 function getTutorLangName() {
   const c = getSpeechLang();
   const f = SPEECH_LANGS.find(x => x.code === c);
@@ -18349,7 +18387,7 @@ function sendToGemini(userText) {
       botHtml += '<div class="fc font-bold" style="font-size:20px;margin-bottom:4px">' + (escapeHtml(pre) || '…') + '</div>';
     }
     if (hasPhrase) {
-      botHtml += '<div id="' + botTrId + '" class="tr">' + initialTr + '</div>';
+      botHtml += '<div id="' + botTrId + '" class="tr">' + initialTr + '</div><span class="replay" onclick="speakTr(\'' + botTrId + '\')"><i class="fas fa-volume-high"></i> replay</span>';
       if (hasMuted) botHtml += '<div style="font-size:13px;color:var(--muted);margin-top:4px">' + escapeHtml(muteLine) + '</div>';
     }
     botHtml += (speechText ? '<span class="replay" onclick="speak(\'' + speechText.replace(/'/g, "\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>' : '');
