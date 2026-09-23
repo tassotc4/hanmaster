@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=139" as="style">
-    <link rel="preload" href="/js/app.js?v=139" as="script">
+<link rel="preload" href="/css/app.css?v=140" as="style">
+    <link rel="preload" href="/js/app.js?v=140" as="script">
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=139">
+<link rel="stylesheet" href="/css/app.css?v=140">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -211,11 +211,11 @@
 <script defer src="/js/config.js"></script>
 <script defer src="/js/supabase.js"></script>
 <script defer src="/js/paypal.js"></script>
-<script defer src="/js/shop.js?v=139"></script>
+<script defer src="/js/shop.js?v=140"></script>
 <script defer src="/js/vocab-data.js"></script>
 <script defer src="/js/vocab-extra-data.js"></script>
 <script defer src="/js/extra-content.js"></script>
-<script defer src="/js/translate.js?v=139"></script>
+<script defer src="/js/translate.js?v=140"></script>
 <script defer src="/js/tutor-data.js"></script>
 <script defer src="/js/tutor-data-more.js"></script>
 </head>
@@ -1304,6 +1304,7 @@
       </div>
       
       <!-- Tier Selector Cards -->
+      <div id="saleBadge" style="display:none;background:linear-gradient(135deg,var(--gold),var(--accent));color:#fff;font-size:11px;font-weight:800;padding:6px 14px;border-radius:9999px;text-align:center;margin-bottom:12px" data-tr="Autumn Festival Sale — 50% Off Everything">🍂 Autumn Festival Sale — 50% Off Everything</div>
       <div class="grid grid-cols-1 gap-3 mb-5 text-left">
         <!-- Monthly -->
         <div onclick="selectPremiumTier('monthly')" id="tierCardMonthly" class="cd p-3.5 cursor-pointer flex items-center justify-between border-[1.5px] border-[var(--border)] bg-transparent hover:border-[var(--gold)] transition-all" style="border-radius:12px;">
@@ -1317,7 +1318,7 @@
             </div>
           </div>
           <div class="text-right">
-            <div class="font-black text-xs text-white" data-tr="$9.00 / mo">$9.00 / mo</div>
+            <div class="font-black text-xs text-white" id="tierCardMonthlyPrice" data-tr="$9.00 / mo">$9.00 / mo</div>
           </div>
         </div>
 
@@ -1334,7 +1335,7 @@
             </div>
           </div>
           <div class="text-right">
-            <div class="font-black text-xs text-white" data-tr="$59.00 / yr">$59.00 / yr</div>
+            <div class="font-black text-xs text-white" id="tierCardAnnualPrice" data-tr="$59.00 / yr">$59.00 / yr</div>
           </div>
         </div>
 
@@ -1351,7 +1352,7 @@
             </div>
           </div>
           <div class="text-right">
-            <div class="font-black text-xs text-white" data-tr="$129.00">$129.00</div>
+            <div class="font-black text-xs text-white" id="tierCardLifetimePrice" data-tr="$129.00">$129.00</div>
           </div>
         </div>
       </div>
@@ -1376,13 +1377,14 @@
       <button onclick="closeTutorUpgradeAsk()" aria-label="Close" data-tr-aria-label="Close" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--fg);padding:4px 8px;border-radius:8px" class="hover:bg-[var(--card2)] transition"><i class="fas fa-times"></i></button>
     </div>
     <div class="text-center py-2">
+      <div id="saleBadgeUpgrade" style="display:none;background:linear-gradient(135deg,var(--gold),var(--accent));color:#fff;font-size:11px;font-weight:800;padding:6px 14px;border-radius:9999px;text-align:center;margin-bottom:12px" data-tr="Autumn Festival Sale — 50% Off">🍂 Autumn Festival Sale — 50% Off</div>
       <div class="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style="background:rgba(212,166,79,.1)">
         <i class="fas fa-gem text-3xl" style="color:var(--gold)"></i>
       </div>
       <h4 class="font-black text-xl text-white mb-2" data-tr="Keep chatting with Li Laoshi?">Keep chatting with Li Laoshi?</h4>
       <p class="text-sm text-muted mb-4" data-tr="You've used your free daily AI tutor conversations. Upgrade to Premium for just $9.00/month (after your free trial) for unlimited conversations, full HSK 1-9 access, and more. Or come back tomorrow for another 5 free messages.">You've used your free daily AI tutor conversations. Upgrade to Premium for just <b>$9.00/month</b> (after your free trial) for unlimited conversations, full HSK 1-9 access, and more. <b>Or come back tomorrow for another 5 free messages.</b></p>
       <div class="flex flex-col gap-2">
-        <button onclick="confirmTutorUpgrade()" class="py-3 rounded-xl font-bold text-sm w-full cursor-pointer border-none" style="background:linear-gradient(135deg,var(--gold),var(--accent));color:#fff" data-tr="Upgrade to $9.00/month">Upgrade to $9.00/month</button>
+        <button onclick="confirmTutorUpgrade()" id="tutorUpgradeBtn" class="py-3 rounded-xl font-bold text-sm w-full cursor-pointer border-none" style="background:linear-gradient(135deg,var(--gold),var(--accent));color:#fff" data-tr="Upgrade to $9.00/month">Upgrade to $9.00/month</button>
         <button onclick="closeTutorUpgradeAsk()" class="py-2.5 rounded-xl text-sm w-full cursor-pointer" style="background:var(--card2);color:var(--fg);border:1px solid var(--border)" data-tr="Not now">Not now</button>
       </div>
     </div>
@@ -1943,7 +1945,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=139"></script> 
+<script defer src="/js/app.js?v=140"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [

@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
+const pricing = require('./paypal-pricing.js');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const staticDir = path.join(__dirname, 'public');
@@ -772,16 +773,12 @@ app.post('/api/paypal/create-order', async (req, res) => {
   if (!accessToken) return res.status(500).json({ error: 'Failed to get PayPal token' });
 
   const { plan } = req.body || {};
-  let price = '9.00';
-  let desc = 'MandarinCourse Premium - Monthly';
-  
-  if (plan === 'annual') {
-    price = '59.00';
-    desc = 'MandarinCourse Premium - Annual';
-  } else if (plan === 'lifetime') {
-    price = '129.00';
-    desc = 'MandarinCourse Premium - Lifetime Access';
-  }
+  // Server-authoritative pricing (the client sends only the tier name, never
+  // an amount). The Autumn Festival window is checked against THIS server's
+  // clock — never anything from the client.
+  const p = pricing.priceFor(plan);
+  const price = p.price;
+  const desc = 'MandarinCourse Premium - ' + (plan === 'annual' ? 'Annual' : plan === 'lifetime' ? 'Lifetime Access' : 'Monthly') + (p.sale ? ' (Autumn Festival 50% Off)' : '');
 
   try {
     const resp = await fetch(

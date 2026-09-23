@@ -112,12 +112,16 @@ const { launch, buildPreload, BASE, waitFor, SCRATCH, LAUNCH_ARGS } = require('.
   check('limits: intermediate = 2000ms / 10s', limits.intermediate.silence === 2000 && limits.intermediate.cap === 10000, JSON.stringify(limits.intermediate));
   check('limits: advanced = 2400ms / 15s', limits.advanced.silence === 2400 && limits.advanced.cap === 15000, JSON.stringify(limits.advanced));
 
-  // --- Release --------------------_---------------------------------------
+  // --- Release -------------------_---------------------------------------
+  // NOTE: do NOT do a start/stop cycle here — under suite load the fake-beep
+  // auto-stop timing shifts, startAudioRecording can START a new recording,
+  // and its async getUserMedia.then re-sets liveMicStream AFTER the release
+  // below nulls it (the intermittent full-suite flake, root-caused v140).
   await page.evaluate(() => {
-    startAudioRecording(document.getElementById('tutMic'), document.getElementById('tutMicIc')); // stop turn 2
+    window.__releasedStream = liveMicStream;
     releaseLiveMicStream();
   });
-  const released = await page.evaluate(() => liveMicStream === null);
+  const released = await page.evaluate(() => liveMicStream === null && (!window.__releasedStream || window.__releasedStream.active === false));
   check('releaseLiveMicStream() clears and ends the stream', released);
 
   console.log('PAGE ERRORS (informational, transcription of fake beep may 400): ' + (errors.length ? errors.join(' | ') : '0'));

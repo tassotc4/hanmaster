@@ -14431,6 +14431,7 @@ function togglePremiumModal() {
   const modal = document.getElementById('premiumModal');
   modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
   if (modal.style.display === 'flex' && typeof paypal !== 'undefined') renderPayPalButtons();
+  if (typeof applySaleDisplay === 'function') applySaleDisplay();
 }
 
 function checkMic(){
@@ -19933,6 +19934,7 @@ function showPremiumPaywall(levelName) {
   const modal = document.getElementById('premiumModal');
   if (modal) modal.style.display = 'flex';
   if (typeof paypal !== 'undefined') renderPayPalButtons();
+  if (typeof applySaleDisplay === 'function') applySaleDisplay();
 }
 
 // Dedicated ask before dumping the user into the full pricing modal: after the
@@ -19940,6 +19942,7 @@ function showPremiumPaywall(levelName) {
 function showTutorUpgradeAsk() {
   const modal = document.getElementById('tutorUpgradeAsk');
   if (modal) modal.style.display = 'flex';
+  if (typeof applySaleDisplay === 'function') applySaleDisplay();
 }
 
 function closeTutorUpgradeAsk() {
@@ -21288,6 +21291,7 @@ function changeAppLanguage(lang) {
     openTopicLesson(activeTopic);
   } catch(e) {}
   
+  if (typeof applySaleDisplay === 'function') applySaleDisplay();
   toast(t("Language changed to: ") + lang.toUpperCase(), "var(--green)");
 }
 
@@ -22702,10 +22706,18 @@ function showExtendOffer() {
   const title = document.getElementById('premTitle');
   if (title) title.textContent = t('Your 30-day free plan has ended');
   const msg = document.getElementById('premMsg');
-  if (msg) msg.textContent = t('Extend with Premium — HSK 1-9, advanced AI tutor, ad-free. Only $9/month via PayPal.');
+  if (msg) {
+    // v140: sale-aware price + set data-tr (pre-existing wart: a language
+    // switch after trial-end used to clobber this message back to the static
+    // markup text because data-tr was never updated here)
+    const p9 = (typeof salePriceInfo === 'function' && salePriceInfo('monthly')) ? salePriceInfo('monthly').discounted : '$9.00';
+    msg.textContent = t('Extend with Premium — HSK 1-9, advanced AI tutor, ad-free. Only ' + p9 + '/month via PayPal.');
+    msg.setAttribute('data-tr', msg.textContent);
+  }
   const modal = document.getElementById('premiumModal');
   if (modal) modal.style.display = 'flex';
   if (typeof paypal !== 'undefined') renderPayPalButtons();
+  if (typeof applySaleDisplay === 'function') applySaleDisplay();
   toast(t('Your 30-day free plan ended. Extend with PayPal?'), 'var(--gold)', 5000);
 }
 
