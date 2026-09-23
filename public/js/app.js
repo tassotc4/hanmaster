@@ -14954,6 +14954,20 @@ function tryPlayBoosted(src, rate, onFail, token) {
   } catch (e) { return false; }
 }
 
+// v139 (Part A ii): pre-warm the TTS cache for a clip that will be played
+// shortly (the chained translation playback) so the consume hits the cache
+// instead of fetching mid-sequence.
+function warmTtsCache(text, lang) {
+  try {
+    const engine = localStorage.getItem('tts_mode') === 'fish' ? '&engine=fish' : '';
+    fetch('/api/tts?v=9&text=' + encodeURIComponent(text) + '&lang=' + encodeURIComponent(lang) + engine)
+      .then(r => r.blob())
+      .then(blob => blobToDataUrl(blob))
+      .then(dataUrl => { ttsCache[lang + '|' + text] = dataUrl; })
+      .catch(() => {});
+  } catch (e) {}
+}
+
 function speakViaAPI(text, lang = 'zh-CN', rate = 1.0) {
   const cacheKey = lang + '|' + text;
   stopApiTts();
@@ -18427,13 +18441,32 @@ function sendToGemini(userText) {
     const isGreetingSilent = _introGreetingTurn && !greetingVoiceOn();
     _introTurnForSpeech = false;
     _introGreetingTurn = false;
+    // v139: each new turn resets the translation queue (stale-queue shield)
+    window._ttsQueueTr = null;
 
     // Always speak non-greeting replies (so the AI tutor is never silently
     // "typing only"). For auto-generated intro/greeting turns we still speak,
     // unless the user disabled greeting voice — then the greeting stays text
     // only. Greeting turns never auto-open the mic after speaking (echo source).
     const _speakTurn = !isGreetingSilent;
-    if (_speakTurn && speechText) setTimeout(() => speak(speechText), 1100);
+    if (_speakTurn && speechText) {
+      setTimeout(() => speak(speechText), 1100);
+      // v139 (Part A ii): mixed reply (Chinese + translation) — queue the
+      // native-language translation clip. Consumed by the auto-listen
+      // watcher's settle callback (voice conversation) or the typed-input
+      // fallback below — exactly one consumer per input mode. Live mode only
+      // (v138 scope consistency); intro replies keep today's behavior.
+      if (!isIntroReply && localStorage.getItem('tutor_mode') === 'live') {
+        // Strip a leading translation-label prefix — when the model puts the
+        // label mid-line (off-format), muteLine contains the raw "English: …"
+        // text and voicing it would speak the label aloud.
+        const seqTrText = (englishTranslation || muteLine || '').replace(/^\s*(?:English|Translation|翻译|traduzione|traducción|traduction|Übersetzung|перевод|dịch)\s*[:：]\s*/i, '').trim();
+        if (seqTrText.replace(/\s/g, '').length >= 4) {
+          window._ttsQueueTr = { text: seqTrText, ts: Date.now() };
+          warmTtsCache(seqTrText, getTtsLangCode());
+        }
+      }
+    }
     else if (_speakTurn && _interviewActive && phrase) setTimeout(() => speakViaAPI(phrase, getInterviewLangCode(), 1.0), 1100);
     else if (_speakTurn && !speechText && localStorage.getItem('tutor_mode') === 'live') {
       // v138: auto-voice the tutor's native-language (rule 13 escape-hatch)
@@ -18444,8 +18477,27 @@ function sendToGemini(userText) {
       // no watcher changes, the interview and Chinese branches untouched.
       // Live mode only (v138 scope decision); escape-hatch replies only fire
       // when the tutor switched to the user's language (rare by design).
-      const voiceText = (englishTranslation || muteLine || '').trim();
+      const voiceText = (englishTranslation || muteLine || '').replace(/^\s*(?:English|Translation|翻译|traduzione|traducción|traduction|Übersetzung|перевод|dịch)\s*[:：]\s*/i, '').trim();
       if (voiceText.replace(/\s/g, '').length >= 4) setTimeout(() => speakViaAPI(voiceText, getTtsLangCode(), 1.0), 1100);
+    }
+    // v139: typed input in live mode — the auto-listen watcher won't run (it
+    // requires voice input), so schedule a MINIMAL fallback consumer for the
+    // queued translation. It is exactly: poll isTtsPlaying() every 250ms
+    // until the phrase clip ends, then fire the queued translation, done.
+    // NO mic-related state (no srOn/settle/tutSpeak/stop calls) — the mic
+    // never opens here; the watcher owns that path exclusively.
+    if (window._ttsQueueTr && !(voiceModeActive || (localStorage.getItem('tutor_mode') === 'live' && window._lastUserInputSource === 'voice'))) {
+      setTimeout(() => {
+        const waitTr = () => {
+          if (isTtsPlaying()) { setTimeout(waitTr, 250); }
+          else if (window._ttsQueueTr && Date.now() - window._ttsQueueTr.ts < 15000) {
+            const tr = window._ttsQueueTr;
+            window._ttsQueueTr = null;
+            setTimeout(() => speakViaAPI(tr.text, getTtsLangCode(), 1.0), 250);
+          }
+        };
+        waitTr();
+      }, 1400);
     }
 
     // Auto-listen in Voice Mode or Live AI Mode — but never for an auto-intro
@@ -18469,7 +18521,25 @@ function sendToGemini(userText) {
               // TTS now keeps isTtsPlaying() true for its full duration (incl. the
               // async WebAudio decode/schedule window), so this extra delay just lets
               // any residual ring-out decay before the mic opens — prevents self-echo.
-              setTimeout(() => { if (!srOn) { stopApiTts(); tutSpeak(); } }, 900);
+              setTimeout(() => {
+                if (!srOn) {
+                  // v139 (Part A ii): a queued native-language translation for
+                  // THIS turn — play it first, then re-enter the wait loop so
+                  // the post-translation settle + poll run before the mic opens.
+                  // The mic can never open mid-sequence: tutSpeak() is only
+                  // reached after the translation clip finishes.
+                  if (window._ttsQueueTr && Date.now() - window._ttsQueueTr.ts < 15000 &&
+                      (voiceModeActive || (_liveModeNow && window._lastUserInputSource === 'voice'))) {
+                    const seqTr = window._ttsQueueTr;
+                    window._ttsQueueTr = null;
+                    speakViaAPI(seqTr.text, getTtsLangCode(), 1.0);
+                    setTimeout(() => { if (!srOn) waitAndListen(); }, 300);
+                  } else {
+                    stopApiTts();
+                    tutSpeak();
+                  }
+                }
+              }, 900);
             }
           }
         };
