@@ -9,7 +9,10 @@
 const { launch, buildPreload, BASE, waitFor, LAUNCH_ARGS } = require('../helpers/bootstrap.cjs');
 
 const CANNED_EN = 'Of course! Let me explain this phrase in English. It means hello and it is used any time of day.';
-const CANNED_ZH = '你好！很高兴认识你。English: Nice to meet you!';
+// Chinese-ONLY reply (no translation line): with v139 a reply WITH a
+// translation is a mixed reply that voices the translation by design — the
+// "zh-CN only, no stray voices" check needs a translation-less reply.
+const CANNED_ZH = '你好！很高兴认识你。';
 
 (async () => {
   const browser = await launch();
