@@ -71,7 +71,7 @@ security definer
 set search_path = public
 as $$
 begin
-  if p_user_id is null or p_user_id <> auth.uid() then
+  if p_user_id is null or p_user_id IS DISTINCT FROM auth.uid() then
     raise exception 'Not allowed';
   end if;
   insert into public.user_activity (user_id, email, total_seconds, last_seen, updated_at)
