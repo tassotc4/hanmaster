@@ -18244,15 +18244,26 @@ function sendToGemini(userText) {
     systemInstruction: systemInstruction
   };
   
-  fetch('/api/chat', {
+  // v143: same 429 retry pattern as sendAudioToGemini (3 retries, backoff
+  // (4-tries)*3000 = 3s/6s/9s), scoped to just the fetch so the retry never
+  // re-runs the daily-limit count, the history push, or the loader creation.
+  const doFetch = (triesLeft) => fetch('/api/chat', {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
-  })
-  .then(res => {
+  }).then(res => {
+    if (res.status === 429 && triesLeft > 0) {
+      const wait = (4 - triesLeft) * 3000;
+      // Same indicator pattern as sendAudioToGemini's "Rate limited, retrying
+      // in Ns..." — on the VISIBLE status line (that test writes the hidden
+      // #tutHint; this surface's visible element is #tutStatus).
+      if (statusText) statusText.textContent = t('Rate limited, retrying in ') + (wait/1000) + t('s...');
+      return new Promise(r => setTimeout(r, wait)).then(() => doFetch(triesLeft - 1));
+    }
     if (!res.ok) return res.json().then(errData => { throw new Error(errData.error?.error?.message || errData.error?.message || errData.error || "HTTP error " + res.status); });
     return res.json();
-  })
+  });
+  doFetch(3)
   .then(data => {
     // Replace the "Thinking..." loader capsule in place instead of removing it and
     // inserting a fresh bubble — avoids the visible flash/reflow that causes flicker.
@@ -18571,10 +18582,19 @@ function sendToGemini(userText) {
     console.error("Gemini Error:", err);
     const loader = document.getElementById(loaderId);
     if (loader) loader.remove();
+    const msg = String((err && err.message) || '');
     if (!navigator.onLine) {
       addTutMsg('warn', '⚠️ <b>'+t('Internet connection lost')+'</b> — '+t('Live AI Mode requires an internet connection. Please reconnect and try again.'));
       if (statusText) statusText.textContent = t('Disconnected');
       document.getElementById('tutHint').innerHTML = '<span style="color:var(--accent2);font-weight:700"><i class="fas fa-wifi-slash"></i> '+t('No internet — Live AI unavailable')+'</span>';
+    } else if (/too many requests|rate limit/i.test(msg)) {
+      // 429 after all 3 retries: the shared rate bucket or the Groq key's own limit
+      addTutMsg('warn', '⚠️ <b>'+t("You're chatting fast")+'</b> — '+t('The tutor is catching up. Wait a few seconds, then try again.'));
+      if (statusText) statusText.textContent = t("Slow down");
+    } else if (/busy/i.test(msg)) {
+      // 503: every provider in the cascade failed (each already timed out)
+      addTutMsg('warn', '⚠️ <b>'+t('AI service busy')+'</b> — '+t('All tutors are momentarily occupied. Please try again shortly.'));
+      if (statusText) statusText.textContent = t("Busy");
     } else {
       addTutMsg('warn', '⚠️ <b>'+t('Tutor Connection Failed')+'</b> — '+t('Error generating reply. Please try again later.'));
       if (statusText) statusText.textContent = t("Error");
