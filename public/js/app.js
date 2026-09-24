@@ -15513,7 +15513,10 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     console.log("Gemini reply text:", reply.substring(0, 100));
     let transcript = reply.replace(/^TRANSCRIPTION:\s*/i, '').trim();
     // Reject obvious Whisper prompt echoes or known silence hallucinations
-    const looksGarbage = /^(t he|mbc|subtitles|amara|transcribe|thank you for watching)$/i.test(transcript) || /^transcribe/i.test(transcript);
+    // v142: Chinese promo hallucinations, contains-style — the anchored list
+    // above cannot catch "谢谢观看﹚" (the trailing punctuation breaks ^$).
+    const zhPromo = /谢谢观看|感謝觀看|感谢观看|感谢(您)?(收看|观看|支持)|一键三连|请(您)?(订阅|点赞|关注)|记得(订阅|点赞|关注)|订阅(我的|我们的)?(频道|账号)|关注(我的|我们的)?(频道|账号|公众号)/.test(transcript);
+    const looksGarbage = /^(t he|mbc|subtitles|amara|transcribe|thank you for watching)$/i.test(transcript) || /^transcribe/i.test(transcript) || zhPromo;
     if (looksGarbage) {
       console.warn("Rejected low-quality hallucination:", transcript);
       transcript = '';

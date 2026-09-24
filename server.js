@@ -453,7 +453,12 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       // Whisper sometimes echoes the prompt above back when the audio is near-silent
       // (e.g. "Transcribe exactly what is spoken in the language."). Treat those echoes
       // as no-speech; otherwise each one spams the live tutor with a fake turn.
-      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe|这里是普通话听写/.test(transcribed)) {
+      // v142: Chinese promo hallucinations — Whisper hallucinates near-silence
+      // as YouTube sign-off phrases (the 谢谢观看﹚ incident; same hallucination
+      // signature as the earlier 去﹐ 。/祭祷 clips). Bare 谢谢 is deliberately
+      // NOT here: genuine short "thank you" answers pass (same accepted
+      // trade-off as English "thanks" in the HALF_WORDS drop, v97).
+      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe|这里是普通话听写|谢谢观看|感謝觀看|感谢观看|感谢(您)?(收看|观看|支持)|一键三连|请(您)?(订阅|点赞|关注)|记得(订阅|点赞|关注)|订阅(我的|我们的)?(频道|账号)|关注(我的|我们的)?(频道|账号|公众号)/.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       const userMsg = textParts.length > 0
