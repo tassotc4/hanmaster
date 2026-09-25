@@ -21257,20 +21257,30 @@ function translateUI() {
       }
       if (lastText) {
         let hasNonIconChildren = false;
+        let hasIconChild = false;
         for (let i = 0; i < childNodes.length; i++) {
           if (childNodes[i].nodeType === 1 && childNodes[i].tagName !== 'I') {
             hasNonIconChildren = true; break;
           }
+          if (childNodes[i].nodeType === 1 && childNodes[i].tagName === 'I') {
+            hasIconChild = true;
+          }
         }
         if (hasNonIconChildren) {
           el.textContent = tr;
-        } else {
+        } else if (hasIconChild) {
+          // icon + space + text — the space's actual purpose (separator)
           lastText.textContent = ' ' + tr;
           for (let i = childNodes.length - 1; i >= 0; i--) {
             if (childNodes[i].nodeType === 3 && childNodes[i] !== lastText && childNodes[i].textContent.trim()) {
               childNodes[i].textContent = '';
             }
           }
+        } else {
+          // v146: pure-text element (no icons at all) — nothing to separate
+          // from; the old code fell into the icon branch and prepended a
+          // phantom leading space to every pure-text data-tr label.
+          lastText.textContent = tr;
         }
       } else el.textContent = tr;
     }
