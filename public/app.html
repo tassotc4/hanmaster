@@ -643,7 +643,8 @@
           var o = document.createElement('option');
           o.value = ti; o.textContent = t; ts.appendChild(o);
         });
-        ts.onchange = function() {
+        ts.onchange = function(ev) {
+          if (ev && ev.isTrusted) window._userTopicSwitch = true;
           if (window.openTutorTopic) window.openTutorTopic(topics[lv][parseInt(ts.value)], idx);
         };
         g.appendChild(ts);
