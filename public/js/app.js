@@ -16552,7 +16552,8 @@ function buildTutorTabs(){
     const opt=document.createElement('option');
     opt.value=i;opt.textContent=t(lv);sel.appendChild(opt);
   });
-  sel.onchange=()=>{
+  sel.onchange=(e)=>{
+    if (e && e.isTrusted) window._userTopicSwitch = true;
     const idx=parseInt(sel.value),lv=levels[idx];
     g.innerHTML='';
     const ts=document.createElement('select');ts.className='tb-select';
@@ -16561,7 +16562,7 @@ function buildTutorTabs(){
       const o=document.createElement('option');
       o.value=i;o.textContent=t(lesson.title);ts.appendChild(o);
     });
-    ts.onchange=()=>{const ls=lessons[parseInt(ts.value)];if(ls)openTutorTopic(ls.title,idx);};
+    ts.onchange=(ev)=>{ if (ev && ev.isTrusted) window._userTopicSwitch = true; const ls=lessons[parseInt(ts.value)];if(ls)openTutorTopic(ls.title,idx);};
     g.appendChild(ts);
     if(lessons.length)ts.dispatchEvent(new Event('change'));
   };
@@ -16594,7 +16595,7 @@ function buildTopics(){
     const done=lv.dn?ls.length:Math.min(ls.length,Math.max(0,Math.ceil(ls.length*lv.pc/100)));
     const d=document.createElement('div');
     d.className='cd p-5 cursor-pointer';
-    d.onclick=()=>openTopicLesson(topicName);
+    d.onclick=()=>{ window._userTopicSwitch = true; openTopicLesson(topicName); };
     d.innerHTML='<div class="flex items-start justify-between mb-3"><div><h3 class="font-bold text-sm mb-1">'+t(topicName)+'</h3><p class="text-xs" style="color:var(--muted)">'+ls.length+' '+t('lessons')+'</p></div><div class="flex items-center gap-2"><span class="text-xs font-bold px-2 py-0.5 rounded-full" style="background:'+(lv.dn?'rgba(56,169,106,.1)':'rgba(212,166,79,.1)')+';color:'+(lv.dn?'var(--green)':'var(--gold)')+'">'+done+'/'+ls.length+'</span><button onclick="event.stopPropagation();podcastTopic(\''+topicName+'\')" class="w-7 h-7 rounded-full flex items-center justify-center border-none cursor-pointer transition-opacity hover:opacity-80" style="background:var(--card2);color:var(--accent);outline:none" title="'+t('Listen')+'"><i class="fas fa-headphones text-xs"></i></button></div></div><div style="height:3px;background:var(--card2);border-radius:2px;overflow:hidden"><div class="pf" style="width:'+(done/ls.length*100)+'%;background:'+(lv.dn?'var(--green)':'linear-gradient(90deg,var(--accent),var(--gold))')+'"></div></div>';
     g.appendChild(d);
   });
@@ -19564,9 +19565,11 @@ function openTopicLesson(topicName, lvIdx) {
     let activePrompt = "今天的对话主题是：" + topicName + "。请用中文打招呼，然后问一个关于这个话题的简单问题。";
     addTutMsg('sysline', '<span class="ai-tag">AI</span> <b>'+t('Live AI Mode:')+'</b> '+t('Connecting to Gemini to chat about')+' <b>' + topicName + '</b>...');
     
-    sendToGemini(activePrompt);
-    setBtns(true);
-    scrollToSection('#tutor');
+sendToGemini(activePrompt);
+setBtns(true);
+scrollToSection('#tutor');
+const lessonLv = (TL.find(l => l.title === topicName) || {}).level || '';
+maybeLevelMismatchToast(lessonLv);
     
     // Update bottom nav highlights
     document.querySelectorAll('.mnb').forEach(b => b.classList.remove('act'));
@@ -19597,6 +19600,7 @@ function openTopicLesson(topicName, lvIdx) {
       if (tutNavBtn) tutNavBtn.classList.add('act');
       
       toast(t("Loaded ") + TL[tlIdx].title + t("! Start speaking now."), "var(--green)");
+      maybeLevelMismatchToast(TL[tlIdx].level);
     } else {
       const fallback = TL.findIndex(l => l.level === 'HSK 1');
       startTutor(fallback >= 0 ? fallback : 0);
@@ -21704,7 +21708,28 @@ function applyLevelSetting(lvl){
   updateAiLevelBadge();
 }
 function levelDisplayName(lvl){
-  return lvl === 'never' ? 'HSK 0 (from zero)' : lvl === 'beginner' ? 'HSK 1-2' : lvl === 'intermediate' ? 'HSK 3-4' : 'HSK 5+';
+return lvl === 'never' ? 'HSK 0 (from zero)' : lvl === 'beginner' ? 'HSK 1-2' : lvl === 'intermediate' ? 'HSK 3-4' : 'HSK 5+';
+}
+// v145: the numeric HSK band each AI tier speaks at, mirroring the app's own
+// level definitions (levelDisplayName + the level-lock prompts: never = HSK 1
+// words only, beginner = HSK 1-2, intermediate = HSK 3-4, advanced = HSK 5+).
+function hskBandFor(lvl) {
+  return lvl === 'never' ? [1] : lvl === 'beginner' ? [1,2] : lvl === 'intermediate' ? [3,4] : [5,6,7,8,9];
+}
+// v145: when the selected lesson's HSK level sits outside the AI tutor's
+// speaking band, say so at the moment of the switch (the B7-class confusion:
+// the lesson tabs filter CONTENT, the AI difficulty is a separate setting).
+// Only on USER-initiated switches (window._userTopicSwitch, set by the real
+// isTrusted change/click events) — the boot's synthetic auto-open stays quiet.
+function maybeLevelMismatchToast(lessonLevel) {
+  if (!window._userTopicSwitch) return;
+  window._userTopicSwitch = false;
+  const hsk = parseInt(String(lessonLevel || '').replace(/\D/g, ''), 10);
+  if (!hsk) return;
+  const band = hskBandFor(getChineseLevel());
+  if (band.indexOf(hsk) === -1) {
+    toast(t('Note: the AI tutor speaks at ') + levelDisplayName(getChineseLevel()) + t(' level — adjust it via "') + t('Set your level for the AI tutor') + t('"'), 'var(--gold)', 6000);
+  }
 }
 function aiLevelName(lvl){
   return lvl === 'never' ? t('New Learner') : lvl === 'beginner' ? t('Beginner') : lvl === 'intermediate' ? t('Intermediate') : t('Advanced');
