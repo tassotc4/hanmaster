@@ -242,6 +242,24 @@ function apiLimiter(req, res, next) {
   next();
 }
 
+// v147: TTS gets its OWN, more generous bucket. apiLimiter exists to protect
+// the Groq key (chat cascade + Whisper); Edge TTS is a separate free service
+// that never touches Groq — bundling it into the same 40/min bucket let free
+// TTS traffic starve out paid/limited chat capacity for no benefit (the v143
+// standing constraint). Edge requests still open a per-request WebSocket
+// server-side, so a lighter abuse cap stays: 120/min/IP (a real voice session
+// draws ~10-20 TTS/min; a hammering script gets capped).
+const ttsRateLimitStore = {};
+function ttsLimiter(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  if (!ttsRateLimitStore[ip]) ttsRateLimitStore[ip] = [];
+  ttsRateLimitStore[ip] = ttsRateLimitStore[ip].filter(t => now - t < 60000);
+  if (ttsRateLimitStore[ip].length >= 120) return res.status(429).json({ error: 'Too many TTS requests, slow down.' });
+  ttsRateLimitStore[ip].push(now);
+  next();
+}
+
 app.get('/favicon.ico', (req, res) => res.redirect('/favicon.svg'));
 app.get('/health', (req, res) => { res.json({ ok: true, time: Date.now() }); });
 
@@ -534,7 +552,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
   }
 });
 
-app.get('/api/tts', apiLimiter, async (req, res) => {
+app.get('/api/tts', ttsLimiter, async (req, res) => {
   const text = (req.query.text || '').trim();
   const lang = req.query.lang || 'zh-CN';
   const engine = req.query.engine || 'auto';
@@ -573,7 +591,7 @@ app.get('/api/tts', apiLimiter, async (req, res) => {
   }
 });
 
-app.post('/api/tts', apiLimiter, async (req, res) => {
+app.post('/api/tts', ttsLimiter, async (req, res) => {
   const { text, lang, speed, engine } = req.body || {};
   if (!text || !lang) return res.status(400).json({ error: 'Missing text or lang' });
   try {
