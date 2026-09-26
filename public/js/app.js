@@ -15179,6 +15179,17 @@ function advanceTutor(){
     document.getElementById('tutHint').textContent=t('Type Chinese below or press mic');
     document.getElementById('tutHint').style.color='var(--blue)';
     document.getElementById('tutStatus').textContent=t('Your turn')+' — '+t('type below');
+    // v148: 'you' lines render a phrase card too. The target the user must
+    // say was previously INVISIBLE (no card + the hidden blackboard), so the
+    // repeat-after-me mechanic was broken for half of every lesson's lines —
+    // and coachPronunciation's replay (sc<80) played audio with nothing to
+    // read. This card becomes the coaching host (the only _tutCurBotCard
+    // consumer), closing the reported symptom structurally. User-side (.cus)
+    // styling distinguishes it from the tutor's own lines; no auto-play —
+    // audio is via the replay buttons / the coaching replay.
+    const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+    window._tutCurBotCard=addTutMsg('user','<div class="phrase">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" class="tr">'+t(line.en)+'</div><span class="replay" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span><span class="replay" onclick="speakTr(\''+msgEnId+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
   }
 }
 

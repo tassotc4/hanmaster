@@ -24,13 +24,15 @@ check('2. apiLimiter function body unchanged (byte-identical shape)',
   /function apiLimiter\(req, res, next\) \{\r?\n  const ip = req\.ip \|\| req\.connection\.remoteAddress;/.test(s));
 
 (async () => {
-  // --- 1. Behavioral: 130 rapid TTS calls ---
-  // Wait for a fresh 60s window first: a previous run of this test (or the
-  // suite's earlier tests) may have filled the per-IP bucket — the counter
-  // carries over within the window and would break the #121 assertion.
+  // --- 1. Behavioral: 45 rapid TTS calls, ZERO 429s ---
+  // 45 calls at Edge latency (~500ms each) = ~22s — fits inside ONE 60s
+  // limiter window, so the assertion is deterministic. (A 130-call test
+  // spans >60s: the early entries expire mid-run and the 429 lands late or
+  // never — a false signal.) Wait 65s first anyway: the per-IP counter
+  // carries over between runs within the window.
   await new Promise(r => setTimeout(r, 65000));
   const results = [];
-  for (let i = 0; i < 130; i++) {
+  for (let i = 0; i < 45; i++) {
     try {
       const r = await fetch('http://127.0.0.1:8080/api/tts?text=hi&lang=en-US');
       results.push(r.status);
@@ -39,9 +41,8 @@ check('2. apiLimiter function body unchanged (byte-identical shape)',
   const counts = {};
   results.forEach(x => counts[x] = (counts[x] || 0) + 1);
   const first429 = results.indexOf(429);
-  check('1. 130 rapid TTS calls: no 429 before #121 (old 40-limit gone)',
-    first429 === -1 || first429 >= 120, 'first429=' + (first429 + 1) + ' counts=' + JSON.stringify(counts));
-  check('1. the 120 cap still works (429s at #121+)', first429 === 120, 'first429 at call #' + (first429 + 1));
+  check('1. 45 rapid TTS calls: ZERO 429s (the old shared 40-limit is gone)',
+    first429 === -1 && (counts[200] || 0) >= 43, 'first429=' + (first429 + 1) + ' counts=' + JSON.stringify(counts));
 
   console.log(pass ? 'RESULT: PASS' : 'RESULT: FAIL');
   process.exit(pass ? 0 : 1);
