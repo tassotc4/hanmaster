@@ -41,8 +41,12 @@ const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + nam
     const wd = document.getElementById('tutWd');
     // ruby interleave: extract the BASE text (non-rt text nodes) for comparison
     const baseText = phrase ? Array.from(phrase.querySelectorAll('ruby')).map(r2 => Array.from(r2.childNodes).filter(n => n.nodeType === 3).map(n => n.textContent).join('')).join('') : '';
+    // the disambiguating label (v149): mirrors the attempt card's user-label
+    const label = card ? card.querySelector('.user-label') : null;
     return {
       isYouCard,
+      labelPresent: !!(label && label.textContent.indexOf('repeat this') !== -1),
+      labelStyling: label ? getComputedStyle(label).textTransform : '',
       phraseText: phrase ? phrase.innerText.slice(0, 20) : '',
       phraseVisible: !!(r && r.width > 0 && r.height > 0 && r.top >= 0 && r.bottom <= (window.innerHeight + 40)),
       hasRuby: !!(phrase && phrase.querySelector('ruby')),
@@ -54,7 +58,9 @@ const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + nam
     };
   });
   check('1. you-line card: .cus user-side, ruby phrase, 2 wired replay buttons, tr slot',
-    atYou.isYouCard && atYou.hasRuby && atYou.replayWired && atYou.trSlot, JSON.stringify(atYou).slice(0, 200));
+    atYou.isYouCard && atYou.hasRuby && atYou.replayWired && atYou.trSlot, JSON.stringify(atYou).slice(0, 240));
+  check('1b. the disambiguating label present ("Your line — repeat this:"), small-caps like YOUR ATTEMPT',
+    atYou.labelPresent && atYou.labelStyling === 'uppercase', 'labelPresent=' + atYou.labelPresent + ' textTransform=' + atYou.labelStyling);
   check('1. the target phrase is VISIBLE in the viewport (the core fix)', atYou.phraseVisible && atYou.matchesTarget, JSON.stringify(atYou).slice(0, 160));
   check('1. _tutCurBotCard points at the you card (the coaching host)', atYou.isYouCard);
 

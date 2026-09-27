@@ -15188,7 +15188,7 @@ function advanceTutor(){
     // styling distinguishes it from the tutor's own lines; no auto-play —
     // audio is via the replay buttons / the coaching replay.
     const msgEnId = 'tutMsgEn-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
-    window._tutCurBotCard=addTutMsg('user','<div class="phrase">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" class="tr">'+t(line.en)+'</div><span class="replay" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span><span class="replay" onclick="speakTr(\''+msgEnId+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
+    window._tutCurBotCard=addTutMsg('user','<div class="user-label">'+t('Your line — repeat this:')+'</div><div class="phrase">'+formatChineseTextWithRuby(line.cn)+'</div><div id="'+msgEnId+'" class="tr">'+t(line.en)+'</div><span class="replay" onclick="speak(\''+line.cn+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span><span class="replay" onclick="speakTr(\''+msgEnId+'\')"><i class="fas fa-volume-high"></i> '+t('replay')+'</span>');
     if (t(line.en) === line.en) ensureTutorTranslation(line.en, [document.getElementById(msgEnId)]);
   }
 }

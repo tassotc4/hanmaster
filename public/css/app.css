@@ -41,7 +41,7 @@ html{scrollbar-width:auto;scrollbar-color:var(--border) var(--bg2)}
 @media(max-width:560px){.cai{padding:18px 4px 16px}.cai .phrase{font-size:22px;letter-spacing:2px}}
 .cus{background:var(--card2);color:var(--fg);border:1px solid var(--border);border-bottom-right-radius:4px;align-self:center}
 .att{background:transparent;border:none;border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0;padding:22px 4px 4px;align-self:center}
-.att .user-label{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:800;margin-bottom:9px}
+.cus .user-label{font-size:9.5px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:800;margin-bottom:9px}
 .att .phrase-u{font-family:'Noto Serif SC',serif;font-size:20px;font-weight:700;letter-spacing:3px;line-height:1.85}
 .att .verdict-correct{color:var(--ok);font-weight:800}
 .att .verdict-tone{color:var(--tone);font-weight:800}
