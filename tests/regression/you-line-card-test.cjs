@@ -61,6 +61,42 @@ const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + nam
     atYou.isYouCard && atYou.hasRuby && atYou.replayWired && atYou.trSlot, JSON.stringify(atYou).slice(0, 240));
   check('1b. the disambiguating label present ("Your line — repeat this:"), small-caps like YOUR ATTEMPT',
     atYou.labelPresent && atYou.labelStyling === 'uppercase', 'labelPresent=' + atYou.labelPresent + ' textTransform=' + atYou.labelStyling);
+
+  // --- 1b2. CONTRAST assertions (not just presence): the whole detour
+  // happened because the gate checked existence, not visibility. Effective
+  // background = semi-transparent layers blended over the nearest opaque one.
+  const contrastState = await page.evaluate(() => {
+    const you = window._tutCurBotCard;
+    const cards = Array.from(document.querySelectorAll('#tutChat .cb'));
+    const att = cards.filter(c => c.classList.contains('att'));
+    const out = {};
+    for (const [key, el] of [['you', you ? you.querySelector('.user-label') : null], ['attempt', att.length ? att[att.length - 1].querySelector('.user-label') : null]]) {
+      if (!el) { out[key] = null; continue; }
+      const cs = getComputedStyle(el);
+      const layers = [];
+      let n = el;
+      while (n) {
+        const c = getComputedStyle(n).backgroundColor;
+        const m = c && c.match(/rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)/);
+        if (m) { const a = m[4] === undefined ? 1 : parseFloat(m[4]); if (a > 0) layers.push({ rgb: [parseFloat(m[1]), parseFloat(m[2]), parseFloat(m[3])], a: a }); if (a >= 1) break; }
+        n = n.parentElement;
+      }
+      let eff = [255, 255, 255];
+      for (let i = layers.length - 1; i >= 0; i--) { const L = layers[i]; eff = L.rgb.map(function (v, j) { return Math.round(v * L.a + eff[j] * (1 - L.a)); }); }
+      const cm = cs.color.match(/\d+/g);
+      const lum = function (rgb) { const f = function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); }; return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]); };
+      const l1 = lum([parseFloat(cm[0]), parseFloat(cm[1]), parseFloat(cm[2])]);
+      const l2 = lum(eff);
+      out[key] = { color: cs.color, effBg: 'rgb(' + eff.join(',') + ')', ratio: +(((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)).toFixed(2)) };
+    }
+    return out;
+  });
+  check('1b2. you-target label contrast >= 4.5:1 (gold on the card)',
+    !!contrastState.you && contrastState.you.ratio >= 4.5 && contrastState.you.color === 'rgb(212, 166, 79)',
+    JSON.stringify(contrastState.you));
+  check('1b2. attempt label contrast >= 4.5:1 (fg2, the pre-existing AA gap fixed)',
+    !!contrastState.attempt && contrastState.attempt.ratio >= 4.5 && contrastState.attempt.color === 'rgb(181, 165, 151)',
+    JSON.stringify(contrastState.attempt));
   check('1. the target phrase is VISIBLE in the viewport (the core fix)', atYou.phraseVisible && atYou.matchesTarget, JSON.stringify(atYou).slice(0, 160));
   check('1. _tutCurBotCard points at the you card (the coaching host)', atYou.isYouCard);
 
