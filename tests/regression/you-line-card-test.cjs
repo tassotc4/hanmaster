@@ -100,6 +100,26 @@ const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + nam
   check('1. the target phrase is VISIBLE in the viewport (the core fix)', atYou.phraseVisible && atYou.matchesTarget, JSON.stringify(atYou).slice(0, 160));
   check('1. _tutCurBotCard points at the you card (the coaching host)', atYou.isYouCard);
 
+  // --- 1c. IN-VIEWPORT at first render (the third claim: existence, contrast,
+  // AND in-viewport are three different things — the scroll-clipping detour) ---
+  const inViewport = await page.evaluate(() => {
+    const you = window._tutCurBotCard;
+    const label = you ? you.querySelector('.user-label') : null;
+    const chat = document.getElementById('tutChat');
+    if (!label) return { present: false };
+    const lr = label.getBoundingClientRect();
+    const cr = chat.getBoundingClientRect();
+    return {
+      present: true,
+      labelTop: Math.round(lr.top), paneTop: Math.round(cr.top), paneBottom: Math.round(cr.bottom),
+      // 2px tolerance for the pane's border/rounding (scrollIntoView lands 1px high)
+      inVisibleArea: lr.top >= cr.top - 2 && lr.bottom <= cr.bottom + 2
+    };
+  });
+  check('1c. the label is inside #tutChat\'s visible area at FIRST render (not just in the DOM)',
+    inViewport.present && inViewport.inVisibleArea,
+    'labelTop=' + inViewport.labelTop + ' paneTop=' + inViewport.paneTop + ' paneBottom=' + inViewport.paneBottom);
+
   // --- 2. Wrong attempt (sc<80): the coaching attaches INSIDE the you card ---
   await page.evaluate(() => { const i = document.getElementById('tutTypeInput'); i.value = '这是一个完全错误的答案'; tutTypeSubmit(); });
   await new Promise(r => setTimeout(r, 3500));
