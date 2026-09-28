@@ -16061,6 +16061,31 @@ function coachPronunciation(target, attempt, spokenText) {
     var prior = host.querySelector('.coach-sec');
     if (prior) prior.outerHTML = sec; else host.insertAdjacentHTML('beforeend', sec);
     scrollTutToBottom();
+    // v152: after the bottom scroll settles, bring the host card's TOP (the
+    // label + the phrase + its ruby pinyin) into view — the absolute-bottom
+    // scroll clips the card's top when content below it (the score card)
+    // makes card+below taller than the pane, hiding the label/phrase (the
+    // "audio but no text" report had this second layer). Scoped to the
+    // COACHING render ONLY (once per render, incl. in-place retries where
+    // the coach-sec is replaced); a card taller than the pane keeps today's
+    // bottom-scroll behavior. The triple-rAF lands AFTER scrollTutToBottom's
+    // double-rAF settle: their second rAF fires in the same frame as my
+    // second rAF, so my scroll runs in a third rAF, after theirs.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (!host.isConnected) return;
+          var chat = document.getElementById('tutChat');
+          if (!chat) return;
+          var cr = chat.getBoundingClientRect();
+          var hr = host.getBoundingClientRect();
+          var tallerThanPane = hr.height > cr.height;
+          if (!tallerThanPane && hr.top < cr.top) {
+            chat.scrollTop -= (cr.top - hr.top) + 12;
+          }
+        });
+      });
+    });
   } else {
     addTutMsg('bot', '<div style="padding:6px 0">' + sec + '</div>');
   }

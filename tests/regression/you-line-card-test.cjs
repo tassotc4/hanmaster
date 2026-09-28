@@ -144,6 +144,79 @@ const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + nam
   const replayed = after.speakLog.some(s => s.text.indexOf(dialogue[firstYouIdx].cn.slice(0, 4)) !== -1);
   check('2. the coaching replayed the target audio (speak log)', replayed, JSON.stringify(after.speakLog));
 
+  // --- 2b. Post-coaching scroll: the host card's TOP (label + phrase + ruby
+  // pinyin) in frame; the score card still reachable by scrolling down ---
+  const postCoach = await page.evaluate(() => {
+    const you = window._tutCurBotCard;
+    const label = you ? you.querySelector('.user-label') : null;
+    const phrase = you ? you.querySelector('.phrase') : null;
+    const chat = document.getElementById('tutChat');
+    const cr = chat.getBoundingClientRect();
+    const inPane = function (el) { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= cr.top - 2 && r.bottom <= cr.bottom + 2; };
+    const rt = phrase ? phrase.querySelector('rt') : null;
+    const cards = Array.from(document.querySelectorAll('#tutChat .cb'));
+    const last = cards[cards.length - 1];
+    const lr2 = last.getBoundingClientRect();
+    return {
+      labelInPane: inPane(label),
+      phraseInPane: inPane(phrase),
+      rubyRtInPane: inPane(rt),
+      tallerThanPane: (function(){ const hr = you.getBoundingClientRect(); return hr.height > cr.height; })(),
+      scoreCardBelow: lr2.top >= cr.bottom,
+      scoreCardReachable: (chat.scrollHeight - chat.scrollTop - chat.clientHeight > 0) || lr2.bottom <= cr.bottom + 2
+    };
+  });
+  check('2b. post-coaching: label + phrase + ruby pinyin all inside the pane',
+    postCoach.labelInPane && postCoach.phraseInPane && postCoach.rubyRtInPane, JSON.stringify(postCoach));
+  check('2b. the score card is still reachable by scrolling down',
+    postCoach.scoreCardReachable, JSON.stringify(postCoach));
+
+  // --- 2c. Retry: the coach-sec replaced in place re-fires the top-scroll ---
+  await page.evaluate((cn) => { coachPronunciation(cn, 2, 'retry-transcript'); }, dialogue[firstYouIdx].cn);
+  await new Promise(r => setTimeout(r, 500));
+  const postRetry = await page.evaluate(() => {
+    const you = window._tutCurBotCard;
+    const label = you ? you.querySelector('.user-label') : null;
+    const phrase = you ? you.querySelector('.phrase') : null;
+    const chat = document.getElementById('tutChat');
+    const cr = chat.getBoundingClientRect();
+    const inPane = function (el) { if (!el) return false; const r = el.getBoundingClientRect(); return r.top >= cr.top - 2 && r.bottom <= cr.bottom + 2; };
+    const rt = phrase ? phrase.querySelector('rt') : null;
+    return {
+      coachSecCount: you.querySelectorAll('.coach-sec').length,
+      labelInPane: inPane(label),
+      phraseInPane: inPane(phrase),
+      rubyRtInPane: inPane(rt)
+    };
+  });
+  check('2c. retry (coach-sec replaced in place): single coach-sec, label + phrase + pinyin still in pane',
+    postRetry.coachSecCount === 1 && postRetry.labelInPane && postRetry.phraseInPane && postRetry.rubyRtInPane,
+    JSON.stringify(postRetry));
+
+  // --- 2d. Screenshots: short-card (normal pane) + tall-card (small viewport
+  // makes the pane shorter than the card -> today's bottom-scroll is kept) ---
+  await page.screenshot({ path: path.join(SCRATCH, 'v152-postcoach-short.png') });
+  console.log('SCREENSHOT: v152-postcoach-short.png');
+  await page.setViewport({ width: 390, height: 500 });
+  await page.evaluate((cn) => { coachPronunciation(cn, 3, 'tall-transcript'); }, dialogue[firstYouIdx].cn);
+  await new Promise(r => setTimeout(r, 500));
+  const tall = await page.evaluate(() => {
+    const you = window._tutCurBotCard;
+    const chat = document.getElementById('tutChat');
+    const cr = chat.getBoundingClientRect();
+    const hr = you.getBoundingClientRect();
+    return {
+      tallerThanPane: hr.height > cr.height,
+      labelTop: Math.round(you.querySelector('.user-label').getBoundingClientRect().top),
+      paneTop: Math.round(cr.top),
+      atBottom: Math.abs(chat.scrollTop + chat.clientHeight - chat.scrollHeight) < 2
+    };
+  });
+  check('2d. tall-card case: card taller than pane -> today\'s bottom-scroll kept (label may clip)',
+    tall.tallerThanPane && tall.atBottom, JSON.stringify(tall));
+  await page.screenshot({ path: path.join(SCRATCH, 'v152-postcoach-tall.png') });
+  console.log('SCREENSHOT: v152-postcoach-tall.png');
+
   await page.screenshot({ path: path.join(SCRATCH, 'v148-you-line-card.png') });
   console.log('SCREENSHOT: v148-you-line-card.png');
 
