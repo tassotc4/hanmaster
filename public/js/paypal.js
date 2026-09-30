@@ -20,10 +20,12 @@ function billingNoteText(tier) {
   const suffix = t2 === 'monthly' ? '/month' : '/year';
   return priceStr + suffix + ' after trial — Cancel anytime — Secure via PayPal';
 }
-// Apply the sale display to every purchase surface. Runs on modal opens +
-// after language changes (translateUI rewrites textContent from data-tr, so
-// the sale display must re-apply or it gets clobbered). After the sale window
-// this simply renders standard prices — no cleanup needed.
+// Apply the sale display to every purchase surface. Runs once at load (the
+// public #pricing section's prices — deferred execution = the DOM parsed, so
+// the sect*Price elements exist; v154), on modal opens + after language
+// changes (translateUI rewrites textContent from data-tr, so the sale display
+// must re-apply or it gets clobbered). After the sale window this simply
+// renders standard prices — no cleanup needed.
 function applySaleDisplay() {
   const active = autumnSaleActive();
   const badge = document.getElementById('saleBadge');
@@ -43,19 +45,37 @@ function applySaleDisplay() {
     }
     el.setAttribute('data-tr', el.textContent);
   });
-  // Billing note (follows the SELECTED tier)
+  // The public #pricing section's cards (v154): the same sale display as the
+  // modal's tier cards — the section's price spans carry sect*Price ids; the
+  // suffix (/month, /year, one-time) lives in the adjacent span, outside the swap.
+  const sectCards = { monthly: 'sectMonthlyPrice', annual: 'sectAnnualPrice', lifetime: 'sectLifetimePrice' };
+  Object.keys(sectCards).forEach(function (key) {
+    const el = document.getElementById(sectCards[key]);
+    if (!el) return;
+    if (active) {
+      const info = salePriceInfo(key);
+      el.innerHTML = '<s style="opacity:.55">' + info.original + '</s> ' + info.discounted;
+    } else {
+      el.textContent = '$' + SALE_BASE[key];
+    }
+    el.setAttribute('data-tr', el.textContent);
+  });
+  // Billing note (follows the SELECTED tier). t() is app.js's translation
+  // function and paypal.js loads BEFORE app.js (deferred DOM order) — guard
+  // so the v154 load-tail call can't ReferenceError; the raw English string
+  // is fine at load (the modal is hidden; the modal-open re-run translates).
   const noteEl = document.getElementById('premiumBillingNote');
   if (noteEl) {
     const txt = billingNoteText(typeof selectedPremiumTier !== 'undefined' ? selectedPremiumTier : 'annual');
-    noteEl.textContent = t(txt);
+    noteEl.textContent = (typeof t === 'function') ? t(txt) : txt;
     noteEl.setAttribute('data-tr', txt);
   }
-  // Tutor upgrade-ask CTA
+  // Tutor upgrade-ask CTA (same t() guard)
   const upgBtn = document.getElementById('tutorUpgradeBtn');
   if (upgBtn) {
     const monthly = salePriceInfo('monthly');
     const txt = active && monthly ? 'Upgrade to ' + monthly.discounted + '/month' : 'Upgrade to $9.00/month';
-    upgBtn.textContent = t(txt);
+    upgBtn.textContent = (typeof t === 'function') ? t(txt) : txt;
     upgBtn.setAttribute('data-tr', txt);
   }
   // #premMsg: the premium modal's lead message (sale-aware during the window
@@ -65,7 +85,7 @@ function applySaleDisplay() {
     const stdTxt = 'Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $9/month.';
     const saleTxt = 'Get full access to HSK 2 through HSK 9, advanced AI tutor conversations, and ad-free learning. 7 days free, then $4.50/month.';
     const txt = active ? saleTxt : stdTxt;
-    pm.textContent = t(txt);
+    pm.textContent = (typeof t === 'function') ? t(txt) : txt;
     pm.setAttribute('data-tr', txt);
   }
 }
@@ -175,3 +195,10 @@ function retryPayPalButtons() {
   };
   container.appendChild(retryBtn);
 }
+
+// v154: apply the sale display once at load — the public #pricing section's
+// prices must show the sale state without any modal open. Direct call (the
+// t() calls inside applySaleDisplay are guarded for exactly this load order:
+// paypal.js executes BEFORE app.js at deferred DOM order). Idempotent, so the
+// modal open / language-change re-runs are unaffected.
+applySaleDisplay();

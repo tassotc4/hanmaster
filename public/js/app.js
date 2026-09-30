@@ -22786,8 +22786,11 @@ function applyFreeTrialCode(code) {
   return true;
 }
 
-function applyPromoCodeFromUI() {
-  const input = document.getElementById('promoCodeInput');
+// inputId (optional, v154): which promo input to read — the modal's
+// #promoCodeInput when absent (all existing callers unchanged), or the public
+// #pricing section's #sectPromoCodeInput (same function, not a reimplementation).
+function applyPromoCodeFromUI(inputId) {
+  const input = document.getElementById(inputId || 'promoCodeInput');
   if (!input || !input.value.trim()) { toast(t('Enter your promo code.'), 'var(--gold)'); return; }
   applyFreeTrialCode(input.value.trim());
   if (localStorage.getItem('is_premium') === 'true') {

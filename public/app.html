@@ -18,8 +18,8 @@
 <link rel="dns-prefetch" href="https://api.groq.com">
 <link rel="dns-prefetch" href="https://enisseoyaledojeuykbd.supabase.co">
 <link rel="preload" href="/css/tailwind.css" as="style">
-<link rel="preload" href="/css/app.css?v=153" as="style">
-    <link rel="preload" href="/js/app.js?v=153" as="script">
+<link rel="preload" href="/css/app.css?v=154" as="style">
+    <link rel="preload" href="/js/app.js?v=154" as="script">
 <link rel="preload" href="/js/vocab-data.js" as="script">
 <link rel="preload" href="/js/extra-content.js" as="script">
 <style>body{font-family:DM Sans,sans-serif;margin:0;padding:0;background:#0D0A08;color:#F5EDE6}@font-face{font-family:DM Sans;font-style:normal;font-weight:400 900;font-display:swap;src:url(https://fonts.gstatic.com/s/dmsans/v15/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu6-K6z9mXgjU0.woff2) format('woff2')}*:focus-visible{outline:2px solid var(--gold);outline-offset:2px}.skip-link{position:absolute;top:-100px;left:8px;z-index:10000;padding:8px 16px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;text-decoration:none;transition:top .2s}.skip-link:focus{top:8px}</style>
@@ -203,7 +203,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
 <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
-<link rel="stylesheet" href="/css/app.css?v=153">
+<link rel="stylesheet" href="/css/app.css?v=154">
 <!-- Deferred scripts — load after initial render, preserve execution order -->
 <script defer src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
 <link rel="stylesheet" href="/css/tailwind.css">
@@ -211,11 +211,11 @@
 <script defer src="/js/config.js"></script>
 <script defer src="/js/supabase.js"></script>
 <script defer src="/js/paypal.js"></script>
-<script defer src="/js/shop.js?v=153"></script>
+<script defer src="/js/shop.js?v=154"></script>
 <script defer src="/js/vocab-data.js"></script>
 <script defer src="/js/vocab-extra-data.js"></script>
 <script defer src="/js/extra-content.js"></script>
-<script defer src="/js/translate.js?v=153"></script>
+<script defer src="/js/translate.js?v=154"></script>
 <script defer src="/js/tutor-data.js"></script>
 <script defer src="/js/tutor-data-more.js"></script>
 </head>
@@ -412,7 +412,7 @@
 <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:4px 16px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase" data-tr="Popular">Popular</div>
 <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background:rgba(212,166,79,.1)"><i class="fas fa-crown text-xl" style="color:var(--gold)"></i></div>
 <h3 class="font-bold text-lg mb-1" data-tr="Premium">Premium</h3>
-<div class="text-3xl font-extrabold mb-4" style="color:var(--gold)"><span class="price-amount">$9</span><span class="text-sm font-normal" style="color:var(--muted)">/month <span style="color:var(--green)" data-tr="after trial">after trial</span></span></div>
+<div class="text-3xl font-extrabold mb-4" style="color:var(--gold)"><span class="price-amount" id="sectMonthlyPrice">$9</span><span class="text-sm font-normal" style="color:var(--muted)">/month <span style="color:var(--green)" data-tr="after trial">after trial</span></span></div>
 <ul class="text-xs space-y-3 mb-8" style="color:var(--fg2)">
 <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="HSK 1 through HSK 9 full access">HSK 1 through HSK 9 full access</span></li>
 <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="Unlimited AI Tutor conversations">Unlimited AI Tutor conversations</span></li>
@@ -423,10 +423,49 @@
 </ul>
 <a href="/app" class="block w-full text-center py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-decoration:none" data-tr="Start 7-Day Free Trial">Start 7-Day Free Trial</a>
 <div class="text-center text-[11px] mt-3" style="color:var(--muted)" data-tr="Cancel anytime · Secure via PayPal">Cancel anytime · Secure via PayPal</div>
-</div>
-</div>
-</div>
-</section>
+        </div>
+        <div class="p-8 rounded-2xl fu" style="background:var(--card);border:1px solid var(--gold);position:relative">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;padding:4px 16px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase" data-tr="Best Value - Save 45%">Best Value - Save 45%</div>
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background:rgba(212,166,79,.1)"><i class="fas fa-crown text-xl" style="color:var(--gold)"></i></div>
+          <h3 class="font-bold text-lg mb-1" data-tr="Annual Subscription">Annual Subscription</h3>
+          <div class="text-3xl font-extrabold mb-4" style="color:var(--gold)"><span id="sectAnnualPrice">$59</span><span class="text-sm font-normal" style="color:var(--muted)">/year</span></div>
+          <ul class="text-xs space-y-3 mb-8" style="color:var(--fg2)">
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="HSK 1 through HSK 9 full access">HSK 1 through HSK 9 full access</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="Unlimited AI Tutor conversations">Unlimited AI Tutor conversations</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="10,000+ vocabulary words">10,000+ vocabulary words</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="All writing characters HSK 1-9">All writing characters HSK 1-9</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="Podcast mode & grammar deep dive">Podcast mode & grammar deep dive</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="Cloud sync & study reminders">Cloud sync & study reminders</span></li>
+          </ul>
+          <a href="/app" class="block w-full text-center py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-decoration:none" data-tr="Start 7-Day Free Trial">Start 7-Day Free Trial</a>
+          <div class="text-center text-[11px] mt-3" style="color:var(--muted)" data-tr="Cancel anytime · Secure via PayPal">Cancel anytime · Secure via PayPal</div>
+        </div>
+        <div class="p-8 rounded-2xl fu" style="background:var(--card);border:1px solid var(--border);position:relative">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:4px 16px;border-radius:20px;font-size:11px;font-weight:900;text-transform:uppercase" data-tr="Early Bird Special">Early Bird Special</div>
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-4" style="background:rgba(200,53,37,.1)"><i class="fas fa-gem text-xl" style="color:var(--accent)"></i></div>
+          <h3 class="font-bold text-lg mb-1" data-tr="Lifetime Access">Lifetime Access</h3>
+          <div class="text-3xl font-extrabold mb-4" style="color:var(--accent)"><span id="sectLifetimePrice">$129</span><span class="text-sm font-normal" style="color:var(--muted)" data-tr="one-time"> one-time</span></div>
+          <ul class="text-xs space-y-3 mb-8" style="color:var(--fg2)">
+            <li><i class="fas fa-check mr-2" style="color:var(--accent)"></i><span data-tr="HSK 1 through HSK 9 full access">HSK 1 through HSK 9 full access</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--accent)"></i><span data-tr="Unlimited AI Tutor conversations">Unlimited AI Tutor conversations</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--gold)"></i><span data-tr="10,000+ vocabulary words">10,000+ vocabulary words</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--accent)"></i><span data-tr="All writing characters HSK 1-9">All writing characters HSK 1-9</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--accent)"></i><span data-tr="Podcast mode & grammar deep dive">Podcast mode & grammar deep dive</span></li>
+            <li><i class="fas fa-check mr-2" style="color:var(--accent)"></i><span data-tr="Cloud sync & study reminders">Cloud sync & study reminders</span></li>
+          </ul>
+          <a href="/app" class="block w-full text-center py-3 rounded-xl font-bold text-sm" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;text-decoration:none" data-tr="Start 7-Day Free Trial">Start 7-Day Free Trial</a>
+          <div class="text-center text-[11px] mt-3" style="color:var(--muted)" data-tr="Cancel anytime · Secure via PayPal">Cancel anytime · Secure via PayPal</div>
+        </div>
+      </div>
+      <div class="max-w-3xl mx-auto mt-8">
+        <div class="text-center text-xs mb-2" style="color:var(--fg2)" data-tr="Got a promo code from a friend?">Got a promo code from a friend?</div>
+        <div class="flex items-center gap-2 max-w-sm mx-auto">
+          <input id="sectPromoCodeInput" placeholder="Have a promo code?" autocomplete="off" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none;text-align:center">
+          <button onclick="applyPromoCodeFromUI('sectPromoCodeInput')" style="padding:10px 16px;border-radius:10px;border:none;background:var(--green);color:#fff;cursor:pointer;font-size:13px;font-weight:600;outline:none" data-tr="Apply">Apply</button>
+        </div>
+      </div>
+    </div>
+  </section>
 
 <section id="testimonials" class="py-20 px-5" style="background:var(--bg2)">
 <div class="max-w-4xl mx-auto">
@@ -1358,6 +1397,7 @@
         </div>
       </div>
       
+      <div class="text-center text-[11px] mb-1.5" style="color:var(--fg2)" data-tr="Got a promo code from a friend?">Got a promo code from a friend?</div>
       <div class="flex items-center gap-2 mb-3">
         <input id="promoCodeInput" placeholder="Have a promo code?" autocomplete="off" style="flex:1;padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card2);color:var(--fg);font-size:13px;outline:none;text-align:center">
         <button onclick="applyPromoCodeFromUI()" style="padding:10px 16px;border-radius:10px;border:none;background:var(--green);color:#fff;cursor:pointer;font-size:13px;font-weight:600;outline:none">Apply</button>
@@ -1947,7 +1987,7 @@
   </div>
 </div>
 
-<script defer src="/js/app.js?v=153"></script> 
+<script defer src="/js/app.js?v=154"></script> 
 <script>
 // HSK 9 sentences for writing practice
 var HSK9_SENTENCES = [
