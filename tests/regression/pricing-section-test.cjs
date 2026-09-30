@@ -39,9 +39,10 @@ function check(name, ok, detail) {
   const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900 });
   await page.goto('http://127.0.0.1:8080/app.html', { waitUntil: 'load', timeout: 60000 });
+  await page.evaluate(() => { try { skipOnboarding(); } catch (e) {} });
   await waitFor(page, () => !!document.getElementById('sectAnnualPrice'), 15000);
-  await page.evaluate(() => { const s = document.getElementById('pricing'); if (s) { s.scrollIntoView(); window.scrollBy(0, 180); } });
-  await waitFor(700);
+  await waitFor(page, () => !document.getElementById('onboardingModal') || document.getElementById('onboardingModal').style.display === 'none', 5000);
+  await waitFor(500);
 
   const sect = await page.evaluate(() => {
     const g = document.getElementById('pricing').querySelector('.grid');
@@ -84,23 +85,31 @@ function check(name, ok, detail) {
   check('2b. mandarin30 via the section field: the 30-day trial grants',
     after.isPremium === 'true' && after.used === 'true' && after.deltaDays === 30, JSON.stringify(after));
 
-  // --- 3. Desktop screenshot (the section, sale prices live) ---
-  await page.screenshot({ path: SCRATCH + '/v154-pricing-section-desktop.png' });
+  // --- 3. Desktop screenshot: the FULL #pricing section (element clip — the
+  // section is taller than one viewport; the clip shows all 4 cards + the
+  // promo + the sale prices in one image) ---
+  const clipD = await page.evaluate(() => {
+    const s = document.getElementById('pricing');
+    return { x: 0, y: s.offsetTop, width: Math.min(s.scrollWidth, 1440), height: s.scrollHeight };
+  });
+  await page.screenshot({ path: SCRATCH + '/v154-pricing-section-desktop.png', clip: clipD, captureBeyondViewport: true });
   console.log('SCREENSHOT: v154-pricing-section-desktop.png');
 
   // --- 4. Mobile screenshot ---
   await page.setViewport({ width: 390, height: 844 });
   await waitFor(500);
-  await page.evaluate(() => { const s = document.getElementById('pricing'); if (s) { s.scrollIntoView(); window.scrollBy(0, 120); } });
-  await waitFor(500);
-  const mobile = await page.evaluate(() => {
+  const mob = await page.evaluate(() => {
     const inp = document.getElementById('sectPromoCodeInput');
     const r = inp ? inp.getBoundingClientRect() : null;
-    return { promoVisible: !!(inp && inp.offsetParent !== null && r && r.width > 0 && r.height > 0) };
+    const s = document.getElementById('pricing');
+    return {
+      promoVisible: !!(inp && inp.offsetParent !== null && r && r.width > 0 && r.height > 0),
+      clip: { x: 0, y: s.offsetTop, width: Math.min(s.scrollWidth, 390), height: s.scrollHeight }
+    };
   });
   check('4. mobile: the promo field still visible (the stacked layout)',
-    mobile.promoVisible, JSON.stringify(mobile));
-  await page.screenshot({ path: SCRATCH + '/v154-pricing-section-mobile.png' });
+    mob.promoVisible, JSON.stringify({ promoVisible: mob.promoVisible }));
+  await page.screenshot({ path: SCRATCH + '/v154-pricing-section-mobile.png', clip: mob.clip, captureBeyondViewport: true });
   console.log('SCREENSHOT: v154-pricing-section-mobile.png');
 
   await browser.close();
