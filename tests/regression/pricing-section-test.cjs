@@ -28,6 +28,10 @@ function check(name, ok, detail) {
     html.includes("onclick=\"applyPromoCodeFromUI('sectPromoCodeInput')\""), '');
   check('1. the section has all three paid-tier price ids',
     html.includes('id="sectMonthlyPrice"') && html.includes('id="sectAnnualPrice"') && html.includes('id="sectLifetimePrice"'), '');
+  check('1. CTA accuracy: Premium+Annual keep the trial text, Lifetime says the one-time purchase text',
+    (html.match(/data-tr="Start 7-Day Free Trial"/g) || []).length === 2 &&
+    (html.match(/data-tr="Get Lifetime Access"/g) || []).length === 1 &&
+    html.includes('data-tr="One-time payment · Secure via PayPal"'), '');
   check('1. applySaleDisplay targets the sect*Price ids (same function, no new pricing logic)',
     paypal.includes("sectCards = { monthly: 'sectMonthlyPrice', annual: 'sectAnnualPrice', lifetime: 'sectLifetimePrice' }") &&
     paypal.includes('salePriceInfo(key)') && !paypal.includes('function sectSale'), '');
@@ -86,14 +90,16 @@ function check(name, ok, detail) {
     after.isPremium === 'true' && after.used === 'true' && after.deltaDays === 30, JSON.stringify(after));
 
   // --- 3. Desktop screenshot: the FULL #pricing section (element clip — the
-  // section is taller than one viewport; the clip shows all 4 cards + the
-  // promo + the sale prices in one image) ---
+  // section is taller than one viewport and CENTERED in the page, so the clip
+  // must start at offsetLeft, NOT 0 — a zero-x clip cropped the section's
+  // right ~130px, cutting the Premium/Lifetime cards; v155). A small margin
+  // keeps the card borders/badges unclipped.
   const clipD = await page.evaluate(() => {
     const s = document.getElementById('pricing');
-    return { x: 0, y: s.offsetTop, width: Math.min(s.scrollWidth, 1440), height: s.scrollHeight };
+    return { x: Math.max(0, s.offsetLeft - 8), y: Math.max(0, s.offsetTop - 8), width: s.scrollWidth + 16, height: s.scrollHeight + 16 };
   });
-  await page.screenshot({ path: SCRATCH + '/v154-pricing-section-desktop.png', clip: clipD, captureBeyondViewport: true });
-  console.log('SCREENSHOT: v154-pricing-section-desktop.png');
+  await page.screenshot({ path: SCRATCH + '/v155-pricing-desktop.png', clip: clipD, captureBeyondViewport: true });
+  console.log('SCREENSHOT: v155-pricing-desktop.png');
 
   // --- 4. Mobile screenshot ---
   await page.setViewport({ width: 390, height: 844 });
@@ -104,13 +110,13 @@ function check(name, ok, detail) {
     const s = document.getElementById('pricing');
     return {
       promoVisible: !!(inp && inp.offsetParent !== null && r && r.width > 0 && r.height > 0),
-      clip: { x: 0, y: s.offsetTop, width: Math.min(s.scrollWidth, 390), height: s.scrollHeight }
+      clip: { x: Math.max(0, s.offsetLeft - 8), y: Math.max(0, s.offsetTop - 8), width: s.scrollWidth + 16, height: s.scrollHeight + 16 }
     };
   });
   check('4. mobile: the promo field still visible (the stacked layout)',
     mob.promoVisible, JSON.stringify({ promoVisible: mob.promoVisible }));
-  await page.screenshot({ path: SCRATCH + '/v154-pricing-section-mobile.png', clip: mob.clip, captureBeyondViewport: true });
-  console.log('SCREENSHOT: v154-pricing-section-mobile.png');
+  await page.screenshot({ path: SCRATCH + '/v155-pricing-mobile.png', clip: mob.clip, captureBeyondViewport: true });
+  console.log('SCREENSHOT: v155-pricing-mobile.png');
 
   await browser.close();
   console.log(pass ? 'RESULT: PASS' : 'RESULT: FAIL');
