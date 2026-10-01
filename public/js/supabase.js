@@ -73,6 +73,10 @@ async function signUpWithEmail(email, password) {
   const user = data?.user;
   if (user) {
     localStorage.setItem('trial_start', Date.now().toString());
+    // GA4 conversion: the REAL account-creation moment (the 7-day trial starts
+    // here too — trial_start is set in this same callback — so no separate
+    // trial_start event fires; it would be the same instant as sign_up).
+    if (typeof trackEvent === 'function') trackEvent('sign_up', { method: 'email' });
   }
   // If confirmation is off, the user is signed in immediately. Apply the signed-in UI.
   if (data?.session || (user && user.confirmed_at)) {

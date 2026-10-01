@@ -22782,6 +22782,9 @@ function applyFreeTrialCode(code) {
   localStorage.setItem('premium_expiry', Math.max(expiry, existing).toString());
   localStorage.setItem('is_premium', 'true');
   updatePremiumUI();
+  // GA4 conversion: the trial grant actually happened (code validated +
+  // not-used + premium set).
+  if (typeof trackEvent === 'function') trackEvent('promo_code_applied', { code: String(code).trim().toLowerCase() });
   toast(t('30 days free activated!'), 'var(--green)', 5000);
   return true;
 }

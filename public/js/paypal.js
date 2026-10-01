@@ -141,6 +141,15 @@ function renderPayPalButtons() {
           throw new Error(data.error || 'Failed to create order. Please try again later.');
         });
     },
+    onClick: function() {
+      // GA4 funnel step: the PayPal popup is opening (a click is not a
+      // purchase — begin_checkout is the standard name for this step).
+      if (typeof trackEvent === 'function') trackEvent('begin_checkout', {
+        currency: 'USD',
+        value: (typeof tierPriceValue === 'function') ? tierPriceValue(selectedPremiumTier) : null,
+        items: [{ item_id: selectedPremiumTier, item_name: selectedPremiumTier }]
+      });
+    },
     onApprove: function(data) {
       return fetch('/api/paypal/capture-order', {
         method: 'POST',
@@ -150,6 +159,15 @@ function renderPayPalButtons() {
         .then(r => r.json())
         .then(function(details) {
           if (details.status === 'COMPLETED') {
+            // GA4 conversion: the capture is COMPLETED — the real purchase
+            // moment (transaction_id = GA4's dedupe param, data.orderID is
+            // in scope here).
+            if (typeof trackEvent === 'function') trackEvent('purchase', {
+              transaction_id: data.orderID,
+              currency: 'USD',
+              value: (typeof tierPriceValue === 'function') ? tierPriceValue(selectedPremiumTier) : null,
+              items: [{ item_id: selectedPremiumTier, item_name: selectedPremiumTier }]
+            });
             localStorage.setItem('is_premium', 'true');
             if (selectedPremiumTier === 'monthly') {
               localStorage.setItem('premium_expiry', (Date.now() + 30 * 24 * 60 * 60 * 1000).toString());
