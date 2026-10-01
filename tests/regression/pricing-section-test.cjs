@@ -67,8 +67,18 @@ function check(name, ok, detail) {
   });
   check('2. the section renders all 4 cards (Trial + Monthly + Annual + Lifetime)',
     sect.cardCount === 4, 'cards=' + sect.cardCount);
-  check('2. the sale display applied at boot (active -> struck-through original + discounted)',
-    sect.monthly.indexOf('4.50') !== -1 && sect.annual.indexOf('29.50') !== -1 && sect.lifetime.indexOf('64.50') !== -1,
+  // Sale-state-aware (v156): the sale window is fixed (ended 17:00 UTC on
+  // 9/30/26) — when active the sect prices show struck-through + discounted;
+  // after it they show the standard full prices. Either way the data-tr
+  // marker proves applySaleDisplay ran at boot (the static markup has none).
+  const hasDataTr = await page.evaluate(() => {
+    const el = document.getElementById('sectMonthlyPrice');
+    return el ? el.getAttribute('data-tr') : null;
+  });
+  check('2. the sale display applied at boot (data-tr marker set; discounted while active, full after)',
+    hasDataTr !== null &&
+    ((sect.monthly.indexOf('4.50') !== -1 && sect.annual.indexOf('29.50') !== -1 && sect.lifetime.indexOf('64.50') !== -1) ||
+     (sect.monthly === '$9' && sect.annual === '$59' && sect.lifetime === '$129')),
     JSON.stringify({ m: sect.monthly, a: sect.annual, l: sect.lifetime }));
   check('2. the promo field is genuinely visible in the section',
     sect.promoVisible, JSON.stringify(sect.promoRect));

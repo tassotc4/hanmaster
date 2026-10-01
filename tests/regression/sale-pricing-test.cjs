@@ -14,11 +14,18 @@ let pass = true;
 const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + name + (detail ? ' — ' + detail : '')); if (!ok) pass = false; };
 
 // --- A: priceFor with mocked dates ---
+// The "real now" cases are sale-state-aware (v156): the sale window is FIXED
+// (ended 17:00 UTC on 9/30/26), so after that instant these assert the FULL
+// prices — the correct post-sale behavior — instead of stale sale-price
+// expectations. The mocked END-1ms/END/END+1day cases prove the boundary
+// regardless of the date.
 const END = pricing.SALE_END_UTC;
+const saleNow = Date.now() < END;
+const realPrice = pricing.priceFor('monthly');
 const cases = [
-  ['during (real now = today)', pricing.priceFor('monthly'), '4.50', true],
-  ['during annual', pricing.priceFor('annual'), '29.50', true],
-  ['during lifetime', pricing.priceFor('lifetime'), '64.50', true],
+  ['during (real now = today, ' + (saleNow ? 'sale active' : 'sale ended') + ')', realPrice, saleNow ? '4.50' : '9.00', saleNow],
+  ['during annual (real now)', pricing.priceFor('annual'), saleNow ? '29.50' : '59.00', saleNow],
+  ['during lifetime (real now)', pricing.priceFor('lifetime'), saleNow ? '64.50' : '129.00', saleNow],
   ['END-1ms boundary', pricing.priceFor('monthly', END - 1), '4.50', true],
   ['END boundary (first instant of 10/1 ICT)', pricing.priceFor('monthly', END), '9.00', false],
   ['END+1day', pricing.priceFor('annual', END + 86400000), '59.00', false],
@@ -28,7 +35,9 @@ for (const [name, result, wantPrice, wantSale] of cases) {
     result.price === wantPrice && result.sale === wantSale,
     JSON.stringify(result));
 }
-check('A. originals preserved during sale', pricing.priceFor('annual').original === '59.00' && pricing.priceFor('lifetime').original === '129.00');
+check('A. originals preserved during sale',
+  pricing.priceFor('annual', saleNow ? Date.now() : END - 1).original === '59.00' &&
+  pricing.priceFor('lifetime', saleNow ? Date.now() : END - 1).original === '129.00');
 
 // --- B: drift check — client constants identical to the server module ---
 const serverSrc = fs.readFileSync(path.join(__dirname, '../../paypal-pricing.js'), 'utf8');

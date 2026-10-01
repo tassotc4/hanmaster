@@ -369,6 +369,22 @@ function logChatReply(provider, reply) {
   console.log('[/api/chat]', JSON.stringify(entry));
 }
 
+// v156: lightweight chat-failure counters (numbers only, no user content) —
+// incremented fire-and-forget via the Supabase RPC so real 429/503 frequency
+// can be measured before deciding on the Groq quota / provider
+// diversification. Fail-open (the same pattern as the leads insert): a
+// Supabase outage never blocks the chat path.
+function bumpErrorCounter(key) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return;
+  const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
+  fetch(sbUrl + '/rest/v1/rpc/increment_error_counter', {
+    method: 'POST',
+    headers: { 'apikey': serviceKey, 'Authorization': 'Bearer ' + serviceKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_key: key })
+  }).catch(() => {});
+}
+
 app.post('/api/chat', apiLimiter, async (req, res) => {
   if (!req.body || !Array.isArray(req.body.contents)) {
     return res.status(400).json({ error: 'Missing or invalid contents array' });
@@ -522,6 +538,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     const data = await resp.json();
     if (!resp.ok) {
       const errMsg = data.error?.message || JSON.stringify(data);
+      if (resp.status === 429) bumpErrorCounter('chat_provider_429');
       console.error('Provider failed:', p.model, errMsg);
       throw new Error(errMsg);
     }
@@ -546,6 +563,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       logChatReply(servedModel, text);
       return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
     }
+    bumpErrorCounter('chat_all_failed_503');
     res.status(503).json({ error: 'AI service busy, please try again.', details: errMsg });
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -132,3 +132,33 @@ create policy "user_chats_own"
   with check (auth.uid() = user_id);
 
 grant select, insert, update on public.user_chats to authenticated;
+
+-- v156: lightweight chat-failure counters (numbers only, no user content).
+-- Measures real 429/503 frequency over 1-2 weeks before deciding on the Groq
+-- quota / provider diversification. Whitelisted keys only (blocks anon spam
+-- and unbounded rows); server-only caller (service_role grant, no anon).
+create table if not exists public.error_counters (
+  key text primary key,
+  count bigint not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+create or replace function increment_error_counter(p_key text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_key is null then
+    raise exception 'key required';
+  end if;
+  if p_key not in ('chat_provider_429', 'chat_all_failed_503') then
+    raise exception 'unknown key';
+  end if;
+  insert into error_counters (key, count) values (p_key, 1)
+  on conflict (key) do update set count = error_counters.count + 1, updated_at = now();
+end;
+$$;
+
+grant execute on function increment_error_counter(text) to service_role;
