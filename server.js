@@ -1827,58 +1827,13 @@ Do not include any markdown code wraps like \`\`\`json or trailing text. Return 
   }
 });
 
-
-// Endpoint to generate video from canvas image and TTS pronunciation audio
-app.post('/api/social/generate-video', async (req, res) => {
-  const { imageBase64, ttsText } = req.body || {};
-  if (!imageBase64 || !ttsText) {
-    return res.status(400).json({ error: 'Missing imageBase64 or ttsText' });
-  }
-  if (IS_SERVERLESS) {
-    return res.status(509).json({ error: 'MP4 video generation is not available on this host. Use text posts instead.' });
-  }
-
-  const uploadsDir = path.join(__dirname, 'public', 'uploads');
-  if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-  }
-
-  const tempId = `${Date.now()}-${Math.round(Math.random() * 1E6)}`;
-  const tempImgPath = path.join(uploadsDir, `temp-${tempId}.png`);
-  const tempAudioPath = path.join(uploadsDir, `temp-${tempId}.mp3`);
-  const outVideoPath = path.join(uploadsDir, `video-${tempId}.mp4`);
-
-  try {
-    // 1. Decode and write base64 image
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-    fs.writeFileSync(tempImgPath, Buffer.from(base64Data, 'base64'));
-
-    // 2. Fetch TTS audio
-    const spd = 1.0;
-    const url = `https://translate.googleapis.com/translate_tts?ie=UTF-8&tl=zh-CN&client=gtx&q=${encodeURIComponent(ttsText.substring(0, 200))}&ttsspeed=${spd}`;
-    const audioResp = await fetch(url);
-    if (!audioResp.ok) throw new Error('TTS upstream failed');
-    const audioBuffer = Buffer.from(await audioResp.arrayBuffer());
-    fs.writeFileSync(tempAudioPath, audioBuffer);
-
-    // 3. Run FFmpeg to merge image and audio into MP4
-    const ffmpegPath = require('ffmpeg-static');
-    const { execSync } = require('child_process');
-    
-    // Command: Loop the image, merge with audio, encode as H.264 YUV420p video, stop when audio ends
-    const cmd = `"${ffmpegPath}" -y -loop 1 -i "${tempImgPath}" -i "${tempAudioPath}" -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p -shortest "${outVideoPath}"`;
-    execSync(cmd, { stdio: 'pipe' });
-
-    res.json({ url: `/uploads/video-${tempId}.mp4` });
-  } catch (err) {
-    console.error('Video generation error:', err);
-    res.status(500).json({ error: err.message });
-  } finally {
-    // Clean up temporary files
-    try { if (fs.existsSync(tempImgPath)) fs.unlinkSync(tempImgPath); } catch {}
-    try { if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath); } catch {}
-  }
-});
+// The former /api/social/generate-video endpoint (image + TTS -> MP4 via
+// ffmpeg-static) was REMOVED from the serverless bundle: it already refused
+// on serverless hosts (IS_SERVERLESS -> 509) so the 80.8MB ffmpeg.exe was
+// dead weight traced into the function, and it's Jo's internal marketing
+// tool, not a student feature. The logic now lives in scripts/make-video.cjs
+// (local-only, writes to gitignored output/videos/). social.html's video
+// button shows the graceful "moved to a local script" message.
 
 // Redirect HTTP to HTTPS in production
 

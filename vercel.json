@@ -2,7 +2,8 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "maxDuration": 60
+      "maxDuration": 60,
+      "excludeFiles": "public/uploads/*"
     }
   },
   "headers": [
@@ -20,8 +21,7 @@
     { "source": "/social", "destination": "/api/index.js" },
     { "source": "/pinyin-chart", "destination": "/api/index.js" },
     { "source": "/printable/(.*)", "destination": "/api/index.js" },
-    { "source": "/uploads/(.*)", "destination": "/api/index.js" },
-    { "source": "/((?!api|app|admin|social|pinyin-chart|printable|uploads).*\\..*)", "destination": "/public/$1" },
+    { "source": "/((?!api|app|admin|social|pinyin-chart|printable).*\\..*)", "destination": "/public/$1" },
     { "source": "/", "destination": "/api/index.js" }
   ]
 }
