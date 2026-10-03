@@ -386,7 +386,11 @@ function bumpErrorCounter(key) {
 }
 
 app.post('/api/chat', apiLimiter, async (req, res) => {
-  if (!req.body || !Array.isArray(req.body.contents)) {
+  if (!req.body || !Array.isArray(req.body.contents) || req.body.contents.length === 0) {
+    // v158: an empty contents array is structurally valid but semantically
+    // empty — it used to fall through to the provider cascade, which burned
+    // provider calls and incremented chat_all_failed_503 (the real-outage
+    // counter we measure). 400 before the cascade runs.
     return res.status(400).json({ error: 'Missing or invalid contents array' });
   }
 
