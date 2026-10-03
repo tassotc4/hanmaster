@@ -15527,7 +15527,13 @@ function sendAudioToGemini(base64Audio, retries, mimeType) {
     // v142: Chinese promo hallucinations, contains-style — the anchored list
     // above cannot catch "谢谢观看﹚" (the trailing punctuation breaks ^$).
     const zhPromo = /谢谢观看|感謝觀看|感谢观看|感谢(您)?(收看|观看|支持)|一键三连|请(您)?(订阅|点赞|关注)|记得(订阅|点赞|关注)|订阅(我的|我们的)?(频道|账号)|关注(我的|我们的)?(频道|账号|公众号)/.test(transcript);
-    const looksGarbage = /^(t he|mbc|subtitles|amara|transcribe|thank you for watching)$/i.test(transcript) || /^transcribe/i.test(transcript) || zhPromo;
+    // v159: keyword-family guard (>=2 DISTINCT families from the
+    // YouTube-specific set, excluding real-vocabulary words 观看/支持/关注) —
+    // a real student echoing one lesson word has 1 and passes; the
+    // "点赞 订阅 转发 打赏" silence hallucination has 4+.
+    const YT_FAMILIES = ['点赞', '订阅', '转发', '打赏', '栏目', '一键三连', '明镜', '点点', '主播', '频道'];
+    const familyHits = YT_FAMILIES.filter(f => transcript.indexOf(f) !== -1);
+    const looksGarbage = /^(t he|mbc|subtitles|amara|transcribe|thank you for watching)$/i.test(transcript) || /^transcribe/i.test(transcript) || zhPromo || familyHits.length >= 2;
     if (looksGarbage) {
       console.warn("Rejected low-quality hallucination:", transcript);
       transcript = '';
@@ -18215,7 +18221,7 @@ function sendToGemini(userText) {
     "2. Whenever you translate into " + langName + ", produce natural, idiomatic " + langName + " exactly as a native speaker would say it — NEVER literal or word-for-word translation. Preserve tone, politeness, and cultural nuance.\n" +
     "3. If the student writes in " + langName + " or any other language, answer or acknowledge them clearly in their own language FIRST, then teach the Chinese phrase(s) they would use to say it.\n" +
     "4. If the student writes in Chinese, respond in Chinese (following the level rules) and always give a professional, fluent " + langName + " translation.\n" +
-    "5. Correct the student's Chinese gently: give the correct sentence, then a one-line explanation in " + langName + ".\n" +
+    "5. Correct the student's Chinese gently: give the correct sentence, then a one-line explanation in " + langName + ". Emit every correction on its OWN line at the END of the reply in the exact format [CORRECTION: <the complete corrected Chinese sentence>] followed by a short " + langName + " explanation - NEVER mix a correction into the reply body, and NEVER omit the Chinese inside the marker.\n" +
     "6. Never refuse or dodge a question. If you are unsure, say so honestly in " + langName + ".\n" +
     "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n" +
     "8. NEVER repeat yourself. Never reuse a Chinese phrase, a translation, an explanation, or a question you already said earlier in this conversation — the whole chat history is visible to you. Every reply must respond to what the student ACTUALLY just said and advance the conversation to something NEW.\n" +
@@ -18310,11 +18316,36 @@ function sendToGemini(userText) {
     
     let reply = data.candidates[0].content.parts[0].text.trim();
 
+    // v159: extract correction markers BEFORE the label/CJK split — the model
+    // is now instructed to emit [CORRECTION: <complete corrected Chinese>].
+    // A loose match (the word Correction with the colon optional) is the
+    // fallback for replies that predate the marker discipline.
+    let correctionText = '';
+    const corrMarkerM = reply.match(/\[CORRECTION:\s*([^\]]+)\]/i);
+    if (corrMarkerM) {
+      correctionText = corrMarkerM[1].trim();
+      reply = reply.replace(corrMarkerM[0], '').trim();
+    } else {
+      const looseM = reply.match(/Correction\s*[:：]?\s*([^\n]+)/i);
+      if (looseM) {
+        correctionText = looseM[1].trim();
+        reply = reply.replace(looseM[0], '').trim();
+      }
+    }
+    correctionText = correctionText
+      .replace(/[\(（][^\)）]*[A-Za-zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü][^\)）]*[\)）]/g, '')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    if (correctionText && !/[\u4e00-\u9fa5]/.test(correctionText)) correctionText = '';
+
     // Strip internal control markers before display/speech/history
     const lvlMarkerM = reply.match(/\[LEVEL:\s*(never|beginner|intermediate|advanced)\s*\]/i);
     const upMarkerM = reply.match(/\[LEVELUP:\s*(beginner|intermediate|advanced)\s*\]/i);
     if (lvlMarkerM) reply = reply.replace(lvlMarkerM[0], '').trim();
-    if (upMarkerM) reply = reply.replace(upMarkerM[0], '').trim();
+    // v159: strip EVERYTHING after the [LEVELUP] marker — the warm message
+    // that follows used to leak into the translation line (the sys-line
+    // below already renders the level-up properly).
+    if (upMarkerM) reply = reply.slice(0, upMarkerM.index).trim();
 
     // Promotional-spam guard: free-tier models occasionally sign off like a
     // video creator; replace the whole reply with an in-frame nudge so it never
@@ -18463,6 +18494,19 @@ function sendToGemini(userText) {
       scrollTutToBottom();
     } else {
       addTutMsg('bot', botHtml);
+    }
+    // v159: the correction renders in its OWN element with its Chinese
+    // intact (ruby + replay that speaks the COMPLETE correction text —
+    // never the gapped version). Replay only; no auto-play (same decision
+    // as the you-line cards).
+    if (correctionText && loaderCapsule) {
+      const corrId = 'corr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+      const corrHtml = '<div class="coach-sec" style="border-top:1px dashed var(--border);margin-top:8px;padding:8px 0 2px">'
+        + '<div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:4px"><i class="fas fa-pen-fancy"></i> ' + t('Correction') + '</div>'
+        + '<div class="phrase" id="' + corrId + '">' + formatChineseTextWithRuby(correctionText) + '</div>'
+        + '<span class="replay" onclick="speak(\'' + correctionText.replace(/'/g, "\\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>'
+        + '</div>';
+      loaderCapsule.insertAdjacentHTML('beforeend', corrHtml);
     }
     // If the model's reply has Chinese but no English translation was embedded, fetch one now
     // (v134) Whenever this bubble's translation is known, seed the live cache:

@@ -434,7 +434,10 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
         const ext = mimeType.includes('webm') ? 'webm' : mimeType.includes('mp4') ? 'mp4' : mimeType.includes('mpeg') ? 'mpeg' : mimeType.includes('ogg') ? 'ogg' : mimeType.includes('opus') ? 'opus' : mimeType.includes('wav') ? 'wav' : 'webm';
         fm.append('file', blob, `audio.${ext}`);
         fm.append('model', model || 'whisper-large-v3-turbo');
-        fm.append('response_format', 'json');
+        // v159: verbose_json returns per-segment no_speech_prob / avg_logprob —
+        // the Whisper's own low-energy signal. SHADOW MODE ONLY: logged, never
+        // used to block (tune from real logs before promoting).
+        fm.append('response_format', 'verbose_json');
         fm.append('temperature', '0');
         fm.append('prompt', prompt);
         if (lang) fm.append('language', lang);
@@ -443,6 +446,12 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
         });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error?.message || 'Whisper failed');
+        const segs = j.segments || [];
+        if (segs.length) {
+          const probs = segs.map(s => (+s.no_speech_prob).toFixed(2)).join(',');
+          const lps = segs.map(s => (+s.avg_logprob).toFixed(2)).join(',');
+          console.log("Whisper shadow (not blocking): no_speech_prob=[" + probs + "] avg_logprob=[" + lps + "]");
+        }
         return j.text || '';
       }
 
@@ -496,6 +505,20 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       // signature as the earlier 去﹐ 。/祭祷 clips). Bare 谢谢 is deliberately
       // NOT here: genuine short "thank you" answers pass (same accepted
       // trade-off as English "thanks" in the HALF_WORDS drop, v97).
+      // v159: keyword-family guard — Whisper hallucinates near-silence as
+      // YouTube-style sign-off phrases built from internet-culture keywords
+      // (the "please feel free to like, subscribe, share, and tip to support
+      // the Mingjing & DianDian series" incident). >=2 DISTINCT families
+      // triggers: a real student echoing one lesson word (even 订阅 in HSK
+      // 7-9) has 1 and passes; the incident transcript has 7. The family set
+      // deliberately EXCLUDES real-vocabulary words (观看/支持/关注) that
+      // lessons teach.
+      const YT_FAMILIES = ['点赞', '订阅', '转发', '打赏', '栏目', '一键三连', '明镜', '点点', '主播', '频道'];
+      const familyHits = YT_FAMILIES.filter(f => transcribed.includes(f));
+      if (familyHits.length >= 2) {
+        console.warn("Dropping Chinese promo hallucination (>=2 YouTube keyword families: " + familyHits.join(',') + "):", JSON.stringify(transcribed));
+        return res.status(400).json({ error: 'No speech detected in audio' });
+      }
       if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe|这里是普通话听写|谢谢观看|感謝觀看|感谢观看|感谢(您)?(收看|观看|支持)|一键三连|请(您)?(订阅|点赞|关注)|记得(订阅|点赞|关注)|订阅(我的|我们的)?(频道|账号)|关注(我的|我们的)?(频道|账号|公众号)/.test(transcribed)) {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
