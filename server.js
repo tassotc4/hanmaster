@@ -378,11 +378,40 @@ function bumpErrorCounter(key) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!serviceKey) return;
   const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
-  fetch(sbUrl + '/rest/v1/rpc/increment_error_counter', {
+  // v159b: AWAITED by callers with a short timeout — an unawaited
+  // fire-and-forget fetch is lost when serverless freezes after the response
+  // (the counters undercounted). Fail-open: an outage never blocks the chat.
+  return fetch(sbUrl + '/rest/v1/rpc/increment_error_counter', {
     method: 'POST',
     headers: { 'apikey': serviceKey, 'Authorization': 'Bearer ' + serviceKey, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ p_key: key })
+    body: JSON.stringify({ p_key: key }),
+    signal: AbortSignal.timeout(1500)
   }).catch(() => {});
+}
+
+// v159b: Whisper shadow row — numbers + lengths only, NO transcript text
+// (privacy). AWAITED with a short timeout so the insert survives serverless
+// response completion (an unawaited fire-and-forget fetch is lost when the
+// function freezes after the response); fail-open, a Supabase outage never
+// blocks the 400. guardFired = the guard's name or null (the transcript
+// passed). no_speech_prob = the WORST segment; avg_logprob = the mean.
+async function persistShadowRow(segs, text, guardFired) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey || !segs || !segs.length) return;
+  const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
+  try {
+    await fetch(sbUrl + '/rest/v1/whisper_shadow', {
+      method: 'POST',
+      headers: { 'apikey': serviceKey, 'Authorization': 'Bearer ' + serviceKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify([{
+        no_speech_prob: Math.max.apply(null, segs.map(s => +s.no_speech_prob || 0)),
+        avg_logprob: segs.reduce((a, s) => a + (+s.avg_logprob || 0), 0) / segs.length,
+        transcript_len: (text || '').length,
+        guard_fired: guardFired || null
+      }]),
+      signal: AbortSignal.timeout(1500)
+    });
+  } catch (e) {}
 }
 
 app.post('/api/chat', apiLimiter, async (req, res) => {
@@ -452,15 +481,19 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
           const lps = segs.map(s => (+s.avg_logprob).toFixed(2)).join(',');
           console.log("Whisper shadow (not blocking): no_speech_prob=[" + probs + "] avg_logprob=[" + lps + "]");
         }
-        return j.text || '';
+        // v159b: return { text, segs } (not a bare string) so concurrent
+        // requests can never overwrite each other's shadow data.
+        return { text: j.text || '', segs };
       }
 
-      let transcribed;
+      let transcribed, lastSegs = [];
       try {
-        transcribed = await runWhisper(forceLang, basePrompt, primaryModel);
+        const w = await runWhisper(forceLang, basePrompt, primaryModel);
+        transcribed = w.text; lastSegs = w.segs;
       } catch (e) {
         console.warn("Whisper primary model failed (" + primaryModel + "), retrying with turbo:", e.message);
-        transcribed = await runWhisper(forceLang, basePrompt, 'whisper-large-v3-turbo');
+        const w = await runWhisper(forceLang, basePrompt, 'whisper-large-v3-turbo');
+        transcribed = w.text; lastSegs = w.segs;
       }
       console.log("Whisper transcript (model " + primaryModel + ", lang " + (forceLang || 'auto') + "):", JSON.stringify(transcribed));
 
@@ -470,9 +503,9 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       if (forceLang === 'zh' && transcribed && !/[\u4e00-\u9fa5]/.test(transcribed) && !isEnglish) {
         console.warn("zh transcript has no CJK (<" + transcribed + ">) and is not English, retrying with forced Chinese...");
         try {
-          const retryText = await runWhisper('zh', zhPrompt, 'whisper-large-v3');
-          if (retryText && /[\u4e00-\u9fa5]/.test(retryText)) {
-            transcribed = retryText;
+          const w = await runWhisper('zh', zhPrompt, 'whisper-large-v3');
+          if (w.text && /[\u4e00-\u9fa5]/.test(w.text)) {
+            transcribed = w.text; lastSegs = w.segs;
           }
         } catch(e) {
           console.warn("Whisper retry failed, keeping original transcript:", e.message);
@@ -485,41 +518,45 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       // and the isEnglish gate (they contain "thank"/"you"), so they used to reach
       // the tutor as a fake "user said thank you" turn. Drop them as no-speech —
       // a real answer like "yes"/"no"/"ok"/"good" never matches this word set.
+      // Whisper's classic hallucination on near-silent/noisy Mandarin clips is a
+      // short English filler phrase ("Thank you.", "The.", "Subtitles.", "By the
+      // speaker."). Under forced zh these survive BOTH the CJK gate above (no CJK)
+      // and the isEnglish gate (they contain "thank"/"you"), so they used to reach
+      // the tutor as a fake "user said thank you" turn. Drop them as no-speech —
+      // a real answer like "yes"/"no"/"ok"/"good" never matches this word set.
       const HALF_WORDS = /^(thank|thanks|you|the|a|an|and|by|for|to|of|on|in|me|it|this|that|there|with|from|so|subtitles|watching|speaker|amara|captions)$/i;
+      // v159: keyword-family set — the YouTube-specific internet-culture
+      // keywords, deliberately EXCLUDING real-vocabulary words (观看/支持/关注)
+      // that lessons teach.
+      const YT_FAMILIES = ['点赞', '订阅', '转发', '打赏', '栏目', '一键三连', '明镜', '点点', '主播', '频道'];
+      // v159b: determine which guard fires FIRST (no returns yet), persist the
+      // shadow row BEFORE any guard returns (blocked transcripts are the most
+      // important data), then return 400 as before. guard_fired = the guard's
+      // name (null if none fired — the transcript passes).
+      let guardFired = null;
       if (transcribed && !/[\u4e00-\u9fa5]/.test(transcribed)) {
         const words = transcribed.trim().split(/\s+/).filter(Boolean);
-        if (words.length >= 1 && words.length <= 2 && words.every(w => HALF_WORDS.test(w))) {
-          console.warn("Dropping Whisper hallucination as no-speech:", JSON.stringify(transcribed));
-          return res.status(400).json({ error: 'No speech detected in audio' });
-        }
+        if (words.length >= 1 && words.length <= 2 && words.every(w => HALF_WORDS.test(w))) guardFired = 'half_words';
       }
-
-      if (!transcribed.trim() || /no audio|no speech|没有音频|unable to transcribe/i.test(transcribed)) {
+      if (!guardFired && (!transcribed.trim() || /no audio|no speech|没有音频|unable to transcribe/i.test(transcribed))) guardFired = 'no_speech';
+      const familyHits = YT_FAMILIES.filter(f => transcribed.includes(f));
+      if (!guardFired && familyHits.length >= 2) guardFired = 'family';
+      if (!guardFired && /transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe|这里是普通话听写|谢谢观看|感謝觀看|感谢观看|感谢(您)?(收看|观看|支持)|一键三连|请(您)?(订阅|点赞|关注)|记得(订阅|点赞|关注)|订阅(我的|我们的)?(频道|账号)|关注(我的|我们的)?(频道|账号|公众号)/.test(transcribed)) guardFired = 'phrase';
+      // Shadow write survives response completion: awaited with a short
+      // timeout, still fail-open (a Supabase outage never blocks the 400).
+      await persistShadowRow(lastSegs, transcribed, guardFired);
+      if (guardFired === 'half_words') {
+        console.warn("Dropping Whisper hallucination as no-speech (half_words):", JSON.stringify(transcribed));
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
-      // Whisper sometimes echoes the prompt above back when the audio is near-silent
-      // (e.g. "Transcribe exactly what is spoken in the language."). Treat those echoes
-      // as no-speech; otherwise each one spams the live tutor with a fake turn.
-      // v142: Chinese promo hallucinations — Whisper hallucinates near-silence
-      // as YouTube sign-off phrases (the 谢谢观看﹚ incident; same hallucination
-      // signature as the earlier 去﹐ 。/祭祷 clips). Bare 谢谢 is deliberately
-      // NOT here: genuine short "thank you" answers pass (same accepted
-      // trade-off as English "thanks" in the HALF_WORDS drop, v97).
-      // v159: keyword-family guard — Whisper hallucinates near-silence as
-      // YouTube-style sign-off phrases built from internet-culture keywords
-      // (the "please feel free to like, subscribe, share, and tip to support
-      // the Mingjing & DianDian series" incident). >=2 DISTINCT families
-      // triggers: a real student echoing one lesson word (even 订阅 in HSK
-      // 7-9) has 1 and passes; the incident transcript has 7. The family set
-      // deliberately EXCLUDES real-vocabulary words (观看/支持/关注) that
-      // lessons teach.
-      const YT_FAMILIES = ['点赞', '订阅', '转发', '打赏', '栏目', '一键三连', '明镜', '点点', '主播', '频道'];
-      const familyHits = YT_FAMILIES.filter(f => transcribed.includes(f));
-      if (familyHits.length >= 2) {
+      if (guardFired === 'no_speech') {
+        return res.status(400).json({ error: 'No speech detected in audio' });
+      }
+      if (guardFired === 'family') {
         console.warn("Dropping Chinese promo hallucination (>=2 YouTube keyword families: " + familyHits.join(',') + "):", JSON.stringify(transcribed));
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
-      if (/transcribe|speaker's own|mandarin chinese lesson|do not add, translate|thank you for watching|please subscribe|这里是普通话听写|谢谢观看|感謝觀看|感谢观看|感谢(您)?(收看|观看|支持)|一键三连|请(您)?(订阅|点赞|关注)|记得(订阅|点赞|关注)|订阅(我的|我们的)?(频道|账号)|关注(我的|我们的)?(频道|账号|公众号)/.test(transcribed)) {
+      if (guardFired === 'phrase') {
         return res.status(400).json({ error: 'No speech detected in audio' });
       }
       const userMsg = textParts.length > 0
@@ -565,7 +602,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     const data = await resp.json();
     if (!resp.ok) {
       const errMsg = data.error?.message || JSON.stringify(data);
-      if (resp.status === 429) bumpErrorCounter('chat_provider_429');
+      if (resp.status === 429) await bumpErrorCounter('chat_provider_429');
       console.error('Provider failed:', p.model, errMsg);
       throw new Error(errMsg);
     }
@@ -590,7 +627,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
       logChatReply(servedModel, text);
       return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
     }
-    bumpErrorCounter('chat_all_failed_503');
+    await bumpErrorCounter('chat_all_failed_503');
     res.status(503).json({ error: 'AI service busy, please try again.', details: errMsg });
   } catch (err) {
     res.status(500).json({ error: err.message });
