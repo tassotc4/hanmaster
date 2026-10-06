@@ -40,8 +40,9 @@ const check = (name, ok, detail) => { console.log((ok ? 'PASS ' : 'FAIL ') + nam
   // The client's guard clause: familyHits.length >= 2 wired into looksGarbage
   check('4. the client looksGarbage includes the familyHits >= 2 clause',
     clientSrc.includes('familyHits.length >= 2'), '');
-  // The server blocks: return 400 in the family branch
-  const serverBlock = serverSrc.match(/if \(familyHits\.length >= 2\) \{[\s\S]{0,400}?return res\.status\(400\)/);
+  // The server blocks: the guardFired==='family' branch returns 400 (v159b
+  // restructure: guardFired computed first, the shadow row written, then the 400)
+  const serverBlock = serverSrc.match(/if \(guardFired === 'family'\) \{[\s\S]{0,400}?return res\.status\(400\)/);
   check('4. the server family branch returns 400 (blocked before the cascade)', !!serverBlock, '');
 
   console.log(pass ? 'RESULT: PASS' : 'RESULT: FAIL');

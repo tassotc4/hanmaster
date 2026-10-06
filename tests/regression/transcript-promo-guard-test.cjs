@@ -21,7 +21,7 @@ const INCIDENT = '谢谢观看' + FW;
 // --- 1. Parse + eval BOTH shipped regexes from source ---
 const serverSrc = fs.readFileSync(path.join(__dirname, '../../server.js'), 'utf8');
 const clientSrc = fs.readFileSync(path.join(__dirname, '../../public/js/app.js'), 'utf8');
-const serverReM = serverSrc.match(/if \((\/transcribe\|speaker's own[^\n]+?\/)\.test\(transcribed\)\)/);
+const serverReM = serverSrc.match(/!guardFired && (\/transcribe\|speaker's own[^\n]+?\/)\.test\(transcribed\)/);
 const clientReM = clientSrc.match(/const zhPromo = (\/[^\n]+?\/)\.test\(transcript\);/);
 check('both regexes parse from actual shipped source', !!(serverReM && clientReM),
   'server=' + !!serverReM + ' client=' + !!clientReM);
