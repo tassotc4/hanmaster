@@ -18221,7 +18221,7 @@ function sendToGemini(userText) {
     "2. Whenever you translate into " + langName + ", produce natural, idiomatic " + langName + " exactly as a native speaker would say it — NEVER literal or word-for-word translation. Preserve tone, politeness, and cultural nuance.\n" +
     "3. If the student writes in " + langName + " or any other language, answer or acknowledge them clearly in their own language FIRST, then teach the Chinese phrase(s) they would use to say it.\n" +
     "4. If the student writes in Chinese, respond in Chinese (following the level rules) and always give a professional, fluent " + langName + " translation.\n" +
-    "5. Correct the student's Chinese gently: give the correct sentence, then a one-line explanation in " + langName + ". Emit every correction on its OWN line at the END of the reply in the exact format [CORRECTION: <the complete corrected Chinese sentence>] followed by a short " + langName + " explanation - NEVER mix a correction into the reply body, and NEVER omit the Chinese inside the marker.\n" +
+    "5. CORRECTION POLICY: only correct actual grammar or word-choice errors. If the student's sentence is correct, emit NO correction at all. Corrections must be MINIMAL edits to the student's OWN sentence - never rewrite it into a different sentence. NEVER change the student's meaning (e.g. correcting 啤酒 to 茶 is forbidden - only their wording, never their idea). NEVER replace a correctly used word just because it is above their HSK level - if a word is used correctly but is advanced, ACKNOWLEDGE it warmly instead of correcting it. When you do correct, emit the correction on its OWN line at the END of the reply in the exact format [CORRECTION: <the complete corrected Chinese sentence> | <one short " + langName + " explanation>] - the corrected Chinese and the explanation BOTH go INSIDE the marker, separated by a pipe (|). NEVER write an explanation outside the marker, never add a separate 'Explanation:' line, and NEVER put correction or explanation text anywhere in the reply body before the marker.\n" +
     "6. Never refuse or dodge a question. If you are unsure, say so honestly in " + langName + ".\n" +
     "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n" +
     "8. NEVER repeat yourself. Never reuse a Chinese phrase, a translation, an explanation, or a question you already said earlier in this conversation — the whole chat history is visible to you. Every reply must respond to what the student ACTUALLY just said and advance the conversation to something NEW.\n" +
@@ -18316,20 +18316,40 @@ function sendToGemini(userText) {
     
     let reply = data.candidates[0].content.parts[0].text.trim();
 
-    // v159: extract correction markers BEFORE the label/CJK split — the model
-    // is now instructed to emit [CORRECTION: <complete corrected Chinese>].
-    // A loose match (the word Correction with the colon optional) is the
-    // fallback for replies that predate the marker discipline.
-    let correctionText = '';
+    // v160: extract corrections + explanations BEFORE the label/CJK split.
+    // Strict: [CORRECTION: <corrected Chinese> | <short explanation>] - both
+    // parts INSIDE the marker. Loose fallbacks (for replies that predate the
+    // marker discipline): a "Correction: ..." line and/or a standalone
+    // "Explanation: ..." line. DEFENSIVE: everything after a marker is dropped
+    // so post-marker text can NEVER merge into the phrase or translation line
+    // (the v159 correction leak and the v160 explanation leak).
+    let correctionText = '', correctionNote = '';
+    const splitCorr = (s) => {
+      const parts = String(s).split('|');
+      return { cn: (parts[0] || '').trim(), note: (parts.slice(1).join('|') || '').trim() };
+    };
     const corrMarkerM = reply.match(/\[CORRECTION:\s*([^\]]+)\]/i);
     if (corrMarkerM) {
-      correctionText = corrMarkerM[1].trim();
-      reply = reply.replace(corrMarkerM[0], '').trim();
+      const c = splitCorr(corrMarkerM[1]);
+      correctionText = c.cn; correctionNote = c.note;
+      reply = reply.slice(0, corrMarkerM.index).trim();
     } else {
-      const looseM = reply.match(/Correction\s*[:：]?\s*([^\n]+)/i);
+      const looseM = reply.match(/(?:^|\n)\s*Correction\s*[:：]?\s*([^\n]+)/i);
       if (looseM) {
-        correctionText = looseM[1].trim();
-        reply = reply.replace(looseM[0], '').trim();
+        const c = splitCorr(looseM[1]);
+        correctionText = c.cn; correctionNote = c.note;
+        reply = reply.slice(0, looseM.index).trim();
+      }
+    }
+    if (!correctionNote) {
+      // Loose note fallback: a standalone coaching line the free-text model
+      // emitted BEFORE the marker discipline ("Explanation: ...", "Note: ...",
+      // or a bare "Use X instead of Y ..." line). Dropped from the reply so its
+      // Chinese can never merge into the phrase line.
+      const noteM = reply.match(/(?:^|\n)\s*(?:Explanation|Note|Use|Instead)\b\s*[:：]?\s*([^\n]+)/i);
+      if (noteM) {
+        correctionNote = noteM[1].trim();
+        reply = reply.slice(0, noteM.index).trim();
       }
     }
     correctionText = correctionText
@@ -18337,6 +18357,7 @@ function sendToGemini(userText) {
       .replace(/\s{2,}/g, ' ')
       .trim();
     if (correctionText && !/[\u4e00-\u9fa5]/.test(correctionText)) correctionText = '';
+    correctionNote = correctionNote.replace(/\s{2,}/g, ' ').trim();
 
     // Strip internal control markers before display/speech/history
     const lvlMarkerM = reply.match(/\[LEVEL:\s*(never|beginner|intermediate|advanced)\s*\]/i);
@@ -18505,6 +18526,7 @@ function sendToGemini(userText) {
         + '<div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:4px"><i class="fas fa-pen-fancy"></i> ' + t('Correction') + '</div>'
         + '<div class="phrase" id="' + corrId + '">' + formatChineseTextWithRuby(correctionText) + '</div>'
         + '<span class="replay" onclick="speak(\'' + correctionText.replace(/'/g, "\\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>'
+        + (correctionNote ? '<div style="font-size:12px;color:var(--muted);margin-top:4px">' + escapeHtml(correctionNote) + '</div>' : '')
         + '</div>';
       loaderCapsule.insertAdjacentHTML('beforeend', corrHtml);
     }

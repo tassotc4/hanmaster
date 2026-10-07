@@ -125,6 +125,89 @@ async function bootWith(canned) {
     JSON.stringify(r.tr).slice(0, 100));
   await b.browser.close();
 
+  // --- D: v160 [CORRECTION: cn | explanation] marker (the explanation INSIDE) ---
+  b = await bootWith('很高兴认识你。你从哪儿来？\nEnglish: Nice to meet you. Where are you from?\n[CORRECTION: 我叫乔乔 | 用 “我叫…” 来介绍自己的名字]');
+  r = await b.page.evaluate(() => {
+    const hanziOf = function (el) {
+      if (!el) return '';
+      const rubies = Array.from(el.querySelectorAll('ruby'));
+      if (rubies.length) return rubies.map(function (rb) { return rb.childNodes[0] ? rb.childNodes[0].textContent : ''; }).join('');
+      return el.textContent;
+    };
+    const bubble = document.querySelector('#tutChat .cai:last-child') || document.querySelector('#tutChat .cai');
+    const corr = bubble ? bubble.querySelector('.coach-sec') : null;
+    const noteEl = corr ? corr.querySelector('div[style*="--muted"]') : null;
+    return {
+      phrase: (bubble && bubble.querySelector('.phrase')) ? hanziOf(bubble.querySelector('.phrase')) : '',
+      tr: bubble ? (bubble.querySelector('.tr') || {}).textContent || '' : '',
+      corrText: corr && corr.querySelector('.phrase') ? hanziOf(corr.querySelector('.phrase')) : '',
+      corrNote: noteEl ? noteEl.textContent : ''
+    };
+  });
+  check('D. marker+pipe: phrase line has NO explanation Chinese appended (叫 absent)',
+    r.phrase.indexOf('叫') === -1 && r.phrase.indexOf('从哪儿来') !== -1, JSON.stringify(r.phrase).slice(0, 80));
+  check('D. marker+pipe: translation has no "Explanation"/"Use"',
+    r.tr.indexOf('Explanation') === -1 && r.tr.indexOf('Use') === -1, JSON.stringify(r.tr).slice(0, 80));
+  check('D. marker+pipe: correction element = 我叫乔乔',
+    r.corrText.indexOf('我叫乔乔') !== -1, JSON.stringify(r.corrText));
+  check('D. marker+pipe: explanation rendered inside the correction card',
+    r.corrNote.indexOf('介绍') !== -1, JSON.stringify(r.corrNote).slice(0, 80));
+  await b.browser.close();
+
+  // --- E: the exact v160 incident — a free-text Explanation line (no marker) ---
+  b = await bootWith('很高兴认识你。你从哪儿来？\nEnglish: Nice to meet you. Where are you from?\nExplanation: Use 叫 to introduce your name.\nCorrection: 我叫乔乔。');
+  r = await b.page.evaluate(() => {
+    const hanziOf = function (el) {
+      if (!el) return '';
+      const rubies = Array.from(el.querySelectorAll('ruby'));
+      if (rubies.length) return rubies.map(function (rb) { return rb.childNodes[0] ? rb.childNodes[0].textContent : ''; }).join('');
+      return el.textContent;
+    };
+    const bubble = document.querySelector('#tutChat .cai:last-child') || document.querySelector('#tutChat .cai');
+    const corr = bubble ? bubble.querySelector('.coach-sec') : null;
+    const noteEl = corr ? corr.querySelector('div[style*="--muted"]') : null;
+    return {
+      phrase: (bubble && bubble.querySelector('.phrase')) ? hanziOf(bubble.querySelector('.phrase')) : '',
+      tr: bubble ? (bubble.querySelector('.tr') || {}).textContent || '' : '',
+      corrText: corr && corr.querySelector('.phrase') ? hanziOf(corr.querySelector('.phrase')) : '',
+      corrNote: noteEl ? noteEl.textContent : ''
+    };
+  });
+  check('E. free-text Explanation: phrase line has NO 叫 appended (the incident)',
+    r.phrase.indexOf('叫') === -1 && r.phrase.indexOf('从哪儿来') !== -1, JSON.stringify(r.phrase).slice(0, 80));
+  check('E. free-text Explanation: translation has no "Explanation: Use"',
+    r.tr.indexOf('Explanation') === -1 && r.tr.indexOf('Use') === -1, JSON.stringify(r.tr).slice(0, 80));
+  check('E. free-text Explanation: correction element = 我叫乔乔',
+    r.corrText.indexOf('我叫乔乔') !== -1, JSON.stringify(r.corrText));
+  check('E. free-text Explanation: note captured (Chinese 叫 intact)',
+    r.corrNote.indexOf('叫') !== -1, JSON.stringify(r.corrNote).slice(0, 80));
+  await b.browser.close();
+
+  // --- F: bare "Use X instead of Y" line (the HSK-level note in the transcript) ---
+  b = await bootWith('我也喜欢喝茶。你常喝吗？\nEnglish: I also like drinking tea. Do you drink it often?\nUse 茶 instead of 啤酒, which is beyond HSK 1-2.\nCorrection: 我喜欢喝茶。');
+  r = await b.page.evaluate(() => {
+    const hanziOf = function (el) {
+      if (!el) return '';
+      const rubies = Array.from(el.querySelectorAll('ruby'));
+      if (rubies.length) return rubies.map(function (rb) { return rb.childNodes[0] ? rb.childNodes[0].textContent : ''; }).join('');
+      return el.textContent;
+    };
+    const bubble = document.querySelector('#tutChat .cai:last-child') || document.querySelector('#tutChat .cai');
+    const corr = bubble ? bubble.querySelector('.coach-sec') : null;
+    return {
+      phrase: (bubble && bubble.querySelector('.phrase')) ? hanziOf(bubble.querySelector('.phrase')) : '',
+      tr: bubble ? (bubble.querySelector('.tr') || {}).textContent || '' : '',
+      corrText: corr && corr.querySelector('.phrase') ? hanziOf(corr.querySelector('.phrase')) : ''
+    };
+  });
+  check('F. bare "Use X instead of Y": phrase line has NO 啤酒/茶 appended',
+    r.phrase.indexOf('啤酒') === -1 && r.phrase.indexOf('喝茶') !== -1, JSON.stringify(r.phrase).slice(0, 80));
+  check('F. bare "Use X instead of Y": translation has no "Use"',
+    r.tr.indexOf('Use') === -1, JSON.stringify(r.tr).slice(0, 80));
+  check('F. bare "Use X instead of Y": correction element = 我喜欢喝茶。',
+    r.corrText.indexOf('我喜欢喝茶') !== -1, JSON.stringify(r.corrText));
+  await b.browser.close();
+
   console.log(pass ? 'RESULT: PASS' : 'RESULT: FAIL');
   process.exitCode = pass ? 0 : 1;
 })().catch(e => { console.error('FATAL', e.message); process.exitCode = 1; });
