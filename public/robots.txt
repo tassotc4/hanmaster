@@ -1,4 +1,23 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+
+# Explicit Permission & Guidance for AI Search Crawlers (AEO / GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Sitemap & LLM Agent Specifications
 Sitemap: https://mandarincourse.app/sitemap.xml
+# LLM Manifest: https://mandarincourse.app/llms.txt
