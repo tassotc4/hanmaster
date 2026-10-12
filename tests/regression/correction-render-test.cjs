@@ -24,7 +24,7 @@ function hanziOf(el) {
   return el.textContent;
 }
 
-async function bootWith(canned) {
+async function bootWith(canned, translatorCanned, counters) {
   const browser = await launch();
   const page = await browser.newPage();
   await page.setViewport({ width: 1280, height: 900 });
@@ -36,8 +36,20 @@ async function bootWith(canned) {
   page.on('request', req => {
     const u = req.url();
     if (u.includes('/api/chat')) {
+      // v161: distinguish the translateToEnglish call (translator-only
+      // systemInstruction) from the conversation call. Classify on 'Li Laoshi',
+      // NOT 'professional translator' (the conversation prompt contains both).
+      let text = canned;
+      try {
+        const body = JSON.parse(req.postData() || '{}');
+        const si = (body.systemInstruction || '').toString();
+        if (si.indexOf('professional translator') !== -1 && si.indexOf('Li Laoshi') === -1) {
+          if (counters) counters.translator++;
+          if (translatorCanned) text = translatorCanned;
+        }
+      } catch (e) {}
       req.respond({ status: 200, contentType: 'application/json',
-        body: JSON.stringify({ candidates: [{ content: { parts: [{ text: canned }] } }] }) });
+        body: JSON.stringify({ candidates: [{ content: { parts: [{ text }] } }] }) });
       return;
     }
     if (u.includes('/api/tts')) { req.abort(); return; }
@@ -206,6 +218,75 @@ async function bootWith(canned) {
     r.tr.indexOf('Use') === -1, JSON.stringify(r.tr).slice(0, 80));
   check('F. bare "Use X instead of Y": correction element = 我喜欢喝茶。',
     r.corrText.indexOf('我喜欢喝茶') !== -1, JSON.stringify(r.corrText));
+  await b.browser.close();
+
+  // --- G: v161 — the correction card gains an English translation line ---
+  // (exact new-conversation correction "我每天走路两个小时。"; corrections never
+  // had translations before). The translateToEnglish call is intercepted and
+  // answered with a canned translator reply.
+  b = await bootWith(
+    '真好！你喜欢跑步吗？\nEnglish: Great! Do you like running?\n[CORRECTION: 我每天走路两个小时。]',
+    'I walk two hours every day.'
+  );
+  await waitFor(b.page, () => {
+    const corr = document.querySelector('#tutChat .cai:last-child .coach-sec') || document.querySelector('#tutChat .coach-sec');
+    const trEl = corr ? corr.querySelector('.tr') : null;
+    return trEl && trEl.textContent.indexOf('walk') !== -1;
+  }, 10000);
+  r = await b.page.evaluate(() => {
+    const hanziOf = function (el) {
+      if (!el) return '';
+      const rubies = Array.from(el.querySelectorAll('ruby'));
+      if (rubies.length) return rubies.map(function (rb) { return rb.childNodes[0] ? rb.childNodes[0].textContent : ''; }).join('');
+      return el.textContent;
+    };
+    const bubble = document.querySelector('#tutChat .cai:last-child') || document.querySelector('#tutChat .cai');
+    const corr = bubble ? bubble.querySelector('.coach-sec') : null;
+    const trEl = corr ? corr.querySelector('.tr') : null;
+    return {
+      corrText: corr && corr.querySelector('.phrase') ? hanziOf(corr.querySelector('.phrase')) : '',
+      corrTr: trEl ? trEl.textContent : '',
+      bubbleText: bubble ? bubble.textContent : ''
+    };
+  });
+  check('G. correction card keeps the full Chinese (我每天走路两个小时。)',
+    r.corrText.indexOf('我每天走路两个小时') !== -1, JSON.stringify(r.corrText));
+  check('G. correction card shows the English translation line',
+    r.corrTr.indexOf('I walk two hours every day') !== -1, JSON.stringify(r.corrTr).slice(0, 80));
+  check('G. correction translation contains NO Chinese and is not stuck translating',
+    !/[一-龥]/.test(r.corrTr) && r.corrTr.indexOf('Translating') === -1, JSON.stringify(r.corrTr).slice(0, 80));
+  await b.browser.close();
+
+  // --- H: v161 3-field marker — the English comes FROM the marker (no extra
+  // translator call; the fallback only fires when the third field is missing)
+  const countersH = { translator: 0 };
+  b = await bootWith(
+    '真好！你喜欢跑步吗？\nEnglish: Great! Do you like running?\n[CORRECTION: 我每天走路两个小时。 | Very natural — 对 is a spoken "right/yes". | I walk two hours every day.]',
+    'SHOULD-NOT-BE-REQUESTED', countersH
+  );
+  r = await b.page.evaluate(() => {
+    const hanziOf = function (el) {
+      if (!el) return '';
+      const rubies = Array.from(el.querySelectorAll('ruby'));
+      if (rubies.length) return rubies.map(function (rb) { return rb.childNodes[0] ? rb.childNodes[0].textContent : ''; }).join('');
+      return el.textContent;
+    };
+    const bubble = document.querySelector('#tutChat .cai:last-child') || document.querySelector('#tutChat .cai');
+    const corr = bubble ? bubble.querySelector('.coach-sec') : null;
+    const trEl = corr ? corr.querySelector('.tr') : null;
+    const noteEl = corr ? corr.querySelector('div[style*="--muted"]') : null;
+    return {
+      corrText: corr && corr.querySelector('.phrase') ? hanziOf(corr.querySelector('.phrase')) : '',
+      corrTr: trEl ? trEl.textContent : '',
+      corrNote: noteEl ? noteEl.textContent : ''
+    };
+  });
+  check('H. 3-field marker: English rendered FROM the marker (immediately — no Translating state)',
+    r.corrTr === 'I walk two hours every day.', JSON.stringify(r.corrTr).slice(0, 80));
+  check('H. 3-field marker: note field rendered, Chinese intact',
+    r.corrText.indexOf('我每天走路两个小时') !== -1 && r.corrNote.indexOf('对') !== -1, JSON.stringify(r.corrNote).slice(0, 60));
+  check('H. 3-field marker: ZERO translator fallback calls (marker supplied the English)',
+    countersH.translator === 0, 'translatorCalls=' + countersH.translator);
   await b.browser.close();
 
   console.log(pass ? 'RESULT: PASS' : 'RESULT: FAIL');

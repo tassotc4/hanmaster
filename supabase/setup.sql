@@ -162,3 +162,25 @@ end;
 $$;
 
 grant execute on function increment_error_counter(text) to service_role;
+
+-- v161: chat provider log (v161) — per-reply serving bookkeeping, NO reply
+-- text (privacy): which cascade model served, whether it was a fallback
+-- (not the priority-1 model), and whether the reply contained a
+-- [CORRECTION:] marker. Purpose: correlate correction-policy violations
+-- with the specific model in the 5-provider cascade over 1-2 weeks.
+-- Server-only writer (service_role inserts via PostgREST); anon/authenticated
+-- fully revoked — Postgres/Supabase defaults can leave broad grants in
+-- place (the v156 lesson), so revoke explicitly from all three.
+create table if not exists public.chat_provider_log (
+  id             bigint generated always as identity primary key,
+  ts             timestamptz not null default now(),
+  provider       text not null,
+  was_fallback   boolean not null default false,
+  had_correction boolean not null default false
+);
+
+alter table public.chat_provider_log enable row level security;
+
+revoke all on public.chat_provider_log from public, anon, authenticated;
+
+grant insert on public.chat_provider_log to service_role;

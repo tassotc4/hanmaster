@@ -36,5 +36,24 @@ check('9. the loose note fallback covers Explanation/Note/Use/Instead',
 check('10. the correction card renders the note (muted) when present',
   src.indexOf('(correctionNote ?') !== -1 && src.indexOf('escapeHtml(correctionNote)') !== -1, '');
 
+// v161 additions (user-approved Part B fix): doubt = no correction, no
+// punctuation/style corrections, 3-field marker, and the vocabulary locks
+// scoped to the tutor's OWN Chinese only.
+check('11. WHEN IN DOUBT, emit NO correction',
+  rule5.indexOf('WHEN IN DOUBT, emit NO correction') !== -1, '');
+check('12. NEVER correct punctuation (speech recognition omits it)',
+  rule5.indexOf('NEVER correct punctuation') !== -1 && rule5.indexOf('speech recognition') !== -1 && rule5.indexOf('对我每天走路两个小时') !== -1, '');
+check('13. style preferences (digit vs character numbers) are NOT errors',
+  rule5.indexOf('Style preferences') !== -1 && rule5.indexOf('NOT errors') !== -1 && rule5.indexOf('character 五') !== -1, '');
+check('14. the 3-field marker [CORRECTION: zh | note | translation] is described',
+  rule5.indexOf('translation of the corrected sentence') !== -1 && rule5.indexOf('separated by pipes') !== -1, '');
+check('15. the vocabulary locks are scoped to the tutor\'s OWN Chinese (never + beginner)',
+  (src.match(/VOCABULARY LOCK — YOUR OWN Chinese/g) || []).length === 2 &&
+  (src.match(/NEVER to the student's sentence/g) || []).length === 2 &&
+  (src.match(/Your OWN Chinese must stay EXACTLY/g) || []).length === 2,
+  '');
+check('16. the style rules stop rewriting the student\'s sentence ("their exact MEANING")',
+  (src.match(/teach the Chinese for their exact MEANING/g) || []).length === 2, '');
+
 console.log(pass ? 'RESULT: PASS' : 'RESULT: FAIL');
 process.exitCode = pass ? 0 : 1;

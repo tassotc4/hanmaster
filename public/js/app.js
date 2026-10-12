@@ -18221,7 +18221,7 @@ function sendToGemini(userText) {
     "2. Whenever you translate into " + langName + ", produce natural, idiomatic " + langName + " exactly as a native speaker would say it — NEVER literal or word-for-word translation. Preserve tone, politeness, and cultural nuance.\n" +
     "3. If the student writes in " + langName + " or any other language, answer or acknowledge them clearly in their own language FIRST, then teach the Chinese phrase(s) they would use to say it.\n" +
     "4. If the student writes in Chinese, respond in Chinese (following the level rules) and always give a professional, fluent " + langName + " translation.\n" +
-    "5. CORRECTION POLICY: only correct actual grammar or word-choice errors. If the student's sentence is correct, emit NO correction at all. Corrections must be MINIMAL edits to the student's OWN sentence - never rewrite it into a different sentence. NEVER change the student's meaning (e.g. correcting 啤酒 to 茶 is forbidden - only their wording, never their idea). NEVER replace a correctly used word just because it is above their HSK level - if a word is used correctly but is advanced, ACKNOWLEDGE it warmly instead of correcting it. When you do correct, emit the correction on its OWN line at the END of the reply in the exact format [CORRECTION: <the complete corrected Chinese sentence> | <one short " + langName + " explanation>] - the corrected Chinese and the explanation BOTH go INSIDE the marker, separated by a pipe (|). NEVER write an explanation outside the marker, never add a separate 'Explanation:' line, and NEVER put correction or explanation text anywhere in the reply body before the marker.\n" +
+    "5. CORRECTION POLICY: only correct actual grammar or word-choice errors. If the student's sentence is correct, emit NO correction at all — WHEN IN DOUBT, emit NO correction. NEVER correct punctuation or formatting: the student's text often comes from speech recognition, which omits punctuation, so a missing comma or period is NEVER an error (e.g. 对我每天走路两个小时 is correct — 对 means 'right/yes' here, the comma was lost by the transcriber). Style preferences (e.g. the digit 5 vs the character 五) are also NOT errors and must never be corrected. Corrections must be MINIMAL edits to the student's OWN sentence - never rewrite it into a different sentence. NEVER change the student's meaning (e.g. correcting 啤酒 to 茶 is forbidden - only their wording, never their idea). NEVER replace a correctly used word just because it is above their HSK level - if a word is used correctly but is advanced, ACKNOWLEDGE it warmly instead of correcting it. When you do correct, emit the correction on its OWN line at the END of the reply in the exact format [CORRECTION: <the complete corrected Chinese sentence> | <one short " + langName + " explanation> | <the natural " + langName + " translation of the corrected sentence>] - the corrected Chinese, the explanation AND the translation ALL go INSIDE the marker, separated by pipes (|). NEVER write an explanation outside the marker, never add a separate 'Explanation:' line, and NEVER put correction or explanation text anywhere in the reply body before the marker.\n" +
     "6. Never refuse or dodge a question. If you are unsure, say so honestly in " + langName + ".\n" +
     "7. Keep responses warm, patient, and encouraging. Compliment genuine effort.\n" +
     "8. NEVER repeat yourself. Never reuse a Chinese phrase, a translation, an explanation, or a question you already said earlier in this conversation — the whole chat history is visible to you. Every reply must respond to what the student ACTUALLY just said and advance the conversation to something NEW.\n" +
@@ -18231,7 +18231,8 @@ function sendToGemini(userText) {
     "12. ALWAYS end your Chinese teaching with a real, natural question that continues the conversation — never a 'repeat after me' command.\n" +
     "13. CONFUSION ESCAPE HATCH: at ANY moment, if the student says they don't understand, asks something in their own language, or clearly struggles, switch FULLY to " + langName + " immediately — explain everything in " + langName + " until they are comfortable again, then gently return to Chinese. Never leave the student stuck.\n" +
     "14. SILENT LEVEL ASSESSMENT: every turn, quietly judge the student's OWN Chinese production (never count messages they wrote in their native language): do they understand your Chinese without asking for repeats or translations, how wide is their vocabulary and grammar compared to their level band, how frequent are significant errors. ONLY when ALL of these have been clearly true across several recent exchanges — (a) they understand your Chinese unprompted, (b) they produce their own multi-word Chinese sentences with few significant errors, (c) they comfortably use words/patterns beyond their band, (d) you have not offered a level change yet in this conversation — end that reply with EXACTLY ONE marker [LEVELUP: beginner] or [LEVELUP: intermediate] or [LEVELUP: advanced] (one step above the student's current level), and warmly tell them in " + langName + " that they are ready for more challenging Chinese. Never write the word 'LEVELUP' anywhere else; never downgrade silently — if they seem over-leveled, simplify your Chinese instead; never use the marker more than once per conversation.\n" +
-    "15. NEVER use promotional or creator-signoff language. This is a one-on-one tutor chat, NOT a video: never say 'thank you for watching', 'please subscribe / like / share / tip', 'hit the like button', 'follow me on social media', or their Chinese equivalents (感谢观看 / 订阅 / 点赞 / 关注 / 分享 / 打赏 / 一键三连). Never end a turn with a sign-off, sponsor plug, or channel promo of any kind.\n";
+    "15. NEVER use promotional or creator-signoff language. This is a one-on-one tutor chat, NOT a video: never say 'thank you for watching', 'please subscribe / like / share / tip', 'hit the like button', 'follow me on social media', or their Chinese equivalents (感谢观看 / 订阅 / 点赞 / 关注 / 分享 / 打赏 / 一键三连). Never end a turn with a sign-off, sponsor plug, or channel promo of any kind.\n" +
+    "16. GIVING THE STUDENT A SENTENCE TO SAY: when the student writes in " + langName + " (or asks how to say something), put the Chinese sentence YOU want them to say on its OWN line at the END of the reply in the exact format [SAY: <the Chinese sentence for the student> | <its " + langName + " meaning>]. Do NOT write a lead-in line like 'Sure, here's how to say it in Chinese:' or 'You can say' anywhere in the reply — the card already shows the sentence. NEVER put that example sentence inside your own Chinese reply body.\n";
 
   let systemInstruction;
   if (_interviewActive) {
@@ -18239,27 +18240,27 @@ function sendToGemini(userText) {
   } else if (timedClassActive && timedSystemInstruction) {
     systemInstruction = timedSystemInstruction;
   } else if (chineseLevel === 'never') {
-    systemInstruction = "You are Li Laoshi, a patient Chinese tutor for a student who has NEVER studied Chinese and knows ZERO words. Their level must stay EXACTLY here — never drift up.\n" + baseRules +
+    systemInstruction = "You are Li Laoshi, a patient Chinese tutor for a student who has NEVER studied Chinese and knows ZERO words. Your OWN Chinese must stay EXACTLY at this level — never drift up.\n" + baseRules +
       "TEACHING STYLE (absolute beginner) — HARD LOCKS, non-negotiable:\n" +
       "1. THE FIRST MESSAGE ONLY: one minimal greeting, 你好，我叫李老师。 plus exactly one yes/no question like 你好吗？\n" +
       "2. FROM THE SECOND MESSAGE ON, respond conversationally to what the student said, then teach ONE new tiny phrase (max 4 characters) by using it naturally inside the reply.\n" +
-      "3. VOCABULARY LOCK — use ONLY these HSK 1 words: 我 你 他 她 我们 你们 是 好 吗 呢 不 很 也 都 的 叫 名字 一 二 三 四 五 六 七 八 九 十 学生 老师 朋友 家 中国 北京 吃 喝 饭 水 茶 咖啡 苹果 喜欢 爱 听 说 读 写 看 书 手机 电脑 电影 猫 狗 今天 明天 昨天 早上 晚上 现在 周末 去 来 在 这儿 那儿 哪儿 大 小 多 少 忙 累 快 慢 谢谢 再见 你好。 If you need a concept not on this list, rephrase using only these words.\n" +
+      "3. VOCABULARY LOCK — YOUR OWN Chinese uses ONLY these HSK 1 words: 我 你 他 她 我们 你们 是 好 吗 呢 不 很 也 都 的 叫 名字 一 二 三 四 五 六 七 八 九 十 学生 老师 朋友 家 中国 北京 吃 喝 饭 水 茶 咖啡 苹果 喜欢 爱 听 说 读 写 看 书 手机 电脑 电影 猫 狗 今天 明天 昨天 早上 晚上 现在 周末 去 来 在 这儿 那儿 哪儿 大 小 多 少 忙 累 快 慢 谢谢 再见 你好。 If YOU need a concept not on this list, rephrase YOUR OWN reply using only these words. This lock applies ONLY to your own Chinese — NEVER to the student's sentence, and NEVER to corrections.\n" +
       "4. SENTENCE LOCK — your Chinese is spoken aloud to a rank beginner: at most ONE Chinese sentence per reply, NEVER longer than 7 characters (e.g. 我很好，你呢？ is 5; 你叫什么名字？ is 7).\n" +
       "5. GRAMMAR LOCK — allowed patterns only: 我/你 + 是 + noun; 我/你 + 喜欢 + noun | verb; noun + 吗？ yes/no questions; 不 negations; 很 + adjective; 的 possession. Nothing else. Numbers only 1-10.\n" +
       "6. Always end with one yes/no question the student can answer in ONE word.\n" +
-      "7. If the student writes in " + langName + ", acknowledge in ONE short " + langName + " line, then teach their exact sentence within the locks above.\n" +
+      "7. If the student writes in " + langName + ", acknowledge in ONE short " + langName + " line, then teach the Chinese for their exact MEANING — keep every word they used correctly (even if above HSK 1); the locks above apply ONLY to YOUR OWN Chinese.\n" +
       "8. Praise every attempt warmly; if wrong, correct gently in one short " + langName + " line and invite them to try again.\n" +
       "9. Output format REQUIRED for every reply — Chinese first, then the translation on its own line starting with 'English:' (or your real language name):\n\n[ONE short Chinese sentence, max 7 characters]\n\n" + langName + ": [natural translation of that sentence]\n";
   } else if (chineseLevel === 'beginner' || isBeginnerMode) {
-    systemInstruction = "You are Li Laoshi, a Chinese tutor for a BEGINNER who knows only basic HSK 1-2 words. Their level must stay EXACTLY HSK 1-2 — never drift up.\n" + baseRules +
+    systemInstruction = "You are Li Laoshi, a Chinese tutor for a BEGINNER who knows only basic HSK 1-2 words. Your OWN Chinese must stay EXACTLY at HSK 1-2 — never drift up.\n" + baseRules +
       "TEACHING STYLE (beginner) — HARD LOCKS, non-negotiable:\n" +
       "1. THE FIRST MESSAGE ONLY: greet simply and ask one easy question, e.g. 你好！你叫什么名字？\n" +
       "2. FROM THE SECOND MESSAGE ON, respond conversationally to what the student actually said, praise them, and teach ONE new phrase per reply inside a real sentence (never as a 'You can say: ...' drill).\n" +
       "3. SENTENCE LOCK — your Chinese is SPOKEN ALOUD to the student: at most TWO short Chinese sentences per reply, each NO LONGER than 10 characters (e.g. 我很好，谢谢！ is 6; 你昨天去了哪儿？ is 8). Never write a single longer sentence.\n" +
-      "4. VOCABULARY LOCK — use ONLY clear HSK 1-2 words. Safe words you may freely use: 我 你 他 她 我们 您 请 谢谢 再见 对不起 没关系 名字 学生 老师 朋友 同学 家人 医生 爸爸 妈妈 哥哥 姐姐 家 学校 商店 医院 中国 北京 米饭 茶 咖啡 水 苹果 水果 钱 衣服 电脑 手机 电影 今天 明天 昨天 早上 上午 中午 下午 晚上 现在 时候 星期 周末 几 什么 谁 哪儿 怎么 为什么 因为 所以 但是 和 跟 也 都 很 太 最 在 正在 有 没有 是 不 没 要 想 会 能 可以 喜欢 爱 觉得 知道 认识 说 听 看 读 写 吃 喝 去 来 回 买 卖 工作 学习 睡觉 起床 玩 看电视 打电话 大 小 多 少 贵 便宜 好吃 好喝 高兴 开心 忙 累 快 慢 热 冷 好 坏 新 旧 一 二 三 四 五 六 七 八 九 十 百 年 月 日。 BANNED — HSK 3+ vocabulary and patterns: 把, 被, 虽然...但是, 不但...而且, 如果...就, 只要...就, 越...越, 已经, 曾经, idioms, proverbs, and any formal written vocabulary.\n" +
+      "4. VOCABULARY LOCK — YOUR OWN Chinese uses ONLY clear HSK 1-2 words. This lock applies ONLY to your own Chinese — NEVER to the student's sentence, and NEVER to corrections (never replace a word the student used correctly just because it is above HSK 1-2). Safe words YOU may freely use: 我 你 他 她 我们 您 请 谢谢 再见 对不起 没关系 名字 学生 老师 朋友 同学 家人 医生 爸爸 妈妈 哥哥 姐姐 家 学校 商店 医院 中国 北京 米饭 茶 咖啡 水 苹果 水果 钱 衣服 电脑 手机 电影 今天 明天 昨天 早上 上午 中午 下午 晚上 现在 时候 星期 周末 几 什么 谁 哪儿 怎么 为什么 因为 所以 但是 和 跟 也 都 很 太 最 在 正在 有 没有 是 不 没 要 想 会 能 可以 喜欢 爱 觉得 知道 认识 说 听 看 读 写 吃 喝 去 来 回 买 卖 工作 学习 睡觉 起床 玩 看电视 打电话 大 小 多 少 贵 便宜 好吃 好喝 高兴 开心 忙 累 快 慢 热 冷 好 坏 新 旧 一 二 三 四 五 六 七 八 九 十 百 年 月 日。 BANNED from YOUR OWN Chinese — HSK 3+ vocabulary and patterns: 把, 被, 虽然...但是, 不但...而且, 如果...就, 只要...就, 越...越, 已经, 曾经, idioms, proverbs, and any formal written vocabulary.\n" +
       "5. GRAMMAR LOCK — allowed patterns only: statements with 是/有/在; 喜欢/想/会/要/能 + verb; 很/太 + adjective; 和/也/都; wh-questions (什么/谁/哪儿/怎么/为什么/几); 吗 yes/no questions; 吧 suggestions; simple past with 昨天 + 了 (lightly); 的 possession. No 把, no 被, no result complements, no 过 experiential, no conjunctions beyond 因为/所以/但是/和.\n" +
       "6. Always end with ONE simple follow-up question the student can answer with a few words.\n" +
-      "7. If the student writes in " + langName + ", answer in " + langName + " first in one line, then teach the Chinese for their exact sentence within the locks above.\n" +
+      "7. If the student writes in " + langName + ", answer in " + langName + " first in one line, then teach the Chinese for their exact MEANING — keep every word they used correctly (even if above HSK 1-2); the locks above apply ONLY to YOUR OWN Chinese.\n" +
       "8. Praise effort warmly; correct gently in one short " + langName + " line.\n" +
       "9. Vary your openings and structure every reply — never open with the same phrase twice.\n" +
       "10. Output format REQUIRED for every reply — Chinese first, then the translation on its own line starting with 'English:' (or your real language name):\n\n[one or two short Chinese sentences, each max 10 characters]\n\n" + langName + ": [natural translation of those Chinese sentences]\n";
@@ -18323,21 +18324,28 @@ function sendToGemini(userText) {
     // "Explanation: ..." line. DEFENSIVE: everything after a marker is dropped
     // so post-marker text can NEVER merge into the phrase or translation line
     // (the v159 correction leak and the v160 explanation leak).
-    let correctionText = '', correctionNote = '';
+    let correctionText = '', correctionNote = '', correctionEn = '';
+    // v161: the marker carries THREE fields — [CORRECTION: zh | note | en].
+    // 2-field markers (older replies / model non-compliance) still parse: the
+    // note takes field 2 and the translation falls back to translateToEnglish.
     const splitCorr = (s) => {
       const parts = String(s).split('|');
-      return { cn: (parts[0] || '').trim(), note: (parts.slice(1).join('|') || '').trim() };
+      return {
+        cn: (parts[0] || '').trim(),
+        note: (parts.length >= 3 ? (parts[1] || '') : (parts.slice(1).join('|') || '')).trim(),
+        en: (parts.length >= 3 ? (parts.slice(2).join('|') || '').trim() : '')
+      };
     };
     const corrMarkerM = reply.match(/\[CORRECTION:\s*([^\]]+)\]/i);
     if (corrMarkerM) {
       const c = splitCorr(corrMarkerM[1]);
-      correctionText = c.cn; correctionNote = c.note;
+      correctionText = c.cn; correctionNote = c.note; correctionEn = c.en;
       reply = reply.slice(0, corrMarkerM.index).trim();
     } else {
       const looseM = reply.match(/(?:^|\n)\s*Correction\s*[:：]?\s*([^\n]+)/i);
       if (looseM) {
         const c = splitCorr(looseM[1]);
-        correctionText = c.cn; correctionNote = c.note;
+        correctionText = c.cn; correctionNote = c.note; correctionEn = c.en;
         reply = reply.slice(0, looseM.index).trim();
       }
     }
@@ -18358,6 +18366,32 @@ function sendToGemini(userText) {
       .trim();
     if (correctionText && !/[\u4e00-\u9fa5]/.test(correctionText)) correctionText = '';
     correctionNote = correctionNote.replace(/\s{2,}/g, ' ').trim();
+
+    // v161: extract the "you can say" scaffold BEFORE the label/CJK split.
+    // Strict: [SAY: <Chinese for the student> | <its meaning>] at the end.
+    // Loose fallback: a lead-in line ("Sure, here's how to say it in Chinese:",
+    // "Great! You can say", "You can say") — dropped, capturing any Chinese
+    // trailing it as the student's sentence — so it never merges into the
+    // tutor's own phrase line (the "Tutor is named Joseph" bug).
+    let sayText = '', sayMeaning = '';
+    const sayMarkerM = reply.match(/\[SAY:\s*([^\]]+)\]/i);
+    if (sayMarkerM) {
+      const parts = sayMarkerM[1].split('|');
+      sayText = (parts[0] || '').trim();
+      sayMeaning = (parts.slice(1).join('|') || '').trim();
+      reply = reply.slice(0, sayMarkerM.index).trim();
+    } else {
+      const sayLeadRe = /(?:^|\n)[^\n]*(?:here['’]?s how to say|how to say it|you can say|how do you say)[^\n]*/gi;
+      let slm;
+      while ((slm = sayLeadRe.exec(reply)) !== null) {
+        const line = slm[0];
+        const cn = (line.match(/[\u4e00-\u9fa5][\u4e00-\u9fa5，。！？、；：]*/g) || []).join('');
+        if (cn && !sayText) sayText = cn;
+        reply = reply.replace(line, '\n');
+      }
+      reply = reply.replace(/\n{3,}/g, '\n\n').trim();
+    }
+    if (sayText && !/[\u4e00-\u9fa5]/.test(sayText)) sayText = '';
 
     // Strip internal control markers before display/speech/history
     const lvlMarkerM = reply.match(/\[LEVEL:\s*(never|beginner|intermediate|advanced)\s*\]/i);
@@ -18451,7 +18485,16 @@ function sendToGemini(userText) {
     };
     const cjkRegion = cnParts.map(s => stripPinyinParens(s)).filter(Boolean).join(' ');
     const runs = cjkScan(cjkRegion);
-    const phrase = runs.filter(r => r.t === 'cjk').map(r => r.s).join('').trim();
+    let phrase = runs.filter(r => r.t === 'cjk').map(r => r.s).join('').trim();
+    // v161: collapse accidental consecutive duplicate sentences (the model
+    // sometimes repeats itself: 我二十五岁。我二十五岁。).
+    if (phrase) {
+      const segs = phrase.split(/(?<=[。！？!?])/).map(s => s.trim()).filter(Boolean);
+      const dedup = [];
+      for (const sg of segs) { if (dedup[dedup.length - 1] !== sg) dedup.push(sg); }
+      const joined = dedup.join('');
+      if (joined && joined !== phrase) phrase = joined;
+    }
     const muteLine = runs.filter(r => r.t === 'mute').map(r => r.s).join(' ').replace(/\s{2,}/g, ' ').trim();
     
     // Speak & pronunciation target use ONLY the Chinese characters (never pinyin or English)
@@ -18522,13 +18565,52 @@ function sendToGemini(userText) {
     // as the you-line cards).
     if (correctionText && loaderCapsule) {
       const corrId = 'corr-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+      const corrTrId = corrId + '-tr';
+      // v161: the English comes from the marker's third field when present;
+      // translateToEnglish is only the fallback for a 2-field marker.
       const corrHtml = '<div class="coach-sec" style="border-top:1px dashed var(--border);margin-top:8px;padding:8px 0 2px">'
         + '<div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:4px"><i class="fas fa-pen-fancy"></i> ' + t('Correction') + '</div>'
         + '<div class="phrase" id="' + corrId + '">' + formatChineseTextWithRuby(correctionText) + '</div>'
+        + '<div class="tr" id="' + corrTrId + '" style="font-size:12px;color:var(--fg2);margin-top:2px">' + (correctionEn ? escapeHtml(correctionEn) : '<i class="fas fa-language"></i> ' + t('Translating...')) + '</div>'
         + '<span class="replay" onclick="speak(\'' + correctionText.replace(/'/g, "\\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>'
         + (correctionNote ? '<div style="font-size:12px;color:var(--muted);margin-top:4px">' + escapeHtml(correctionNote) + '</div>' : '')
         + '</div>';
       loaderCapsule.insertAdjacentHTML('beforeend', corrHtml);
+      if (!correctionEn) {
+        // v161: fill the correction's English translation (corrections never
+        // had one). Same translateToEnglish path as the phrase line.
+        translateToEnglish(correctionText).then(function(en) {
+          const el = document.getElementById(corrTrId);
+          if (el) el.textContent = en || t('(translation unavailable)');
+        }).catch(function() {
+          const el = document.getElementById(corrTrId);
+          if (el) el.textContent = t('(translation unavailable)');
+        });
+      }
+    }
+    // v161: the "you can say" scaffold card — the Chinese sentence the tutor
+    // wants the STUDENT to say (from the [SAY:] marker), its own card with the
+    // Chinese intact + replay, so the example never reads as the tutor's own
+    // line. Replay only; no auto-play.
+    if (sayText && loaderCapsule) {
+      const sayId = 'say-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+      const sayTrId = sayId + '-tr';
+      const sayHtml = '<div class="coach-sec" style="border-top:1px dashed var(--border);margin-top:8px;padding:8px 0 2px">'
+        + '<div style="font-size:12px;color:var(--blue);font-weight:700;margin-bottom:4px"><i class="fas fa-comment-dots"></i> ' + t('You can say') + '</div>'
+        + '<div class="phrase" id="' + sayId + '">' + formatChineseTextWithRuby(sayText) + '</div>'
+        + '<div class="tr" id="' + sayTrId + '" style="font-size:12px;color:var(--fg2);margin-top:2px">' + (sayMeaning ? escapeHtml(sayMeaning) : '<i class="fas fa-language"></i> ' + t('Translating...')) + '</div>'
+        + '<span class="replay" onclick="speak(\'' + sayText.replace(/'/g, "\\'") + '\')"><i class="fas fa-volume-high"></i> replay</span>'
+        + '</div>';
+      loaderCapsule.insertAdjacentHTML('beforeend', sayHtml);
+      if (!sayMeaning) {
+        translateToEnglish(sayText).then(function(en) {
+          const el = document.getElementById(sayTrId);
+          if (el) el.textContent = en || t('(translation unavailable)');
+        }).catch(function() {
+          const el = document.getElementById(sayTrId);
+          if (el) el.textContent = t('(translation unavailable)');
+        });
+      }
     }
     // If the model's reply has Chinese but no English translation was embedded, fetch one now
     // (v134) Whenever this bubble's translation is known, seed the live cache:

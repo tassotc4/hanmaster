@@ -411,6 +411,29 @@ async function persistShadowRow(segs, text, guardFired) {
       }]),
       signal: AbortSignal.timeout(1500)
     });
+    } catch (e) {}
+}
+
+// v161: chat provider log — per-reply serving bookkeeping, NO reply text
+// (privacy): which cascade model served, whether it was a fallback (i.e. not
+// the priority-1 model), and whether the reply contained a [CORRECTION:]
+// marker. Lets us correlate instruction-following failures with specific
+// cascade models over 1-2 weeks, then decide on prompt/provider changes.
+// Same awaited-with-timeout, fail-open shape as persistShadowRow — an
+// unawaited insert is lost when the serverless function freezes after the
+// response, so the reply waits <=1.5s for it; a Supabase outage never blocks
+// the chat.
+async function persistProviderLog(provider, wasFallback, hadCorrection) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) return;
+  const sbUrl = process.env.SUPABASE_URL || 'https://enisseoyaledojeuykbd.supabase.co';
+  try {
+    await fetch(sbUrl + '/rest/v1/chat_provider_log', {
+      method: 'POST',
+      headers: { 'apikey': serviceKey, 'Authorization': 'Bearer ' + serviceKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify([{ provider: provider || 'n/a', was_fallback: !!wasFallback, had_correction: !!hadCorrection }]),
+      signal: AbortSignal.timeout(1500)
+    });
   } catch (e) {}
 }
 
@@ -625,6 +648,9 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     }
     if (text) {
       logChatReply(servedModel, text);
+      // v161: persist WHICH provider served + fallback/correction flags (no
+      // text) — awaited so the row survives the serverless freeze.
+      await persistProviderLog(servedModel, servedModel !== ordered[0].model, /\[CORRECTION:/i.test(text));
       return res.json({ candidates: [{ content: { parts: [{ text }] } }] });
     }
     await bumpErrorCounter('chat_all_failed_503');

@@ -6,6 +6,16 @@
 // snapshot and captures upserts; /api/chat canned (conversation classified
 // by 'You are Li Laoshi' — baseRules also say 'professional translator').
 const { launch, BASE, waitFor, LAUNCH_ARGS } = require('../helpers/bootstrap.cjs');
+const fs = require('fs');
+const pathMod = require('path');
+// Track the shipped CHAT_RENDER_VERSION from supabase.js so a legitimate
+// bump (required whenever the bubble generator markup changes, e.g. v161)
+// doesn't silently break this gate — parse it, never hardcode it.
+const RV = (() => {
+  const src = fs.readFileSync(pathMod.join(__dirname, '..', '..', 'public', 'js', 'supabase.js'), 'utf8');
+  const m = src.match(/const CHAT_RENDER_VERSION = (\d+)/);
+  return m ? +m[1] : 1;
+})();
 
 const RESET_SRC = `
 localStorage.removeItem('__testChatSeed');
@@ -58,7 +68,7 @@ localStorage.setItem('beginner_mode', 'true');
 `;
 
 const SEED_FULL = {
-  v: 1, rv: 1, mode: 'live', level: 'beginner',
+  v: 1, rv: RV, mode: 'live', level: 'beginner',
   history: [
     { role: 'user', parts: [{ text: '我很好，谢谢！' }] },
     { role: 'model', parts: [{ text: '太好了！English: Great!' }] }
@@ -125,8 +135,8 @@ localStorage.setItem('tutor_mode', '${mode}');
   await waitFor(page, () => !!window.__chatUpsert, 10000);
   const snap = await page.evaluate(() => { const u = window.__chatUpsert; const c = JSON.parse(u.chat); return { chat: c, user: u.user_id }; });
   check('2. per-turn save: upsert with new turn + rv + html + user_id',
-    snap.chat.rv === 1 && snap.chat.mode === 'live' && JSON.stringify(snap.chat.history).indexOf('继续聊天吧') !== -1 && snap.chat.chatHtml.length > 10 && snap.user === 'fake-user',
-    'rv=' + snap.chat.rv + ' turns=' + snap.chat.history.length);
+    snap.chat.rv === RV && snap.chat.mode === 'live' && JSON.stringify(snap.chat.history).indexOf('继续聊天吧') !== -1 && snap.chat.chatHtml.length > 10 && snap.user === 'fake-user',
+    'rv=' + snap.chat.rv + ' expected=' + RV + ' turns=' + snap.chat.history.length);
 
   // --- 3. 40-turn cap
   await page.evaluate(() => {
@@ -141,7 +151,7 @@ localStorage.setItem('tutor_mode', '${mode}');
     'len=' + snap3.history.length + ' first=' + snap3.history[0].parts[0].text);
 
   // --- 4. Stale rv degrades to context-only restore
-  ({ page, errors } = await bootPage('live', { ...SEED_FULL, rv: 0 }));
+  ({ page, errors } = await bootPage('live', { ...SEED_FULL, rv: RV - 1 }));
   await waitFor(page, () => window._chatRestored === true, 10000);
   const r4 = await page.evaluate(() => ({
     hist: geminiHistory.length,

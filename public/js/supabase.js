@@ -200,7 +200,7 @@ const CHAT_SNAPSHOT_MAX_TURNS = 40;
 // ruby pinyin computed at save time, and inline onclick="speak(...)").
 // On mismatch, restore degrades to context-only (history loads, chat panel
 // renders a fresh note instead of stale markup).
-const CHAT_RENDER_VERSION = 1;
+const CHAT_RENDER_VERSION = 2;
 // Verdict handshake (armed at script load, BEFORE app.js runs): boot-time
 // live session starters (openTopicLesson's live branch auto-fires at boot
 // via the lesson-tab UI) must wait for the restore verdict before starting a
