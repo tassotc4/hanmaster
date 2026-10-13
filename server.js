@@ -1722,6 +1722,35 @@ app.post('/api/buffer/channels', async (req, res) => {
   }
 });
 
+// Helper to sanitize post text so it always has EXACTLY 2 hashtags
+function formatTextWithTwoHashtags(text) {
+  if (!text) return '';
+  const hashtagRegex = /#[\w\u4e00-\u9fa5]+/g;
+  const matches = text.match(hashtagRegex) || [];
+  
+  if (matches.length === 2) {
+    return text.trim();
+  }
+  
+  // Strip out all existing hashtags first
+  let cleanedText = text.replace(hashtagRegex, '').replace(/\s+/g, ' ').trim();
+  
+  if (matches.length > 2) {
+    // Keep first 2 hashtags
+    return `${cleanedText}
+
+${matches[0]} ${matches[1]}`;
+  } else if (matches.length < 2) {
+    // Use standard curated hashtags if 0 or 1 provided
+    const h1 = matches[0] || '#LearnMandarin';
+    const h2 = matches[0] === '#MandarinCourse' ? '#LearnChinese' : '#MandarinCourse';
+    return `${cleanedText}
+
+${h1} ${h2}`;
+  }
+  return text.trim();
+}
+
 // Endpoint to post to Buffer
 app.post('/api/buffer/post', async (req, res) => {
   const { key, channelIds, text, mediaUrl, mode, dueAt, pinterestBoardIds } = req.body || {};
@@ -1734,6 +1763,12 @@ app.post('/api/buffer/post', async (req, res) => {
   if (!text) {
     return res.status(400).json({ error: 'Post text content is required' });
   }
+  if (!mediaUrl || !mediaUrl.trim()) {
+    return res.status(400).json({ error: 'All Buffer posts must be image posts. Text-only posts are strictly prohibited.' });
+  }
+
+  // Enforce exactly 2 hashtags on all Buffer posts
+  const sanitizedText = formatTextWithTwoHashtags(text);
 
   try {
     // 1. Fetch channel services to know which channels are Facebook, Pinterest, etc.
@@ -1782,7 +1817,7 @@ app.post('/api/buffer/post', async (req, res) => {
     const results = [];
     for (const channelId of channelIds) {
       const input = {
-        text: text,
+        text: sanitizedText,
         channelId: channelId,
         schedulingType: mode === 'customScheduled' ? 'custom' : 'automatic',
         mode: mode || 'addToQueue'
@@ -1790,31 +1825,30 @@ app.post('/api/buffer/post', async (req, res) => {
       if (mode === 'customScheduled' && dueAt) {
         input.dueAt = dueAt;
       }
-      if (mediaUrl) {
-        let absoluteMediaUrl = mediaUrl;
-        if (mediaUrl.startsWith('/')) {
-          const host = req.get('host');
-          const protocol = req.protocol;
-          absoluteMediaUrl = `${protocol}://${host}${mediaUrl}`;
-        }
-        const isVideo = /\.(mp4|mov|webm|ogg|m4v|3gp)($|\?)/i.test(mediaUrl);
-        if (isVideo) {
-          input.assets = [
-            {
-              video: {
-                url: absoluteMediaUrl
-              }
+      
+      let absoluteMediaUrl = mediaUrl;
+      if (mediaUrl.startsWith('/')) {
+        const host = req.get('host');
+        const protocol = req.protocol;
+        absoluteMediaUrl = `${protocol}://${host}${mediaUrl}`;
+      }
+      const isVideo = /\.(mp4|mov|webm|ogg|m4v|3gp)($|\?)/i.test(mediaUrl);
+      if (isVideo) {
+        input.assets = [
+          {
+            video: {
+              url: absoluteMediaUrl
             }
-          ];
-        } else {
-          input.assets = [
-            {
-              image: {
-                url: absoluteMediaUrl
-              }
+          }
+        ];
+      } else {
+        input.assets = [
+          {
+            image: {
+              url: absoluteMediaUrl
             }
-          ];
-        }
+          }
+        ];
       }
 
       // Add platform specific metadata
@@ -1836,7 +1870,7 @@ app.post('/api/buffer/post', async (req, res) => {
         input.metadata = {
           pinterest: {
             boardServiceId: boardId,
-            title: text.substring(0, 100),
+            title: sanitizedText.substring(0, 100),
             url: "https://mandarincourse.app"
           }
         };
@@ -1877,9 +1911,11 @@ app.post('/api/social/generate-viral-content', async (req, res) => {
 
 Generate content specifically targeted for English speakers who are learning Chinese. The post must be educational, interactive, fun, and designed to maximize shares, bookmarks/saves, and comments.
 
+CRITICAL HASHTAG RULE: Include EXACTLY 2 relevant hashtags at the end of the post text (for example: #LearnMandarin #MandarinCourse). Do NOT include more or less than 2 hashtags under any circumstances.
+
 Provide your output ONLY as a valid JSON object with the following fields:
 {
-  "text": "The actual post content formatted with appropriate spacing, eye-catching emojis, clear Chinese characters with pinyin and English translation, and a natural call-to-action to try mandarincourse.app.",
+  "text": "The actual post content formatted with appropriate spacing, eye-catching emojis, clear Chinese characters with pinyin and English translation, a natural call-to-action to try mandarincourse.app, and EXACTLY 2 hashtags at the end.",
   "hookExplanation": "A short sentence explaining the viral hook or psychology behind this post.",
   "imageSuggestion": "A brief prompt describing what visual or graphic should accompany this post to make it perform best."
 }

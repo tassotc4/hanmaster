@@ -771,6 +771,10 @@ function publishToBuffer() {
   }
   
   const mediaUrl = document.getElementById('postImageUrl').value;
+  if (!mediaUrl || !mediaUrl.trim()) {
+    alert("All posts created on Buffer must be image posts. Please upload an image or provide an Image URL.");
+    return;
+  }
   const mode = document.getElementById('scheduleMode').value;
   
   let dueAt = null;
